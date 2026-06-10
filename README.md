@@ -11,6 +11,8 @@ of this project is automatically **aligning the two**, slide-by-slide, across al
 
 **🔗 Live site:** <https://az9713.github.io/cme296-slide-transcipt-sync/>
 
+[![Index of all 8 lectures](front.jpg)](https://az9713.github.io/cme296-slide-transcipt-sync/)
+
 > **Models used.**
 > - The **website** — the slide↔transcript lecture pages, the alignment
 >   pipeline, the layout, and the styling — was generated with Anthropic's
@@ -46,6 +48,11 @@ or clone the repo and open **`site/index.html`** in a browser.
   timestamped paragraphs. Each timestamp links to `youtube.com/watch?v=…&t=Ns`.
   Transcript chapter banners divide the page, with a collapsible chapter index at
   the top, plus prev/next navigation and links to the original PDF and video.
+
+![A slide matched to its transcript section, with timestamps](sample.jpg)
+
+*Each slide (left) is aligned to the transcript passage where it is discussed
+(right); the timestamps link into the lecture video.*
 
 ---
 
