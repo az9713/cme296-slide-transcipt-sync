@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 8: Trending topics — CME 296: Diffusion &amp; Large Vision Models</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<p class="course"><a href="index.html">CME 296: Diffusion &amp; Large Vision Models</a></p>
+<h1>Lecture 8: Trending topics</h1>
+<p class="meta">May 29th, 2026 &middot;
+<a href="https://cme296.stanford.edu/slides/spring26-cme296-lecture8.pdf" target="_blank" rel="noopener">Slides (PDF)</a> &middot;
+<a href="https://www.youtube.com/watch?v=oyLUvz9nR6E" target="_blank" rel="noopener">Video on YouTube</a></p>
+<nav class="lnav"><a href="lecture7.html">&larr; Lecture 7</a><a href="index.html">All lectures</a><span></span></nav>
+</div>
+</header>
+<details class="toc wrap"><summary>Chapters</summary><p><a href="#ch-Introduction">Introduction</a> &middot; <a href="#ch-Diffusion">Diffusion</a> &middot; <a href="#ch-Score-matching">Score matching</a> &middot; <a href="#ch-Flow-matching">Flow matching</a> &middot; <a href="#ch-Latent-space-and-guidance">Latent space and guidance</a> &middot; <a href="#ch-Image-generation-architectures">Image generation architectures</a> &middot; <a href="#ch-Model-training">Model training</a> &middot; <a href="#ch-Evaluation">Evaluation</a> &middot; <a href="#ch-State-of-the-art-models">State-of-the-art models</a> &middot; <a href="#ch-Video-generation-models">Video generation models</a> &middot; <a href="#ch-Image-editing">Image editing</a> &middot; <a href="#ch-Diffusion-for-LLMs">Diffusion for LLMs</a> &middot; <a href="#ch-Closing-thoughts">Closing thoughts</a></p></details>
+<main class="wrap">
+<div class="chapter" id="ch-Introduction"><span>Introduction</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5s" target="_blank" rel="noopener">0:05</a></div><section class="row" id="s0">
+<figure>
+<a href="slides/l8/p001.jpg" target="_blank">
+<img src="slides/l8/p001.jpg" alt="Slide p. 1: CME 296: Diﬀusion &amp;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 1 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5s" target="_blank" rel="noopener" title="Watch on YouTube from 0:05">&#9658; 0:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5s" target="_blank" rel="noopener">0:05</a> Hello, everyone. And welcome to lecture 8 of CME 296. So today is a special day because as you know, today is the last lecture of this entire class. So the menu for today will be a little bit different. What we&#x27;ll do is we&#x27;ll divide this lecture into two parts. In the first part, we&#x27;ll try to piece together everything we&#x27;ve seen in the class up until now</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=36s" target="_blank" rel="noopener">0:36</a> and see what we can take away from it. And in the second part, what we&#x27;ll look at</p>
+</div>
+</section><section class="row" id="s1">
+<figure>
+<a href="slides/l8/p002.jpg" target="_blank">
+<img src="slides/l8/p002.jpg" alt="Slide p. 2: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 2 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=43s" target="_blank" rel="noopener" title="Watch on YouTube from 0:43">&#9658; 0:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=43s" target="_blank" rel="noopener">0:43</a> is adjacent fields where we can apply what we&#x27;ve have learned.</p>
+</div>
+</section><section class="row" id="s2">
+<figure>
+<a href="slides/l8/p004.jpg" target="_blank">
+<img src="slides/l8/p004.jpg" alt="Slide pp. 3–4: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 3–4 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=49s" target="_blank" rel="noopener" title="Watch on YouTube from 0:49">&#9658; 0:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=49s" target="_blank" rel="noopener">0:49</a> Does that sound good to you? So with that, what we&#x27;ll do is we&#x27;ll start with the first part, which is just piecing together everything we&#x27;ve seen this quarter. And the whole goal of this class has been to learn how to generate images. So, for instance, given an input prompt, how can we generate an image that is quite aligned with the prompt as input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=81s" target="_blank" rel="noopener">1:21</a> And of course, there is just a lot of dimensions we can look at. So this class has been about decomposing the fact of learning how it works into tractable parts. And if you remember, the first three lectures</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=98s" target="_blank" rel="noopener">1:38</a> were about just understanding how we could generate images. Just let&#x27;s suppose we have a black box model. What is the paradigm that would allow us to just generate images. So the first lecture was about diffusion, just learning how we could do that using the diffusion paradigm. And if you remember the first thing we said was,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=129s" target="_blank" rel="noopener">2:09</a> what could be a good starting point for us to generate those images? So if you think about it, the images that we want to generate they are a part of a data distribution that we do not know. And that data distribution can be complex, and it&#x27;s difficult to sample from it. So one thing we said was, what are some distributions</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=155s" target="_blank" rel="noopener">2:35</a> that we know how to sample from? So one such distribution was the Gaussian distribution. And what we said was maybe in order for us to sample from this complicated data distribution, one thing we could do could be to sample from an easy distribution and then</p>
+</div>
+</section><div class="chapter" id="ch-Diffusion"><span>Diffusion</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=178s" target="_blank" rel="noopener">2:58</a></div><section class="row" id="s3">
+<figure>
+<a href="slides/l8/p005.jpg" target="_blank">
+<img src="slides/l8/p005.jpg" alt="Slide p. 5: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 5 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=178s" target="_blank" rel="noopener" title="Watch on YouTube from 2:58">&#9658; 2:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=178s" target="_blank" rel="noopener">2:58</a> make our way up to the complicated data distribution. So in this first lecture, what we said was let&#x27;s represent images with just a multi-dimension variables that we could denote x.</p>
+</div>
+</section><section class="row" id="s4">
+<figure>
+<a href="slides/l8/p006.jpg" target="_blank">
+<img src="slides/l8/p006.jpg" alt="Slide p. 6: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 6 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=194s" target="_blank" rel="noopener" title="Watch on YouTube from 3:14">&#9658; 3:14</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=194s" target="_blank" rel="noopener">3:14</a> And what we said was in order for us to learn how to go from Gaussian noise</p>
+</div>
+</section><section class="row" id="s5">
+<figure>
+<a href="slides/l8/p007.jpg" target="_blank">
+<img src="slides/l8/p007.jpg" alt="Slide p. 7: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 7 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=204s" target="_blank" rel="noopener" title="Watch on YouTube from 3:24">&#9658; 3:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=204s" target="_blank" rel="noopener">3:24</a> to clean images, what we&#x27;ll do is we will come up with a forward process that we define that will allow us to corrupt clean images into noise. And the purpose of diffusion is to learn how to reverse that process. So if you remember, the forward process</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=227s" target="_blank" rel="noopener">3:47</a> was a nice formulation that involves also Gaussian distributions. And so in order for us to derive the form of that reverse process, what we did was we tried to maximize the likelihood of seeing the data</p>
+</div>
+</section><section class="row" id="s6">
+<figure>
+<a href="slides/l8/p008.jpg" target="_blank">
+<img src="slides/l8/p008.jpg" alt="Slide p. 8: Expand terms" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 8 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=250s" target="_blank" rel="noopener" title="Watch on YouTube from 4:10">&#9658; 4:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=250s" target="_blank" rel="noopener">4:10</a> distribution under p theta. And we went through several steps that allowed us to derive a loss. So if you remember what we said was maximizing the likelihood is actually not tractable. So what we do is we derive a tractable lower bound, which was something where we used the forward process that we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=275s" target="_blank" rel="noopener">4:35</a> defined in it. So this lower bound is called ELBO. And what we did is we expanded the terms within that lower bound.</p>
+</div>
+</section><section class="row" id="s7">
+<figure>
+<a href="slides/l8/p009.jpg" target="_blank">
+<img src="slides/l8/p009.jpg" alt="Slide p. 9: Expand terms" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 9 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=287s" target="_blank" rel="noopener" title="Watch on YouTube from 4:47">&#9658; 4:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=287s" target="_blank" rel="noopener">4:47</a> And we showed that we could actually compute it. It was actually tractable. And we ended up with a loss on us trying to estimate the noise that was added to a given image through this very simple L2 regression loss, which had a noised image as input along with its noise level. And what it was trying to do was to estimate the amount of noise that was added to the image</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=320s" target="_blank" rel="noopener">5:20</a> or to the noisy image, I should say. So this was a first way of looking at things.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=328s" target="_blank" rel="noopener">5:28</a> So diffusion allowed us to go from an easy to sample from distribution, so the Gaussian distribution to the data distribution by learning how to remove the noise. The second lecture was about another way of doing things, which was let&#x27;s look at this data distribution, not from noise that you need to remove, but more in terms of where you need to go.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=363s" target="_blank" rel="noopener">6:03</a> And we looked at a quantity called the score, which was defined as the gradient of the log of p.</p>
+</div>
+</section><div class="chapter" id="ch-Score-matching"><span>Score matching</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=371s" target="_blank" rel="noopener">6:11</a></div><section class="row" id="s8">
+<figure>
+<a href="slides/l8/p010.jpg" target="_blank">
+<img src="slides/l8/p010.jpg" alt="Slide p. 10: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 10 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=371s" target="_blank" rel="noopener" title="Watch on YouTube from 6:11">&#9658; 6:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=371s" target="_blank" rel="noopener">6:11</a> And we saw that that quantity had nice properties. And in particular, it allowed us to not worry about that normalizing constant that is intractable. And what the score was telling us was where to go in order to land at that data distribution. And in particular, there was a nice formula from Langevin dynamics, which basically</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=398s" target="_blank" rel="noopener">6:38</a> said that if you knew how to compute the score, then what you could do is sample from noise and make your way to the data distribution. So the whole goal of this lecture was to derive a way to estimate that score. So the problem is the score is not the quantity that we know.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=425s" target="_blank" rel="noopener">7:05</a> So what we did was have a way to introduce the Gaussian distribution to some extent so that we can leverage the properties that we know from the Gaussian distribution. And in particular, the fact that we knew how to compute in an analytical way the score of a Gaussian distribution. So what we did is we took observation from the target data</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=456s" target="_blank" rel="noopener">7:36</a> distributions. And what we did is we noised them. And then we looked at how we could estimate the score of the noise distribution. So we saw that it was something that we could actually compute. But then there was a trade off. The more noise you would put in the data distribution,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=480s" target="_blank" rel="noopener">8:00</a> the more your noise data distribution would be far from the data distribution of interest. But then when you do that, you&#x27;re able to estimate the score of the noise data distribution quite easily. So you have a trade off of you can compute the quantity, but it&#x27;s not the quantity that you actually want versus if you have only a small amount of noise,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=509s" target="_blank" rel="noopener">8:29</a> then the score of that low noise data distribution is actually not something that you can estimate very well. But the target that you want to estimate is closer to the actual quantity that you want. So you had this trade off, and what we said was, well, how about we estimate the score, not just</p>
+</div>
+</section><section class="row" id="s9">
+<figure>
+<a href="slides/l8/p012.jpg" target="_blank">
+<img src="slides/l8/p012.jpg" alt="Slide pp. 11–12: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 11–12 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=535s" target="_blank" rel="noopener" title="Watch on YouTube from 8:55">&#9658; 8:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=535s" target="_blank" rel="noopener">8:55</a> as a function of where we are in space, but also as a function of data distribution is.</p>
+</div>
+</section><section class="row" id="s10">
+<figure>
+<a href="slides/l8/p014.jpg" target="_blank">
+<img src="slides/l8/p014.jpg" alt="Slide pp. 13–14: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 13–14 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=545s" target="_blank" rel="noopener" title="Watch on YouTube from 9:05">&#9658; 9:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=545s" target="_blank" rel="noopener">9:05</a> And we ended up with the de-noising score matching loss, which allowed us to estimate the score of that noisy distribution, given a noisy image and a noise level. And once we did that, we actually saw that this way of looking at things was actually very similar to the way we did in the first lecture</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=573s" target="_blank" rel="noopener">9:33</a> with diffusion. And we saw that actually the score of the forward process is equal to minus the noise that you added over some coefficient. So both approaches led to similar formulations. And we saw that we actually had this identity. And then what we did was just realized</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=601s" target="_blank" rel="noopener">10:01</a> that the way we were noising our data distribution was in a discrete way, and that there are many choices that you had to take at the very beginning, such as how many steps you want to take and so on. And so this motivated us to move from discrete formulation to a continuous formulation. So we derived the continuous formulation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=631s" target="_blank" rel="noopener">10:31</a> of the forward process, which allowed us to come up with this stochastic differential equation, which is the delta in position during the forward process, which is equal to a drift term that is deterministic, plus a diffusion term, which is stochastic. And here we&#x27;re using the continuous equivalent of the noise, which as we saw was the Wiener process, dW.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=664s" target="_blank" rel="noopener">11:04</a> And you could actually figure out how to move your x when you want it to noise it with respect to these two terms. And we actually saw that the first approach that we looked at in the first lecture and then the second approach that we looked at here were actually special cases of this more generic formula.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=694s" target="_blank" rel="noopener">11:34</a> In particular, the DDPM formulation from lecture 1 was a variance-preserving formulation, whereas the one that we saw with the noise condition score networks was actually a variance exploding formulation.</p>
+</div>
+</section><section class="row" id="s11">
+<figure>
+<a href="slides/l8/p015.jpg" target="_blank">
+<img src="slides/l8/p015.jpg" alt="Slide p. 15: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 15 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=713s" target="_blank" rel="noopener" title="Watch on YouTube from 11:53">&#9658; 11:53</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=713s" target="_blank" rel="noopener">11:53</a> And then what we did was OK, our goal is not just to noise images. Our goal is to learn the reverse process. And so in order to do that, the nice thing was that in the &#x27;80s, we have a nice results that told us that for a given forward process, you could have a corresponding</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=738s" target="_blank" rel="noopener">12:18</a> reverse process where you actually needed to know the score, which is actually the quantity that we&#x27;re estimating here. So what we had to do was just to estimate the score in order to reverse the process. So long story short, lecture 1 we saw in order to go from noise to clean, we need to predict the noise to remove.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=764s" target="_blank" rel="noopener">12:44</a> In lecture 2, we said, in order to go from noise to clean, we need to know where we want to move towards, which is the score. You can think of the score as a compass that tells you where the data distribution is located.</p>
+</div>
+</section><div class="chapter" id="ch-Flow-matching"><span>Flow matching</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=782s" target="_blank" rel="noopener">13:02</a></div><section class="row" id="s12">
+<figure>
+<a href="slides/l8/p016.jpg" target="_blank">
+<img src="slides/l8/p016.jpg" alt="Slide p. 16: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 16 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=782s" target="_blank" rel="noopener" title="Watch on YouTube from 13:02">&#9658; 13:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=782s" target="_blank" rel="noopener">13:02</a> And then we ended up in the third lecture with a third way of looking at things, which is the flow matching formulation, which actually framed the problem in a different way. So what we did there was to consider the noisy distribution</p>
+</div>
+</section><section class="row" id="s13">
+<figure>
+<a href="slides/l8/p017.jpg" target="_blank">
+<img src="slides/l8/p017.jpg" alt="Slide p. 17: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 17 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=803s" target="_blank" rel="noopener" title="Watch on YouTube from 13:23">&#9658; 13:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=803s" target="_blank" rel="noopener">13:23</a> in the beginning as just an initial distribution, and the data distribution of interest was just a target distribution. And the goal for us was to figure out how to move your probability density from an initial distribution to a target distribution. So that&#x27;s the flow matching way of looking at things. It&#x27;s the point of view of mass transport.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=836s" target="_blank" rel="noopener">13:56</a> And in particular, there was one quantity that was very important, which is called the vector field or the velocity, which is denoted Ut of x. It is a vector that is defined at every position and at all time t. And what we saw was that in order to move each observations from one point to another, what we had to do was to just follow the vector field.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=866s" target="_blank" rel="noopener">14:26</a> So we had this microscopic way of looking at things, which is the ODE that you see here. So the dx over dt, which is equal to the vector field at that time t and at position x. And we also had a second way of looking at this same thing. So the first formulation is the microscopic formulation, which is what is happening to your individual particles.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=897s" target="_blank" rel="noopener">14:57</a> The second way of looking at this same thing is at the macro level, where what you say is the evolution of the probability at a given time t is equal to minus the probability flux, which is what constitutes the continuity equation, which just</p>
+</div>
+</section><section class="row" id="s14">
+<figure>
+<a href="slides/l8/p018.jpg" target="_blank">
+<img src="slides/l8/p018.jpg" alt="Slide p. 18: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 18 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=921s" target="_blank" rel="noopener" title="Watch on YouTube from 15:21">&#9658; 15:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=921s" target="_blank" rel="noopener">15:21</a> tells you that you&#x27;re not losing anything between time t equals 0 and 1.</p>
+</div>
+</section><section class="row" id="s15">
+<figure>
+<a href="slides/l8/p019.jpg" target="_blank">
+<img src="slides/l8/p019.jpg" alt="Slide p. 19: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 19 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=928s" target="_blank" rel="noopener" title="Watch on YouTube from 15:28">&#9658; 15:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=928s" target="_blank" rel="noopener">15:28</a> And the whole point of us going into these formulas was for us to figure out a vector field which would allow us to go from this initial distribution to this target data distribution. So this was the whole point. And in particular, let&#x27;s assume you know the vector field that you want to estimate. The strategy here would be to have a model that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=963s" target="_blank" rel="noopener">16:03</a> estimates the vector field. So here, Ut theta of x. So let&#x27;s assume you learn such a model. If you do learn such a model, then in order to sample from the complicated data distribution which is p1, what you need to do is to just sample from your easy data distribution p0 and then numerically</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=990s" target="_blank" rel="noopener">16:30</a> solve the [INAUDIBLE] here between times 0 [INAUDIBLE] using the vector field that you have learned. And we saw that it&#x27;s actually something that you can do in practice if you construct the target vector field in a way that makes it tractable. So we saw conditional probability paths,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1021s" target="_blank" rel="noopener">17:01</a> which were an easier way of looking at this, which is we don&#x27;t know what the vector field in the general case. How about if we look at a simpler case where we want to move the initial data distribution, not to the target data distribution, but to a single point, which was the conditional probability path that we saw? And we saw that we could obtain a conditional flow matching</p>
+</div>
+</section><section class="row" id="s16">
+<figure>
+<a href="slides/l8/p021.jpg" target="_blank">
+<img src="slides/l8/p021.jpg" alt="Slide pp. 20–21: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 20–21 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1054s" target="_blank" rel="noopener" title="Watch on YouTube from 17:34">&#9658; 17:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1054s" target="_blank" rel="noopener">17:34</a> loss that was equivalent to you learning the vector field that was the aggregate of all these conditional vector fields that allowed you to solve the problem of interest. So these first three lectures were by far the most mathematically challenging. I hope what I said made sense. We spent six hours on this. And I hope I did a good job in 10 minutes to just recap what we did.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1084s" target="_blank" rel="noopener">18:04</a> At the end of it, I just want you to remember that so we&#x27;re in 2026. People nowadays they use flow matching by default. And so if you just want to have something that you want to really master perfectly, I would recommend just really understanding the flow matching part because this is what most models nowadays use.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1112s" target="_blank" rel="noopener">18:32</a> In particular, they use a variant that we saw that&#x27;s called the rectified flow variant, which was an extension of this that allowed the path to be straighter, so that at inference time, you could afford having fewer steps in the numerical solver here so that you can just sample images with fewer steps.</p>
+</div>
+</section><section class="row" id="s17">
+<figure>
+<a href="slides/l8/p022.jpg" target="_blank">
+<img src="slides/l8/p022.jpg" alt="Slide p. 22: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 22 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1143s" target="_blank" rel="noopener" title="Watch on YouTube from 19:03">&#9658; 19:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1143s" target="_blank" rel="noopener">19:03</a> Oof. So first three lectures, mathematically challenging.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1148s" target="_blank" rel="noopener">19:08</a> It was purely for us to learn a paradigm to generate images. But up until that point, we assumed two things. So the first one is we assumed that we were generating images in an unconditioned way. So we didn&#x27;t have any input prompts. We did not worry about this. And the second thing was we just assumed that we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1176s" target="_blank" rel="noopener">19:36</a> had a way to represent images. So we just represented them with x with, I don&#x27;t know,</p>
+</div>
+</section><div class="chapter" id="ch-Latent-space-and-guidance"><span>Latent space and guidance</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1182s" target="_blank" rel="noopener">19:42</a></div><section class="row" id="s18">
+<figure>
+<a href="slides/l8/p023.jpg" target="_blank">
+<img src="slides/l8/p023.jpg" alt="Slide p. 23: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 23 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1182s" target="_blank" rel="noopener" title="Watch on YouTube from 19:42">&#9658; 19:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1182s" target="_blank" rel="noopener">19:42</a> n dimensional vector. But we did not see what representation would make sense. And this was the focus of lecture 4, which was titled latent space and guidance. And what we saw there was, well, in order to have a meaningful representation of your images, what you want is to have a way to keep only the useful stuff.</p>
+</div>
+</section><section class="row" id="s19">
+<figure>
+<a href="slides/l8/p024.jpg" target="_blank">
+<img src="slides/l8/p024.jpg" alt="Slide p. 24: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 24 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1214s" target="_blank" rel="noopener" title="Watch on YouTube from 20:14">&#9658; 20:14</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1214s" target="_blank" rel="noopener">20:14</a> So how do you do that? Well, in pixel space, you see that you have a pretty large amount of spatial correlation, which means that if you look at a pixel, a lot of the surrounding pixels are more or less of that value. So you can imagine that there is a lot of redundant information in there. So that&#x27;s number 1. And number 2 is in the pixel space, well,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1243s" target="_blank" rel="noopener">20:43</a> the dimensionality is pretty high. So given that the model that you&#x27;re going to build from it is going to be a function of the dimension of your input, what you want to do is to make sure your input is not too big. So you want to compress the input into something that is only keeping you the useful bits. And in order for us to do that, we looked at a model that was called an autoencoder, whose</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1278s" target="_blank" rel="noopener">21:18</a> only goal was to learn a way to represent images into a smaller space. That&#x27;s called the latent space. So here on the slide, you see that you have the image in the pixel space as inputs. And then you have an encoder that does some downsampling operations that gets you some representation of the input image, not in the pixel space, but in a lower dimensional</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1309s" target="_blank" rel="noopener">21:49</a> space, which is the latent space. And what you do here is to use that lower dimensional representation in order to reconstruct your input. So you have a proxy task, which is how can you reconstruct the input as best as you can by going through this bottleneck. And when you do that, you are indeed</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1338s" target="_blank" rel="noopener">22:18</a> able to learn a latent space that compresses the information into just fewer dimensions. But then the problem that we encountered was that if you did that, you had no way of controlling the shape of the latent space. And in particular, if you want to learn how to generate images, what you want is to have an easy time at learning it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1368s" target="_blank" rel="noopener">22:48</a> So you don&#x27;t want a space with spikes here and there and then nothing in between. So what you want is something more at the top of the slide, which is a data distribution that is more compact and well put together. So in order for us to do that, what we did was go back to the way we formulated things</p>
+</div>
+</section><section class="row" id="s20">
+<figure>
+<a href="slides/l8/p026.jpg" target="_blank">
+<img src="slides/l8/p026.jpg" alt="Slide pp. 25–26: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 25–26 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1396s" target="_blank" rel="noopener" title="Watch on YouTube from 23:16">&#9658; 23:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1396s" target="_blank" rel="noopener">23:16</a> and add a constraint for us to regularize the latent space. And this was the VAE that we saw-- the variational autoencoder-- which allowed us to structure the latent space in a way that would make our lives easier. And we saw that in order to derive a loss for us to learn that model, we use the same trick as lecture 1, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1428s" target="_blank" rel="noopener">23:48</a> leverages the ELBO. So the evidence lower bound. I&#x27;m not going to go into details. But one thing I wanted to say here is we ended up with a loss that had two terms. One was the pixel-wise reconstruction loss, which we had previously, but also a second term that was aiming at structuring the latent space as much as possible to a certain distribution that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1458s" target="_blank" rel="noopener">24:18</a> was called the prior distribution, p of z, so that we can have something that looks a little bit more like the top one. Cool. So that was really the focus of that session. And we also learned how to represent the input. So we saw different encoders, in particular transformer-based encoders, including the VIT-- vision transformer.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1484s" target="_blank" rel="noopener">24:44</a> And then we saw that there are ways to combine different modalities in the same space,</p>
+</div>
+</section><section class="row" id="s21">
+<figure>
+<a href="slides/l8/p027.jpg" target="_blank">
+<img src="slides/l8/p027.jpg" alt="Slide p. 27: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 27 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1490s" target="_blank" rel="noopener" title="Watch on YouTube from 24:50">&#9658; 24:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1490s" target="_blank" rel="noopener">24:50</a> for instance, with CLIP using a contrastive loss. And then we also saw methods to incentivize our generation to be more aligned with our condition. And here, if you remember, we looked at classifier-free guidance that allowed us to do that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1511s" target="_blank" rel="noopener">25:11</a> Cool. So up until that point, we knew how to generate images in terms of the way we wanted to go about doing this. We knew how to represent the inputs.</p>
+</div>
+</section><div class="chapter" id="ch-Image-generation-architectures"><span>Image generation architectures</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1524s" target="_blank" rel="noopener">25:24</a></div><section class="row" id="s22">
+<figure>
+<a href="slides/l8/p028.jpg" target="_blank">
+<img src="slides/l8/p028.jpg" alt="Slide p. 28: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 28 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1524s" target="_blank" rel="noopener" title="Watch on YouTube from 25:24">&#9658; 25:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1524s" target="_blank" rel="noopener">25:24</a> And we knew how to represent our noisy latents. Well, now the question is, what model are you actually going to use to do that? And this was lecture 5, which was on image generation architectures. And here we took a step back and just reminded ourselves of the problem that we have at hand, which is we have a model.</p>
+</div>
+</section><section class="row" id="s23">
+<figure>
+<a href="slides/l8/p029.jpg" target="_blank">
+<img src="slides/l8/p029.jpg" alt="Slide p. 29: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 29 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1553s" target="_blank" rel="noopener" title="Watch on YouTube from 25:53">&#9658; 25:53</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1553s" target="_blank" rel="noopener">25:53</a> And what we want to do is to predict a quantity that will allow us to go from noise to clean. So as I mentioned, the paradigm that is by far the most common these days is the flow matching paradigm. So it&#x27;s, in particular, a model that would predict the velocity. So what we want is a generation model that takes in a noise level, the condition of interest,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1584s" target="_blank" rel="noopener">26:24</a> like your user prompt, and then your noisy latent as inputs</p>
+</div>
+</section><section class="row" id="s24">
+<figure>
+<a href="slides/l8/p030.jpg" target="_blank">
+<img src="slides/l8/p030.jpg" alt="Slide p. 30: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 30 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1590s" target="_blank" rel="noopener" title="Watch on YouTube from 26:30">&#9658; 26:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1590s" target="_blank" rel="noopener">26:30</a> in order to predict the velocity. And we saw that one popular architecture was the U-Net, which was composed of two main parts. The first one was a downsampling part, which allowed to gain a global understanding of the inputs through downsampling operations, which allowed its receptive field to be bigger and bigger.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1620s" target="_blank" rel="noopener">27:00</a> So here what we mean is when you compute the activation map, if you take a single value, what we&#x27;re saying is that that value was a result of a pretty wide input. So that&#x27;s the downsampling part. And then the upsampling part was just a way for us to match the shape that we wanted. And we had this copy and crop connections that allowed us to transfer lower level details that</p>
+</div>
+</section><section class="row" id="s25">
+<figure>
+<a href="slides/l8/p031.jpg" target="_blank">
+<img src="slides/l8/p031.jpg" alt="Slide p. 31: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 31 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1653s" target="_blank" rel="noopener" title="Watch on YouTube from 27:33">&#9658; 27:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1653s" target="_blank" rel="noopener">27:33</a> were computed as part of the downsampling operation. So this was the U-Net. But of course, you know that in 2017, transformers just took the whole field by storm. And there was more and more models that were relying on the transformer and the self-attention mechanism. And it was not long after that the diffusion transformer</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1681s" target="_blank" rel="noopener">28:01</a> came into play. So in 2022, I believe. So that architecture dealt with a limitation of the U-Nets, which was that patches that were far from one another from the image could not have a direct way of interacting with one another. And in cases, like if you wanted to generate an image, let&#x27;s say, a teddy bear that looks at himself in the mirror,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1709s" target="_blank" rel="noopener">28:29</a> then you would want to have that interaction to figure out the lower level details. And we saw that diffusion transformer was injecting conditions using an adaptive layer norm framework. So it was just modulating the embeddings of the patches. And then we saw that-- today is May 29th 2026.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1738s" target="_blank" rel="noopener">28:58</a> So now we have a lot of such models out there. And in particular, there is one specific category that has emerged, which is the multi-modal diffusion transformer, which on top of doing this self-attention mechanism, also considers the condition as part of the joint attention. And we looked at the timeline. So here what&#x27;s in blue is U-Net. And what&#x27;s in green is DiT and variants.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1769s" target="_blank" rel="noopener">29:29</a> And of course, the timeline is not exhaustive but it is just a way for you to see that nowadays image generation models are almost everyone is relying on the DiT-based architecture. Cool. And then at that stage, we knew how we could generate images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1793s" target="_blank" rel="noopener">29:53</a> We knew how to represent the input. We knew how to represent the latentce. We knew what model to use, but we didn&#x27;t how to train that model. And that was the focus of lecture 6. And so before digging into the details, one thing we wanted to just align was how we wanted our time step to be sampled during the training, because we had seen back in lecture 1 to 3</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1822s" target="_blank" rel="noopener">30:22</a> that the time step that we were sampling in order to train our model was drawn from a uniform distribution. And we spent some time just thinking about whether all noise levels are equally hard or not. And we saw that noise levels that are not super noisy, but not towards clean, like those in the middle, were the most difficult because those</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1853s" target="_blank" rel="noopener">30:53</a> were the places where we had to make important decisions about where to go. And so that&#x27;s the reason why the fact of sampling from a uniform distribution was not the most optimal. And we saw that there was this distribution called the logit-normal distribution, which is a distribution that focuses much more on the middle steps, was something that was more commonly used these days.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1886s" target="_blank" rel="noopener">31:26</a> And we saw that not only that, but the resolution of your images also matter in terms of what the perceived noise is. And in particular, if you want to train a model on higher resolution images, what you want is to make sure to noise your images a bit more than what you did previously, because</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1913s" target="_blank" rel="noopener">31:53</a> for a given noise level, a lower resolution image will appear as being more noisy compared to higher resolution one.</p>
+</div>
+</section><div class="chapter" id="ch-Model-training"><span>Model training</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1923s" target="_blank" rel="noopener">32:03</a></div><section class="row" id="s26">
+<figure>
+<a href="slides/l8/p032.jpg" target="_blank">
+<img src="slides/l8/p032.jpg" alt="Slide p. 32: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 32 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1923s" target="_blank" rel="noopener" title="Watch on YouTube from 32:03">&#9658; 32:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1923s" target="_blank" rel="noopener">32:03</a> And we did some math on the blackboard, if you remember, when we computed just the uncertainty around the underlying pixel value. But intuitively, it comes from the fact that there is spatial correlation within your image. So if you have more pixels to represent,</p>
+</div>
+</section><section class="row" id="s27">
+<figure>
+<a href="slides/l8/p033.jpg" target="_blank">
+<img src="slides/l8/p033.jpg" alt="Slide p. 33: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 33 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1943s" target="_blank" rel="noopener" title="Watch on YouTube from 32:23">&#9658; 32:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1943s" target="_blank" rel="noopener">32:23</a> let&#x27;s say, an area of the image, well, if you noise some of it, and if you have more chances to see the actual value, then when you look at the image, you will have an easier time to see what the image is about as opposed to if you have a lower resolution image. So if you have pixels that are noised, then you have fewer chances of seeing</p>
+</div>
+</section><section class="row" id="s28">
+<figure>
+<a href="slides/l8/p034.jpg" target="_blank">
+<img src="slides/l8/p034.jpg" alt="Slide p. 34: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 34 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1969s" target="_blank" rel="noopener" title="Watch on YouTube from 32:49">&#9658; 32:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1969s" target="_blank" rel="noopener">32:49</a> the underlying true pixel value-- denoise pixel value.</p>
+</div>
+</section><section class="row" id="s29">
+<figure>
+<a href="slides/l8/p035.jpg" target="_blank">
+<img src="slides/l8/p035.jpg" alt="Slide p. 35: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 35 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1974s" target="_blank" rel="noopener" title="Watch on YouTube from 32:54">&#9658; 32:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1974s" target="_blank" rel="noopener">32:54</a> And so with that, we saw that there are a few stages to a typical model training</p>
+</div>
+</section><section class="row" id="s30">
+<figure>
+<a href="slides/l8/p036.jpg" target="_blank">
+<img src="slides/l8/p036.jpg" alt="Slide p. 36: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 36 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1981s" target="_blank" rel="noopener" title="Watch on YouTube from 33:01">&#9658; 33:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=1981s" target="_blank" rel="noopener">33:01</a> process, the first one being pre-training, which is learning how to generate images. And so here you have-- so it&#x27;s the most time consuming and expensive part of the whole pipeline, because you need to come up with a very big corpus of images that encompasses all of the possible images that you want to generate.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2006s" target="_blank" rel="noopener">33:26</a> And it needs to be certain quality, and you need to have good mixtures and so on. So a lot of effort is put into having a pre-trained data that is reflective of the way you want your image generation to learn. And after that, we saw that once you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2032s" target="_blank" rel="noopener">33:52</a> get an image generation model that knows how to generate images, what you wanted to do is to generate good images. And in particular, good here can be something that people say just in the aesthetics term. So you want your image to look good, but you also want your image generation model know how to generate images in your field of interest</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2061s" target="_blank" rel="noopener">34:21</a> or in your task of interest. So, for instance, if you have an image generation model that has been pre-trained on, let&#x27;s say, nature and then, I don&#x27;t know, houses, but if you want that model to generate images, let&#x27;s say, teddy bears, so what you want is, for instance, to have an extension of that training that we call continued training, where you teach your model how</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2090s" target="_blank" rel="noopener">34:50</a> to generate images in your set of images of interest, which</p>
+</div>
+</section><section class="row" id="s31">
+<figure>
+<a href="slides/l8/p037.jpg" target="_blank">
+<img src="slides/l8/p037.jpg" alt="Slide p. 37: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 37 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2096s" target="_blank" rel="noopener" title="Watch on YouTube from 34:56">&#9658; 34:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2096s" target="_blank" rel="noopener">34:56</a> here can be teddy bears. And what we saw was that a third optional step could be the tuning step, where you could have a situation where you want to generate images of one particular subject, of one particular person many times. So if you are in that situation, what you want is to tweak your model in a way that will remember</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2130s" target="_blank" rel="noopener">35:30</a> what you wanted to generate. And we saw DreamBooth as a way for us to do that. So the idea was to gather a set of images of 5 to 10 typically that contains who you want to depict. And what you do is you train your model to generate images that contain that specific person or that specific object, while having a rare token as input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2164s" target="_blank" rel="noopener">36:04</a> So what you are teaching your model was to rewire its brain towards generating something when it saw a specific token. And given that these models can be pretty big, we saw that there were also techniques to tune, not all weights, but a subset of the weights through this technique called LoRA-- low-rank adaptation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2194s" target="_blank" rel="noopener">36:34</a> And once you did that-- let&#x27;s suppose you did either the first two or all three of the steps. What you want is to now deploy your model to production. So what you want is to have a model that does not cost you a lot and also does not take a lot of time to make generations. So we saw a bunch of methods that</p>
+</div>
+</section><section class="row" id="s32">
+<figure>
+<a href="slides/l8/p038.jpg" target="_blank">
+<img src="slides/l8/p038.jpg" alt="Slide p. 38: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 38 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2218s" target="_blank" rel="noopener" title="Watch on YouTube from 36:58">&#9658; 36:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2218s" target="_blank" rel="noopener">36:58</a> were aimed at shortening the number of steps that were needed for you to generate samples. So this category of methods is called distillation. So we saw a number of methods. So I would encourage you to look at that lecture. So there was progressive distillation as one example, but some others as well.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2244s" target="_blank" rel="noopener">37:24</a> And then finally, last week, what we said was great, we can do all of this. But we have not seen how we could evaluate how our images, how good they were. And if you don&#x27;t know how to do that, well, you don&#x27;t where to put your efforts. So you need to know how well you&#x27;re doing,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2268s" target="_blank" rel="noopener">37:48</a> which is why lecture 7 was focused on evaluating images and in particular, how good those images were. So we saw that the most common way people evaluate images on things like leaderboards is by having images generated</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2293s" target="_blank" rel="noopener">38:13</a> by the models that are in your leaderboards and by having pairwise comparisons between them.</p>
+</div>
+</section><div class="chapter" id="ch-Evaluation"><span>Evaluation</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2301s" target="_blank" rel="noopener">38:21</a></div><section class="row" id="s33">
+<figure>
+<a href="slides/l8/p039.jpg" target="_blank">
+<img src="slides/l8/p039.jpg" alt="Slide p. 39: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 39 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2301s" target="_blank" rel="noopener" title="Watch on YouTube from 38:21">&#9658; 38:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2301s" target="_blank" rel="noopener">38:21</a> And we saw that there was a particular way of measuring performance that took into consideration the history of each model. And by history, I mean how people rated that model. And the reason for that is we saw that if you were to win against a weak week model, it is not the same thing as if you were to win against a strong model.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2334s" target="_blank" rel="noopener">38:54</a> So you want to take into consideration how strong your opponent is, otherwise, a metric like the win rates would be very dependent on who you are making your comparisons with. And we saw this metric called the Elo rating, Elo score that looked at this in the following way. So if you were to rate different models, so you have a ratings,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2363s" target="_blank" rel="noopener">39:23</a> let&#x27;s call it R, that quantifies how good each model is. So in order for you to-- let&#x27;s suppose you have a new model. You want to compute its rating. So what you would do is compare that new model to, let&#x27;s say, a model that is part of the list. And you would use the rating of the models</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2392s" target="_blank" rel="noopener">39:52</a> to quantify how good they are, and take that into consideration in order to find the rating of the new model. So how do you do that? Well, the idea is quite simple. So the ratings quantify how good models are. So from that quantity, what you can do is to compute what you expect will happen.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2420s" target="_blank" rel="noopener">40:20</a> So for instance, if you have a strong model and a weak model, well, what you expect is the strong model to win. So you compute a quantity which is the expected score, which is a function of these two ratings. And you compare that with the actual score. And the difference between that, which is here, delta, tells you how surprised you are.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2447s" target="_blank" rel="noopener">40:47</a> So if you won against a strong model, then you want your delta to be high. And if you won against a weak model, then it&#x27;s not a lot of signal for you because almost everyone</p>
+</div>
+</section><section class="row" id="s34">
+<figure>
+<a href="slides/l8/p040.jpg" target="_blank">
+<img src="slides/l8/p040.jpg" alt="Slide p. 40: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 40 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2460s" target="_blank" rel="noopener" title="Watch on YouTube from 41:00">&#9658; 41:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2460s" target="_blank" rel="noopener">41:00</a> wins against that weak model. So delta would be lower. So all of that to say that you will come across the Elo</p>
+</div>
+</section><section class="row" id="s35">
+<figure>
+<a href="slides/l8/p041.jpg" target="_blank">
+<img src="slides/l8/p041.jpg" alt="Slide p. 41: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 41 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2469s" target="_blank" rel="noopener" title="Watch on YouTube from 41:09">&#9658; 41:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2469s" target="_blank" rel="noopener">41:09</a> score quite a lot. And I just want you to remember that the Elo score is</p>
+</div>
+</section><section class="row" id="s36">
+<figure>
+<a href="slides/l8/p042.jpg" target="_blank">
+<img src="slides/l8/p042.jpg" alt="Slide p. 42: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 42 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2475s" target="_blank" rel="noopener" title="Watch on YouTube from 41:15">&#9658; 41:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2475s" target="_blank" rel="noopener">41:15</a> a smart way of computing pairwise comparisons</p>
+</div>
+</section><section class="row" id="s37">
+<figure>
+<a href="slides/l8/p044.jpg" target="_blank">
+<img src="slides/l8/p044.jpg" alt="Slide pp. 43–44: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 43–44 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2481s" target="_blank" rel="noopener" title="Watch on YouTube from 41:21">&#9658; 41:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2481s" target="_blank" rel="noopener">41:21</a> by taking into consideration how strong your opponent is, if you compare model A and model B. Cool. But not everyone has the luxury of having human ratings for everything they do. So that&#x27;s why we also have a bunch of automated metrics. So we looked at one that was quite popular nowadays, which is called the FID score-- Fréchet inception distance. So what this score does is it computes</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2517s" target="_blank" rel="noopener">41:57</a> the distance between the distribution of your generated images and the distribution of real images. And the idea is if these distributions are far, then it means that your generated images, they don&#x27;t look like real images. And we saw that the FID score-- so I didn&#x27;t put the formula here, but it is something that is derived from a more general formulation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2550s" target="_blank" rel="noopener">42:30</a> And here, the actual formula is derived considering that these two distributions are considered as Gaussian. So that&#x27;s the assumption that we&#x27;re doing when we&#x27;re computing this metric. And we saw that the lower this metric was, the better it was. And of course, it&#x27;s a proxy. So it&#x27;s not a perfect metric.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2577s" target="_blank" rel="noopener">42:57</a> And then we looked at more clever ways of obtaining scores, in particular, by leveraging these newer models. So here, MLLM, which stands for multi-modal large language models that are able to both take texts, but also images as input. So you could very well say, you have this image. You have this input prompt.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2607s" target="_blank" rel="noopener">43:27</a> Well, tell me how it looks like or how good that is. Then you could obtain some given scores. And we saw that you also had a way to leverage these models in order for you to not have to ask your humans to rate your images, but to ask your MLLM as a judge to rate them for you.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2631s" target="_blank" rel="noopener">43:51</a> You could have a tighter loop that would allow you to make iterations faster and have human ratings when you feel like your model is good enough for you to take that step. And this was CME 296. So you see that in order for us to generate an image from a prompt, there is a lot that goes underneath.</p>
+</div>
+</section><section class="row" id="s38">
+<figure>
+<a href="slides/l8/p045.jpg" target="_blank">
+<img src="slides/l8/p045.jpg" alt="Slide p. 45: Rewinding the quarter…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 45 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2658s" target="_blank" rel="noopener" title="Watch on YouTube from 44:18">&#9658; 44:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2658s" target="_blank" rel="noopener">44:18</a> And this is what the whole lectures 1 to 7 were about.</p>
+</div>
+</section><div class="chapter" id="ch-State-of-the-art-models"><span>State-of-the-art models</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2668s" target="_blank" rel="noopener">44:28</a></div><section class="row" id="s39">
+<figure>
+<a href="slides/l8/p046.jpg" target="_blank">
+<img src="slides/l8/p046.jpg" alt="Slide p. 46: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 46 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2668s" target="_blank" rel="noopener" title="Watch on YouTube from 44:28">&#9658; 44:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2668s" target="_blank" rel="noopener">44:28</a> Cool. So now you finish this class after this lecture and you&#x27;re like, OK, now I know all of this. And so what? So I wanted to talk to you about the state of the art models that</p>
+</div>
+</section><section class="row" id="s40">
+<figure>
+<a href="slides/l8/p047.jpg" target="_blank">
+<img src="slides/l8/p047.jpg" alt="Slide p. 47: Leaderboard of text-to-image models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 47 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2681s" target="_blank" rel="noopener" title="Watch on YouTube from 44:41">&#9658; 44:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2681s" target="_blank" rel="noopener">44:41</a> were out there. So what we did was just go to a popular arena that ranks the best models out there. So there&#x27;s a leaderboard. And as you can see, there is the Elo score that is used to determine those ranks. And I just wanted for us to look at which models were the best and whether they were also using the methods that we saw in this class or not.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2715s" target="_blank" rel="noopener">45:15</a> So let&#x27;s start with the best models out there, and we see that we have the first two ranks that are from OpenAI. So GPT Image. And then we have two models from Google. And then the fourth-- sorry, the fifth model is from xAI. So it&#x27;s all closed-source models from top AI labs. The problem with those models is we don&#x27;t how they work because they&#x27;re not publishing any reports.</p>
+</div>
+</section><section class="row" id="s41">
+<figure>
+<a href="slides/l8/p048.jpg" target="_blank">
+<img src="slides/l8/p048.jpg" alt="Slide p. 48: Leaderboard of open weights text-to-image models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 48 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2744s" target="_blank" rel="noopener" title="Watch on YouTube from 45:44">&#9658; 45:44</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2744s" target="_blank" rel="noopener">45:44</a> So there&#x27;s not a lot I can tell you. But that leaderboard also ranks open weight models that have technical reports that are published that are public and available. So it&#x27;s a screenshot that dates from five days ago. And we see that the highest ranked model is from a company called HiDream. So it&#x27;s HiDream-01-Image number one.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2776s" target="_blank" rel="noopener">46:16</a> And then you have Qwen Image that we saw in lecture 5,</p>
+</div>
+</section><section class="row" id="s42">
+<figure>
+<a href="slides/l8/p049.jpg" target="_blank">
+<img src="slides/l8/p049.jpg" alt="Slide p. 49: Leaderboard of open weights text-to-image models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 49 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2781s" target="_blank" rel="noopener" title="Watch on YouTube from 46:21">&#9658; 46:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2781s" target="_blank" rel="noopener">46:21</a> when we talked about the multi-modal diffusion transformer. And then the ranks three to five are from this model from Black Forest Lab called FLUX 2. And what I wanted us to do was to go through these models and see what they were made of. So let&#x27;s start with the last ones, the FLUX 2 models.</p>
+</div>
+</section><section class="row" id="s43">
+<figure>
+<a href="slides/l8/p050.jpg" target="_blank">
+<img src="slides/l8/p050.jpg" alt="Slide p. 50: Leaderboard of open weights text-to-image models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 50 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2807s" target="_blank" rel="noopener" title="Watch on YouTube from 46:47">&#9658; 46:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2807s" target="_blank" rel="noopener">46:47</a> So they&#x27;re based on rectified flow, which, as I mentioned, is a derivative of flow matching. So something that we know. Their architecture is based on the diffusion transformer. But in particular, what our architecture is based on is a combination of single stream</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2834s" target="_blank" rel="noopener">47:14</a> and double-stream diffusion transformer. So this is also something that we saw. So they rely on a VAE to make sure that the latent space is compact and allows you to learn easily. So that&#x27;s also something that we saw. And we also happen to have some text encoder that was pre-trained. And here. It&#x27;s a Mistral 3, that is used to generate the embeddings.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2865s" target="_blank" rel="noopener">47:45</a> So up until now, the usual. Let&#x27;s go to the model number 2. So Qwen Image. The loss is a flow matching loss. So also something that we know. So the architecture is a multi-modal diffusion transformer. And it also relies on a VAE. And the text embeddings are based on Qwen.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2895s" target="_blank" rel="noopener">48:15</a> Also the usual. Now let&#x27;s look at the top-ranked model, which by the way,</p>
+</div>
+</section><section class="row" id="s44">
+<figure>
+<a href="slides/l8/p051.jpg" target="_blank">
+<img src="slides/l8/p051.jpg" alt="Slide p. 51: Trend to watch: back to pixel-space diﬀusion?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 51 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2903s" target="_blank" rel="noopener" title="Watch on YouTube from 48:23">&#9658; 48:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2903s" target="_blank" rel="noopener">48:23</a> was published, I think, two weeks ago. So it&#x27;s extremely recent. So flow matching loss also similar to what we saw. The model is not exactly a multi-modal diffusion transformer, but it&#x27;s something that is based on the transformer. So also very similar. But turns out that there is no more VAE. And there is no pre-trained text encoder.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2941s" target="_blank" rel="noopener">49:01</a> So does that mean that what we learned was not true? What&#x27;s going on? So let&#x27;s see how that relates to what we learned. So that paper, what it does is it actually performs the generation, not in a latent space, but in pixel space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2965s" target="_blank" rel="noopener">49:25</a> And now you may think, well, how is the dimensionality going? Because it&#x27;s much higher than a latent space. So that&#x27;s the first question. And then the second question is pixel space is much harder for you to learn because we saw that in the space, valid images in the pixel space are more isolated. They&#x27;re not smooth distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=2993s" target="_blank" rel="noopener">49:53</a> Well, here is my interpretation. So first of all, for the dimensionality. So it turns out that the patch size that the paper uses is not the traditional 2 by 2 that we&#x27;re used to for latent space. It&#x27;s actually a much bigger one. So it&#x27;s a 32 by 32. So computationally here, the idea</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3020s" target="_blank" rel="noopener">50:20</a> is to make it tractable by just having bigger patches. And then when it comes to learnability, well, the fact of not having an easy space to learn from is just shifting the effort that needs to happen over to the diffusion-based transformer. And so what I found very interesting with this paper was even if you make your problem harder for your diffusion</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3054s" target="_blank" rel="noopener">50:54</a> transformer or your transformer-based model, well, you can still have amazing results, if you scale it well enough. Because that model, well, turns out that it was scaled, I believe, to 8 billion and then also to 200 billion parameters, which is huge for image generation models. And so what I wanted to say was that the space is fast moving,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3080s" target="_blank" rel="noopener">51:20</a> that what we talked about still holds true, but that the trade off between making it easier for the transformer to learn versus doing it in the raw space is still something that was being figured out because there is something that I have not mentioned, which is when you learn the latent space, so you&#x27;re making it easier for your model to learn. You&#x27;re having a more compact space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3112s" target="_blank" rel="noopener">51:52</a> But then the main thing that you&#x27;re losing is fidelity, because it&#x27;s a lossy operation for you to operate in a space that is not your original space. So when you know train your VAE, you just hope that you will reconstruct things truthfully. But it is not always the case. And it just turns out that this paper shows that the downside of the VAE</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3144s" target="_blank" rel="noopener">52:24</a> are such that we could maybe work without it, if you scale things in a big enough way. So I found that interesting. And I think it&#x27;s a newer trend of doing things without VAEs. So I think it&#x27;s just good for us to keep an eye on this. So again, this paper was published a few weeks ago. I don&#x27;t want to make general statements because maybe in a couple of months, then we will see maybe</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3173s" target="_blank" rel="noopener">52:53</a> that the VAE is necessary. But I think this is a part that is worth watching. Cool. So any questions on that? Yeah. Oh, yeah. So the question is, what is the alternative to pre-trained encoder? So the alternative is to just learn it yourself. So instead of having a pre-trained encoder</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3199s" target="_blank" rel="noopener">53:19</a> computing the embeddings for you, what you do is you take the text as input. What you do is you just tokenize it. So you divide it into arbitrary units of text. And you learn the representation as part of your training. And so there&#x27;s one thing I didn&#x27;t say here, but they&#x27;re not using a pre-trained text encoder</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3225s" target="_blank" rel="noopener">53:45</a> to do that, but they&#x27;re doing some kind of prompt enhancement that allows you to be more explicit about the input prompt, because you may have a prompt like a teddy bear is reading. But in order to generate a very good image, you need to know, for instance, how the lighting should be, what camera position should be, and so on. And so that piece is also making the job of the text encoder</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3256s" target="_blank" rel="noopener">54:16</a> easier because it just explicits what you need to have as condition. Yeah. So the question is, if there is no disjoint text encoder, how are they able to understand text? So here the key word is pre-trained. So there&#x27;s still a text encoder, but it&#x27;s just not something that you take off the shelf.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3282s" target="_blank" rel="noopener">54:42</a> It is something that you train yourself as part of the training.</p>
+</div>
+</section><section class="row" id="s45">
+<figure>
+<a href="slides/l8/p052.jpg" target="_blank">
+<img src="slides/l8/p052.jpg" alt="Slide p. 52: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 52 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3289s" target="_blank" rel="noopener" title="Watch on YouTube from 54:49">&#9658; 54:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3289s" target="_blank" rel="noopener">54:49</a> OK, cool. So this concludes part 1, which was around recapping</p>
+</div>
+</section><section class="row" id="s46">
+<figure>
+<a href="slides/l8/p053.jpg" target="_blank">
+<img src="slides/l8/p053.jpg" alt="Slide p. 53: From image to video generation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 53 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3295s" target="_blank" rel="noopener" title="Watch on YouTube from 54:55">&#9658; 54:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3295s" target="_blank" rel="noopener">54:55</a> what we did up until now. So now that we know all of this, what I want us to do</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3305s" target="_blank" rel="noopener">55:05</a> is to see how adjacent fields can benefit from what we have learned. And a very natural extension that I want to talk to you about is videos. So if you think about it, videos are nothing else than a sequence of frames which are images. So you just have an extra dimension. So here you go from a 2D image to a 3D image across time.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3341s" target="_blank" rel="noopener">55:41</a> And the question now for us is, what should we have in mind when we want to build a video generation model? And what are the things we can use from what we have learned in order for us to be able to do that? So the first thing that I want to tell you is there is an extra dimension, which is time. The second thing that I want to talk to you about is that in a video, you need to make sure that there is some temporal</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3374s" target="_blank" rel="noopener">56:14</a> consistency, as in you cannot go from one frame to the other in a way that completely changes what you&#x27;re looking at. But you also need to make sure that whoever is being depicted in your frames do not have suddenly things that they did not have. So, for instance, if you&#x27;re looking at a video of a teddy bear reading, you don&#x27;t want that teddy bear to all of a sudden acquire a hat</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3403s" target="_blank" rel="noopener">56:43</a> and sunglasses at t plus 1, but then at t not have any of those. So this is an extra thing that you need to worry about. So for images, you want it to generate something that was plausible.</p>
+</div>
+</section><div class="chapter" id="ch-Video-generation-models"><span>Video generation models</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3421s" target="_blank" rel="noopener">57:01</a></div><section class="row" id="s47">
+<figure>
+<a href="slides/l8/p055.jpg" target="_blank">
+<img src="slides/l8/p055.jpg" alt="Slide pp. 54–55: From image to video generation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 54–55 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3421s" target="_blank" rel="noopener" title="Watch on YouTube from 57:01">&#9658; 57:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3421s" target="_blank" rel="noopener">57:01</a> For videos, you need to generate something that looks plausible at a given time t, but you also need to make sure that the way frames are sequenced is also making sense. So you need to have that temporal consistency. And of course, you need to make computations tractable because here, as you can imagine, if we go the route of representing our input</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3450s" target="_blank" rel="noopener">57:30</a> as a sequence of 2D images, well, the dimension just got increased by a factor of t, which is the time. And so you need to make sure that whatever you&#x27;re doing is making things still tractable. And of course, metrics as well. And well, I&#x27;ll just get you the spoiler. So we still leverage the metrics that we have seen for images,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3479s" target="_blank" rel="noopener">57:59</a> but we just extend them for videos. So the Fréchet inception distance-- FID-- is something that you may also see in the video worlds where the only thing that changes is the representation of the quantities that you&#x27;re dealing with. So instead of having the Inception network to represent</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3503s" target="_blank" rel="noopener">58:23</a> your image, what you&#x27;re doing is you&#x27;re using a pre-trained encoder that would represent your videos. And you have, for instance, this metric called the Fréchet video distance, that tells you how far apart your generated videos are from real ones using a similar method. But I want to call out one thing. These metrics are just proxies. So it&#x27;s always good to have human in the loop.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3538s" target="_blank" rel="noopener">58:58</a> So now let&#x27;s see how we can handle just generating videos by going through specific parts of the architecture that we may need to change. So if you think about it, an image generation model, a traditional image generation model</p>
+</div>
+</section><section class="row" id="s48">
+<figure>
+<a href="slides/l8/p056.jpg" target="_blank">
+<img src="slides/l8/p056.jpg" alt="Slide p. 56: From image to video generation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 56 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3559s" target="_blank" rel="noopener" title="Watch on YouTube from 59:19">&#9658; 59:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3559s" target="_blank" rel="noopener">59:19</a> is a DIT-based model operating in a latent space. So you have a VAE that compresses your input into some latent space. And then you obtain, let&#x27;s say, the final prediction that you then decode back in your initial space. Well, the same thing is happening for videos. So here, you not only are compressing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3591s" target="_blank" rel="noopener">59:51</a> from a spatial perspective, you&#x27;re also performing a temporal compression. So do you remember when we talked about f, which was the ratio of the heights in your initial space over the height in your latent space? Do you remember? So maybe I&#x27;ll just quickly-- so we had this pixel space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3617s" target="_blank" rel="noopener">1:00:17</a> And then we have the latent space here. And then you have H and then h here. So we had f, the spatial compression, which was just the ratio of big H over little h. And that ratio is typically on the order of 8 for spatial compression. Here what you also want to do is to compress your input</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3646s" target="_blank" rel="noopener">1:00:46</a> along the time dimension as well. So, why do you want to do that? Well, the first thing is you want to make sure your problem is tractable from a dimensionality perspective. But then the second reason is when you compress things in a smaller space, what you&#x27;re assuming</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3670s" target="_blank" rel="noopener">1:01:10</a> is you have redundant information. So spatially, we saw that we have spatial correlation, meaning around some pixels, you have pixels of the similar value. So you have redundant information. Well, it&#x27;s the same along the time axis as well. Because you can very well imagine that if you go through the frames of a video, two consecutive frames will have a lot of the same information.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3702s" target="_blank" rel="noopener">1:01:42</a> So it would also make sense for you to compress things also along the time axis. And so here, this compression ratio, which we saw was for space, is also something that we have along the time dimension. And as a result, your latent space is composed, not of space latent, but of space time latent.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3732s" target="_blank" rel="noopener">1:02:12</a> So what that means is the quantities represent, not only things that are within a given image, but also with respect to time. So there is one thing that you may find interesting, which is that the dimension over t is 1 plus t And then the latent space is of dimension 1 over t over 4.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3761s" target="_blank" rel="noopener">1:02:41</a> But then you may ask, why the 1 plus? Why 1? And I would say it&#x27;s a good question. It&#x27;s also a question I ask myself. Well, it turns out that if you want to generate a video, you need to have a starting point. You need to have an initial frame. Well, that 1 is a way for us to consider the first frame</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3789s" target="_blank" rel="noopener">1:03:09</a> as being something special. It has a special place. It&#x27;s the anchor frame. We want to make sure we&#x27;re representing it as well as possible. And so the reason why we have the 1 plus is to represent that first frame, that anchor frame to its fullest extent, and then to use that as a way to continue the video in a way that is a natural continuation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3818s" target="_blank" rel="noopener">1:03:38</a> of that first frame. Does that make sense? So by the way, we&#x27;re going super quickly over a lot of things. So my goal is to just give you some pointers for if you&#x27;re just interested, let&#x27;s say, after today, and you want to just explore more, these are just some small little things. The second thing I wanted to talk about with respect</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3844s" target="_blank" rel="noopener">1:04:04</a> to the VAE is so as we said, it is not a 2D VAE. It&#x27;s a 3D VAE, because it&#x27;s operating also along the time dimension. So you will see that VAE is called a causal VAE. So why causal? So causal is because when you perform, let&#x27;s say,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3870s" target="_blank" rel="noopener">1:04:30</a> convolutions, which is typically what one of the operations that VAE contains, you perform your convolution in a symmetric manner. But here, what you want to do for a given frame is to not compute feature maps that are a function of future frames. You only want for that frame to be</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3898s" target="_blank" rel="noopener">1:04:58</a> a function of the same frame and the frames before. So that is why it&#x27;s called a causal VAE. It&#x27;s because the convolution is not like the symmetric one that you&#x27;re thinking of. It&#x27;s asymmetric. And the reason why people would do that is actually for several reasons. But one of the reasons is you don&#x27;t want to go out of memory every time you do these things.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3925s" target="_blank" rel="noopener">1:05:25</a> So what people do is sometimes they stream this encoding process. And if you make sure that a given frame is not dependent on the future frames, which by the way, the receptive field can widen if you have several convolution operations. So if you make sure that it only depends on that frame and the frames before, then,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3948s" target="_blank" rel="noopener">1:05:48</a> computationally speaking, you can actually stream that encoding and decoding process. I&#x27;m just giving you reason why. And then the second thing that I wanted to talk about with respect to the video-- oh, yeah. You have a question? Great question. So the question is, why would you need frames before the last frame?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=3975s" target="_blank" rel="noopener">1:06:15</a> So let me give you an example. So let&#x27;s suppose a teddy bear walks across the street. And the camera looks at that Teddy bear, and it sees a pedestrian that is coming this way. And then later on, that pedestrian comes back. So the information of who is going behind the teddy bear</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4002s" target="_blank" rel="noopener">1:06:42</a> is something that is important to you. You want to be able to capture things that makes your video consistent. So that temporal consistency, which is making sure you&#x27;re not inventing objects or people in your video that may have happened in the past. So that&#x27;s the reason why you want your receptive fields to not be one.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4028s" target="_blank" rel="noopener">1:07:08</a> So you want to have some dependency on earlier frames compared to the last one. Does that answer your question? The question is yeah efficiency concerns. And yeah, I hear you. So there is something we&#x27;ll discuss which is exactly what is happening in the latent space. So, of course, you cannot generate a video of very,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4054s" target="_blank" rel="noopener">1:07:34</a> very big time t. So what people do is divide the generation into several parts, where you can generate a video of, let&#x27;s say, a fixed length, and then take the last frame as the anchor frame to generate another video of, let&#x27;s say, another fixed length. So one way for you to make this more tractable is to just take the last frame of the video</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4081s" target="_blank" rel="noopener">1:08:01</a> that you generated as the first frame, and then continue later on along with some condition. So yeah. Yeah. So the question here is, how can you teach your model how to generate the next frame, given some conditions? So we&#x27;re actually going to see that in the next slide. So this part is just about compressing the inputs,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4108s" target="_blank" rel="noopener">1:08:28</a> but we&#x27;re not yet generating the video. So we&#x27;re going to see that in just one second. But yeah, great question. Cool. Any other questions? So I&#x27;ll answer your question right now. The way we generate videos is within that latent space,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4131s" target="_blank" rel="noopener">1:08:51</a> similar to how we do it for image generation, we have this DiT-based architecture that works from patches and that generates patches. The main difference from images is that these patches, they are not space patches. They&#x27;re not spatial patches. They&#x27;re space time patches. And what that means is as input, we have,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4161s" target="_blank" rel="noopener">1:09:21</a> if you want something that represents some part of the, let&#x27;s say, image, it&#x27;s not really image because you&#x27;re in the latent space across time. And in order for you to think that you&#x27;re doing a good job at producing a video that is consistent with oneself, one thing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4187s" target="_blank" rel="noopener">1:09:47</a> that you can tell yourself when you&#x27;re looking at that whole process is that within the DiT, you have the self-attention mechanism that allows your space time patches to interact with one another so that you&#x27;re producing an output that is coherent across space, but also across time. So I think your question also involved some amount of, how can you make sure that it reflects causality?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4219s" target="_blank" rel="noopener">1:10:19</a> So can you expand on what you mean by causality? So the question is, how can you make sure you have some causality versus correlation? I think at the end of the day, what you&#x27;re doing is you&#x27;re training your model on some data, and the resulting model is just reflecting the patterns that it has seen at training time. So if you feed it things that reflect, for instance, if you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4245s" target="_blank" rel="noopener">1:10:45</a> put a book on a table, and there&#x27;s some dust that goes away, these are the patterns that your model will also learn. So I think at the end of the day, it all goes back to what kind of data you put inside. So that&#x27;s how I would think about it. Yeah. Yeah. So the question is, well, we know in LLMs, we have a masked self-attention that makes things causal.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4274s" target="_blank" rel="noopener">1:11:14</a> Maybe there is something that we can reuse here. Well, in the image generation world, we&#x27;re making sure that all parts of the image, they interact with one another. And this is actually something that we also have here, the main reason being that you want some consistency between every part of your video. And so for that reason, people typically</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4301s" target="_blank" rel="noopener">1:11:41</a> keep the full self-attention. But then at the end of the day, you</p>
+</div>
+</section><section class="row" id="s49">
+<figure>
+<a href="slides/l8/p057.jpg" target="_blank">
+<img src="slides/l8/p057.jpg" alt="Slide p. 57: From image to video generation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 57 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4306s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:46">&#9658; 1:11:46</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4306s" target="_blank" rel="noopener">1:11:46</a> need to try it out and see how it works. [LAUGHS] But typically people keep the self-attention. Yeah. OK, great. So that model that we just saw is a model that is open weights. It&#x27;s called Wan. There are actually a multiple models out there. And this list of readings is by no means comprehensive.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4331s" target="_blank" rel="noopener">1:12:11</a> So in case you&#x27;re interested, feel free to just take a look at those. So I know Wan is one such model. I believe there&#x27;s also LTX as well. Highly recommend reading the papers. I would say that given the fact that you know how image generation models work, it&#x27;s now much, much easier to understand these papers.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4356s" target="_blank" rel="noopener">1:12:36</a> So hopefully that&#x27;s going to be helpful. Cool. So video generation was once adjacent fields that I wanted us to touch on. The second topic that I wanted us to talk about</p>
+</div>
+</section><section class="row" id="s50">
+<figure>
+<a href="slides/l8/p058.jpg" target="_blank">
+<img src="slides/l8/p058.jpg" alt="Slide p. 58: Exploring architecture of leading model" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 58 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4367s" target="_blank" rel="noopener">&#8776; 1:12:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s51">
+<figure>
+<a href="slides/l8/p059.jpg" target="_blank">
+<img src="slides/l8/p059.jpg" alt="Slide p. 59: Exploring architecture of leading model" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 59 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4367s" target="_blank" rel="noopener">&#8776; 1:12:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s52">
+<figure>
+<a href="slides/l8/p060.jpg" target="_blank">
+<img src="slides/l8/p060.jpg" alt="Slide p. 60: Video generation suggested readings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 60 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4367s" target="_blank" rel="noopener">&#8776; 1:12:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s53">
+<figure>
+<a href="slides/l8/p061.jpg" target="_blank">
+<img src="slides/l8/p061.jpg" alt="Slide p. 61: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 61 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4367s" target="_blank" rel="noopener">&#8776; 1:12:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Image-editing"><span>Image editing</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4373s" target="_blank" rel="noopener">1:12:53</a></div><section class="row" id="s54">
+<figure>
+<a href="slides/l8/p064.jpg" target="_blank">
+<img src="slides/l8/p064.jpg" alt="Slide pp. 62–64: Limitation of image generation models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 62–64 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4373s" target="_blank" rel="noopener" title="Watch on YouTube from 1:12:53">&#9658; 1:12:53</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4373s" target="_blank" rel="noopener">1:12:53</a> is image editing. So let&#x27;s imagine that you have an image,</p>
+</div>
+</section><section class="row" id="s55">
+<figure>
+<a href="slides/l8/p065.jpg" target="_blank">
+<img src="slides/l8/p065.jpg" alt="Slide p. 65: Reformulate problem to put proper guardrails" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 65 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4382s" target="_blank" rel="noopener" title="Watch on YouTube from 1:13:02">&#9658; 1:13:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4382s" target="_blank" rel="noopener">1:13:02</a> and what you want to do is to edit that image. So you can say, make this image black and white.</p>
+</div>
+</section><section class="row" id="s56">
+<figure>
+<a href="slides/l8/p066.jpg" target="_blank">
+<img src="slides/l8/p066.jpg" alt="Slide p. 66: Image editing suggested readings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 66 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4390s" target="_blank" rel="noopener" title="Watch on YouTube from 1:13:10">&#9658; 1:13:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4390s" target="_blank" rel="noopener">1:13:10</a> So you could very well use what we have learned, which is you put that into your text image to image model. So ti to i. So, how do you do that? Well, you represent your condition, which is the text and the image as part of, let&#x27;s say, your MMDiT, and you inject that. And you can obtain an output image. Well, the problem here is that you&#x27;re</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4418s" target="_blank" rel="noopener">1:13:38</a> considering this problem a from scratch generation problem. So you&#x27;re telling your model, make this image black and white. And what you&#x27;re expecting is that exact same image, but black and white. And you can just ask yourself, is it actually optimized to what I&#x27;m doing? So what I&#x27;m doing is I&#x27;m asking a model to generate a whole thing from scratch.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4445s" target="_blank" rel="noopener">1:14:05</a> And I have no guarantee that it&#x27;s the same image. So the question here, is there a better way for image editing tasks to edit your image? Specifically, in cases where you want the input image to be preserved, is there a better way to edit those images than to consider this from scratch generation problem? Well, so in this case, you see that the black and white image had the teddy bear raise its right arm.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4481s" target="_blank" rel="noopener">1:14:41</a> And this is not what you want. So people have been thinking about this problem from another angle. So what they&#x27;re saying is instead of considering this as an image generation problem, let&#x27;s actually think about this problem as an image editing problem. And by editing, I mean, in the sense of performing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4509s" target="_blank" rel="noopener">1:15:09</a> some operations on the image. So one idea could be to have your image, to have your prompt be fed into a VLM. So vision language model, which is an MLLM-- multimodal large language model. In order for you to receive live editing actions that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4539s" target="_blank" rel="noopener">1:15:39</a> could be maybe decrease the brightness by, I don&#x27;t know, 50%, just increase the luminosity by x percent that you could then interact with an editing software, like Photoshop, in order to get your final image. So the nice thing with this approach is, well, first of all,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4568s" target="_blank" rel="noopener">1:16:08</a> you have some guarantee that you are preserving your initial image, if, let&#x27;s say, you&#x27;re constraining the sets of actions that you&#x27;re taking to, let&#x27;s say, an allow list of actions that here can only be harmless, like coloring actions. But one challenge is for your VLM to know the set of possible actions well enough for the editing action to actually make sense.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4602s" target="_blank" rel="noopener">1:16:42</a> So that&#x27;s the main challenge. And so that&#x27;s why some people-- I mean, when I say some people, a lot of people are trying to think about how to do this. So there&#x27;s a very short list of papers that try to resolve that. But there is one method that I want to mention here, which is how do we want our outputs-- like, how can we make sure that our output is something that is aligned with something that makes sense? Well, a possible method is to look at the logs of people</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4641s" target="_blank" rel="noopener">1:17:21</a> who are actually making edits. So let&#x27;s assume you go to your favorite editing software. You have an input image. And then you make some edits, and then you have a final image. Well, the sequence of edits that you made is something that your model can learn from. Well, the only thing that your model doesn&#x27;t really know is what your intent was, because you typically</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4667s" target="_blank" rel="noopener">1:17:47</a> don&#x27;t tell your editing software, well, I want to make my image more like this. You don&#x27;t say that. So these papers, so most of them, what they&#x27;re trying to do is to come up with pairs of initial image edited image, along with the user intent that is inferred by these two images,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4696s" target="_blank" rel="noopener">1:18:16</a> let&#x27;s say, from annotators. And what they&#x27;re doing is they&#x27;re tuning the VLM on these golden sets in order to have it behave more like something that would tell you actions that would correspond to your intent. So that&#x27;s why you have papers on this. It&#x27;s just because that in order for your model to learn how to do these things, you need to do some work in terms of which data to use,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4728s" target="_blank" rel="noopener">1:18:48</a> how you want to train these things. And that&#x27;s why they&#x27;re here. So I highly recommend reading them. It&#x27;s an open area of research. If you take a look at the years they were published, I mean, they were published 2024, 2025, 2026. So extremely hot. Any questions? Yeah. So the question is, how can the loss reflect the user intent?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4756s" target="_blank" rel="noopener">1:19:16</a> Well, the thing is you are not using the loss to infer the user intent. So one possible way of inferring user intent is to feed an off-the-shelf VLM an initial image and an output image and to tell your VLM, well, tell me what changed between these two images in order to infer this box, make this image black and white.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4787s" target="_blank" rel="noopener">1:19:47</a> So I&#x27;ll give you an example. If we feed a VLM the colored image and the black and white image, and we ask the VLM, well, come up with something that tells me what changed between this and that image, it gives you the user intent. And then what you can do is use that user intent along</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4811s" target="_blank" rel="noopener">1:20:11</a> with the initial image. And then you can, of course, collect the editing action that the user took and tune your VLM to output these editing actions given this input. So that&#x27;s one popular way I&#x27;ve been seeing these papers. [INAUDIBLE] Yeah. Cool.</p>
+</div>
+</section><div class="chapter" id="ch-Diffusion-for-LLMs"><span>Diffusion for LLMs</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4835s" target="_blank" rel="noopener">1:20:35</a></div><section class="row" id="s57">
+<figure>
+<a href="slides/l8/p067.jpg" target="_blank">
+<img src="slides/l8/p067.jpg" alt="Slide p. 67: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 67 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4835s" target="_blank" rel="noopener" title="Watch on YouTube from 1:20:35">&#9658; 1:20:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4835s" target="_blank" rel="noopener">1:20:35</a> Great. So now we&#x27;re in the last part of what I wanted to talk to you about. And that part is actually an area that I think is a very, very hot area, which is how can we apply</p>
+</div>
+</section><section class="row" id="s58">
+<figure>
+<a href="slides/l8/p068.jpg" target="_blank">
+<img src="slides/l8/p068.jpg" alt="Slide p. 68: Concepts borrowed from the text world" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 68 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4849s" target="_blank" rel="noopener" title="Watch on YouTube from 1:20:49">&#9658; 1:20:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4849s" target="_blank" rel="noopener">1:20:49</a> diffusion to the field of LLMs? So as you know, there has been a lot of transfer of knowledge from what has worked well in the text world to the vision world. So in the text world, as you know, in 2017, we had the transformer that was initially designed for translation tasks. So let&#x27;s suppose you want to translate from English to French.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4877s" target="_blank" rel="noopener">1:21:17</a> What you do is you use this transformer to have some, let&#x27;s say, English text as inputs in order to have a generated French text as output. And as you know, well, people in the vision world, they adapted the architecture in a way that leverages some of the scalability benefits that the transformer brings to the vision world.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4904s" target="_blank" rel="noopener">1:21:44</a> And in particular, there is one architecture we have spent a bunch of time on, which is the diffusion transformer, which relies on that. So that&#x27;s one thing. The next thing is something we&#x27;ve briefly</p>
+</div>
+</section><section class="row" id="s59">
+<figure>
+<a href="slides/l8/p069.jpg" target="_blank">
+<img src="slides/l8/p069.jpg" alt="Slide p. 69: Concepts borrowed from the text world" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 69 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4916s" target="_blank" rel="noopener" title="Watch on YouTube from 1:21:56">&#9658; 1:21:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4916s" target="_blank" rel="noopener">1:21:56</a> talked about during, I believe, lecture 6, which is around post-training approaches, and in particular, the fact of injecting negative signals into your model. So there is this tuning method called DPO, which stands for direct preference optimization from the LLM world, that was something that was</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4941s" target="_blank" rel="noopener">1:22:21</a> adapted to the diffusion world. So that&#x27;s one. And another one that you may be aware of</p>
+</div>
+</section><section class="row" id="s60">
+<figure>
+<a href="slides/l8/p070.jpg" target="_blank">
+<img src="slides/l8/p070.jpg" alt="Slide p. 70: Concepts borrowed from the text world" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 70 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4947s" target="_blank" rel="noopener" title="Watch on YouTube from 1:22:27">&#9658; 1:22:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4947s" target="_blank" rel="noopener">1:22:27</a> is GRPO, which now is widely in use in LLMs that is also something that has been something that people have experimented with in the vision world with flow GRPO. So now you can ask yourself, OK, text has given so much to us. What can we give back to text? Well, I know this class is not about text, so I will not</p>
+</div>
+</section><section class="row" id="s61">
+<figure>
+<a href="slides/l8/p071.jpg" target="_blank">
+<img src="slides/l8/p071.jpg" alt="Slide p. 71: Traditional generation paradigm for text" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 71 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4975s" target="_blank" rel="noopener" title="Watch on YouTube from 1:22:55">&#9658; 1:22:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=4975s" target="_blank" rel="noopener">1:22:55</a> go into the details. But one thing I want to talk about is that in the text world, we are doing things mostly in an autoregressive way, a little bit like when you and I, when we talk, what we do is we generate one word at a time. And whatever comes out is a function of whatever came before. Just to illustrate this, so you have your LLM, which here we say</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5003s" target="_blank" rel="noopener">1:23:23</a> is autoregressive. Let&#x27;s call it an ARM LLM, autoregressive model. So here we have, let&#x27;s say, a token that says, OK, we&#x27;re starting the sentence. So we say, A. And then A goes into the model along with everything that came before and a teddy. And we repeat it again and again. Teddy bear is reading. We&#x27;re generating sentences by sequentially inputting</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5033s" target="_blank" rel="noopener">1:23:53</a> tokens one at a time and having the model look at anything that it has generated before in order to generate the next token. Well, the problem with that is that if your output sentence or your output response is long, then</p>
+</div>
+</section><section class="row" id="s62">
+<figure>
+<a href="slides/l8/p072.jpg" target="_blank">
+<img src="slides/l8/p072.jpg" alt="Slide p. 72: What about diﬀusion for text?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 72 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5055s" target="_blank" rel="noopener" title="Watch on YouTube from 1:24:15">&#9658; 1:24:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5055s" target="_blank" rel="noopener">1:24:15</a> you will take a lot of time outputting that response because the number of iterations here is in awe of the number of tokens that you output. So in particular, I&#x27;m not sure if you do a lot of coding on a day-to-day basis, but let&#x27;s suppose you want to, let&#x27;s say, code a huge thing, like 1,000 lines of code. Well, what that model is doing is really</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5083s" target="_blank" rel="noopener">1:24:43</a> outputting things one at a time. It takes a long time. And of course, you want this to be quick. Well, one idea is to borrow this idea of diffusion for text. So here what you can think of is instead of doing things one at a time, how about we do everything at once. And we start from noise. And what we do is we progressively denoise in order</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5121s" target="_blank" rel="noopener">1:25:21</a> to obtain our final output. Why wouldn&#x27;t we do that? So, by the way, it sounds very non-natural because I think you&#x27;re very used to saying things in a sequential way. But one analogy I want to point out here is let&#x27;s suppose you&#x27;re writing a speech.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5149s" target="_blank" rel="noopener">1:25:49</a> So first of all, I&#x27;m not sure if you&#x27;ve ever written a speech. But if you were to write a speech, you typically don&#x27;t write things in a very sequential way. You first start with a draft. You have some skeleton of the bullet points you want to talk about. And then what you do is you refine-- go from coarse to fine grained. So what I&#x27;m saying is this idea of doing everything at once, something that starts from noise up to clean,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5177s" target="_blank" rel="noopener">1:26:17</a> although it&#x27;s not natural, it is not completely unreasonable either. Do you agree with what I&#x27;m saying? Yeah? So let&#x27;s suppose if we do that, then what we would do is reduce the complexity from having the number of iterations</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5200s" target="_blank" rel="noopener">1:26:40</a> being in awe of number of output tokens to being in awe</p>
+</div>
+</section><section class="row" id="s63">
+<figure>
+<a href="slides/l8/p073.jpg" target="_blank">
+<img src="slides/l8/p073.jpg" alt="Slide pp. 73–74: What about diﬀusion for text?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 73–74 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5205s" target="_blank" rel="noopener" title="Watch on YouTube from 1:26:45">&#9658; 1:26:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5205s" target="_blank" rel="noopener">1:26:45</a> of the steps of diffusion. So let&#x27;s see how we want to do that. So let&#x27;s assume we take text with random noise. And by the way, I&#x27;m not defining noise just yet, but just assume that the text is noise in a way that we&#x27;ll see later. Let&#x27;s suppose we have a diffusion-based LLM. So what we&#x27;re saying is that we&#x27;re having this text with less and less noise up until having</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5236s" target="_blank" rel="noopener">1:27:16</a> the cleaned text exactly in the same way we have done for images.</p>
+</div>
+</section><section class="row" id="s64">
+<figure>
+<a href="slides/l8/p077.jpg" target="_blank">
+<img src="slides/l8/p077.jpg" alt="Slide pp. 75–77: Finding the equivalent of noise for text" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 75–77 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5242s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:22">&#9658; 1:27:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5242s" target="_blank" rel="noopener">1:27:22</a> So I just want to make sure this analogy is very clear. Here, we&#x27;re denoising the whole input text in the same way</p>
+</div>
+</section><section class="row" id="s65">
+<figure>
+<a href="slides/l8/p078.jpg" target="_blank">
+<img src="slides/l8/p078.jpg" alt="Slide p. 78: Finding the equivalent of noise for text" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 78 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5253s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:33">&#9658; 1:27:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5253s" target="_blank" rel="noopener">1:27:33</a> that we&#x27;re denoising the whole image all at once. Well, a natural question is we have seen that we can think of noise in the image world as Gaussian noise. But for text, it&#x27;s a little bit trickier. And here&#x27;s the reason. In the text world, things are discrete. So you have words. You have tokens.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5278s" target="_blank" rel="noopener">1:27:58</a> You have this. You have that. You&#x27;re not in a continuous world. So in the image world, you would represent your noise with a continuous multivariate variable, typically Gaussian noise. But how would you do with text? So one idea you can have is let&#x27;s just throw whatever token we have. That could be one option. Well, the problem is each token has a semantic meaning.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5309s" target="_blank" rel="noopener">1:28:29</a> And so if you just take any token and you put it as a way to noise your input, then you may make your input have a meaning that is not a meaning you may want your input to have. So for that reason, one thing that the field is starting to align on, which I believe is most common thing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5340s" target="_blank" rel="noopener">1:29:00</a> is to have an actual dedicated token, typically a masked token that would just represent a text token that you</p>
+</div>
+</section><section class="row" id="s66">
+<figure>
+<a href="slides/l8/p079.jpg" target="_blank">
+<img src="slides/l8/p079.jpg" alt="Slide p. 79: Training: learn to ﬁll the blanks" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 79 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5350s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:10">&#9658; 1:29:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5350s" target="_blank" rel="noopener">1:29:10</a> would not know of. So a noised text token. So let&#x27;s assume you do that. Then how would we apply what we have seen so far? Well, we have seen that for training-- so I will spare you all the mathematical derivations which some of these papers they go into. We will not go into that right now. But let&#x27;s assume that we want to mimic the training that we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5378s" target="_blank" rel="noopener">1:29:38</a> have done for images. How would we do that? Well, we would take a clean sentence, as in an unmasked sentence. And what we would do is to corrupt the text according to a noise level. And so here, what does that mean? That means that we would have, let&#x27;s say, a t percent chance.</p>
+</div>
+</section><section class="row" id="s67">
+<figure>
+<a href="slides/l8/p080.jpg" target="_blank">
+<img src="slides/l8/p080.jpg" alt="Slide p. 80: Training: learn to ﬁll the blanks" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 80 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5402s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:02">&#9658; 1:30:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5402s" target="_blank" rel="noopener">1:30:02</a> Let&#x27;s suppose t equals 0.5-- a 50% chance of a token in that sentence being masked. So what we&#x27;re saying is let&#x27;s suppose t equal to 0.5. We&#x27;re masking 50% of the tokens. And then our training strategy can be to reconstruct the tokens that were masked as a function of whatever was in the input that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5433s" target="_blank" rel="noopener">1:30:33</a> was not masked. That can be your training objective. So I know this is not a text class, but for those of you who know about Bert, who&#x27;s an encoder-only architecture, it also has something that is similar as a pre-training task. The only difference is here, the masking scheme</p>
+</div>
+</section><section class="row" id="s68">
+<figure>
+<a href="slides/l8/p081.jpg" target="_blank">
+<img src="slides/l8/p081.jpg" alt="Slide p. 81: Inference: coarse to ﬁne" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 81 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5460s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:00">&#9658; 1:31:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5460s" target="_blank" rel="noopener">1:31:00</a> is done with respect to a noise level that can change, that can vary.</p>
+</div>
+</section><section class="row" id="s69">
+<figure>
+<a href="slides/l8/p082.jpg" target="_blank">
+<img src="slides/l8/p082.jpg" alt="Slide p. 82: Inference: coarse to ﬁne" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 82 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5465s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:05">&#9658; 1:31:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5465s" target="_blank" rel="noopener">1:31:05</a> So you can have t, like a lot of noise. So almost everything masked versus a little bit</p>
+</div>
+</section><section class="row" id="s70">
+<figure>
+<a href="slides/l8/p083.jpg" target="_blank">
+<img src="slides/l8/p083.jpg" alt="Slide pp. 83–84: Inference: coarse to ﬁne" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 83–84 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5470s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:10">&#9658; 1:31:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5470s" target="_blank" rel="noopener">1:31:10</a> masked, whereas for Bert, it&#x27;s always a certain amount of masked token.</p>
+</div>
+</section><section class="row" id="s71">
+<figure>
+<a href="slides/l8/p085.jpg" target="_blank">
+<img src="slides/l8/p085.jpg" alt="Slide p. 85: Inference: coarse to ﬁne" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 85 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5476s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:16">&#9658; 1:31:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5476s" target="_blank" rel="noopener">1:31:16</a> I just want to call that out. So let&#x27;s suppose you have that. Then what you&#x27;re doing is you&#x27;re teaching your model</p>
+</div>
+</section><section class="row" id="s72">
+<figure>
+<a href="slides/l8/p086.jpg" target="_blank">
+<img src="slides/l8/p086.jpg" alt="Slide p. 86: Inference: coarse to ﬁne" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 86 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5486s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:26">&#9658; 1:31:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5486s" target="_blank" rel="noopener">1:31:26</a> to fill the blanks. Well, now how would you go about actually using such a model at inference time? So what you would do is same as what we did for images. Start with completely noised inputs. So here a sequence full of masked token. And then what you would do is just predict what would be hiding behind those masked tokens</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5516s" target="_blank" rel="noopener">1:31:56</a> all at once. But then you want to make sure that you have enough buffer for you to make corrections. So you may want to revise some tokens that you have predicted. So the field has several methods to do that, one of which is just remasking some tokens in a random way. So some other methods, they&#x27;re mask tokens with respect to some confidence scores.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5547s" target="_blank" rel="noopener">1:32:27</a> For instance, if you have a token that you&#x27;re unmasking that you&#x27;re not very sure of, then you may want to just do another try. So here, you would take some tokens that, let&#x27;s say, you&#x27;re not sure of and remask them. And what you would do is to take that new sequence and perform the same operation, meaning trying to see who is behind that masked token.</p>
+</div>
+</section><section class="row" id="s73">
+<figure>
+<a href="slides/l8/p087.jpg" target="_blank">
+<img src="slides/l8/p087.jpg" alt="Slide pp. 87–88: Inference: coarse to ﬁne" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 87–88 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5578s" target="_blank" rel="noopener" title="Watch on YouTube from 1:32:58">&#9658; 1:32:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5578s" target="_blank" rel="noopener">1:32:58</a> And you do that again and again until obtaining your final outputs.</p>
+</div>
+</section><section class="row" id="s74">
+<figure>
+<a href="slides/l8/p089.jpg" target="_blank">
+<img src="slides/l8/p089.jpg" alt="Slide p. 89: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 89 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5585s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:05">&#9658; 1:33:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5585s" target="_blank" rel="noopener">1:33:05</a> So this is a very high-level way of how such a paradigm would work for text. Well, the good thing is there is very active research on it.</p>
+</div>
+</section><section class="row" id="s75">
+<figure>
+<a href="slides/l8/p090.jpg" target="_blank">
+<img src="slides/l8/p090.jpg" alt="Slide p. 90: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 90 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5600s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:20">&#9658; 1:33:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5600s" target="_blank" rel="noopener">1:33:20</a> And so I was reading one of the papers. So you can have speeds up to 10x compared to the traditional autoregressive way of doing things. And that is particularly useful for tasks that requires you to have response as quick as possible. I know a lot of us are using some form of coding agents to do</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5626s" target="_blank" rel="noopener">1:33:46</a> our coding work these days. And I&#x27;m sure you also want your agent to finish as quickly as possible. Well, this paradigm would allow you to speed up that process significantly. And that is the reason why coding is a very good use case for that paradigm. So on the one hand for the speed,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5652s" target="_blank" rel="noopener">1:34:12</a> but on the second hand also because in coding, you naturally have a way to be interested in filling in the middle kind of tasks. Because if you look at your code base, you&#x27;re rarely always trying to generate things in a sequential way, in an autoregressive way. Sometimes you have a bunch of code and you just want to generate code, let&#x27;s say, in the middle of two functions.</p>
+</div>
+</section><section class="row" id="s76">
+<figure>
+<a href="slides/l8/p091.jpg" target="_blank">
+<img src="slides/l8/p091.jpg" alt="Slide p. 91: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 91 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5683s" target="_blank" rel="noopener" title="Watch on YouTube from 1:34:43">&#9658; 1:34:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5683s" target="_blank" rel="noopener">1:34:43</a> So for filling the middle tasks, that paradigm is actually better compared to autoregressive tasks. And we will not have time to go into details, but training is much more expensive,</p>
+</div>
+</section><section class="row" id="s77">
+<figure>
+<a href="slides/l8/p092.jpg" target="_blank">
+<img src="slides/l8/p092.jpg" alt="Slide p. 92: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 92 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5698s" target="_blank" rel="noopener" title="Watch on YouTube from 1:34:58">&#9658; 1:34:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5698s" target="_blank" rel="noopener">1:34:58</a> particularly because in the traditional way, the way training works is you input your whole input and then what you&#x27;re doing is you&#x27;re training your model to predict the next token. And you can parallelize that very well. And this is unfortunately not something that you can do as well with the diffusion scheme.</p>
+</div>
+</section><section class="row" id="s78">
+<figure>
+<a href="slides/l8/p093.jpg" target="_blank">
+<img src="slides/l8/p093.jpg" alt="Slide p. 93: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 93 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5725s" target="_blank" rel="noopener" title="Watch on YouTube from 1:35:25">&#9658; 1:35:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5725s" target="_blank" rel="noopener">1:35:25</a> And then the second thing is there are so many techniques that now are specific to how autoregressive models work that you would need to adapt. And there are also ways to combine the benefits of the two approaches. And for instance, block diffusion is an example of it. So I just wanted to leave you with these screenshots that just tells you of the many headlines that you</p>
+</div>
+</section><section class="row" id="s79">
+<figure>
+<a href="slides/l8/p094.jpg" target="_blank">
+<img src="slides/l8/p094.jpg" alt="Slide p. 94: Diﬀusion LLMs is currently a very hot topic!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 94 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5752s" target="_blank" rel="noopener" title="Watch on YouTube from 1:35:52">&#9658; 1:35:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5752s" target="_blank" rel="noopener">1:35:52</a> see around companies that are betting on this kind of technology.</p>
+</div>
+</section><section class="row" id="s80">
+<figure>
+<a href="slides/l8/p095.jpg" target="_blank">
+<img src="slides/l8/p095.jpg" alt="Slide p. 95: Diﬀusion LLMs suggested readings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 95 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5757s" target="_blank" rel="noopener" title="Watch on YouTube from 1:35:57">&#9658; 1:35:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5757s" target="_blank" rel="noopener">1:35:57</a> So you have one such company called Inception that&#x27;s actually founded by a professor at Stanford that&#x27;s doing great. And I will just leave you with some suggested readings in case you want. And yeah. That&#x27;s a great question. So the question is, how do you handle the variable output length? It&#x27;s a great question. There are a few ways you can deal with that. But in practice, you indeed need to set</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5788s" target="_blank" rel="noopener">1:36:28</a> a given length for your output. And what you do is you stop whatever is after a special token called end of sentence token. Now, you can imagine cases where you&#x27;re expecting a way bigger output, but you always have shorter outputs. So you&#x27;re wasting a lot of computations. So that&#x27;s why the last method I mentioned is something that can be useful. So block diffusion is one approach</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5817s" target="_blank" rel="noopener">1:36:57</a> that&#x27;s being worked on where you&#x27;re actually generating text block by block. So you&#x27;re saying, OK, I&#x27;m going to generate, let&#x27;s say, text of size, let&#x27;s say, 100. And I&#x27;m going to use diffusion for that. And once you generate such an output, if you didn&#x27;t finish the output, then you will use that as a condition to perform another round of diffusion for the second block</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5841s" target="_blank" rel="noopener">1:37:21</a> and so on and so forth until hitting an end of sentence token. So you touch a very good point, which is there are some differences between text and image. And the variable length is one of them. Yep. Yeah. [INAUDIBLE] So the question is, can you apply this to other discrete things other than text? I&#x27;m sure yes. We will not cover this today, but the ways people</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5870s" target="_blank" rel="noopener">1:37:50</a> have derived a tractable mathematical way to do that in the text world is something that involves transcribing things for discrete items. So I&#x27;m sure that it can be done. So I would actually highly recommend the first paper for you to get a sense of how people go from continuous to discrete. Yeah. Yeah, great question.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5895s" target="_blank" rel="noopener">1:38:15</a> So the question is, can you not consider text as just being a screenshot of-- sorry, can you not consider text as being images of text and use some kind of OCR mechanism to process that? So I think it&#x27;s definitely a great approach. There&#x27;s actually a paper that was published a few months ago, DeepSeek OCR, that goes into that. I do think it&#x27;s promising. I believe there is some savings with respect to how many tokens</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5920s" target="_blank" rel="noopener">1:38:40</a> that fills compared to how many tokens the actual text would fill in. So it&#x27;s definitely another directions that I think is promising. Cool.</p>
+</div>
+</section><section class="row" id="s81">
+<figure>
+<a href="slides/l8/p096.jpg" target="_blank">
+<img src="slides/l8/p096.jpg" alt="Slide p. 96: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 96 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5932s" target="_blank" rel="noopener" title="Watch on YouTube from 1:38:52">&#9658; 1:38:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5932s" target="_blank" rel="noopener">1:38:52</a> With that, I&#x27;ll give it to Shervine. Thank you, Afshine.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5937s" target="_blank" rel="noopener">1:38:57</a> So welcome to the last stretch of CME 96. So we&#x27;re going to see together some closing thoughts on what lies ahead, as well as some challenges that we see. So first, let&#x27;s look at today. So when you look at existing top models,</p>
+</div>
+</section><div class="chapter" id="ch-Closing-thoughts"><span>Closing thoughts</span><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5955s" target="_blank" rel="noopener">1:39:15</a></div><section class="row" id="s82">
+<figure>
+<a href="slides/l8/p097.jpg" target="_blank">
+<img src="slides/l8/p097.jpg" alt="Slide p. 97: More use cases to be expected" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 97 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5955s" target="_blank" rel="noopener" title="Watch on YouTube from 1:39:15">&#9658; 1:39:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5955s" target="_blank" rel="noopener">1:39:15</a> what is the typical price you have to pay for a perfect image? So I did the research for you.</p>
+</div>
+</section><section class="row" id="s83">
+<figure>
+<a href="slides/l8/p098.jpg" target="_blank">
+<img src="slides/l8/p098.jpg" alt="Slide p. 98: More use cases to be expected" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 98 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5961s" target="_blank" rel="noopener" title="Watch on YouTube from 1:39:21">&#9658; 1:39:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5961s" target="_blank" rel="noopener">1:39:21</a> I looked at major labs across the board, and it seems that the price per megapixel is of about $0.01. And I think that&#x27;s going to be a useful metric to track over time to see the transition from this being a nice thing to a commodity. And of course, in reality, you wouldn&#x27;t use these top models that I listed here, but more of a distilled version. But still, the upper bound gives a good view</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=5992s" target="_blank" rel="noopener">1:39:52</a> of what people would be ready to pay for perfect quality. But then let&#x27;s look at the kinds of challenges that could be tackled in the near term. So one thing that you notice is that images, they are doing well on themselves. But there are wins. In other modalities that you are inclined to include in order</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6018s" target="_blank" rel="noopener">1:40:18</a> to make generation more powerful. So one example that I have in mind is reasoning with images. So right now, anecdotally, if you ask for a diagram, you might get, with most models, a projection of what you asked on an image, which is a nice start. But it&#x27;s not quite to the same level of refinement as the one you might get in the text world, where you ask a very precise question and the model</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6048s" target="_blank" rel="noopener">1:40:48</a> goes in searching for a meaning behind it and then projecting the exact answer in a concise way. So that seems like a good area of research. And then one topic that I&#x27;ve seen mentioned here. So for image editing use cases, it seems that we&#x27;re being too hard on ourselves. We&#x27;re doing the whole generation process that is, by nature,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6074s" target="_blank" rel="noopener">1:41:14</a> unconstrained. And it seems we have an opportunity to use existing tools and wins in the text world, to use agents and existing human expertise to make editing happen in a constrained and tractable way. And then you have other use cases that could seem attractive to you all.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6101s" target="_blank" rel="noopener">1:41:41</a> For example, learning about a class, you have several streams of information that come from texts, for example, the slides, the lecture video, and also the audio track. So while you can put pieces together one by one today,</p>
+</div>
+</section><section class="row" id="s84">
+<figure>
+<a href="slides/l8/p099.jpg" target="_blank">
+<img src="slides/l8/p099.jpg" alt="Slide p. 99: More use cases to be expected" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 99 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6118s" target="_blank" rel="noopener" title="Watch on YouTube from 1:41:58">&#9658; 1:41:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6118s" target="_blank" rel="noopener">1:41:58</a> it seems that there is an opportunity to bring all modalities to a consistent and coherent way and generate synthesis out of this. And in the longer run, you can see the consequences of all these benefits across industries that might be lagging because of some inertia factor. So you can think of so the field of robotics,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6144s" target="_blank" rel="noopener">1:42:24</a> which seems to be the next area that could benefit from a revolution. So in text, we can generate text now like roughly solved images. Now we see great images roughly solved. And it seems we have an opportunity to feed all these learnings into the ingredients that could make robotics pick up, for example, environments, but also medicine and other desk jobs that might need their own process of approvals</p>
+</div>
+</section><section class="row" id="s85">
+<figure>
+<a href="slides/l8/p100.jpg" target="_blank">
+<img src="slides/l8/p100.jpg" alt="Slide p. 100: More use cases to be expected" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 100 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6174s" target="_blank" rel="noopener" title="Watch on YouTube from 1:42:54">&#9658; 1:42:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6174s" target="_blank" rel="noopener">1:42:54</a> to actually incorporate these wins. And maybe one day you won&#x27;t need to come to lecture at all, and there will be some model gathering all the pieces for you in a coherent and pedagogic way. But I think we might still be far from that, because the fact of transmitting knowledge still</p>
+</div>
+</section><section class="row" id="s86">
+<figure>
+<a href="slides/l8/p101.jpg" target="_blank">
+<img src="slides/l8/p101.jpg" alt="Slide p. 101: Ongoing challenges" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 101 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6197s" target="_blank" rel="noopener" title="Watch on YouTube from 1:43:17">&#9658; 1:43:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6197s" target="_blank" rel="noopener">1:43:17</a> requires that taste and opinion that even the text world doesn&#x27;t have. So I&#x27;m quite curious to see when that will happen. On the challenges side, so as we have seen, there are costs. And you can use distillation to alleviate a bit of that. But also, there is research on the hardware side where right now hardware is built on top of matrix multiplies. But as you have seen, the building block</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6226s" target="_blank" rel="noopener">1:43:46</a> of these days models is transformers and which relies on the concept of attention. And this attention has a very precise succession of operations that you could think of simplifying in an analog to numeric way. So this research paper could be one such pointer.</p>
+</div>
+</section><section class="row" id="s87">
+<figure>
+<a href="slides/l8/p102.jpg" target="_blank">
+<img src="slides/l8/p102.jpg" alt="Slide p. 102: Ongoing challenges" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 102 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6245s" target="_blank" rel="noopener" title="Watch on YouTube from 1:44:05">&#9658; 1:44:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6245s" target="_blank" rel="noopener">1:44:05</a> But also one other concern is the data quality side because today, you see all these images that are being generated that are out in the wild. So for the next generation of models, you might encounter the issue of not finding the true distribution p data, as we had assumed we had. And you have some papers that study the phenomenon of so-called model collapse, where</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6272s" target="_blank" rel="noopener">1:44:32</a> feeding what has been generated is a way for [AUDIO OUT].</p>
+</div>
+</section><section class="row" id="s88">
+<figure>
+<a href="slides/l8/p103.jpg" target="_blank">
+<img src="slides/l8/p103.jpg" alt="Slide p. 103: Ongoing challenges" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 103 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6278s" target="_blank" rel="noopener" title="Watch on YouTube from 1:44:38">&#9658; 1:44:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6278s" target="_blank" rel="noopener">1:44:38</a> So it looks like an echo chamber of mistakes that keep growing. And you see that at the end, if you represent embeddings of generations somewhere, you could clearly cluster the two. But how could we deal with that? So that&#x27;s the kind of trust point which is key in our society. You want to be able to trust images. And now these days, with how similar</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6305s" target="_blank" rel="noopener">1:45:05</a> the true data distribution and generated images are, it seems like the border is becoming thin. So two ways to counter that. There is a norm called C2PA that has been gaining traction across software companies. So you might see this AI info popping in. It&#x27;s because images that you create with AI have some of history attached to it that surfaces it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6332s" target="_blank" rel="noopener">1:45:32</a> So that could be one way to tackle the data collection quality issue that I mentioned before. But the thing is, if you take a screenshot of this, the concept of metadata disappears.</p>
+</div>
+</section><section class="row" id="s89">
+<figure>
+<a href="slides/l8/p104.jpg" target="_blank">
+<img src="slides/l8/p104.jpg" alt="Slide p. 104: Ongoing challenges" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 104 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6346s" target="_blank" rel="noopener" title="Watch on YouTube from 1:45:46">&#9658; 1:45:46</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6346s" target="_blank" rel="noopener">1:45:46</a> So are we doomed? Actually, no. There are other ways that we could employ to get around this. One example is watermarking with the example of SynthID from Google DeepMind that hides behind pixels patterns that reveal its origin. So beyond that, you also have the topic</p>
+</div>
+</section><section class="row" id="s90">
+<figure>
+<a href="slides/l8/p105.jpg" target="_blank">
+<img src="slides/l8/p105.jpg" alt="Slide p. 105: Ongoing challenges" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 105 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6369s" target="_blank" rel="noopener" title="Watch on YouTube from 1:46:09">&#9658; 1:46:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6369s" target="_blank" rel="noopener">1:46:09</a> of safety, which is very important. And creating images that are harmful to others</p>
+</div>
+</section><section class="row" id="s91">
+<figure>
+<a href="slides/l8/p108.jpg" target="_blank">
+<img src="slides/l8/p108.jpg" alt="Slide pp. 106–108: How to stay up-to-date with Vision advances" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 106–108 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6376s" target="_blank" rel="noopener" title="Watch on YouTube from 1:46:16">&#9658; 1:46:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6376s" target="_blank" rel="noopener">1:46:16</a> can have societal implications. So there is two parts to fixing this. One is on the model side where each company has their own policies to guard such generations. But also law is picking up. And what can you do from there? So let&#x27;s say, this class ends. How can you be updated? So one suggestion is to take a look at the relevant archive</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6408s" target="_blank" rel="noopener">1:46:48</a> section on computer vision. But you might see that the number of submissions every day is of 100. So this might not be tractable. But on the other hand, some venues do a good job at distilling some of these works. Not all, but they can give you an idea of where the field is heading. And something else that I want to tell you is all these papers, we saw a bunch of formulas all over the place.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6436s" target="_blank" rel="noopener">1:47:16</a> And sometimes you just want to know how they work. And a great pattern that we see in academia and in the industry is that there is code release of what was used to design a given method. So I highly encourage cloning the GitHub repo and playing with an AI assistant coding software on just getting you through the flow. And you will learn a ton just by doing that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6463s" target="_blank" rel="noopener">1:47:43</a> And beyond that, you have other resources. So on Twitter, you have a growing community of people</p>
+</div>
+</section><section class="row" id="s92">
+<figure>
+<a href="slides/l8/p109.jpg" target="_blank">
+<img src="slides/l8/p109.jpg" alt="Slide p. 109: Maybe useful for after the class" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 109 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6471s" target="_blank" rel="noopener" title="Watch on YouTube from 1:47:51">&#9658; 1:47:51</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6471s" target="_blank" rel="noopener">1:47:51</a> who talk about these topics. So if your For You page turns out to be in the clusters of these topics, you can get a lot of interesting recommendations. And another highlight is other Stanford courses that talk about vision, like 231n that I recommend. And there is this study guide that we</p>
+</div>
+</section><section class="row" id="s93">
+<figure>
+<a href="slides/l8/p110.jpg" target="_blank">
+<img src="slides/l8/p110.jpg" alt="Slide p. 110: Thank you for this quarter!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 110 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6493s" target="_blank" rel="noopener" title="Watch on YouTube from 1:48:13">&#9658; 1:48:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6493s" target="_blank" rel="noopener">1:48:13</a> shared at the beginning of the class that we aim at keeping up to date across the years. But beyond all that, Afshine and I wanted to say that we are very happy to come here every Friday and teach this class and spend time with you. It has been a pleasure for us. And thank you, hidden heroes, who came here on the evenings and asked so many great questions. You were one of the reasons why the class was so dynamic</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6525s" target="_blank" rel="noopener">1:48:45</a> and generated insights that could then be useful to everyone. Thank you also to those watching online. Thank you for the great questions on Ed. And I hope the class was of value to you. And if you are around in the fall, Afshine and I will be teaching a similar class,</p>
+</div>
+</section><section class="row" id="s94">
+<figure>
+<a href="slides/l8/p111.jpg" target="_blank">
+<img src="slides/l8/p111.jpg" alt="Slide p. 111: See you this Fall?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 111 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6546s" target="_blank" rel="noopener" title="Watch on YouTube from 1:49:06">&#9658; 1:49:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6546s" target="_blank" rel="noopener">1:49:06</a> but in the text world where it will be our second edition. And if you are in for a new ride,</p>
+</div>
+</section><section class="row" id="s95">
+<figure>
+<a href="slides/l8/p112.jpg" target="_blank">
+<img src="slides/l8/p112.jpg" alt="Slide p. 112: Wishing you all the best!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 112 <a class="tlink chip" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6553s" target="_blank" rel="noopener" title="Watch on YouTube from 1:49:13">&#9658; 1:49:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=oyLUvz9nR6E&t=6553s" target="_blank" rel="noopener">1:49:13</a> then we&#x27;d love to see you again. And our favorite teddy bear is coming one last time to wish you a great summer and all the best. Thank you. [APPLAUSE]</p>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<p>Slides &copy; CME 296 instructors (Afshine Amidi &amp; Shervine Amidi), Stanford University.
+Transcript from the lecture video. Slide&ndash;transcript alignment is automatic
+(content matching) and approximate; timestamps link to the video.</p>
+<nav class="lnav"><a href="lecture7.html">&larr; Lecture 7</a><a href="index.html">All lectures</a><span></span></nav>
+</footer>
+</body>
+</html>

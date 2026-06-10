@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 1: Diffusion — CME 296: Diffusion &amp; Large Vision Models</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<p class="course"><a href="index.html">CME 296: Diffusion &amp; Large Vision Models</a></p>
+<h1>Lecture 1: Diffusion</h1>
+<p class="meta">April 3rd, 2026 &middot;
+<a href="https://cme296.stanford.edu/slides/spring26-cme296-lecture1.pdf" target="_blank" rel="noopener">Slides (PDF)</a> &middot;
+<a href="https://www.youtube.com/watch?v=tr-CUpw--ck" target="_blank" rel="noopener">Video on YouTube</a></p>
+<nav class="lnav"><span></span><a href="index.html">All lectures</a><a href="lecture2.html">Lecture 2 &rarr;</a></nav>
+</div>
+</header>
+<details class="toc wrap"><summary>Chapters</summary><p><a href="#ch-Introduction">Introduction</a> &middot; <a href="#ch-Class-logistics">Class logistics</a> &middot; <a href="#ch-Outline-of-the-class">Outline of the class</a> &middot; <a href="#ch-Motivating-example">Motivating example</a> &middot; <a href="#ch-Intuition-behind-diffusion">Intuition behind diffusion</a> &middot; <a href="#ch-Image-representation">Image representation</a> &middot; <a href="#ch-Variational-formulation">Variational formulation</a> &middot; <a href="#ch-Joint-probability-distribution">Joint probability distribution</a> &middot; <a href="#ch-Strategy-to-derive-a-tractable-loss">Strategy to derive a tractable loss</a> &middot; <a href="#ch-ELBO-derivation">ELBO derivation</a> &middot; <a href="#ch-KL-divergence">KL divergence</a> &middot; <a href="#ch-Bayes&#x27;-rule">Bayes&#x27; rule</a> &middot; <a href="#ch-DDPM-training">DDPM training</a> &middot; <a href="#ch-Inference-with-DDPM">Inference with DDPM</a> &middot; <a href="#ch-Faster-sampling-with-DDIM">Faster sampling with DDIM</a></p></details>
+<main class="wrap">
+<div class="chapter" id="ch-Introduction"><span>Introduction</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5s" target="_blank" rel="noopener">0:05</a></div><section class="row" id="s0">
+<figure>
+<a href="slides/l1/p001.jpg" target="_blank">
+<img src="slides/l1/p001.jpg" alt="Slide p. 1: CME 296: Diﬀusion &amp;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 1 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5s" target="_blank" rel="noopener" title="Watch on YouTube from 0:05">&#9658; 0:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5s" target="_blank" rel="noopener">0:05</a> Hello, everyone, and welcome to CME 296, Diffusion and Large Vision Models. My name is Afshine and I&#x27;m going to be teaching this class with Shervine who&#x27;s in the back.</p>
+</div>
+</section><section class="row" id="s1">
+<figure>
+<a href="slides/l1/p002.jpg" target="_blank">
+<img src="slides/l1/p002.jpg" alt="Slide p. 2: Teaching staﬀ" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 2 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=19s" target="_blank" rel="noopener" title="Watch on YouTube from 0:19">&#9658; 0:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=19s" target="_blank" rel="noopener">0:19</a> So before we start. I&#x27;m just going to introduce ourselves. So Shervine and I are twin brothers</p>
+</div>
+</section><section class="row" id="s2">
+<figure>
+<a href="slides/l1/p003.jpg" target="_blank">
+<img src="slides/l1/p003.jpg" alt="Slide p. 3: Teaching staﬀ" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 3 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=26s" target="_blank" rel="noopener" title="Watch on YouTube from 0:26">&#9658; 0:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=26s" target="_blank" rel="noopener">0:26</a> and we have very similar backgrounds. So we both went to a school in France called Centrale Paris. And then we came here to the US to do grad school. So on my end, I went to MIT, and then Shervin went to the ICME Department at Stanford. And then after that, we&#x27;ve had pretty similar backgrounds in the industry. So we both went to Uber first, and then we went to Google,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=57s" target="_blank" rel="noopener">0:57</a> and now we&#x27;re both at Netflix. And the reason why we&#x27;re so excited to be teaching this class is because back in the day, 10 years ago, when we started in the field, we actually had our first project be a computer vision project.</p>
+</div>
+</section><section class="row" id="s3">
+<figure>
+<a href="slides/l1/p004.jpg" target="_blank">
+<img src="slides/l1/p004.jpg" alt="Slide p. 4: Motivation behind CME 296" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 4 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=77s" target="_blank" rel="noopener" title="Watch on YouTube from 1:17">&#9658; 1:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=77s" target="_blank" rel="noopener">1:17</a> And it&#x27;s been crazy the amount of progress that we&#x27;ve seen in the field. So this is the kind of images that we were able to generate. So it&#x27;s back in 2014. So it was mostly low resolution black and white pictures. So for instance, here there some digits or human faces. And as you all know, nowadays we&#x27;re</p>
+</div>
+</section><section class="row" id="s4">
+<figure>
+<a href="slides/l1/p005.jpg" target="_blank">
+<img src="slides/l1/p005.jpg" alt="Slide p. 5: Motivation behind CME 296" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 5 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=105s" target="_blank" rel="noopener" title="Watch on YouTube from 1:45">&#9658; 1:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=105s" target="_blank" rel="noopener">1:45</a> able to generate high resolution colored images.</p>
+</div>
+</section><section class="row" id="s5">
+<figure>
+<a href="slides/l1/p006.jpg" target="_blank">
+<img src="slides/l1/p006.jpg" alt="Slide p. 6: Motivation behind CME 296" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 6 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=105s" target="_blank" rel="noopener">&#8776; 1:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s6">
+<figure>
+<a href="slides/l1/p008.jpg" target="_blank">
+<img src="slides/l1/p008.jpg" alt="Slide pp. 7–8: CME 296 overview" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 7–8 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=110s" target="_blank" rel="noopener" title="Watch on YouTube from 1:50">&#9658; 1:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=110s" target="_blank" rel="noopener">1:50</a> So for instance those ones that I generated with ChatGPT. And the goal of this class is to understand how this image generation models work and what makes them work so well. So in particular, this class has two main goals. So the first goal is to understand the paradigms</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=137s" target="_blank" rel="noopener">2:17</a> behind how we can generate these images. And the second one is to understand how the underlying models are trained and evaluated. So in case you&#x27;re here in this room and still wondering if this class is good for you, I would say that this class is good if you have, in general, an interest in understanding how</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=161s" target="_blank" rel="noopener">2:41</a> image generation models work. And in particular, if this is something that you wanted to do as a career goal, if you want to go in the field of research to do peer research scientists to research how to generate images in a better way. Or if you are yourself interested, to do that on your personal time as a personal project, or just if you&#x27;re here out of pure curiosity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=190s" target="_blank" rel="noopener">3:10</a> With that being said, I want to give a warning. So this class actually has a pretty strong set</p>
+</div>
+</section><section class="row" id="s7">
+<figure>
+<a href="slides/l1/p009.jpg" target="_blank">
+<img src="slides/l1/p009.jpg" alt="Slide p. 9: Prerequisites" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 9 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=199s" target="_blank" rel="noopener" title="Watch on YouTube from 3:19">&#9658; 3:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=199s" target="_blank" rel="noopener">3:19</a> of prerequisites, and I&#x27;m not going to hide it. So this slide is just there to enumerate the kinds of prerequisites that I think are good to have just so that you&#x27;re not surprised. So first of all, in case you have some background in linear algebra, for instance, if you know what a vector is, what a matrix is, how you do operations, what is the gradient, what</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=225s" target="_blank" rel="noopener">3:45</a> is the divergence of a vector field, that would be great. If you don&#x27;t everything, that&#x27;s OK too. So in this class, we will not assume that you know everything,</p>
+</div>
+</section><section class="row" id="s8">
+<figure>
+<a href="slides/l1/p010.jpg" target="_blank">
+<img src="slides/l1/p010.jpg" alt="Slide p. 10: Prerequisites" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 10 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=239s" target="_blank" rel="noopener" title="Watch on YouTube from 3:59">&#9658; 3:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=239s" target="_blank" rel="noopener">3:59</a> but if you have at least some foundation, it&#x27;s quite important to have it. So linear algebra is one. Second one that&#x27;s quite important is probability theory. So in particular Bayes&#x27; rule, conditional marginal probabilities. What is an expectation? What is the covariance matrix, and what</p>
+</div>
+</section><section class="row" id="s9">
+<figure>
+<a href="slides/l1/p011.jpg" target="_blank">
+<img src="slides/l1/p011.jpg" alt="Slide p. 11: Prerequisites" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 11 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=263s" target="_blank" rel="noopener" title="Watch on YouTube from 4:23">&#9658; 4:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=263s" target="_blank" rel="noopener">4:23</a> is the Gaussian distribution? Again, if you don&#x27;t everything it&#x27;s fine, but at least most of it or at least if you&#x27;ve heard of it. Then you have differential equations. So here we&#x27;ll see how we can use ODEs and SDEs. So ordinary differential equations</p>
+</div>
+</section><section class="row" id="s10">
+<figure>
+<a href="slides/l1/p012.jpg" target="_blank">
+<img src="slides/l1/p012.jpg" alt="Slide p. 12: Prerequisites" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 12 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=283s" target="_blank" rel="noopener" title="Watch on YouTube from 4:43">&#9658; 4:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=283s" target="_blank" rel="noopener">4:43</a> and stochastic differential equations and how they matter, and how we solve them. And then last but not least, there&#x27;s some basics of ML. So if you know how you train a model, just in general using a neural network, how you do training, how you do inference, that would be great. But again, we will try to review these concepts</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=309s" target="_blank" rel="noopener">5:09</a> in a non-exhaustive way in an intuitive way. But yeah, just knowing those, I think, would be great. So that&#x27;s one Warning. The second thing that I will say is that this field</p>
+</div>
+</section><section class="row" id="s11">
+<figure>
+<a href="slides/l1/p014.jpg" target="_blank">
+<img src="slides/l1/p014.jpg" alt="Slide pp. 13–14: Logistics" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 13–14 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=323s" target="_blank" rel="noopener" title="Watch on YouTube from 5:23">&#9658; 5:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=323s" target="_blank" rel="noopener">5:23</a> is very technical in general. So if you read a computer vision image generation paper, you will see that there are formulas all over the place. So the goal of this class will not be to go into all of these details. So we will try to strike a balance between not shying away from the math, just understanding what are the important formulas, but also at the same time,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=350s" target="_blank" rel="noopener">5:50</a> just understand why they&#x27;re there. So we&#x27;ll try to make a big emphasis on intuition. All good so far? OK, great. So just moving on to some logistics.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=368s" target="_blank" rel="noopener">6:08</a> So we&#x27;ll have this class every Friday from 3:30 to 5:20 in this class. And just again logistics. So it&#x27;s a two unit class. You can take it either as a letter or credit non-credit. So as you can see with the setup, the lectures are recorded. We&#x27;ll try to post the videos by Saturday evening.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=394s" target="_blank" rel="noopener">6:34</a> So for you watching remotely, if you don&#x27;t come to class, it&#x27;s all good. We&#x27;ll be just publishing the videos within a day of it happening. And then in terms of the exams. This class has no homework, but we have two exams. One is the midterm and the other one is the final. And here, it&#x27;s the kind of exam that you may or may not like,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=423s" target="_blank" rel="noopener">7:03</a> but it is a pen and paper kind of exam. Meaning the lectures that we will do will be about concepts that will be covered in the exam. And the important thing is to not know all the details, again, just the general formulas and mainly the intuition</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=449s" target="_blank" rel="noopener">7:29</a> as to why they&#x27;re there. So in case, it&#x27;s a little bit vague for you, we have a similar class that we do for LLMs. I&#x27;m not sure if you&#x27;ve heard CME 295. So the format of the exams is very similar. So in case you&#x27;re interested, we put just a link to one kind of exam that you can expect. Of course, it will not be the same questions because it&#x27;s also different topics, but it will give you a good idea.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=484s" target="_blank" rel="noopener">8:04</a> Any questions on the exams? Super clear? Yeah I know it&#x27;s the first lecture, and I&#x27;m talking about exams already. So yeah, don&#x27;t worry. It&#x27;s four weeks away and we have time. And yeah, it&#x27;s a fun class, I promise. Cool. In terms of the material, we have a class website,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=511s" target="_blank" rel="noopener">8:31</a> and on that website we&#x27;ll be publishing the slides and the recordings as well. So just so that you have a way to get the slides in advance for annotation purposes, one thing we will do is to publish the slides the day before the lecture, so Thursday evening. So you can get the slides and make some annotations. And if you saw, there is a tab also top right cheat sheets.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=542s" target="_blank" rel="noopener">9:02</a> We also published a condensed four page cheat sheet on the content of this class. So it gathers all the main formulas and concepts. So our goal is-- if you look at it today, if you don&#x27;t understand parts of it, our goal is by the end of this class to have everything be very clear.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=570s" target="_blank" rel="noopener">9:30</a> So if we achieve that goal, I think that&#x27;s great. Cool. OK. So last thing. So for any announcements, we&#x27;ll be posting them on Canvas. And then we have a forum for class discussions on Ed. And of course, feel free to reach out to us. So there is the addresses here on the slides,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=593s" target="_blank" rel="noopener">9:53</a> if you need anything. Cool. I think these are all the logistics. Is there any questions so far on just how the class works? Yeah. So the question-- so I&#x27;m going to also repeat the question for people at home. So how long is the midterm and the exam? It&#x27;s one hour and 30 minutes.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=624s" target="_blank" rel="noopener">10:24</a> OK, cool. I think we&#x27;re all good then. Great. So let&#x27;s get started. So I just want to call out that in the slides of this class what we will do is to explain the concepts in the main part, but we will always put a reference to the paper that talks more in depth about what we&#x27;re talking about, just because we only have, I believe,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=652s" target="_blank" rel="noopener">10:52</a> eight lectures of two hours, so we have nowhere near covering everything in detail. So yeah, feel free to look at them. They will not be required to know for the exam, it&#x27;s just for your own reference. OK, an important note. So I mentioned that the papers in the field are crazy in terms of technicality and math formulas,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=678s" target="_blank" rel="noopener">11:18</a> the same goes for conventions. So you will see that from paper to paper, things are noted differently, and it can be very confusing. So for instance, you will see there is a time t that sometimes is between 0 and 1, sometimes it&#x27;s between 0 and T, sometimes it&#x27;s in reverse, sometimes a epsilon is not a Z or X0 or X1, et cetera.</p>
+</div>
+</section><section class="row" id="s12">
+<figure>
+<a href="slides/l1/p015.jpg" target="_blank">
+<img src="slides/l1/p015.jpg" alt="Slide p. 15: Material" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 15 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=699s" target="_blank" rel="noopener">&#8776; 11:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s13">
+<figure>
+<a href="slides/l1/p016.jpg" target="_blank">
+<img src="slides/l1/p016.jpg" alt="Slide p. 16: Material" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 16 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=699s" target="_blank" rel="noopener">&#8776; 11:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s14">
+<figure>
+<a href="slides/l1/p017.jpg" target="_blank">
+<img src="slides/l1/p017.jpg" alt="Slide p. 17: Class communications" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 17 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=699s" target="_blank" rel="noopener">&#8776; 11:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s15">
+<figure>
+<a href="slides/l1/p019.jpg" target="_blank">
+<img src="slides/l1/p019.jpg" alt="Slide pp. 18–19: Example of a slide in this class" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 18–19 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=699s" target="_blank" rel="noopener">&#8776; 11:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Class-logistics"><span>Class logistics</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=707s" target="_blank" rel="noopener">11:47</a></div><section class="row" id="s16">
+<figure>
+<a href="slides/l1/p020.jpg" target="_blank">
+<img src="slides/l1/p020.jpg" alt="Slide p. 20: Important note on conventions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 20 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=707s" target="_blank" rel="noopener" title="Watch on YouTube from 11:47">&#9658; 11:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=707s" target="_blank" rel="noopener">11:47</a> So in this class, what we will try to do is three things. First is we will always try to rely on the most commonly used notations, so that when you go and refer to those papers, you&#x27;re not lost. The second one is we will try to stay consistent as much as possible. So if we take a notation, we&#x27;ll try to keep it so that you&#x27;re not confused.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=735s" target="_blank" rel="noopener">12:15</a> And if we don&#x27;t keep it, we&#x27;ll just make sure to call it out.</p>
+</div>
+</section><div class="chapter" id="ch-Outline-of-the-class"><span>Outline of the class</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=743s" target="_blank" rel="noopener">12:23</a></div><section class="row" id="s17">
+<figure>
+<a href="slides/l1/p023.jpg" target="_blank">
+<img src="slides/l1/p023.jpg" alt="Slide pp. 21–23: Outline of this class" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 21–23 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=743s" target="_blank" rel="noopener" title="Watch on YouTube from 12:23">&#9658; 12:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=743s" target="_blank" rel="noopener">12:23</a> OK. Great. So as I mentioned this class is all about understanding how image generation models work. So here you have a typical setup where you have let&#x27;s say a prompt where you specify what you want to generate. So here I want to generate a Teddy bear reading a book. And I put that in some model.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=769s" target="_blank" rel="noopener">12:49</a> And then the model generates an image. So this is what we want to cover. But as easy as it seems, it&#x27;s actually quite complex. There&#x27;s a lot of things moving pieces everywhere. And I&#x27;m going to call out the main moving pieces that we&#x27;ll cover. So the first one is if you suppose</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=795s" target="_blank" rel="noopener">13:15</a> that you have some model, how do you go about generating images? What is the process of generating images? So in the text world is quite easy. The most common paradigm is you generate one token at a time, because that&#x27;s also what people talk and how people write, so it&#x27;s quite intuitive, but in the image world, it&#x27;s not straightforward.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=823s" target="_blank" rel="noopener">13:43</a> So we will focus lectures 1, 2, and 3 on this part. And we will cover the main ways of doing it, which are the most commonly used today, which are diffusion, score matching, and flow matching. Then we will look at how we can condition our model to generate</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=851s" target="_blank" rel="noopener">14:11</a> these images to start with. So we&#x27;ll cover that in lecture 4. So in some sense we want to guide the model to generate something, and this is what we will cover. We&#x27;ll also cover how to represent images in a space that quote unquote, &quot;makes sense.&quot; So lecture 5 is going to be about the model architecture.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=879s" target="_blank" rel="noopener">14:39</a> So we&#x27;ll take a look at the backbones that are most commonly used today. So back in the day you may have heard of u-net as being something that was used. But there&#x27;s currently a convergence of architectures more towards transformer based architectures, such as the diffusion transformer and variants such as the multimodal diffusion</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=902s" target="_blank" rel="noopener">15:02</a> transformer, and we will take a look at those there. Then lecture 6 will be around knowing how to train those models. So in particular, how do you have your model understand how to generate images and any post-training approaches that you may also need. There&#x27;s also something that is quite important, especially</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=928s" target="_blank" rel="noopener">15:28</a> in the industry, which is you have your model, but you want to run it quicker because you have some constraints in your setup so we will see also distillation techniques. So this will be in lecture 6. And finally lecture 7 will be about evaluating images. Because if you look at an image-- I&#x27;m not sure about you, but it&#x27;s not super obvious</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=956s" target="_blank" rel="noopener">15:56</a> how you would define an image as being great or not great. So you will see that the field is full of acronyms when it comes to metrics. And each of those is there actually for a reason and we&#x27;ll try to see that. And then the second thing that we will see is this emergence of multi-modal LLMs</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=983s" target="_blank" rel="noopener">16:23</a> that also understand images that can also help us to evaluate them. So this will be for lecture 7. And today as mentioned, we will start with the generation paradigm one. And in particular, we will look at diffusion. So who has heard of diffusion. Yeah, OK so everyone.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1011s" target="_blank" rel="noopener">16:51</a> So we will see beyond the general intuition of roughly how that works. We&#x27;ll see exactly how this was defined and what is making this objective be tractable in practice. So one thing that I want to call out is in the first three lectures, we will assume that there is nothing as input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1040s" target="_blank" rel="noopener">17:20</a> So we have some distribution of data that we use as training sets. And what we want is to generate images that are like them. So in mathematical terms, we want to have a model that is able to sample an observation from the data distribution.</p>
+</div>
+</section><section class="row" id="s18">
+<figure>
+<a href="slides/l1/p024.jpg" target="_blank">
+<img src="slides/l1/p024.jpg" alt="Slide p. 24: Outline of this class" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 24 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1058s" target="_blank" rel="noopener" title="Watch on YouTube from 17:38">&#9658; 17:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1058s" target="_blank" rel="noopener">17:38</a> So in a sense we&#x27;ll only focus on unconditioned generations</p>
+</div>
+</section><section class="row" id="s19">
+<figure>
+<a href="slides/l1/p027.jpg" target="_blank">
+<img src="slides/l1/p027.jpg" alt="Slide pp. 25–27: Outline of this class" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 25–27 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1063s" target="_blank" rel="noopener" title="Watch on YouTube from 17:43">&#9658; 17:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1063s" target="_blank" rel="noopener">17:43</a> for the first three lectures including this one.</p>
+</div>
+</section><div class="chapter" id="ch-Motivating-example"><span>Motivating example</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1069s" target="_blank" rel="noopener">17:49</a></div><section class="row" id="s20">
+<figure>
+<a href="slides/l1/p028.jpg" target="_blank">
+<img src="slides/l1/p028.jpg" alt="Slide p. 28: First three lectures: generation paradigms" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 28 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1069s" target="_blank" rel="noopener" title="Watch on YouTube from 17:49">&#9658; 17:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1069s" target="_blank" rel="noopener">17:49</a> Cool. So speaking of data distribution. So let&#x27;s suppose we have a set of images.</p>
+</div>
+</section><section class="row" id="s21">
+<figure>
+<a href="slides/l1/p029.jpg" target="_blank">
+<img src="slides/l1/p029.jpg" alt="Slide p. 29: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 29 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1069s" target="_blank" rel="noopener">&#8776; 17:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s22">
+<figure>
+<a href="slides/l1/p030.jpg" target="_blank">
+<img src="slides/l1/p030.jpg" alt="Slide p. 30: Problem formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 30 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1077s" target="_blank" rel="noopener" title="Watch on YouTube from 17:57">&#9658; 17:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1077s" target="_blank" rel="noopener">17:57</a> So here a long running example will be Teddy Bears. So here let&#x27;s say we have a collection of Teddy Bears as training images. Our goal is to understand a way to sample an observation from that data distribution that is new. So what we want to do is to be able to generate an image that</p>
+</div>
+</section><section class="row" id="s23">
+<figure>
+<a href="slides/l1/p031.jpg" target="_blank">
+<img src="slides/l1/p031.jpg" alt="Slide p. 31: Problem formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 31 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1102s" target="_blank" rel="noopener" title="Watch on YouTube from 18:22">&#9658; 18:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1102s" target="_blank" rel="noopener">18:22</a> is in that data distribution. So here for instance giraffe. And again, just emphasizing that this is unconditioned. We&#x27;re not putting anything as input. We just want to generate a sample that is following that distribution.</p>
+</div>
+</section><section class="row" id="s24">
+<figure>
+<a href="slides/l1/p032.jpg" target="_blank">
+<img src="slides/l1/p032.jpg" alt="Slide p. 32: Strategy: generate from noise" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 32 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1122s" target="_blank" rel="noopener" title="Watch on YouTube from 18:42">&#9658; 18:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1122s" target="_blank" rel="noopener">18:42</a> So how do we do this? So you will see that most if not all methods out there, they all have something in common. They all start their image generation process from noise. So they start from noise, and then they refine the image to be the final image. So I want to just spend some time on why that is the case.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1150s" target="_blank" rel="noopener">19:10</a> So we&#x27;ll define what noise means, by the way because you will see the term noise and then you will see this grayish image. So you will see that this noise is actually something that you can sample from an easy distribution, the Gaussian distribution, spoiler alert. So the first reason why it is something that we want to do is because it is easy to sample from noise.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1176s" target="_blank" rel="noopener">19:36</a> It is easy to have some noise. The second thing is noise has some randomness that allows you to generate different images. So even if let&#x27;s say you have a condition, if you start from noise that is different, let&#x27;s say from another generation, you will be able to end up with a different end image just because the starting point is different.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1205s" target="_blank" rel="noopener">20:05</a> So the second reason it introduces some randomness. And then the third one is, as I mentioned, noise is basically equal to a Gaussian distribution, and that distribution just happens to have very nice properties. So it simplifies a lot of the math and we will see a little bit how that is the case in the diffusion case.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1234s" target="_blank" rel="noopener">20:34</a> Cool. So intuitively does that make sense, that noise is a good starting point? Yeah? OK, cool. And just to complete that intuition, in the 3D world, how sculptors go about sculpting their sculptors, they start with some rock. And you can think of this rock as having shapes</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1261s" target="_blank" rel="noopener">21:01</a> that are a little bit noisy. It&#x27;s not something that you are defining. It&#x27;s something that is just there. And that will be different from a rock to another. So one analogy that I like to think of is this image generation process is a little bit if you were a sculptor and you wanted to sculpture from rock. So yeah, I will leave you with that quote from Michelangelo that I think also reflects that pretty well.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1290s" target="_blank" rel="noopener">21:30</a> Cool. Yeah. So when you say uniforms, you mean the same thing? Like let&#x27;s say blank? Yeah so the question is, why do you want to start from noise, but not from something that is predefined, let&#x27;s say a black-- sorry a white canvas, let&#x27;s say. So yeah, great question. So you will see that what makes the end--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1341s" target="_blank" rel="noopener">22:21</a> so the generation process sometimes involves some randomness in the generation process, sometimes it does not. The randomness is something that occurs at the starting points. So if you were to always start your process from the same starting point, given that everything else does not introduce some amount of randomness, you will always end up at the same endpoint.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1373s" target="_blank" rel="noopener">22:53</a> So in a sense, what you want is to have some variation introduced somewhere in order to not always end up at the same place. So I&#x27;ll give you an example. This Teddy bear reading a book. If you use a generation paradigm that does not have any stochasticity in its process, then if you always start from the same point, then you will always end up at the same endpoint,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1400s" target="_blank" rel="noopener">23:20</a> and that&#x27;s probably not something that you want just for diversity purposes. So that&#x27;s the intuition. Yeah, great question. Cool.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1414s" target="_blank" rel="noopener">23:34</a> OK. So what we&#x27;ll focus on for this lecture is a landmark paper that I will talk a lot in depth, that&#x27;s called DPM. That was the first that applying this diffusion paradigm for images in a successful way. So what we&#x27;re going to do is to go</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1439s" target="_blank" rel="noopener">23:59</a> through what makes this approach work so well, and the underlying mechanisms that lead to the loss function that we have. So in particular, the idea that we have here is what we want is to generate new images. So what we do have is a set of training images</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1466s" target="_blank" rel="noopener">24:26</a> and our goal is if we were to start from noise, how would we be able to recover those images? That&#x27;s what we want to learn. Because as I mentioned during our generation process, our strategy is to start from noise and end up with a clean image. So here what we want to do is to use those training set images</p>
+</div>
+</section><section class="row" id="s25">
+<figure>
+<a href="slides/l1/p033.jpg" target="_blank">
+<img src="slides/l1/p033.jpg" alt="Slide p. 33: Analogy: building a sculpture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 33 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1484s" target="_blank" rel="noopener">&#8776; 24:44</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Intuition-behind-diffusion"><span>Intuition behind diffusion</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1493s" target="_blank" rel="noopener">24:53</a></div><section class="row" id="s26">
+<figure>
+<a href="slides/l1/p034.jpg" target="_blank">
+<img src="slides/l1/p034.jpg" alt="Slide p. 34: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 34 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1493s" target="_blank" rel="noopener" title="Watch on YouTube from 24:53">&#9658; 24:53</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1493s" target="_blank" rel="noopener">24:53</a> to learn that denoising process. So in that regard, we have two processes that have a very particular name. So the first one is called the forward process that amounts to taking an image from your training set, and you are actually corrupting that image. You&#x27;re adding some noise.</p>
+</div>
+</section><section class="row" id="s27">
+<figure>
+<a href="slides/l1/p036.jpg" target="_blank">
+<img src="slides/l1/p036.jpg" alt="Slide pp. 35–36: Intuition behind diﬀusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 35–36 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1522s" target="_blank" rel="noopener" title="Watch on YouTube from 25:22">&#9658; 25:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1522s" target="_blank" rel="noopener">25:22</a> So here you have some process that you define that goes from some image xt minus 1,</p>
+</div>
+</section><section class="row" id="s28">
+<figure>
+<a href="slides/l1/p038.jpg" target="_blank">
+<img src="slides/l1/p038.jpg" alt="Slide pp. 37–38: Intuition behind diﬀusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 37–38 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1533s" target="_blank" rel="noopener" title="Watch on YouTube from 25:33">&#9658; 25:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1533s" target="_blank" rel="noopener">25:33</a> and then produces an image xt by adding some noise. So again, this is a process that you define. So you know what Q is in the forward process. And what you want to do is to start from that noise distribution that is so easy to sample, and then go through the reverse process</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1561s" target="_blank" rel="noopener">26:01</a> to actually denoise that sample back to the clean space. And so what you want to learn is a model, that is something we will characterize with the parameters theta-- what you want to learn is how you would go from a noisy image to a less noisy one. So you may wonder, OK, so you&#x27;re talking about xts,</p>
+</div>
+</section><div class="chapter" id="ch-Image-representation"><span>Image representation</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1600s" target="_blank" rel="noopener">26:40</a></div><section class="row" id="s29">
+<figure>
+<a href="slides/l1/p039.jpg" target="_blank">
+<img src="slides/l1/p039.jpg" alt="Slide pp. 39–40: Image representation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 39–40 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1600s" target="_blank" rel="noopener" title="Watch on YouTube from 26:40">&#9658; 26:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1600s" target="_blank" rel="noopener">26:40</a> but we don&#x27;t what is xt. It&#x27;s just a noisy image. How do you go about just representing images in the first place? So here we will just see one way of representing images. That is not the way people usually go about it. That&#x27;s something that we&#x27;ll go more in depth in lecture 4, but I just want to tell you how you would try to represent images in this framework.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1629s" target="_blank" rel="noopener">27:09</a> So as you know, an image is composed of pixels. So you have a height and you have a width. So each pixel is actually composed of three values red, green, and blue, and this allows you to cover a number of colors.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1653s" target="_blank" rel="noopener">27:33</a> So based on that, you can represent your image as a function of all the pixels that are composing that image, where each of these pixels contains some value for each of these colors. So you can think of each pixel as having three values, one that represents the amount of red, the other one that represents the amount of green,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1679s" target="_blank" rel="noopener">27:59</a> and the other one that represents the amount of blue. So based on that, it is fair to say that you can represent images in a vectorial fashion. So here the dimensionality of the image in this example would be equal to the number of pixels times the number of dimensions you need to represent in a pixel, which is 3. So here you would have n dimensions</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1707s" target="_blank" rel="noopener">28:27</a> where n is equal to number of pixels times 3. So this would be one way to represent your images. Of course, this is not the most clever way of representing images, and we will see that more in lecture 4. But what I want you to remember is when we talk about images here, when we say x0, xt and so on, what we&#x27;re talking about is actually vectors.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1735s" target="_blank" rel="noopener">28:55</a> And these vectors are the ones that are representing these images. Make sense? Cool. So, speaking of vectors. So I told you there is a prerequisite on probability theory, so I&#x27;m just going to cover the basics here. So you may know the common distribution, that&#x27;s called the Gaussian distribution,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1759s" target="_blank" rel="noopener">29:19</a> normal distribution where you have some random variable that is drawn from a distribution of mean mu and then variance sigma squared. Well, you can have the same thing for vectors. So I know all these papers they assume you know that. When you read, it&#x27;s not super clear, so just want to emphasize. You can also have random variables that are vectors.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1788s" target="_blank" rel="noopener">29:48</a> And in this case, you will have a vector that is drawn from a distribution of some mean and the mean is a vector and then some variance, which is actually represented by a covariance matrix. So don&#x27;t worry if you don&#x27;t about the covariance matrix, because most of the time we actually simplify the covariance matrix to be a variance times the identity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1821s" target="_blank" rel="noopener">30:21</a> And we call this formulation actually-- so these are like isotropic Gaussians. Because what that means is that the variation of the data across all directions is the same. So most of the time, to just simplify the math, what we will assume is that the covariance is actually equal to sigma squared i, which is the diagonal matrix which you see here and not the super complicated covariance matrix.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1853s" target="_blank" rel="noopener">30:53</a> So by the way, do you remember what covariance is roughly? So maybe I can just recap. So what is covariance? So covariance is a quantity that quantifies how two random variables vary in a linear way. Of course, there is some mathematical expression, but this is like the general intuition.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1878s" target="_blank" rel="noopener">31:18</a> So speaking of intuition, when we say that a distribution is isotropic, this is what we mean. We mean that the variance is the same across all directions. So you can think of it as some circle where the color represents the density. Yeah. OK, cool. And of course, what&#x27;s great about Gaussians</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1909s" target="_blank" rel="noopener">31:49</a> is you also have an analytical expression that&#x27;s quite simple about the probability density function. So I&#x27;m just putting this here, and it&#x27;s easy to compute. That&#x27;s great. So going back to what we call noise. So here we saw that images can be represented by vectors. So when we say we sample from noise, we will say here that we actually</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1939s" target="_blank" rel="noopener">32:19</a> sample from a standard normal distribution. So we usually note that epsilon. So epsilon will be drawn from a normal distribution of mean 0. So 0 is actually the vector, the 0 vector. And then the covariance will actually be the identity matrix. Yeah.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=1978s" target="_blank" rel="noopener">32:58</a> It&#x27;s a great question. It&#x27;s a great question. So the question is is the representation continuous or discrete? So we talked about pixel values that were discrete 0, 1, 2 until 255. But in practice, these are actually scaled between, let&#x27;s say minus 1 and 1 or some value that&#x27;s more of a float. So you can assume that these are actually continuous.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2003s" target="_blank" rel="noopener">33:23</a> But you can assume it&#x27;s actually continuous. Yeah. So there&#x27;s always some assumption. And so here at least when you say there is no correlation between pixels-- so here we actually mean the noise. So noise we actually just sample at random.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2031s" target="_blank" rel="noopener">33:51</a> So yeah, yeah. It&#x27;s not true for actual images, though. No, it&#x27;s not true. Yeah, yeah. Great questions. OK, cool. I&#x27;m just looking at the time and I know we have a lot of content, so I&#x27;ll just go a little bit faster. Just want to know if the pace so far is good. Yeah. OK. I don&#x27;t want to lose you because I think this is the first lecture that is maybe the most difficult</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2058s" target="_blank" rel="noopener">34:18</a> in terms of math. So it&#x27;s just kind of sad that this is the first lecture. But yeah, let&#x27;s continue. So as I mentioned, what we want to do is to take clean images and to corrupt them. So what we do is we take some image that maybe we have noised and we add some noise. And we actually add these quantities</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2084s" target="_blank" rel="noopener">34:44</a> in a weighted fashion. And these weights are actually defined by us. So if you remember, when we talked about queue, the process that we defined for the forward process, is actually something that we define. So this is how we know it&#x27;s images. So we take an image. We take some noise from a distribution,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2112s" target="_blank" rel="noopener">35:12</a> from the normal distribution and then we do a weighted average with some weights that we will see. And speaking of those, you will hear of a recurring term across all papers, noise schedule. So the noise schedule is actually referring to the coefficients here that you use to multiply these values. So it&#x27;s a schedule because at some point,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2139s" target="_blank" rel="noopener">35:39</a> you may add maybe less noise than some other points. Yeah? OK. Great. So let&#x27;s go a little bit more into the math. So we start from x0. And then the way we go about adding noise is we have our forward process that we&#x27;ve defined</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2168s" target="_blank" rel="noopener">36:08</a> q which is actually something we will draw from a normal distribution. So we can express the quantity-- so q of xt, so the noisier image compared to the less noisy image as a normal distribution centered on that less noisy image with some coefficient</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2194s" target="_blank" rel="noopener">36:34</a> where you add some noise, which is something that is represented by the covariance matrix beta ti. Yeah. So what that means-- I&#x27;m just going to rewrite this in a very-- so it&#x27;s just what that means. So it&#x27;s xt is equal to 1 minus beta xt minus 1 plus square root of beta and some noise.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2234s" target="_blank" rel="noopener">37:14</a> So this seemingly math formula is just nothing else than just you taking your less noisy image, weighting that by some coefficient, and then adding some noise with some coefficient. Now you may wonder why are you using these coefficients? So we will see later in the class why we do that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2256s" target="_blank" rel="noopener">37:36</a> But you can see that the variance of this whole thing is preserved from one step to another. So you will see that this way of noising images is called variance preserving, VP. We&#x27;ll see that more later on. OK, cool. So speaking of the noise schedule. So these beta t are not typically uniform,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2286s" target="_blank" rel="noopener">38:06</a> they&#x27;re varying. And the way they are defined in the DDPM paper is they&#x27;re gradually increased. As in you will start from your clean image, and you will just add a little bit of noise, and then maybe a little bit more, and again and again. And then at the end, you will have much bigger noise. And the reason why people do that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2309s" target="_blank" rel="noopener">38:29</a> is because when you&#x27;re close to the clean image, what you care about is to learn those little details, but when you&#x27;re closer to the noise, what you care more about learning is the general shape of the image. So this noise schedule is actually quite important in our ability to learn and it&#x27;s just one way of doing things. Yeah.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2337s" target="_blank" rel="noopener">38:57</a> And as you can tell, it&#x27;s a between 0 and 1, well, because otherwise you would have a negative value in the square root. Cool. Moving on. So if you define your process like this then it turns out you don&#x27;t need to noise your images in a sequential way in order to get the number t1. You can actually go directly from your clean image to the step number t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2372s" target="_blank" rel="noopener">39:32</a> Do you see how you would do that? Maybe it&#x27;s not super obvious, but I told you that Gaussians had very nice properties. So here, epsilon, the noise is drawn from a Gaussian distribution. So if you were to rewrite-- so first of all, I will just define alpha t, which is just equal to 1 minus beta t is just a reparametrization.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2404s" target="_blank" rel="noopener">40:04</a> So here it will be 1 minus alpha t. So here what we&#x27;re saying is xt minus 1 we can also use the same formula, which will be equal to square root of alpha t minus 1 xt minus 2 plus square root of 1 minus alpha t minus 1 and the other Gaussian. So these noise are independent. So if you were to express xt as a function of xt</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2444s" target="_blank" rel="noopener">40:44</a> minus 2 and the epsilons, what would you do? So here I&#x27;m just going to expand xt. So here I&#x27;m just in parentheses. So it&#x27;s equal to alpha t square root of alpha t. So I&#x27;m directly going to multiply this quantity by the one that we have here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2474s" target="_blank" rel="noopener">41:14</a> So it&#x27;s square root of alpha t times square root of alpha t minus 1 xt minus 2 plus square root of alpha t. Square root of 1 minus alpha t minus 1. T minus 1 plus. So by the way, I&#x27;m just doing some math. Very basic math. Plus square root of 1 minus alpha t epsilon t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2523s" target="_blank" rel="noopener">42:03</a> So far so good? So here we have our first term. No problem. Then what we have is a weighted sum of random variables drawn from a Gaussian distribution. So I told you that these Gaussian distributions had very nice properties. So it turns out that if you have two random variables that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2551s" target="_blank" rel="noopener">42:31</a> are independent and drawn from a Gaussian distribution, so you can really have this as being equal to the standard deviation of this quantity times a random variable that is also drawn from a Gaussian distribution. So how do you add this variance? So you have the variance of everything that is equal to the variance of 1 plus the variance of other.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2579s" target="_blank" rel="noopener">42:59</a> So here in terms of how that looks like-- so here, you will have the variance that will be equal to alpha t. So it&#x27;s basically this squared plus this squared. So it&#x27;s alpha t1 minus-- 1 minus alpha t minus 1 plus 1 minus alpha t which is equal to-- so this one goes away.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2607s" target="_blank" rel="noopener">43:27</a> And then you have 1 minus alpha t, alpha t minus 1. So what does that mean? That means that xt is equal to square roots of alpha t alpha t minus 1. So I&#x27;m just like copying what is above. Xt minus 2. Plus the standard deviation of this one,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2650s" target="_blank" rel="noopener">44:10</a> which is square root of the variance times a random variable that is drawn from the normal distribution. And this sketch of a proof is just a way for us to prove that you can actually cascade these things up to 0. And therefore you can have an expression of the noisy image at step t as a function</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2689s" target="_blank" rel="noopener">44:49</a> of the clean image at step 0. And this can be expressed as a function of alpha bar, where alpha bar is equal to the product of the alpha I&#x27;s. So here alpha t alpha t minus 1 is just the start. But if you continue it&#x27;s just the product of all the alpha t&#x27;s. Does that make sense?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2718s" target="_blank" rel="noopener">45:18</a> So what I just wrote on the board is just a way for you to be convinced that what I&#x27;m saying is making sense. So you can express xt as a function of x0 by just using alpha t bar instead of this beta t. Cool. So yeah. So the derivation you use the fact that the variance of the sum of independent Gaussians is just the sum of the respective variances. And by the way, there&#x27;s many derivations</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2754s" target="_blank" rel="noopener">45:54</a> we can do in this class, the problem is we do not have time. So here is the first one, which is why I wrote on the blackboard. But if we do not have time, we will always have a little message at the bottom of the slide that just tells you what the trick is. And you can safely assume that if we don&#x27;t derive this thing in class,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2780s" target="_blank" rel="noopener">46:20</a> it will not be asked during the exams. OK. Cool. Moving on. So now what we have done is just defined our forward process,</p>
+</div>
+</section><section class="row" id="s30">
+<figure>
+<a href="slides/l1/p041.jpg" target="_blank">
+<img src="slides/l1/p041.jpg" alt="Slide p. 41: Probability distribution in 1-D space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 41 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s31">
+<figure>
+<a href="slides/l1/p042.jpg" target="_blank">
+<img src="slides/l1/p042.jpg" alt="Slide p. 42: Probability distribution in high-dim space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 42 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s32">
+<figure>
+<a href="slides/l1/p043.jpg" target="_blank">
+<img src="slides/l1/p043.jpg" alt="Slide p. 43: Meaning of probability distribution in high-dim space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 43 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s33">
+<figure>
+<a href="slides/l1/p044.jpg" target="_blank">
+<img src="slides/l1/p044.jpg" alt="Slide p. 44: Meaning of probability distribution in high-dim space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 44 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s34">
+<figure>
+<a href="slides/l1/p045.jpg" target="_blank">
+<img src="slides/l1/p045.jpg" alt="Slide p. 45: Meaning of probability distribution in high-dim space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 45 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s35">
+<figure>
+<a href="slides/l1/p046.jpg" target="_blank">
+<img src="slides/l1/p046.jpg" alt="Slide p. 46: In other words," loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 46 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s36">
+<figure>
+<a href="slides/l1/p047.jpg" target="_blank">
+<img src="slides/l1/p047.jpg" alt="Slide p. 47: Process behind this" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 47 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s37">
+<figure>
+<a href="slides/l1/p048.jpg" target="_blank">
+<img src="slides/l1/p048.jpg" alt="Slide p. 48: Process behind this" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 48 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2786s" target="_blank" rel="noopener">&#8776; 46:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Variational-formulation"><span>Variational formulation</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2796s" target="_blank" rel="noopener">46:36</a></div><section class="row" id="s38">
+<figure>
+<a href="slides/l1/p049.jpg" target="_blank">
+<img src="slides/l1/p049.jpg" alt="Slide p. 49: Mathematical formalism of forward process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 49 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2796s" target="_blank" rel="noopener" title="Watch on YouTube from 46:36">&#9658; 46:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2796s" target="_blank" rel="noopener">46:36</a> and we just also derived a convenient way to noise our image from step 0 to step T without going</p>
+</div>
+</section><section class="row" id="s39">
+<figure>
+<a href="slides/l1/p050.jpg" target="_blank">
+<img src="slides/l1/p050.jpg" alt="Slide p. 50: Mathematical formalism of forward process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 50 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2805s" target="_blank" rel="noopener" title="Watch on YouTube from 46:45">&#9658; 46:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2805s" target="_blank" rel="noopener">46:45</a> through all the steps. So what we will do now is to see how we can actually</p>
+</div>
+</section><section class="row" id="s40">
+<figure>
+<a href="slides/l1/p051.jpg" target="_blank">
+<img src="slides/l1/p051.jpg" alt="Slide p. 51: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 51 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2816s" target="_blank" rel="noopener" title="Watch on YouTube from 46:56">&#9658; 46:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2816s" target="_blank" rel="noopener">46:56</a> go about determining the process that denoisers that forest</p>
+</div>
+</section><section class="row" id="s41">
+<figure>
+<a href="slides/l1/p052.jpg" target="_blank">
+<img src="slides/l1/p052.jpg" alt="Slide p. 52: Learn reverse process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 52 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2821s" target="_blank" rel="noopener" title="Watch on YouTube from 47:01">&#9658; 47:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2821s" target="_blank" rel="noopener">47:01</a> process. So what we want to is how can we go about seeing what p theta of xt minus 1 given xt is.</p>
+</div>
+</section><section class="row" id="s42">
+<figure>
+<a href="slides/l1/p053.jpg" target="_blank">
+<img src="slides/l1/p053.jpg" alt="Slide p. 53: Learn reverse process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 53 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2835s" target="_blank" rel="noopener" title="Watch on YouTube from 47:15">&#9658; 47:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2835s" target="_blank" rel="noopener">47:15</a> So as I mentioned, what we want to do is to learn p of theta. So in case you have some experience in ML,</p>
+</div>
+</section><section class="row" id="s43">
+<figure>
+<a href="slides/l1/p054.jpg" target="_blank">
+<img src="slides/l1/p054.jpg" alt="Slide p. 54: ﬁnd parameters      that" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 54 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2846s" target="_blank" rel="noopener" title="Watch on YouTube from 47:26">&#9658; 47:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2846s" target="_blank" rel="noopener">47:26</a> you will see that a common trick that people do is given some training data what they want to do is to maximize the probability of your model seeing the training data maximized. They want to maximize such a probability with respect to theta. So they want to find the parameters theta that maximize the probability of your model of seeing your training</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2878s" target="_blank" rel="noopener">47:58</a> data. So in this case training data is just our training images. So it&#x27;s clean images. And then our model here is something that has p theta in it. So it&#x27;s the probability of an image happening that we will see how we can condition. And what we want to do is to find the parameters theta that do that.</p>
+</div>
+</section><section class="row" id="s44">
+<figure>
+<a href="slides/l1/p055.jpg" target="_blank">
+<img src="slides/l1/p055.jpg" alt="Slide p. 55: ﬁnd parameters      that" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 55 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2905s" target="_blank" rel="noopener" title="Watch on YouTube from 48:25">&#9658; 48:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2905s" target="_blank" rel="noopener">48:25</a> So you will see that whenever you talk about probabilities, you will always or most of the time talk about log probabilities. One because the logarithm function has pretty nice properties. And then the second reason is that it&#x27;s just computationally more stable, because probabilities are between 0 and 1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2930s" target="_blank" rel="noopener">48:50</a> So if you have very, very small values of p, then it can be a little bit unstable.</p>
+</div>
+</section><section class="row" id="s45">
+<figure>
+<a href="slides/l1/p056.jpg" target="_blank">
+<img src="slides/l1/p056.jpg" alt="Slide p. 56: Refresher: joint probability distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 56 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2936s" target="_blank" rel="noopener" title="Watch on YouTube from 48:56">&#9658; 48:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2936s" target="_blank" rel="noopener">48:56</a> So before we determine that, I just wanted to go through some refresher of a concept</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2946s" target="_blank" rel="noopener">49:06</a> in probabilities that is the joint probability distribution. So here if you suppose that you have two random variables that are drawn from two distributions, let&#x27;s say it&#x27;s x1 and x2, the random variables, then you can compute the joint probability distribution,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=2973s" target="_blank" rel="noopener">49:33</a> by taking the probability density of x1, and multiplying that by the conditional probability of x2 given x1. So this is just by definition, it&#x27;s the probability chain of rule. And in practice, when you have a joint probability distribution, one way you can represent that is through a heat map. So here you have, let&#x27;s say, your two axes.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3008s" target="_blank" rel="noopener">50:08</a> One is representing the one along x1 and the other one along x2. And then here the color that you see here is the density value of this joint probability distribution. So this is for instance 1 square.</p>
+</div>
+</section><section class="row" id="s46">
+<figure>
+<a href="slides/l1/p057.jpg" target="_blank">
+<img src="slides/l1/p057.jpg" alt="Slide p. 57: Conditional probability: if you" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 57 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3026s" target="_blank" rel="noopener">&#8776; 50:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Joint-probability-distribution"><span>Joint probability distribution</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3033s" target="_blank" rel="noopener">50:33</a></div><section class="row" id="s47">
+<figure>
+<a href="slides/l1/p058.jpg" target="_blank">
+<img src="slides/l1/p058.jpg" alt="Slide pp. 58–59: Refresher: joint probability distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 58–59 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3033s" target="_blank" rel="noopener" title="Watch on YouTube from 50:33">&#9658; 50:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3033s" target="_blank" rel="noopener">50:33</a> And the way you would go about doing this for the conditional probabilities you would actually just look at one column. And here the probability of x2 given x1 would be the proportion of the value of the joint probability distribution in that square over the sum of all the squares for that given value x1. So far I&#x27;m just recapping what we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3065s" target="_blank" rel="noopener">51:05</a> know about joint probability distributions and conditional probabilities. So what I want to tell you is a notion of what we call marginalization, which is if you want to obtain</p>
+</div>
+</section><section class="row" id="s48">
+<figure>
+<a href="slides/l1/p060.jpg" target="_blank">
+<img src="slides/l1/p060.jpg" alt="Slide p. 60: Conditional probability" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 60 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3077s" target="_blank" rel="noopener">&#8776; 51:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s49">
+<figure>
+<a href="slides/l1/p061.jpg" target="_blank">
+<img src="slides/l1/p061.jpg" alt="Slide p. 61: Sum across all" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 61 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3077s" target="_blank" rel="noopener">&#8776; 51:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s50">
+<figure>
+<a href="slides/l1/p062.jpg" target="_blank">
+<img src="slides/l1/p062.jpg" alt="Slide pp. 62–65: Refresher: joint probability distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 62–65 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3084s" target="_blank" rel="noopener" title="Watch on YouTube from 51:24">&#9658; 51:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3084s" target="_blank" rel="noopener">51:24</a> the probability of just one random variable, then what you can do is to sum the joint probability of that random variable and a second random variable, and you can sum it along that second variable. And this is called marginalization. Do you all know-- have you all heard what marginalization is? Yeah? OK, cool. So what I&#x27;m saying is a little bit obvious then.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3117s" target="_blank" rel="noopener">51:57</a> So in this figure so the way you would obtain p of x1 is you sum all the squares relative to x1 again and again and again and you can reconstitute your probability distribution. So that&#x27;s the way you would see this from a graphical perspective.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3144s" target="_blank" rel="noopener">52:24</a> And so we saw that when we only have two random variables, but you can very well do that when we have T random variables. And so here we have the probability chain rule like at the top of the slide. So you have p of x1 times p of x2, given x1 et cetera times p of xt given x1 up to xt minus 1. So this is just extending that to a dimension of t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3178s" target="_blank" rel="noopener">52:58</a> And one notation that you will see very often in papers is this one. So the joint probability distribution of T variables is usually denoted p of x1t. So just to save space. And the reason why I&#x27;m presenting these slides</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3203s" target="_blank" rel="noopener">53:23</a> is just to tell you that this is the main notation that people use and this is what it means. Cool. And with that simplified notation, you can just rewrite the formulas from before as follows. So now if we were to come back to the problem that we had around finding parameters theta that maximize the probability of our models seeing the training data.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3238s" target="_blank" rel="noopener">53:58</a> Here, what we want to do is to express p theta of x0 or log of p theta of x0. So we&#x27;ve seen a few slides ago that the way we obtain x0 is sampling from a noise distribution at time t. And then going step by step from big t to big t minus 1,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3266s" target="_blank" rel="noopener">54:26</a> et cetera, up until 0. So in order to compute this quantity, one idea for you could be to take the joint probability distribution over all the time steps and then sum across all these different quantities except x0. A.K.A. you can just marginalize, right? So one idea is to say that the logarithm of p theta of x0</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3305s" target="_blank" rel="noopener">55:05</a> is the logarithm of the integral of p theta of x0 and then x1 up to t. D of x1 to t. So this is just the definition of marginalizing. So the problem with this formulation is that it&#x27;s actually something we cannot compute because here</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3334s" target="_blank" rel="noopener">55:34</a> we&#x27;re saying let&#x27;s marginalize-- let&#x27;s sum across all possible trajectories from noise to clean image. So the problem is there are many of them. And these x&#x27;s we saw that these are vectors,</p>
+</div>
+</section><section class="row" id="s51">
+<figure>
+<a href="slides/l1/p066.jpg" target="_blank">
+<img src="slides/l1/p066.jpg" alt="Slide pp. 66–67: Refresher: joint probability distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 66–67 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3354s" target="_blank" rel="noopener" title="Watch on YouTube from 55:54">&#9658; 55:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3354s" target="_blank" rel="noopener">55:54</a> and they can be pretty big. So long story short, is this is in practice something that we</p>
+</div>
+</section><div class="chapter" id="ch-Strategy-to-derive-a-tractable-loss"><span>Strategy to derive a tractable loss</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3361s" target="_blank" rel="noopener">56:01</a></div><section class="row" id="s52">
+<figure>
+<a href="slides/l1/p068.jpg" target="_blank">
+<img src="slides/l1/p068.jpg" alt="Slide p. 68: Refresher: joint probability distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 68 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3361s" target="_blank" rel="noopener" title="Watch on YouTube from 56:01">&#9658; 56:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3361s" target="_blank" rel="noopener">56:01</a> cannot compute. Which is the reason why we have a recipe that we will go through</p>
+</div>
+</section><section class="row" id="s53">
+<figure>
+<a href="slides/l1/p069.jpg" target="_blank">
+<img src="slides/l1/p069.jpg" alt="Slide p. 69: Problem" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 69 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3370s" target="_blank" rel="noopener" title="Watch on YouTube from 56:10">&#9658; 56:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3370s" target="_blank" rel="noopener">56:10</a> in the next 33 minutes as to how we can compute that using the forward process</p>
+</div>
+</section><section class="row" id="s54">
+<figure>
+<a href="slides/l1/p070.jpg" target="_blank">
+<img src="slides/l1/p070.jpg" alt="Slide p. 70: Derivation of a tractable loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 70 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3378s" target="_blank" rel="noopener" title="Watch on YouTube from 56:18">&#9658; 56:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3378s" target="_blank" rel="noopener">56:18</a> that we have defined. So in the interest of time, I&#x27;m going to skip some blackboard derivation, which is fine. I&#x27;m just going to give you the trick. If time permits we can do a few ones. But the important thing for you is to just understand the high-level strategy around obtaining the loss that will be used to train our model.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3405s" target="_blank" rel="noopener">56:45</a> Sounds good? Cool. So let&#x27;s start with the first step.</p>
+</div>
+</section><section class="row" id="s55">
+<figure>
+<a href="slides/l1/p071.jpg" target="_blank">
+<img src="slides/l1/p071.jpg" alt="Slide p. 71: Step 1: Derivation of a lower bound" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 71 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3412s" target="_blank" rel="noopener" title="Watch on YouTube from 56:52">&#9658; 56:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3412s" target="_blank" rel="noopener">56:52</a> So I told you that this expression is something that is actually not something we can compute because it&#x27;s just intractable. So a common trick that people use is to find something that is easy to compute that is not necessarily the quantity of interest, but maybe a bound that is close to what you want.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3443s" target="_blank" rel="noopener">57:23</a> So here what you want is to maximize that expression. So if you were to maximize something that you know is lower than that, so a lower bound, then it would also allow you to gain some confidence that you&#x27;re maximizing the right thing. So there is a very scary formula on the slides</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3464s" target="_blank" rel="noopener">57:44</a> which we&#x27;ll go through right now, which is the elbo. Have you heard of the ELBO before this class? Yeah. ELBO stands for evidence lower bound. And what that means is it&#x27;s an expression of a quantity that is a lower bound of the quantity that we care about. And actually, this is quite important, so I think I will derive it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3494s" target="_blank" rel="noopener">58:14</a> So while I&#x27;m cleaning the blackboards, I just want to tell you about what the trick is. The trick is that we have our forward process that we have defined, so q. And what we want to do is to have q be in some way something that we appear. Like in our equation, we want to involve q in some way</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3526s" target="_blank" rel="noopener">58:46</a> because what Q is. Q is this forward process that we have defined when we do the noise schedule this beta t alpha t, we know that. So what we want to do is to express that as a function of q. So we go back with the log of p theta of x0, which we said we tried to marginalize across x1 to xt.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3557s" target="_blank" rel="noopener">59:17</a> So I&#x27;m just going to rewrite what we had above. And then what I&#x27;m going to do, as I mentioned, is have q appear. So very common trick. What I&#x27;m going to do is to multiply the numerator and the denominator by that quantity. So I&#x27;m going to do this one times q of--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3595s" target="_blank" rel="noopener">59:55</a> So given a clean image, what is the trajectory that is given by q? So it&#x27;s q of x1 to xt given your clean image. OK. Everyone is following me so far? Just a very regular trick. So OK. So where do we go from there? So I&#x27;m just going to remove the log for now.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3634s" target="_blank" rel="noopener">1:00:34</a> So this is true. So this expression is actually nothing else than the expectation of this quantity because this is as if you were sampling x1 through T from this distribution. So it&#x27;s as if you were writing this.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3675s" target="_blank" rel="noopener">1:01:15</a> So it&#x27;s as if you were saying it&#x27;s the expectation of this ratio, which is p theta of x0 to t over q of x1 to t, given x0, where x1 through t is something that you draw from q of x1 through t given x0. OK I hope-- so don&#x27;t worry by the way. It&#x27;s all going to be in the recording. It&#x27;s going to be much clearer in case you cannot see very clear</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3713s" target="_blank" rel="noopener">1:01:53</a> what I&#x27;m writing, but what I&#x27;m writing is the expectation. This quantity is the expectation of the ratio between p theta of x0 to t over q of x1 through T, given x0 by sampling x1 through t-- so the trajectory through t via the forward process that we know, which is given by x1 through t given x0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3743s" target="_blank" rel="noopener">1:02:23</a> So where do we go from here? So it turns out that there is a very common trick-- very common trick out there that&#x27;s called the Jensen inequality where if you have a convex or concave function, you have some very nice property about something we&#x27;re going to see. And in particular, in this case, log is a concave function.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3777s" target="_blank" rel="noopener">1:02:57</a> So if you have the log of some expectation, it&#x27;s actually something that is greater or equal than the expectation of the log. I&#x27;m not going to write this whole thing, but you know what I mean. So this is Jensen&#x27;s inequality. Jensen.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3813s" target="_blank" rel="noopener">1:03:33</a> And this is exactly what we get here. So one way we progressed is instead of summing through all possible trajectories, now what we&#x27;re doing is we&#x27;re actually sampling from trajectories that were drawing from the forward process, which we know.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3840s" target="_blank" rel="noopener">1:04:00</a> And now you&#x27;re wondering why in the slide are we sampling x0 through T. But here I said x1 through t sample from q of x1 through t given x0 is because if you take the expectation of this whole thing, then you take the expectation over x0 of expectation of x1 through t times that. So you use the chain rule of probability</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3873s" target="_blank" rel="noopener">1:04:33</a> that we saw right before. And it&#x27;s exactly the same. Just one expectation of sampling the whole joint probability distribution through this q x0 through t.</p>
+</div>
+</section><div class="chapter" id="ch-ELBO-derivation"><span>ELBO derivation</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3888s" target="_blank" rel="noopener">1:04:48</a></div><section class="row" id="s56">
+<figure>
+<a href="slides/l1/p072.jpg" target="_blank">
+<img src="slides/l1/p072.jpg" alt="Slide p. 72: Refresher: KL divergence (discrete)" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 72 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3888s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:48">&#9658; 1:04:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3888s" target="_blank" rel="noopener">1:04:48</a> Does this make sense? So you may see this formula and wonder, OK, it&#x27;s still super complicated, how can I compute that. Well, right now, you do not know that it is tractable. I&#x27;m just telling you. But the intuition here is we&#x27;re actually not summing through all possible trajectories. We&#x27;re actually summing through trajectories that we&#x27;re sampling from the forward process.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3921s" target="_blank" rel="noopener">1:05:21</a> Yeah? So now it&#x27;s step number one. Step number 2 is proving or showing</p>
+</div>
+</section><section class="row" id="s57">
+<figure>
+<a href="slides/l1/p073.jpg" target="_blank">
+<img src="slides/l1/p073.jpg" alt="Slide p. 73: Refresher: KL divergence (continuous)" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 73 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3930s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:30">&#9658; 1:05:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3930s" target="_blank" rel="noopener">1:05:30</a> that this is something that you can compute. But before that, I&#x27;m going to, again,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3936s" target="_blank" rel="noopener">1:05:36</a> give you some refresher of a very important concept that is the KL divergence. Who has heard of KL divergence? Yeah, everyone? I&#x27;m just going to remind you what KL divergence is. So if you take two probability distributions-- so let&#x27;s say p and q-- and you want to measure how far apart they are, then</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=3963s" target="_blank" rel="noopener">1:06:03</a> there is some operator that is here, the KL divergence, which quantifies how far apart they are. And the way they do that is by taking-- maybe it&#x27;s something I treat on the slide. So I&#x27;m just going to continue their. So by taking the sum of the log of the ratio between these two probabilities weighted by the probability distribution p.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4002s" target="_blank" rel="noopener">1:06:42</a> So in the discrete world, it&#x27;s going to be like this. But we&#x27;re going to be mostly in the continuous world. And in the continuous world, the KL divergence is this, but in integral form. And it&#x27;s the same as saying you take the expectation of the logarithm of the ratio if you were to assume that x is sampled through p.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4031s" target="_blank" rel="noopener">1:07:11</a> Yeah? OK. So given that, we can prove that the ELBO term that we saw-- so you know this lower bounds here, it can actually be expressed with terms-- so some terms that we actually don&#x27;t really care and we&#x27;re just going to ignore-- plus a term here, which is the KL divergence of q of xt minus 1 given xt and x0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4067s" target="_blank" rel="noopener">1:07:47</a> So it&#x27;s the first distribution. And the second distribution is actually the probability of having the less noisy image xt minus 1 given xt, which is the thing that we want to learn. So we don&#x27;t have time to derive this, but it&#x27;s actually not that complicated of a derivation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4095s" target="_blank" rel="noopener">1:08:15</a> You would just take this expectation of log, and then you would do some manipulation here and there, and you can basically pop up the KL divergence operator through that. So I think this one, I will need you to trust me that this is equal to this. So why are we happy? The reason why we&#x27;re happy is because we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4123s" target="_blank" rel="noopener">1:08:43</a> have a clear comparison between two probability distributions,</p>
+</div>
+</section><section class="row" id="s58">
+<figure>
+<a href="slides/l1/p074.jpg" target="_blank">
+<img src="slides/l1/p074.jpg" alt="Slide p. 74: Step 2: Expand terms of the lower bound" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 74 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4123s" target="_blank" rel="noopener">&#8776; 1:08:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-KL-divergence"><span>KL divergence</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4128s" target="_blank" rel="noopener">1:08:48</a></div><section class="row" id="s59">
+<figure>
+<a href="slides/l1/p075.jpg" target="_blank">
+<img src="slides/l1/p075.jpg" alt="Slide p. 75: Step 3: Show lower bound is tractable" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 75 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4128s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:48">&#9658; 1:08:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4128s" target="_blank" rel="noopener">1:08:48</a> one that we care about, and another one that is potentially something that is tractable.</p>
+</div>
+</section><section class="row" id="s60">
+<figure>
+<a href="slides/l1/p076.jpg" target="_blank">
+<img src="slides/l1/p076.jpg" alt="Slide p. 76: Step 3: Show lower bound is tractable" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 76 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4136s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:56">&#9658; 1:08:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4136s" target="_blank" rel="noopener">1:08:56</a> And so just to tell you what q of xt minus 1 given xt and x0 means, so it means that if I were to give you a noisy image and a clean image, my question for you would be, what would be the less noisy image if I were to give you this tool. So the good thing is that at training time, you know x0. So you can compute this quantity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4170s" target="_blank" rel="noopener">1:09:30</a> So a natural step for us is now to show that this quantity that I mentioned is indeed tractable. So we&#x27;re going to see what q of xt minus 1 given xt and x0 is. So again, it is the fact of wondering</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4195s" target="_blank" rel="noopener">1:09:55</a> what is the distribution of the less noisy image if I were to not only give you the more noisy image, but also the clean image, which is actually a lot of information.</p>
+</div>
+</section><section class="row" id="s61">
+<figure>
+<a href="slides/l1/p077.jpg" target="_blank">
+<img src="slides/l1/p077.jpg" alt="Slide p. 77: Refresher: Bayes&#x27; rule" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 77 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4209s" target="_blank" rel="noopener" title="Watch on YouTube from 1:10:09">&#9658; 1:10:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4209s" target="_blank" rel="noopener">1:10:09</a> So you may remember, or you may have heard of Bayes&#x27; rule.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4215s" target="_blank" rel="noopener">1:10:15</a> And it is something that we will use, a trick we will use here. So using the notations that you would commonly see and read and hear out there, it&#x27;s the fact of saying that the posterior is equal to the likelihood times the prior over the marginal likelihood. So in this case, it&#x27;s P of A given B equal to P of B given A times P of A over P of B.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4249s" target="_blank" rel="noopener">1:10:49</a> And so knowing that, it&#x27;s actually quite easy to show that this thing is tractable. So this is probably something we will derive. So here, so what we want is q of xt minus 1 given xt and x0. So if we were to use Bayes&#x27; rule with q</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4290s" target="_blank" rel="noopener">1:11:30</a> of the conditional probability based on x0 if you have this formula-- so if we were to write this by considering p equal to q conditional on x0, what we would do is-- so what I&#x27;m doing is just applying Bayes&#x27; rule. So it&#x27;s equal to q of xt given xt</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4321s" target="_blank" rel="noopener">1:12:01</a> minus 1 x0 times q of xt minus 1 x0 over q of xt given x0. You all agree? I&#x27;m just doing Bayes&#x27; rule. So it&#x27;s something that I have not told you so far. But q has a very special property. Q is Markovian. So what does that mean? It means that q of xt, given everything before--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4372s" target="_blank" rel="noopener">1:12:52</a> let&#x27;s say before-- is actually equal to q of xt given xt minus 1. In other words, you only need to know about the previous step to know the current step. So it&#x27;s called a Markov process. So this simplifies to q of xt given xt minus 1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4398s" target="_blank" rel="noopener">1:13:18</a> And then we saw before that q of xt minus 1 given x0 and q of xt given x0 are quantities that are tractable. They are this normal distribution. Do you remember this derivation I made with, OK, let&#x27;s replace xt minus 1 as a function of xt minus 2 until getting x0? Do you remember? So these two quantities, they are tractable. This is tractable, this is tractable. Actually, this one, we don&#x27;t really care because we want to compute q of xt minus 1 given xt and x0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4438s" target="_blank" rel="noopener">1:13:58</a> So here, we&#x27;re only varying xt minus 1, but q of xt given x0 everything is fixed. So you can interpret that as a constant. And so what we end up with-- I cannot do that. Yeah.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4467s" target="_blank" rel="noopener">1:14:27</a> Are you referring to this one? The left hand side. So here&#x27;s the thing-- in this derivation, the quantity that we actually care about is q of xt minus 1 just given xt and x0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4492s" target="_blank" rel="noopener">1:14:52</a> So this is just because of the derivation of the elbow, the fact that we end up here. And that&#x27;s just the fact that we just are interested in what is the distribution of the less noisy data if we what the noisier one is and the clean image is. That&#x27;s the thing that we care about. And so here, what I want to say is that this is something--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4525s" target="_blank" rel="noopener">1:15:25</a> so x of t minus 1, knowing xt and x0, is proportional of q of xt, given xt minus 1, times q of xt minus 1 given x0. This is Gaussian. This is Gaussian.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4558s" target="_blank" rel="noopener">1:15:58</a> The product of probabilities of Gaussian is a Gaussian. I&#x27;m not going to derive everything, but please trust me that the form of q of xt minus 1 given xt and x0 is a normal distribution in particular with the mean of this formula. I&#x27;m not going to read it, but it&#x27;s a function of the noisy image and then the sampled noise</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4587s" target="_blank" rel="noopener">1:16:27</a> that allows you to go from x0 to xt. So this distribution is exact, meaning we have not approximated anything. And this is something that we know because we have defined our forward process. And here, we&#x27;re cheating a little bit because we&#x27;re saying, what is the less noisy distribution if I</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4613s" target="_blank" rel="noopener">1:16:53</a> give you the more noisy one, but also the clean image. So it&#x27;s a little bit of cheating because at training time, we know what x0 is. Of course, at inference time, we do not. So know one term. The second term is this p theta of xt minus 1 given xt. Now let&#x27;s show that it is tractable. Well, that one is going to be easy because we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4641s" target="_blank" rel="noopener">1:17:21</a> can choose what p theta is. And turns out that it&#x27;s very fair for us to assume that it is also a Gaussian just because the forward process of xt minus 1 given xt is also approximately a Gaussian. So justification for that is a little bit more into the weeds. So I&#x27;m not going to go into that. But all of that to say that in this part,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4672s" target="_blank" rel="noopener">1:17:52</a> we&#x27;re just making the assumption that what we want to learn is a Gaussian. So what we end up with is a KL divergence of a Gaussian with a Gaussian. And I&#x27;m not sure if you remember,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4696s" target="_blank" rel="noopener">1:18:16</a> but early in the lecture, I told you that we know the probability density function of a Gaussian. We have the explicit formula. We do know. So if you replace these into the KL divergence formula, which is this integral of log of p over q and then p,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4722s" target="_blank" rel="noopener">1:18:42</a> then it turns out you have a lot of things that simplify. And at the end of the day, what you end up with is just the distance between the noise that you want to predict and the noise that you sample to go from the clean image to the noise image. Take the L2 distance of that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4753s" target="_blank" rel="noopener">1:19:13</a> Is everyone clear with that transition? So what we did was we had that elbo elbow, which was equal to this KL divergence term. And what we said was, OK, looks good because p theta is what we want to compute. And then this q thing is something we have defined. So let&#x27;s try to see if it&#x27;s tractable. And what we said was, OK, let&#x27;s see</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4781s" target="_blank" rel="noopener">1:19:41</a> if q is tractable, q of xt minus 1 given xt and x0. So we went into the math. We did the Bayes&#x27; rule. And then there is this latter derivation around actually determining the mean and the variance of that normal distribution that I&#x27;ve not covered just because it&#x27;s just too much. And it&#x27;s OK to just assume that if you do this at home,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4803s" target="_blank" rel="noopener">1:20:03</a> you end up with a normal distribution of this mean. And then we also showed that p theta is something that is tractable. And the way we have shown that is just by assuming that it is a Gaussian. So Gaussian of some mean and then some variance.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4827s" target="_blank" rel="noopener">1:20:27</a> And at the end of the day, we end up with a loss that is nothing else than an L2 regression on the noise that we have added to our clean image to obtain the noisy image. Do you agree that that loss is looking pretty good? It&#x27;s very tractable. You just have to regress your noise on the noise from the clean image</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4860s" target="_blank" rel="noopener">1:21:00</a> to the noisy image as a training loss. It&#x27;s great. Oh, yeah. Thank you. So the question is, what is epsilon theta. So I&#x27;m going to go through each term. So here, what is shown on the slide is loss of DDMP. So DDPM is this whole framework of defining a forward process in order to determine how you want</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4892s" target="_blank" rel="noopener">1:21:32</a> to reverse the process, which is why it&#x27;s called LDPM. And what is on the right hand side of the equal sign is an expectation over t that you sample, which is the noise level if you want, x0, which is clean images in your training set, and then epsilon is random noise that you sample</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4922s" target="_blank" rel="noopener">1:22:02</a> from a normal distribution. Sorry, standard normal distribution, which is basically a Gaussian of mean 0 and variance the identity matrix. So what is in the expectation is on the one side, Epsilon theta, which is your model predicting what noise was added, and then on the right side is epsilon, which is the actual noise</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4952s" target="_blank" rel="noopener">1:22:32</a> that you added from the clean image directly to the noisy image. And what is in the parentheses? So square root of alpha t bar x0 plus square root of 1 minus alpha t bar epsilon-- this is equal to xt. So it&#x27;s the noisy image because you can go from the clean image</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=4978s" target="_blank" rel="noopener">1:22:58</a> and epsilon directly to the noisy image with using the identity that we have seen. So in other words, it is saying, if I give you the noisy image, please compute the noise that was added and compare that to the actual noise that was added. So one thing that I will call out is there are actually two arguments. You not only give the model the noisy image,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5010s" target="_blank" rel="noopener">1:23:30</a> but you&#x27;re also giving it the information of how noisy it is. T. So here, t is between 0 and big t. So if T is more towards 0, it means you didn&#x27;t add a lot of noise. And if t is more towards big T, it means you&#x27;ve added much more noise. So it just allows the model to know, given this noisy image, how noisy it is. So it can calibrate how much noise to predict to remove.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5044s" target="_blank" rel="noopener">1:24:04</a> Does that make a bit more sense? Perfect. So yeah, but great question. And we&#x27;re actually going to go through exactly what that means in practice if we want to train the model. But before we do that, any other questions on the loss? Yeah. So the question is this loss represents the elbow. So we are actually going to see exactly how we went from the first step to this step in the next slide.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5078s" target="_blank" rel="noopener">1:24:38</a> So I&#x27;m going to answer a question right now. So apart from this any other questions on this? We&#x27;re good? So I&#x27;m going to answer your question now. So do you remember the strategy plan we had with these four steps. So we went from this maximum likelihood estimation problem that we wanted to perform. And we said we have a lower bound.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5110s" target="_blank" rel="noopener">1:25:10</a> So that&#x27;s where the elbow comes then from the elbow, which is a lower bound of what we care about, what we said was actually expand the terms. And we were like, oh wow, we actually have a KL divergence between two things that seem tractable. And then what we said was, OK, so let&#x27;s look at that KL divergence term. There are two parts to it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5136s" target="_blank" rel="noopener">1:25:36</a> One is q of xt minus 1 given xt and x0. The other one is p theta of xt minus 1 given xt. We saw that these two terms were tractable. They were Gaussians. And we knew what the mean of these two Gaussians were. And then what we said was we have two Gaussians. We know their probability density functions. We have a KL divergence of that. Then we can actually compute this whole thing analytically</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5170s" target="_blank" rel="noopener">1:26:10</a> and, as a result of that, end up with a loss that&#x27;s very simple. Now there is something that I simplified that I&#x27;ve not told you yet, but I&#x27;m going to tell you now. When you simplify this scale divergence, what you actually get is the expectation of this L2 regression times some coefficients. You can think of it as the weight of the loss.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5200s" target="_blank" rel="noopener">1:26:40</a> And this is something that you as the person who&#x27;s training the model can choose. Now, the authors of DDPM, they try different ways. They tried the actual thing. They tried without by having a coefficient of 1. And they actually said, OK, it&#x27;s actually not that bad. You can actually take equal to 1, but this is something that you can actually choose.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5223s" target="_blank" rel="noopener">1:27:03</a> And this is how you end up to this last expression.</p>
+</div>
+</section><section class="row" id="s62">
+<figure>
+<a href="slides/l1/p078.jpg" target="_blank">
+<img src="slides/l1/p078.jpg" alt="Slide p. 78: Step 3: Show lower bound is tractable" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 78 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5223s" target="_blank" rel="noopener">&#8776; 1:27:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s63">
+<figure>
+<a href="slides/l1/p079.jpg" target="_blank">
+<img src="slides/l1/p079.jpg" alt="Slide p. 79: Step 3: Show lower bound is tractable" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 79 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5223s" target="_blank" rel="noopener">&#8776; 1:27:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s64">
+<figure>
+<a href="slides/l1/p080.jpg" target="_blank">
+<img src="slides/l1/p080.jpg" alt="Slide p. 80: Step 3: Show lower bound is tractable" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 80 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5223s" target="_blank" rel="noopener">&#8776; 1:27:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s65">
+<figure>
+<a href="slides/l1/p081.jpg" target="_blank">
+<img src="slides/l1/p081.jpg" alt="Slide p. 81: Step 4: Deduce ﬁnal loss function" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 81 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5223s" target="_blank" rel="noopener">&#8776; 1:27:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s66">
+<figure>
+<a href="slides/l1/p082.jpg" target="_blank">
+<img src="slides/l1/p082.jpg" alt="Slide p. 82: Summary of what we have done" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 82 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5223s" target="_blank" rel="noopener">&#8776; 1:27:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Bayes&#x27;-rule"><span>Bayes&#x27; rule</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5230s" target="_blank" rel="noopener">1:27:10</a></div><section class="row" id="s67">
+<figure>
+<a href="slides/l1/p083.jpg" target="_blank">
+<img src="slides/l1/p083.jpg" alt="Slide p. 83: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 83 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5230s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:10">&#9658; 1:27:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5230s" target="_blank" rel="noopener">1:27:10</a> So let&#x27;s see how we do training and inference. So we see the strategy.</p>
+</div>
+</section><section class="row" id="s68">
+<figure>
+<a href="slides/l1/p084.jpg" target="_blank">
+<img src="slides/l1/p084.jpg" alt="Slide p. 84: Training recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 84 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5237s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:17">&#9658; 1:27:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5237s" target="_blank" rel="noopener">1:27:17</a> So what you want to do is to minimize that loss.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5244s" target="_blank" rel="noopener">1:27:24</a> So what you do is you sample the amount. So first, the clean image from your training set. You sample your noise and then the time step. And in that way, you constitute the noise image. So you can go from clean image with the amount of noise up to the noised image.</p>
+</div>
+</section><div class="chapter" id="ch-DDPM-training"><span>DDPM training</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5265s" target="_blank" rel="noopener">1:27:45</a></div><section class="row" id="s69">
+<figure>
+<a href="slides/l1/p085.jpg" target="_blank">
+<img src="slides/l1/p085.jpg" alt="Slide p. 85: Training recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 85 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5265s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:45">&#9658; 1:27:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5265s" target="_blank" rel="noopener">1:27:45</a> What you do is you take that noised image, you take the noise level, and then what you do</p>
+</div>
+</section><section class="row" id="s70">
+<figure>
+<a href="slides/l1/p086.jpg" target="_blank">
+<img src="slides/l1/p086.jpg" alt="Slide p. 86: Training recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 86 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5272s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:52">&#9658; 1:27:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5272s" target="_blank" rel="noopener">1:27:52</a> is you try to predict the noise that was added using your model, which right now we don&#x27;t know. It&#x27;s just a black box. And you compute the loss and you do your back propagation. So that&#x27;s the training. And then the inference is you sample your noise,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5294s" target="_blank" rel="noopener">1:28:14</a> which is super easy to do. And what you do is you go step by step from noise to less noise to less noise to less noise, up until arriving at t equals 0, which is clean image.</p>
+</div>
+</section><section class="row" id="s71">
+<figure>
+<a href="slides/l1/p087.jpg" target="_blank">
+<img src="slides/l1/p087.jpg" alt="Slide p. 87: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 87 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5303s" target="_blank" rel="noopener">&#8776; 1:28:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Inference-with-DDPM"><span>Inference with DDPM</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5311s" target="_blank" rel="noopener">1:28:31</a></div><section class="row" id="s72">
+<figure>
+<a href="slides/l1/p089.jpg" target="_blank">
+<img src="slides/l1/p089.jpg" alt="Slide pp. 88–93: Inference recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 88–93 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5311s" target="_blank" rel="noopener" title="Watch on YouTube from 1:28:31">&#9658; 1:28:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5311s" target="_blank" rel="noopener">1:28:31</a> And here, what you do is you use the expression of p theta of xt minus 1 given xt, which is something we have derived, which is a function of the noisy image and the predicted noise that you can remove. And then you add some noise on top of it because let&#x27;s remember that p theta of xt minus 1 given xt is a normal distribution. So the noise here just corresponds to the standard deviation of that distribution.</p>
+</div>
+</section><section class="row" id="s73">
+<figure>
+<a href="slides/l1/p094.jpg" target="_blank">
+<img src="slides/l1/p094.jpg" alt="Slide p. 94: Inference recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 94 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5351s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:11">&#9658; 1:29:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5351s" target="_blank" rel="noopener">1:29:11</a> And when you do that from big T to 0, you then obtain your clean image. Cool. I know this was a lot. I know this is lecture 1. I can tell you that this lecture is probably the most difficult</p>
+</div>
+</section><section class="row" id="s74">
+<figure>
+<a href="slides/l1/p095.jpg" target="_blank">
+<img src="slides/l1/p095.jpg" alt="Slide p. 95: Landmark paper that is a must-read" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 95 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5367s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:27">&#9658; 1:29:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5367s" target="_blank" rel="noopener">1:29:27</a> of the eight first lectures. So if you feel a little bit like it&#x27;s a lot to digest,</p>
+</div>
+</section><section class="row" id="s75">
+<figure>
+<a href="slides/l1/p096.jpg" target="_blank">
+<img src="slides/l1/p096.jpg" alt="Slide p. 96: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 96 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5373s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:33">&#9658; 1:29:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5373s" target="_blank" rel="noopener">1:29:33</a> it&#x27;s normal. Hopefully we&#x27;ve tried to make it a bit more digestible. Luckily, there is a recording.</p>
+</div>
+</section><section class="row" id="s76">
+<figure>
+<a href="slides/l1/p097.jpg" target="_blank">
+<img src="slides/l1/p097.jpg" alt="Slide p. 97: Limitations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 97 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5378s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:38">&#9658; 1:29:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5378s" target="_blank" rel="noopener">1:29:38</a> We have the notes, we have everything. I mean, hopefully, if we don&#x27;t, just let us know.</p>
+</div>
+</section><section class="row" id="s77">
+<figure>
+<a href="slides/l1/p098.jpg" target="_blank">
+<img src="slides/l1/p098.jpg" alt="Slide p. 98: Limitations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 98 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5384s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:44">&#9658; 1:29:44</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5384s" target="_blank" rel="noopener">1:29:44</a> And with that, I&#x27;m going to give it to Shervin.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5389s" target="_blank" rel="noopener">1:29:49</a> Thank you, Afshin. So now we saw how to generate a clean image starting from noise. And what we&#x27;re seeing in this equation is that we need to repeat the same procedure big T times. And the thing is this big T is usually quite large. So it&#x27;s the order of magnitude of 1,000, for example, in the original paper. And let&#x27;s say you take the reference</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5423s" target="_blank" rel="noopener">1:30:23</a> point of existing image generation models before that, let&#x27;s say VAEs or GANs, and you compute the amount of time</p>
+</div>
+</section><div class="chapter" id="ch-Faster-sampling-with-DDIM"><span>Faster sampling with DDIM</span><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5430s" target="_blank" rel="noopener">1:30:30</a></div><section class="row" id="s78">
+<figure>
+<a href="slides/l1/p099.jpg" target="_blank">
+<img src="slides/l1/p099.jpg" alt="Slide p. 99: Limitations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 99 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5430s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:30">&#9658; 1:30:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5430s" target="_blank" rel="noopener">1:30:30</a> it takes to generate a single image, which is the forward pass. So you have to do that now t times. Let&#x27;s say you had to do it for 100 milliseconds. Now it might take the order of magnitude of minutes, which is not great. So one comment that we have out of all of this is that we want to bring the computational burden down at inference time. So what can we do to make that happen?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5458s" target="_blank" rel="noopener">1:30:58</a> So I will first show the equation that Afshin has shown, linking the generation process from step t, which is a denoiser image, to step t minus 1, which is the slightly cleaner image, which was defined by that generation process written on the slides.</p>
+</div>
+</section><section class="row" id="s79">
+<figure>
+<a href="slides/l1/p100.jpg" target="_blank">
+<img src="slides/l1/p100.jpg" alt="Slide p. 100: Mitigation attempts" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 100 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5480s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:20">&#9658; 1:31:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5480s" target="_blank" rel="noopener">1:31:20</a> And we&#x27;re going to try to see how to make these steps shorter. So what can we do? One strategy could be to try to skip steps. And the first thought that comes to mind is to write down equations and see if we can link a lower step to a higher one</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5506s" target="_blank" rel="noopener">1:31:46</a> and see if we can make a connection between the two without going through each of the steps. So let&#x27;s start by writing down the same equation for step t minus 1, and then t minus 2, and so on. And you come up with a relationship linking a lower step that you index by some other sequence of numbers that you call tau I, which is a sequence of numbers between 0</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5536s" target="_blank" rel="noopener">1:32:16</a> and big T, where the gap between consecutive numbers is bigger than 1 potentially, and you end up with a relationship that involves step number tau I, which is the larger step number, and some sum over some numbers and some sampled noise. And as you can see, it hasn&#x27;t brought us</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5564s" target="_blank" rel="noopener">1:32:44</a> very far because you still have quite a bit of model evaluations to make, which is exactly the gap between the two steps. So that didn&#x27;t work. What can we do next? So let&#x27;s just keep that sequence of numbers that represents sequences of steps that skip some in between.</p>
+</div>
+</section><section class="row" id="s80">
+<figure>
+<a href="slides/l1/p101.jpg" target="_blank">
+<img src="slides/l1/p101.jpg" alt="Slide p. 101: Mitigation attempts" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 101 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5590s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:10">&#9658; 1:33:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5590s" target="_blank" rel="noopener">1:33:10</a> One thing we could do is try to guess a formula that links two different steps. And I&#x27;m showing you one proposal of such a formula. And I&#x27;m not going to derive it, but just</p>
+</div>
+</section><section class="row" id="s81">
+<figure>
+<a href="slides/l1/p102.jpg" target="_blank">
+<img src="slides/l1/p102.jpg" alt="Slide p. 102: Mitigation attempts" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 102 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5604s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:24">&#9658; 1:33:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5604s" target="_blank" rel="noopener">1:33:24</a> going to verify that this makes sense for two consecutive steps. So if you say tau I is step t, and tau I minus 1</p>
+</div>
+</section><section class="row" id="s82">
+<figure>
+<a href="slides/l1/p103.jpg" target="_blank">
+<img src="slides/l1/p103.jpg" alt="Slide p. 103: Mitigation attempts" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 103 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5614s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:34">&#9658; 1:33:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5614s" target="_blank" rel="noopener">1:33:34</a> is step t minus 1, when you replace the numbers in there, you will find again the relationship between step t minus 1 and t. And so let&#x27;s suppose you use such a relationship</p>
+</div>
+</section><section class="row" id="s83">
+<figure>
+<a href="slides/l1/p104.jpg" target="_blank">
+<img src="slides/l1/p104.jpg" alt="Slide p. 104: Mitigation attempts" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 104 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5630s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:50">&#9658; 1:33:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5630s" target="_blank" rel="noopener">1:33:50</a> to link two different steps. Then what you realize in practice is that as the amount of stochasticity that you have within steps increases, then your quality is going to get worse as a function of the step size. So did that make sense. So by the way, the density of formulas in this last part is slightly higher than in the previous parts.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5663s" target="_blank" rel="noopener">1:34:23</a> And the goal here is more to get the intuition of skipping steps and seeing how it works more than looking like at each formula separately. So does that make sense so far? OK, great. So now we have tried to skip steps and we have found a relationship that could link the two. But we see that the quality is not great when you take large step sizes.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5695s" target="_blank" rel="noopener">1:34:55</a> So what you&#x27;re trying to do now is trying to do this large step skipping, but avoid that level of stochasticity between steps.</p>
+</div>
+</section><section class="row" id="s84">
+<figure>
+<a href="slides/l1/p105.jpg" target="_blank">
+<img src="slides/l1/p105.jpg" alt="Slide p. 105: Problem statement. Find      such that:" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 105 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5708s" target="_blank" rel="noopener" title="Watch on YouTube from 1:35:08">&#9658; 1:35:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5708s" target="_blank" rel="noopener">1:35:08</a> So in order to do so we go back to the drawing board and look at the derivation of the loss function that you had in the case of DDPM. And one thing we realize is that the a key part to get to the formulation of the DDPM loss was the marginal q of xt given x0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5733s" target="_blank" rel="noopener">1:35:33</a> And we realize that when we do modeling choices that reproduces that relationship on q, then you can have a model that is based on the same loss. So this is one observation. So the problem statement comes back to finding such a q that reproduces</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5762s" target="_blank" rel="noopener">1:36:02</a> these marginal probabilities. So with the same x of xt given x0. And the second constraint that we want to put ourselves is to have a generation process that forgoes of that stochasticity term in order to try to see if we can mitigate the fact that quality of generation gets worse. This is the problem statement. I&#x27;m going to write this down in more mathematical terms.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5797s" target="_blank" rel="noopener">1:36:37</a> So we want to find a familiar function, let&#x27;s say q sigma-- and I&#x27;m going to say what sigma is very soon and motivates why we are talking about the family function here-- such that we match the marginals with respect to the DDPM forward process. And the second condition where I said</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5823s" target="_blank" rel="noopener">1:37:03</a> that we don&#x27;t want any stochasticity between two generation steps is translated by the fact that we want p theta of the least noisy image, given the noisy image to be deterministic,</p>
+</div>
+</section><section class="row" id="s85">
+<figure>
+<a href="slides/l1/p107.jpg" target="_blank">
+<img src="slides/l1/p107.jpg" alt="Slide pp. 106–108: Problem reformulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 106–108 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5837s" target="_blank" rel="noopener" title="Watch on YouTube from 1:37:17">&#9658; 1:37:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5837s" target="_blank" rel="noopener">1:37:17</a> meaning that once you have xt, then your generation process gives you xt minus 1 as a one to one mapping,</p>
+</div>
+</section><section class="row" id="s86">
+<figure>
+<a href="slides/l1/p109.jpg" target="_blank">
+<img src="slides/l1/p109.jpg" alt="Slide p. 109: Why is DDIM called that way?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 109 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5845s" target="_blank" rel="noopener" title="Watch on YouTube from 1:37:25">&#9658; 1:37:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5845s" target="_blank" rel="noopener">1:37:25</a> so there is no more noise term. Does everyone agree on that? So I&#x27;m going to throw at you a formula and verify that this works. So this formula is parameterized by a parameter that is called sigma here that is a hyperparameter.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5875s" target="_blank" rel="noopener">1:37:55</a> And by reasoning with the process of induction, we can verify that the marginals q sigma of xt given x0 matches the ones that we had in the case of DDPM. And when you set sigma to 0, you can</p>
+</div>
+</section><section class="row" id="s87">
+<figure>
+<a href="slides/l1/p110.jpg" target="_blank">
+<img src="slides/l1/p110.jpg" alt="Slide p. 110: Why is DDIM called that way?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 110 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5896s" target="_blank" rel="noopener" title="Watch on YouTube from 1:38:16">&#9658; 1:38:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5896s" target="_blank" rel="noopener">1:38:16</a> see that this term becomes just a mean with 0 variance. So you can link xt minus 1 to xt with no stochasticity. OK, great. And so this state of mind and coming to the realization that you have such a family of functions that verify that, and the fact that this is attractive to seek is part of this DDIM paper, where</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5931s" target="_blank" rel="noopener">1:38:51</a> the only term that changes with respect to the title of DDPM is this P, probabilistic, to I, implicit. So the probabilistic part of DPM translated the facts that when you generated a clean image out of noise, you had this probabilistic nature between two steps. But in this DDIM formulation where you don&#x27;t have stochasticity at the generation step between two</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5960s" target="_blank" rel="noopener">1:39:20</a> consecutive steps, the stochastic part only comes when you sample your initial noise. So your xT. And this is why we call the diffusion process implicit because the probabilistic part is not something that you see between consecutive steps, but rather sets at the beginning of the generation process. So I think there was a question at the very beginning on why don&#x27;t you start at the same point every time.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=5992s" target="_blank" rel="noopener">1:39:52</a> So if you were to do that, then DDIM wouldn&#x27;t have worked because once you set your initial point of noise, then you determine deterministically your n image. And then in this case, one thing we can do is, at each step t, we can approximate our belief of what the clean image could</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6021s" target="_blank" rel="noopener">1:40:21</a> look like. So if you remember, the marginal distribution q of xt given x0 gives you a relationship between xt, x0, and the noise. And if you rearrange the terms, then you can approximate x0 at every step. This is just the rearrangement of terms that proves that. And then you can plug-in that approximation of x0</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6052s" target="_blank" rel="noopener">1:40:52</a> into the formula that we had just before to determine xt minus 1 by weighting this term accordingly and adding to it adequate noise weighted by the right coefficient at step t minus 1. And as you can notice here, there is no added stochasticity by construction of this family of forward processes Q sigma when sigma equals 0, which is the property that we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6082s" target="_blank" rel="noopener">1:41:22</a> were after here. So does that make sense so far? So the question is where&#x27;s the skipping steps here. We have not skipped any steps so far. We&#x27;re just constructing the generation process. OK, great. So if you recall, you had these DDPM generation process</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6118s" target="_blank" rel="noopener">1:41:58</a> that you had that did not skip steps. So you had to go one step at a time. And now you can adapt the formula that we saw from step t</p>
+</div>
+</section><section class="row" id="s88">
+<figure>
+<a href="slides/l1/p111.jpg" target="_blank">
+<img src="slides/l1/p111.jpg" alt="Slide p. 111: Why is the DDIM formulation useful?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 111 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6132s" target="_blank" rel="noopener" title="Watch on YouTube from 1:42:12">&#9658; 1:42:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6132s" target="_blank" rel="noopener">1:42:12</a> to step t minus 1. But now between these schedule of steps</p>
+</div>
+</section><section class="row" id="s89">
+<figure>
+<a href="slides/l1/p112.jpg" target="_blank">
+<img src="slides/l1/p112.jpg" alt="Slide p. 112: ..." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 112 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6137s" target="_blank" rel="noopener" title="Watch on YouTube from 1:42:17">&#9658; 1:42:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6137s" target="_blank" rel="noopener">1:42:17</a> tau I&#x27;s where at step tau I minus 1, you predict your best guess at what the clean image x0 is based</p>
+</div>
+</section><section class="row" id="s90">
+<figure>
+<a href="slides/l1/p113.jpg" target="_blank">
+<img src="slides/l1/p113.jpg" alt="Slide p. 113: Speedup" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 113 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6151s" target="_blank" rel="noopener" title="Watch on YouTube from 1:42:31">&#9658; 1:42:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6151s" target="_blank" rel="noopener">1:42:31</a> on your step tau I, and you approximate the noise that you need to remove. And you weigh each of these terms at the step tau I minus 1, which is how you get this formula. And here, we define some concepts. So when I talked about the sequence of steps tau I&#x27;s, so the length of that sequence is s.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6182s" target="_blank" rel="noopener">1:43:02</a> So we call it s. And t over s is the effective speedup. So instead of spending t steps to generate a new sample, you spend s steps. And with that in mind, the value for the speedup that people typically take is between 10 to 100.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6206s" target="_blank" rel="noopener">1:43:26</a> And as you can guess, it doesn&#x27;t come for free.</p>
+</div>
+</section><section class="row" id="s91">
+<figure>
+<a href="slides/l1/p114.jpg" target="_blank">
+<img src="slides/l1/p114.jpg" alt="Slide p. 114: Speedup" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 114 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6211s" target="_blank" rel="noopener" title="Watch on YouTube from 1:43:31">&#9658; 1:43:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6211s" target="_blank" rel="noopener">1:43:31</a> So it&#x27;s a trade off between speed and actual quality that you get in the end. And the actual values that people take are more on the order of magnitude of 10 to 50. And here, I&#x27;m showing what the authors showed in one of their experiments, the evolution of one metric. So here, FID means Fréchet Inception Distance,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6236s" target="_blank" rel="noopener">1:43:56</a> which is a metric that we&#x27;ll cover in lecture 7 when we&#x27;ll talk about evaluations.</p>
+</div>
+</section><section class="row" id="s92">
+<figure>
+<a href="slides/l1/p115.jpg" target="_blank">
+<img src="slides/l1/p115.jpg" alt="Slide p. 115: Speedup" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 115 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6241s" target="_blank" rel="noopener" title="Watch on YouTube from 1:44:01">&#9658; 1:44:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6241s" target="_blank" rel="noopener">1:44:01</a> So now I&#x27;m not going to cover it in detail. Just going to tell you that it translates how the generated images look like. And so the absolute values don&#x27;t necessarily mean much. But we can see the impact on quality based on relative differences. And you can see that you can speed up the process by taking s of size such that at that 20x, you&#x27;re not too far from</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6271s" target="_blank" rel="noopener">1:44:31</a> the baseline of not skipping steps at all. So the discussion here is so we realized that when you skipped steps, the stochasticity that you had between two consecutive steps that the generation process turned out to generate worse estimates of what a lower</p>
+</div>
+</section><section class="row" id="s93">
+<figure>
+<a href="slides/l1/p116.jpg" target="_blank">
+<img src="slides/l1/p116.jpg" alt="Slide p. 116: DDIM conclusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 116 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6299s" target="_blank" rel="noopener" title="Watch on YouTube from 1:44:59">&#9658; 1:44:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6299s" target="_blank" rel="noopener">1:44:59</a> step would be, which is why removing it is better here. So here, we don&#x27;t show the comparison with methods that do not remove the stochasticity, but the paper goes at length into showing that when you do have stochasticity, the results are much worse. So if I had to summarize the thought process that we went through, we looked at the DDPM loss,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6328s" target="_blank" rel="noopener">1:45:28</a> we looked at the core ingredients of what got us there, which was q of xt given x0. We chose q sigma that verified the same relationship. And we made q sigma such that it could be made-- so we could have a generation process p theta that is deterministic. And once we had this deterministic generation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6353s" target="_blank" rel="noopener">1:45:53</a> process, so we call it DDIM. And then we skip steps, and we get the transition from a generation process that needs to go through T steps</p>
+</div>
+</section><section class="row" id="s94">
+<figure>
+<a href="slides/l1/p117.jpg" target="_blank">
+<img src="slides/l1/p117.jpg" alt="Slide p. 117: Thank you for your attention!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 117 <a class="tlink chip" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6366s" target="_blank" rel="noopener" title="Watch on YouTube from 1:46:06">&#9658; 1:46:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=tr-CUpw--ck&t=6366s" target="_blank" rel="noopener">1:46:06</a> to one that only needs to go through S steps, which is what we got in the end. And with that, thank you very much for your attention and have a great weekend.</p>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<p>Slides &copy; CME 296 instructors (Afshine Amidi &amp; Shervine Amidi), Stanford University.
+Transcript from the lecture video. Slide&ndash;transcript alignment is automatic
+(content matching) and approximate; timestamps link to the video.</p>
+<nav class="lnav"><span></span><a href="index.html">All lectures</a><a href="lecture2.html">Lecture 2 &rarr;</a></nav>
+</footer>
+</body>
+</html>

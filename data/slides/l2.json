@@ -1,0 +1,1107 @@
+{
+ "lecture": 2,
+ "n_pages": 121,
+ "groups": [
+  {
+   "pages": [
+    1
+   ],
+   "id": 0,
+   "img": "p001.jpg",
+   "page_first": 1,
+   "page_last": 1,
+   "title": "CME 296: Di\ufb00usion &",
+   "text": "CME 296: Di\ufb00usion & Large Vision Models Afshine Amidi & Shervine Amidi Lecture 2"
+  },
+  {
+   "pages": [
+    2
+   ],
+   "id": 1,
+   "img": "p002.jpg",
+   "page_first": 2,
+   "page_last": 2,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Objective. Generate new images from a distribution of images Suppose we are given a sample of observations from Generated sample"
+  },
+  {
+   "pages": [
+    3
+   ],
+   "id": 2,
+   "img": "p003.jpg",
+   "page_first": 3,
+   "page_last": 3,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 1. Add noise (forward process) \u2026 \u2026"
+  },
+  {
+   "pages": [
+    4
+   ],
+   "id": 3,
+   "img": "p004.jpg",
+   "page_first": 4,
+   "page_last": 4,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 2. Learn to denoise it (reverse process) 1. Add noise (forward process) \u2026 \u2026 \u2026 \u2026"
+  },
+  {
+   "pages": [
+    5
+   ],
+   "id": 4,
+   "img": "p005.jpg",
+   "page_first": 5,
+   "page_last": 5,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Strategy. Derive lower bound for maximum (log-)likelihood estimation 1 ELBO!"
+  },
+  {
+   "pages": [
+    6
+   ],
+   "id": 5,
+   "img": "p006.jpg",
+   "page_first": 6,
+   "page_last": 6,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Strategy. Derive lower bound for maximum (log-)likelihood estimation Expand terms of lower bound 1 2 Surfaced KL divergence ELBO!"
+  },
+  {
+   "pages": [
+    7
+   ],
+   "id": 6,
+   "img": "p007.jpg",
+   "page_first": 7,
+   "page_last": 7,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Strategy. Derive lower bound for maximum (log-)likelihood estimation Expand terms of lower bound 1 2 3 Show lower bound is tractable Surfaced KL divergence Bayes' rule + Gaussian properties ELBO!"
+  },
+  {
+   "pages": [
+    8
+   ],
+   "id": 7,
+   "img": "p008.jpg",
+   "page_first": 8,
+   "page_last": 8,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Strategy. Derive lower bound for maximum (log-)likelihood estimation Expand terms of lower bound 1 2 3 Show lower bound is tractable 4 Deduce \ufb01nal loss function Surfaced KL divergence Bayes' rule + Gaussian properties Incredibly simple noise prediction! ELBO!"
+  },
+  {
+   "pages": [
+    9
+   ],
+   "id": 8,
+   "img": "p009.jpg",
+   "page_first": 9,
+   "page_last": 9,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Noised image Noise level Noise predictor Actual noise"
+  },
+  {
+   "pages": [
+    10
+   ],
+   "id": 9,
+   "img": "p010.jpg",
+   "page_first": 10,
+   "page_last": 10,
+   "title": "Today's lecture",
+   "text": "Today's lecture A teddy bear reading a book Black box architecture Generation paradigm Today's lecture: Score matching"
+  },
+  {
+   "pages": [
+    11
+   ],
+   "id": 10,
+   "img": "p011.jpg",
+   "page_first": 11,
+   "page_last": 11,
+   "title": "Motivation",
+   "text": "Motivation Score estimation Di\ufb00erential formulation Training Inference Probability \ufb02ows Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    12
+   ],
+   "id": 11,
+   "img": "p012.jpg",
+   "page_first": 12,
+   "page_last": 12,
+   "title": "Intuition",
+   "text": "Intuition ?"
+  },
+  {
+   "pages": [
+    13
+   ],
+   "id": 12,
+   "img": "p013.jpg",
+   "page_first": 13,
+   "page_last": 13,
+   "title": "Reminder of what a gradient is",
+   "text": "Reminder of what a gradient is"
+  },
+  {
+   "pages": [
+    14
+   ],
+   "id": 13,
+   "img": "p014.jpg",
+   "page_first": 14,
+   "page_last": 14,
+   "title": "Intuition",
+   "text": "Intuition"
+  },
+  {
+   "pages": [
+    15
+   ],
+   "id": 14,
+   "img": "p015.jpg",
+   "page_first": 15,
+   "page_last": 15,
+   "title": "Problems with gradient of probability",
+   "text": "Problems with gradient of probability \u25cf Property of probabilities: Therefore, Intractable!"
+  },
+  {
+   "pages": [
+    16
+   ],
+   "id": 15,
+   "img": "p016.jpg",
+   "page_first": 16,
+   "page_last": 16,
+   "title": "Problems with gradient of probability",
+   "text": "Problems with gradient of probability \u25cf Property of probabilities: Therefore, Still intractable!"
+  },
+  {
+   "pages": [
+    17
+   ],
+   "id": 16,
+   "img": "p017.jpg",
+   "page_first": 17,
+   "page_last": 17,
+   "title": "Problems with gradient of probability",
+   "text": "Problems with gradient of probability \u25cf Property of probabilities: \u25cf Numerical stability issues in low-density regions Therefore, Still intractable!"
+  },
+  {
+   "pages": [
+    18
+   ],
+   "id": 17,
+   "img": "p018.jpg",
+   "page_first": 18,
+   "page_last": 18,
+   "title": "Problems with gradient of probability",
+   "text": "Problems with gradient of probability \u25cf Property of probabilities: \u25cf Numerical stability issues in low-density regions Therefore, Proposal. Let's consider instead! Still intractable!"
+  },
+  {
+   "pages": [
+    19,
+    20,
+    21,
+    22
+   ],
+   "id": 18,
+   "img": "p022.jpg",
+   "page_first": 19,
+   "page_last": 22,
+   "title": "Reviewing gradient of log of p",
+   "text": "Reviewing gradient of log of p \u25cf Not intractable anymore! \u25cf Points in the same direction as gradient of \u25cf More numerically stable Score function"
+  },
+  {
+   "pages": [
+    23
+   ],
+   "id": 19,
+   "img": "p023.jpg",
+   "page_first": 23,
+   "page_last": 23,
+   "title": "Intuition behind score function",
+   "text": "Intuition behind score function"
+  },
+  {
+   "pages": [
+    24
+   ],
+   "id": 20,
+   "img": "p024.jpg",
+   "page_first": 24,
+   "page_last": 24,
+   "title": "Using the score function in our problem",
+   "text": "Using the score function in our problem Langevin sampling"
+  },
+  {
+   "pages": [
+    25
+   ],
+   "id": 21,
+   "img": "p025.jpg",
+   "page_first": 25,
+   "page_last": 25,
+   "title": "Motivation",
+   "text": "Motivation Score estimation Di\ufb00erential formulation Training Inference Probability \ufb02ows Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    26,
+    27
+   ],
+   "id": 22,
+   "img": "p027.jpg",
+   "page_first": 26,
+   "page_last": 27,
+   "title": "Score matching",
+   "text": "Score matching SM = Score Matching Goal. Estimate the score with We don't have access to it"
+  },
+  {
+   "pages": [
+    28
+   ],
+   "id": 23,
+   "img": "p028.jpg",
+   "page_first": 28,
+   "page_last": 28,
+   "title": "Attempts to estimate the score",
+   "text": "Attempts to estimate the score \u25cf Implicit Score Matching (ISM): integrate by parts Estimation of Non-Normalized Statistical Models by Score Matching, Hyv\u00e4rinen, 2005."
+  },
+  {
+   "pages": [
+    29
+   ],
+   "id": 24,
+   "img": "p029.jpg",
+   "page_first": 29,
+   "page_last": 29,
+   "title": "Attempts to estimate the score",
+   "text": "Attempts to estimate the score \u25cf Implicit Score Matching (ISM): integrate by parts Sliced Score Matching: A Scalable Approach to Density and Score Estimation, Song et al., 2019. \u25cf Sliced Score Matching (SSM): project on vectors"
+  },
+  {
+   "pages": [
+    30
+   ],
+   "id": 25,
+   "img": "p030.jpg",
+   "page_first": 30,
+   "page_last": 30,
+   "title": "Score of a Gaussian distribution (example in 1D)",
+   "text": "Score of a Gaussian distribution (example in 1D) For \u25cf Probability distribution function is \u25cf Therefore, score is:"
+  },
+  {
+   "pages": [
+    31
+   ],
+   "id": 26,
+   "img": "p031.jpg",
+   "page_first": 31,
+   "page_last": 31,
+   "title": "New attempt: add noise to data",
+   "text": "New attempt: add noise to data Idea. Add noise to data and use analytical expression of the score with Therefore: Derivation: Leverage expression of score for a Gaussian distribution"
+  },
+  {
+   "pages": [
+    32
+   ],
+   "id": 27,
+   "img": "p032.jpg",
+   "page_first": 32,
+   "page_last": 32,
+   "title": "Add noise to distribution",
+   "text": "Add noise to distribution Let's de\ufb01ne:"
+  },
+  {
+   "pages": [
+    33
+   ],
+   "id": 28,
+   "img": "p033.jpg",
+   "page_first": 33,
+   "page_last": 33,
+   "title": "Estimating the score of the noised distribution",
+   "text": "Estimating the score of the noised distribution Full derivation in A Connection Between Score Matching and Denoising Autoencoders, Vincent, 2010. De\ufb01nition of score matching of We can show that this is also equal to: Derivation: Expand squared norm and use de\ufb01nition of marginal tractable!"
+  },
+  {
+   "pages": [
+    34
+   ],
+   "id": 29,
+   "img": "p034.jpg",
+   "page_first": 34,
+   "page_last": 34,
+   "title": "Denoising score matching",
+   "text": "Denoising score matching A Connection Between Score Matching and Denoising Autoencoders, Vincent, 2010. We now have a tractable loss! However, This is not exactly DSM = Denoising Score Matching"
+  },
+  {
+   "pages": [
+    35
+   ],
+   "id": 30,
+   "img": "p035.jpg",
+   "page_first": 35,
+   "page_last": 35,
+   "title": "Reminder about the objective of interest",
+   "text": "Reminder about the objective of interest ?"
+  },
+  {
+   "pages": [
+    36
+   ],
+   "id": 31,
+   "img": "p036.jpg",
+   "page_first": 36,
+   "page_last": 36,
+   "title": "Limitations with vanilla DSM",
+   "text": "Limitations with vanilla DSM close to but poor estimations in low-density regions"
+  },
+  {
+   "pages": [
+    37
+   ],
+   "id": 32,
+   "img": "p037.jpg",
+   "page_first": 37,
+   "page_last": 37,
+   "title": "Limitations with vanilla DSM",
+   "text": "Limitations with vanilla DSM far from but good estimations in low-density regions"
+  },
+  {
+   "pages": [
+    38
+   ],
+   "id": 33,
+   "img": "p038.jpg",
+   "page_first": 38,
+   "page_last": 38,
+   "title": "Score matching with varying noise via NCSN",
+   "text": "Score matching with varying noise via NCSN Idea. Estimate score at di\ufb00erent noise levels Generative Modeling by Estimating Gradients of the Data Distribution, Song et al., 2019. NCSN = Noise Conditional Score Network Loss."
+  },
+  {
+   "pages": [
+    39,
+    40
+   ],
+   "id": 34,
+   "img": "p039.jpg",
+   "page_first": 39,
+   "page_last": 40,
+   "title": "Intuition behind sampling strategy",
+   "text": "Intuition behind sampling strategy with"
+  },
+  {
+   "pages": [
+    41
+   ],
+   "id": 35,
+   "img": "p041.jpg",
+   "page_first": 41,
+   "page_last": 41,
+   "title": "Intuition behind sampling strategy",
+   "text": "Intuition behind sampling strategy ALD = Annealed Langevin Dynamics with"
+  },
+  {
+   "pages": [
+    42
+   ],
+   "id": 36,
+   "img": "p042.jpg",
+   "page_first": 42,
+   "page_last": 42,
+   "title": "Sampling with Annealed Langevin Dynamics",
+   "text": "Sampling with Annealed Langevin Dynamics 1. Sample: 2. For each noise"
+  },
+  {
+   "pages": [
+    43
+   ],
+   "id": 37,
+   "img": "p043.jpg",
+   "page_first": 43,
+   "page_last": 43,
+   "title": "Sampling with Annealed Langevin Dynamics",
+   "text": "Sampling with Annealed Langevin Dynamics 1. Sample: noise , perform iterative update for 2. For each steps"
+  },
+  {
+   "pages": [
+    44
+   ],
+   "id": 38,
+   "img": "p044.jpg",
+   "page_first": 44,
+   "page_last": 44,
+   "title": ", perform iterative update for",
+   "text": ", perform iterative update for Sampling with Annealed Langevin Dynamics 1. Sample: 2. For each noise steps"
+  },
+  {
+   "pages": [
+    45,
+    46
+   ],
+   "id": 39,
+   "img": "p045.jpg",
+   "page_first": 45,
+   "page_last": 46,
+   "title": ", perform iterative update for",
+   "text": ", perform iterative update for Sampling with Annealed Langevin Dynamics 1. Sample: 2. For each noise Predicted score to move towards steps"
+  },
+  {
+   "pages": [
+    47,
+    48,
+    49
+   ],
+   "id": 40,
+   "img": "p047.jpg",
+   "page_first": 47,
+   "page_last": 49,
+   "title": ", perform iterative update for",
+   "text": ", perform iterative update for Sampling with Annealed Langevin Dynamics 1. Sample: 2. For each noise Predicted score to move towards Sampled from a Normal distribution steps"
+  },
+  {
+   "pages": [
+    50
+   ],
+   "id": 41,
+   "img": "p050.jpg",
+   "page_first": 50,
+   "page_last": 50,
+   "title": "Sampling with Annealed Langevin Dynamics",
+   "text": "Sampling with Annealed Langevin Dynamics 3. Obtain \ufb01nal image , perform iterative update for 1. Sample: 2. For each noise steps"
+  },
+  {
+   "pages": [
+    51,
+    52
+   ],
+   "id": 42,
+   "img": "p052.jpg",
+   "page_first": 51,
+   "page_last": 52,
+   "title": "Parallel between noise (DDPM) and score (NCSN)",
+   "text": "Parallel between noise (DDPM) and score (NCSN) DDPM Noise to remove from noisy sample Score from noisy to clean"
+  },
+  {
+   "pages": [
+    53
+   ],
+   "id": 43,
+   "img": "p053.jpg",
+   "page_first": 53,
+   "page_last": 53,
+   "title": "Motivation",
+   "text": "Motivation Score estimation Di\ufb00erential formulation Training Inference Probability \ufb02ows Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    54
+   ],
+   "id": 44,
+   "img": "p054.jpg",
+   "page_first": 54,
+   "page_last": 54,
+   "title": "Intuition",
+   "text": "Intuition DDPM ..."
+  },
+  {
+   "pages": [
+    55,
+    56
+   ],
+   "id": 45,
+   "img": "p056.jpg",
+   "page_first": 55,
+   "page_last": 56,
+   "title": "Intuition",
+   "text": "Intuition DDPM NCSN ... ... arbitrary"
+  },
+  {
+   "pages": [
+    57
+   ],
+   "id": 46,
+   "img": "p057.jpg",
+   "page_first": 57,
+   "page_last": 57,
+   "title": "Intuition",
+   "text": "Intuition \ud83d\udca1 What if we considered continuous evolutions instead? DDPM NCSN ... ... arbitrary"
+  },
+  {
+   "pages": [
+    58
+   ],
+   "id": 47,
+   "img": "p058.jpg",
+   "page_first": 58,
+   "page_last": 58,
+   "title": "Let's \ufb01rst de\ufb01ne Wiener processes",
+   "text": "Let's \ufb01rst de\ufb01ne Wiener processes Idea. Continuous equivalent of adding increments of Gaussian noise Wiener process. Stochastic process with the following special properties: \u25cf Independent increments \u25cf \u25cf"
+  },
+  {
+   "pages": [
+    59
+   ],
+   "id": 48,
+   "img": "p059.jpg",
+   "page_first": 59,
+   "page_last": 59,
+   "title": "DDPM continuous formulation",
+   "text": "DDPM continuous formulation Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Continuous Discrete Derivation: Use Taylor expansion + reparametrize for small incremental noise"
+  },
+  {
+   "pages": [
+    60
+   ],
+   "id": 49,
+   "img": "p060.jpg",
+   "page_first": 60,
+   "page_last": 60,
+   "title": "NCSN continuous formulation",
+   "text": "NCSN continuous formulation Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Continuous Discrete Derivation: Use de\ufb01nition of a Wiener process"
+  },
+  {
+   "pages": [
+    61
+   ],
+   "id": 50,
+   "img": "p061.jpg",
+   "page_first": 61,
+   "page_last": 61,
+   "title": "Di\ufb00erential formulation",
+   "text": "Di\ufb00erential formulation Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. SDE = Stochastic Di\ufb00erential Equation Drift Di\ufb00usion deterministic stochastic"
+  },
+  {
+   "pages": [
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68
+   ],
+   "id": 51,
+   "img": "p062.jpg",
+   "page_first": 62,
+   "page_last": 68,
+   "title": "Intuition behind di\ufb00erential formulation",
+   "text": "Intuition behind di\ufb00erential formulation Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020."
+  },
+  {
+   "pages": [
+    69
+   ],
+   "id": 52,
+   "img": "p069.jpg",
+   "page_first": 69,
+   "page_last": 69,
+   "title": "Variance Preserving",
+   "text": "Variance Preserving SDE variants Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Example: DDPM"
+  },
+  {
+   "pages": [
+    70
+   ],
+   "id": 53,
+   "img": "p070.jpg",
+   "page_first": 70,
+   "page_last": 70,
+   "title": "Variance Preserving",
+   "text": "Variance Preserving SDE variants Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Variance Exploding Example: DDPM Example: NCSN"
+  },
+  {
+   "pages": [
+    71
+   ],
+   "id": 54,
+   "img": "p071.jpg",
+   "page_first": 71,
+   "page_last": 71,
+   "title": "Timeline and uni\ufb01cation of methods",
+   "text": "Timeline and uni\ufb01cation of methods Di\ufb00usion Score matching 2015 2006 2010 2019 2020 2020 SDE Principle Intuition"
+  },
+  {
+   "pages": [
+    72
+   ],
+   "id": 55,
+   "img": "p072.jpg",
+   "page_first": 72,
+   "page_last": 72,
+   "title": "Motivation",
+   "text": "Motivation Score estimation Di\ufb00erential formulation Training Inference Probability \ufb02ows Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    73
+   ],
+   "id": 56,
+   "img": "p073.jpg",
+   "page_first": 73,
+   "page_last": 73,
+   "title": "Training derivation",
+   "text": "Training derivation Objective. Estimate the score Interesting discussion in Elucidating the Design Space of Di\ufb00usion-Based Generative Models, Karras et al., 2022."
+  },
+  {
+   "pages": [
+    74
+   ],
+   "id": 57,
+   "img": "p074.jpg",
+   "page_first": 74,
+   "page_last": 74,
+   "title": "Training derivation",
+   "text": "Training derivation Variance Preserving (DDPM-style) Objective. Estimate the score Interesting discussion in Elucidating the Design Space of Di\ufb00usion-Based Generative Models, Karras et al., 2022."
+  },
+  {
+   "pages": [
+    75,
+    76,
+    77
+   ],
+   "id": 58,
+   "img": "p075.jpg",
+   "page_first": 75,
+   "page_last": 77,
+   "title": "Training derivation",
+   "text": "Training derivation Variance Preserving (DDPM-style) Variance Exploding (NCSN-style) Objective. Estimate the score Interesting discussion in Elucidating the Design Space of Di\ufb00usion-Based Generative Models, Karras et al., 2022."
+  },
+  {
+   "pages": [
+    78
+   ],
+   "id": 59,
+   "img": "p078.jpg",
+   "page_first": 78,
+   "page_last": 78,
+   "title": "Training recipe",
+   "text": "Training recipe 1. Sample: time step noise clean image noised image"
+  },
+  {
+   "pages": [
+    79
+   ],
+   "id": 60,
+   "img": "p079.jpg",
+   "page_first": 79,
+   "page_last": 79,
+   "title": "Training recipe",
+   "text": "Training recipe 1. Sample: 2. Use via and to predict time step noise clean image noised image"
+  },
+  {
+   "pages": [
+    80
+   ],
+   "id": 61,
+   "img": "p080.jpg",
+   "page_first": 80,
+   "page_last": 80,
+   "title": "Training recipe",
+   "text": "Training recipe 3. Compute loss and backpropagate through 1. Sample: 2. Use via and to predict time step noise clean image noised image"
+  },
+  {
+   "pages": [
+    81
+   ],
+   "id": 62,
+   "img": "p081.jpg",
+   "page_first": 81,
+   "page_last": 81,
+   "title": "Motivation",
+   "text": "Motivation Score estimation Di\ufb00erential formulation Training Inference Probability \ufb02ows Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    82
+   ],
+   "id": 63,
+   "img": "p082.jpg",
+   "page_first": 82,
+   "page_last": 82,
+   "title": "Introducing the reverse formula",
+   "text": "Introducing the reverse formula Forward. Perturb data into noise."
+  },
+  {
+   "pages": [
+    83
+   ],
+   "id": 64,
+   "img": "p083.jpg",
+   "page_first": 83,
+   "page_last": 83,
+   "title": "Introducing the reverse formula",
+   "text": "Introducing the reverse formula Reverse-time di\ufb00usion equation models, Anderson, 1982. Reverse. Transform noise back into data. Forward. Perturb data into noise. Derivation: Use the Fokker-Planck equation (beyond the scope of this class)"
+  },
+  {
+   "pages": [
+    84,
+    85
+   ],
+   "id": 65,
+   "img": "p084.jpg",
+   "page_first": 84,
+   "page_last": 85,
+   "title": "Intuition behind reverse time formula",
+   "text": "Intuition behind reverse time formula Reverse-time di\ufb00usion equation models, Anderson, 1982. Reverse. Transform noise back into data."
+  },
+  {
+   "pages": [
+    86
+   ],
+   "id": 66,
+   "img": "p086.jpg",
+   "page_first": 86,
+   "page_last": 86,
+   "title": "Intuition behind reverse time formula",
+   "text": "Intuition behind reverse time formula Reverse-time di\ufb00usion equation models, Anderson, 1982. Forward drift coe\ufb03cient Reverse. Transform noise back into data."
+  },
+  {
+   "pages": [
+    87
+   ],
+   "id": 67,
+   "img": "p087.jpg",
+   "page_first": 87,
+   "page_last": 87,
+   "title": "Intuition behind reverse time formula",
+   "text": "Intuition behind reverse time formula Reverse-time di\ufb00usion equation models, Anderson, 1982. Wiener process but di\ufb00erent than forward process one Forward drift coe\ufb03cient Forward di\ufb00usion coe\ufb03cient Reverse. Transform noise back into data."
+  },
+  {
+   "pages": [
+    88
+   ],
+   "id": 68,
+   "img": "p088.jpg",
+   "page_first": 88,
+   "page_last": 88,
+   "title": "Intuition behind reverse time formula",
+   "text": "Intuition behind reverse time formula Reverse-time di\ufb00usion equation models, Anderson, 1982. Need to go even more towards regions of high density with the score to compensate for di\ufb00usion Reverse. Transform noise back into data. Correction to drift Wiener process but di\ufb00erent than forward process one Forward drift coe\ufb03cient Forward di\ufb00usion coe\ufb03cient"
+  },
+  {
+   "pages": [
+    89
+   ],
+   "id": 69,
+   "img": "p089.jpg",
+   "page_first": 89,
+   "page_last": 89,
+   "title": "Intuition behind reverse time formula",
+   "text": "Intuition behind reverse time formula Reverse-time di\ufb00usion equation models, Anderson, 1982. Score Need to go even more towards regions of high density with the score to compensate for di\ufb00usion Reverse. Transform noise back into data. Correction to drift Wiener process but di\ufb00erent than forward process one Forward drift coe\ufb03cient Forward di\ufb00usion coe\ufb03cient"
+  },
+  {
+   "pages": [
+    90,
+    91
+   ],
+   "id": 70,
+   "img": "p091.jpg",
+   "page_first": 90,
+   "page_last": 91,
+   "title": "Inference recipe",
+   "text": "Inference recipe Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. 1. Sample: 2. Use Euler-Maruyama to go through reverse SDE: noise 3. Obtain \ufb01nal image"
+  },
+  {
+   "pages": [
+    92
+   ],
+   "id": 71,
+   "img": "p092.jpg",
+   "page_first": 92,
+   "page_last": 92,
+   "title": "Motivation",
+   "text": "Motivation Score estimation Di\ufb00erential formulation Training Inference Probability \ufb02ows Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    93,
+    94
+   ],
+   "id": 72,
+   "img": "p094.jpg",
+   "page_first": 93,
+   "page_last": 94,
+   "title": "Limitations of an SDE",
+   "text": "Limitations of an SDE Stochastic term means: \u25cf Slower solver. Need 1000-2000 steps because we don\u2019t know in advance which region is \u201ceasy\u201d vs. \u201chard\u201d. \u25cf More sources of error. Both discretization error from \ufb01nite step sizes and injected stochastic noise"
+  },
+  {
+   "pages": [
+    95
+   ],
+   "id": 73,
+   "img": "p095.jpg",
+   "page_first": 95,
+   "page_last": 95,
+   "title": "Hypothetically: writing the SDE as an ODE",
+   "text": "Hypothetically: writing the SDE as an ODE No stochastic term would mean: \u25cf Faster solver. Leverage mathematical properties to go fast vs. slow. something No stochasticity!"
+  },
+  {
+   "pages": [
+    96
+   ],
+   "id": 74,
+   "img": "p096.jpg",
+   "page_first": 96,
+   "page_last": 96,
+   "title": "Hypothetically: writing the SDE as an ODE",
+   "text": "Hypothetically: writing the SDE as an ODE No stochastic term would mean: \u25cf Faster solver. Leverage mathematical properties to go fast vs. slow. \u25cf Focused source of error. Only \ufb01nite step sizes contribute. something No stochasticity!"
+  },
+  {
+   "pages": [
+    97
+   ],
+   "id": 75,
+   "img": "p097.jpg",
+   "page_first": 97,
+   "page_last": 97,
+   "title": "ODE derivation",
+   "text": "ODE derivation Forward SDE. Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Fokker-Planck equation. Justi\ufb01cation: Theorem (out of scope)"
+  },
+  {
+   "pages": [
+    98
+   ],
+   "id": 76,
+   "img": "p098.jpg",
+   "page_first": 98,
+   "page_last": 98,
+   "title": "ODE derivation",
+   "text": "ODE derivation Forward SDE. Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Fokker-Planck equation. Continuity equation. Derivation: Algebraic operations"
+  },
+  {
+   "pages": [
+    99
+   ],
+   "id": 77,
+   "img": "p099.jpg",
+   "page_first": 99,
+   "page_last": 99,
+   "title": "ODE derivation",
+   "text": "ODE derivation Forward SDE. Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. PF-ODE. Fokker-Planck equation. Continuity equation. Derivation: Recognize velocity of probability \ufb02ow"
+  },
+  {
+   "pages": [
+    100
+   ],
+   "id": 78,
+   "img": "p100.jpg",
+   "page_first": 100,
+   "page_last": 100,
+   "title": "ODE derivation",
+   "text": "ODE derivation Forward SDE. Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Fokker-Planck equation. Continuity equation. PF-ODE. modeling assumptions"
+  },
+  {
+   "pages": [
+    101
+   ],
+   "id": 79,
+   "img": "p101.jpg",
+   "page_first": 101,
+   "page_last": 101,
+   "title": "ODE derivation",
+   "text": "ODE derivation Forward SDE. Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. Fokker-Planck equation. Continuity equation. PF-ODE. score approximated by our model"
+  },
+  {
+   "pages": [
+    102,
+    103,
+    104
+   ],
+   "id": 80,
+   "img": "p104.jpg",
+   "page_first": 102,
+   "page_last": 104,
+   "title": "PF-ODE meaning",
+   "text": "PF-ODE meaning Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020. PF-ODE = Probability Flow-Ordinary Di\ufb00erential Equation satis\ufb01es \u26a0 Same marginal densities \u2260 Same trajectories \u26a0"
+  },
+  {
+   "pages": [
+    105
+   ],
+   "id": 81,
+   "img": "p105.jpg",
+   "page_first": 105,
+   "page_last": 105,
+   "title": "Comparison between reverse SDE and PF-ODE",
+   "text": "Comparison between reverse SDE and PF-ODE Reverse SDE PF-ODE Equation Nature of process Stochastic Deterministic Sampling diversity Higher Lower Sampling quality Higher Lower Sampling speed Slower Faster"
+  },
+  {
+   "pages": [
+    106
+   ],
+   "id": 82,
+   "img": "p106.jpg",
+   "page_first": 106,
+   "page_last": 106,
+   "title": "DDIM",
+   "text": "DDIM PF-ODE Deterministic counterpart of DDPM Reverse SDE Can reused trained model? Yes Sampling diversity Lower Sampling quality Lower Sampling speed Faster Similarity with DDIM"
+  },
+  {
+   "pages": [
+    107
+   ],
+   "id": 83,
+   "img": "p107.jpg",
+   "page_first": 107,
+   "page_last": 107,
+   "title": "Complexity metric",
+   "text": "Complexity metric Image from VIP cheatsheets for CS 230 - Deep Learnings Tips and Tricks, Amidi, 2019. NFE = Number of Function Evaluations"
+  },
+  {
+   "pages": [
+    108
+   ],
+   "id": 84,
+   "img": "p108.jpg",
+   "page_first": 108,
+   "page_last": 108,
+   "title": "Solving for x",
+   "text": "Solving for x with Problem statement."
+  },
+  {
+   "pages": [
+    109
+   ],
+   "id": 85,
+   "img": "p109.jpg",
+   "page_first": 109,
+   "page_last": 109,
+   "title": "Simplest method",
+   "text": "Simplest method Euler method. 1 NFE, large error"
+  },
+  {
+   "pages": [
+    110
+   ],
+   "id": 86,
+   "img": "p110.jpg",
+   "page_first": 110,
+   "page_last": 110,
+   "title": "More commonly used method",
+   "text": "More commonly used method Runge-Kutta 4. 4 NFE, smaller error"
+  },
+  {
+   "pages": [
+    111
+   ],
+   "id": 87,
+   "img": "p111.jpg",
+   "page_first": 111,
+   "page_last": 111,
+   "title": "Properties of the ODE",
+   "text": "Properties of the ODE DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. with Problem statement. Justi\ufb01cation: De\ufb01nition of v"
+  },
+  {
+   "pages": [
+    112
+   ],
+   "id": 88,
+   "img": "p112.jpg",
+   "page_first": 112,
+   "page_last": 112,
+   "title": "Properties of the ODE",
+   "text": "Properties of the ODE DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. with Problem statement. Justi\ufb01cation: Di\ufb00usion case"
+  },
+  {
+   "pages": [
+    113
+   ],
+   "id": 89,
+   "img": "p113.jpg",
+   "page_first": 113,
+   "page_last": 113,
+   "title": "Properties of the ODE",
+   "text": "Properties of the ODE DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. with Problem statement. linear in non-linear in"
+  },
+  {
+   "pages": [
+    114
+   ],
+   "id": 90,
+   "img": "p114.jpg",
+   "page_first": 114,
+   "page_last": 114,
+   "title": "Traditional solvers.",
+   "text": "Traditional solvers. Is there a better way? DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. \u201cSmarter\u201d solver. discretize discretize solve exactly"
+  },
+  {
+   "pages": [
+    115
+   ],
+   "id": 91,
+   "img": "p115.jpg",
+   "page_first": 115,
+   "page_last": 115,
+   "title": "Solver tailored to PF-ODE",
+   "text": "Solver tailored to PF-ODE DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. DPM-Solver = Di\ufb00usion Probabilistic Model-Solver Derivation: Variation of constants and change of variables with and"
+  },
+  {
+   "pages": [
+    116
+   ],
+   "id": 92,
+   "img": "p116.jpg",
+   "page_first": 116,
+   "page_last": 116,
+   "title": "Solver tailored to PF-ODE",
+   "text": "Solver tailored to PF-ODE DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. DPM-Solver = Di\ufb00usion Probabilistic Model-Solver what to do with this term? with and"
+  },
+  {
+   "pages": [
+    117
+   ],
+   "id": 93,
+   "img": "p117.jpg",
+   "page_first": 117,
+   "page_last": 117,
+   "title": "Variants of DPM-Solver",
+   "text": "Variants of DPM-Solver DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022. DPM-Solver-1. DPM-Solver-2. DPM-Solver-k. Taylor expansion of order (k-1) ... 1 NFE 2 NFE k NFE"
+  },
+  {
+   "pages": [
+    118
+   ],
+   "id": 94,
+   "img": "p118.jpg",
+   "page_first": 118,
+   "page_last": 118,
+   "title": "DPM-Solver conclusion",
+   "text": "DPM-Solver conclusion Mindset. \u25cf Forward SDE \u2192 Fokker-Planck eq. \u2192 Continuity eq. \u2192 PF-ODE \u25cf Leveraging structure of PF-ODE \u2192 DPM-Solver DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022."
+  },
+  {
+   "pages": [
+    119
+   ],
+   "id": 95,
+   "img": "p119.jpg",
+   "page_first": 119,
+   "page_last": 119,
+   "title": "DPM-Solver conclusion",
+   "text": "DPM-Solver conclusion Mindset. \u25cf Forward SDE \u2192 Fokker-Planck eq. \u2192 Continuity eq. \u2192 PF-ODE \u25cf Leveraging structure of PF-ODE \u2192 DPM-Solver Performance. \u25cf Beats \u201ctraditional\u201d solvers given an NFE budget \u25cf Di\ufb00erence most pronounced as low NFE regimes DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022."
+  },
+  {
+   "pages": [
+    120
+   ],
+   "id": 96,
+   "img": "p120.jpg",
+   "page_first": 120,
+   "page_last": 120,
+   "title": "DPM-Solver conclusion",
+   "text": "DPM-Solver conclusion Mindset. \u25cf Forward SDE \u2192 Fokker-Planck eq. \u2192 Continuity eq. \u2192 PF-ODE \u25cf Leveraging structure of PF-ODE \u2192 DPM-Solver Performance. \u25cf Beats \u201ctraditional\u201d solvers given an NFE budget \u25cf Di\ufb00erence most pronounced as low NFE regimes Use in practice. \u25cf No retraining needed \u25cf Reasonable results after only 10-20 NFEs DPM-Solver: A Fast ODE Solver for Di\ufb00usion Probabilistic Model Sampling in Around 10 Steps, Lu et al., 2022."
+  },
+  {
+   "pages": [
+    121
+   ],
+   "id": 97,
+   "img": "p121.jpg",
+   "page_first": 121,
+   "page_last": 121,
+   "title": "Thank you for your attention!",
+   "text": "Thank you for your attention!"
+  }
+ ]
+}

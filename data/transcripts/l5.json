@@ -1,0 +1,5424 @@
+{
+ "lecture": 5,
+ "video_id": "HpFdSlMeXzQ",
+ "segments": [
+  {
+   "t": 0,
+   "ts": "0:00",
+   "text": "0:05 Hello, everyone, and welcome to lecture 5 of CME 296.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 12,
+   "ts": "0:12",
+   "text": "So we are officially entering the second half of this class.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 18,
+   "ts": "0:18",
+   "text": "So we did a lot of hard work during the first half. We derived a tractable loss to learn how to generate images.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 28,
+   "ts": "0:28",
+   "text": "So if you remember, the first three lectures was us looking from different perspectives",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 34,
+   "ts": "0:34",
+   "text": "to derive that loss. And then something else we did, which was, again, hard work,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 40,
+   "ts": "0:40",
+   "text": "was figuring out in which space those images were living-- so how to represent images.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 48,
+   "ts": "0:48",
+   "text": "And so this second half is going to be more practical. And this lecture is specifically going",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 54,
+   "ts": "0:54",
+   "text": "to be about the architectures behind the image-generation models.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 61,
+   "ts": "1:01",
+   "text": "So before we start, as usual, we're going to recap what we did the last times.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 68,
+   "ts": "1:08",
+   "text": "So as I mentioned, the first three lectures were around deriving a tractable training loss",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 77,
+   "ts": "1:17",
+   "text": "to learn how to generate images. So what we want is to be able to generate images",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 83,
+   "ts": "1:23",
+   "text": "like the one that is on the slides. And we saw that a common denominator is us",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 89,
+   "ts": "1:29",
+   "text": "starting from those. So we saw three perspectives. The first one was diffusion with DDPM.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 98,
+   "ts": "1:38",
+   "text": "So we saw that we were corrupting a clean image. And then we were learning how to reconstruct it",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 105,
+   "ts": "1:45",
+   "text": "by predicting the noise that we had to remove. And so we ended up with a loss that was actually quite nice--",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 113,
+   "ts": "1:53",
+   "text": "L2 loss on the noise. Then in lecture 2, we saw another perspective, which was,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 122,
+   "ts": "2:02",
+   "text": "let's figure out the regions of high density of the data distribution of interest.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 129,
+   "ts": "2:09",
+   "text": "And what we did was derive a loss that is based on the score.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 134,
+   "ts": "2:14",
+   "text": "The score here is the gradient of the logarithm of the probability distribution.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 141,
+   "ts": "2:21",
+   "text": "And then the last one was lecture 3, where we actually said, OK, this problem can actually",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 147,
+   "ts": "2:27",
+   "text": "be framed as a transport problem, where we want to go from an initial distribution, which is",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 153,
+   "ts": "2:33",
+   "text": "the noise, to the target one. And here we derive the loss based on the velocity, a.k.a,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 161,
+   "ts": "2:41",
+   "text": "vector field, which is again, very nice. It can be expressed as an L2 regression loss.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 168,
+   "ts": "2:48",
+   "text": "And in between, we have this denoising process that is similar in these three paradigms but done differently.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 178,
+   "ts": "2:58",
+   "text": "And then in lecture 4 we said, OK, up until that point,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 183,
+   "ts": "3:03",
+   "text": "we just assumed that we were able to represent images, the XTs, and we said, OK, actually,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 191,
+   "ts": "3:11",
+   "text": "let's figure out a good way to represent them in a way that makes sense.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 197,
+   "ts": "3:17",
+   "text": "And what we said was that we wanted them to be represented in a space that was not",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 204,
+   "ts": "3:24",
+   "text": "too high in dimensionality. So there was a space called latent space, in which we want",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 210,
+   "ts": "3:30",
+   "text": "our images to be represented. And we want the representations to be meaningful.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 216,
+   "ts": "3:36",
+   "text": "So what does meaningful mean? It means having some structure to the space,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 224,
+   "ts": "3:44",
+   "text": "because what we want is our model to have an easy time learning this generation process.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 232,
+   "ts": "3:52",
+   "text": "And we focused on the VAE, Variational Autoencoder,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 238,
+   "ts": "3:58",
+   "text": "which was structuring the latent space by having some constraints",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 243,
+   "ts": "4:03",
+   "text": "on how the distribution was behaving over the latent space.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 250,
+   "ts": "4:10",
+   "text": "So we saw this KL divergence term in the loss. But then we said, OK, actually the images were becoming blurry.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 258,
+   "ts": "4:18",
+   "text": "So then we looked at a number of strategies to combat the blurriness.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 263,
+   "ts": "4:23",
+   "text": "So we saw the adversarial loss. We saw perceptual loss and so on.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 269,
+   "ts": "4:29",
+   "text": "So we're happy. Now we know how to represent those images. And we saw also that if we were to condition our generation",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 279,
+   "ts": "4:39",
+   "text": "process with the condition, we also had a method called classifier free guidance that",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 288,
+   "ts": "4:48",
+   "text": "allowed us to generate images by emphasizing more on the prompts.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 294,
+   "ts": "4:54",
+   "text": "And we did that by predicting twice the,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 301,
+   "ts": "5:01",
+   "text": "let's say, noise to remove or velocity or score.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 307,
+   "ts": "5:07",
+   "text": "And with a guidance factor, emphasize the generation process",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 313,
+   "ts": "5:13",
+   "text": "more towards the prompt. So here this can be represented on the image.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 319,
+   "ts": "5:19",
+   "text": "And this is where we stopped. And then, of course, we had the midterm.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 324,
+   "ts": "5:24",
+   "text": "And today, what we're going to do is to focus on the architecture behind the image-generation",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 333,
+   "ts": "5:33",
+   "text": "model, which until now we considered as being a black box.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 341,
+   "ts": "5:41",
+   "text": "So I want to give a disclaimer. There are many different architectures.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 346,
+   "ts": "5:46",
+   "text": "Our goal is not going to just have a catalog of every single one of them.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 352,
+   "ts": "5:52",
+   "text": "But what I hope this lecture will provide is at least an intuition as to why certain components are",
+   "chapter": "Objective"
+  },
+  {
+   "t": 359,
+   "ts": "5:59",
+   "text": "always being reused. So if you walk away with just an understanding of why things",
+   "chapter": "Objective"
+  },
+  {
+   "t": 367,
+   "ts": "6:07",
+   "text": "are the way they are, then I think it's going to be a good thing for us.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 374,
+   "ts": "6:14",
+   "text": "So let's first start by what we want.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 379,
+   "ts": "6:19",
+   "text": "So what we want, if you remember, diffusion, score matching, flow matching,",
+   "chapter": "Objective"
+  },
+  {
+   "t": 386,
+   "ts": "6:26",
+   "text": "they had a few things as inputs. So first, they had x t--",
+   "chapter": "Objective"
+  },
+  {
+   "t": 394,
+   "ts": "6:34",
+   "text": "the noisy image or the noisy latent that you're trying to denoise.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 401,
+   "ts": "6:41",
+   "text": "You also had some indication of the noise level that's given by time step, t.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 408,
+   "ts": "6:48",
+   "text": "And you also have a condition. Let's call it C, which it can be a text prompt.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 416,
+   "ts": "6:56",
+   "text": "For instance, if you want to generate an image of a teddy bear reading a book, that can be your condition.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 422,
+   "ts": "7:02",
+   "text": "So these three elements are your inputs that goes through your generation model.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 432,
+   "ts": "7:12",
+   "text": "And as an output, you want to predict, let's say, the velocity that will allow you to then iteratively move",
+   "chapter": "Objective"
+  },
+  {
+   "t": 442,
+   "ts": "7:22",
+   "text": "towards your desired predicted image. And the goal of this whole lecture",
+   "chapter": "Objective"
+  },
+  {
+   "t": 450,
+   "ts": "7:30",
+   "text": "is to focus on that generation model. So that's the model that we're talking about.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 456,
+   "ts": "7:36",
+   "text": "But before we go into that, I just want to give a few slides notes.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 462,
+   "ts": "7:42",
+   "text": "So the first one is the condition. So I mentioned it can be a piece of text.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 467,
+   "ts": "7:47",
+   "text": "In that case, such models are called text to image models, T",
+   "chapter": "Objective"
+  },
+  {
+   "t": 473,
+   "ts": "7:53",
+   "text": "to I. But you can also have a text and an image as input--",
+   "chapter": "Objective"
+  },
+  {
+   "t": 481,
+   "ts": "8:01",
+   "text": "so an image editing problem, in which case the model will be called a TI to I model, Text Image",
+   "chapter": "Objective"
+  },
+  {
+   "t": 489,
+   "ts": "8:09",
+   "text": "to Image Model. So here make this teddy bear dance along",
+   "chapter": "Objective"
+  },
+  {
+   "t": 494,
+   "ts": "8:14",
+   "text": "with the image of the teddy bear. And then another thing is, of course, the outputs.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 501,
+   "ts": "8:21",
+   "text": "I mentioned there are several ways to parameterize your generation. You can either predict the velocity or, of course,",
+   "chapter": "Objective"
+  },
+  {
+   "t": 510,
+   "ts": "8:30",
+   "text": "the noise or the score. All of this is roughly the same thing.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 515,
+   "ts": "8:35",
+   "text": "But just for the sake of consistency, we're just going to say that we're going to predict the velocity just because nowadays",
+   "chapter": "Objective"
+  },
+  {
+   "t": 524,
+   "ts": "8:44",
+   "text": "most models do that. So with that in mind, what do we want our model to be?",
+   "chapter": "Objective"
+  },
+  {
+   "t": 535,
+   "ts": "8:55",
+   "text": "So first we want our model to be able to understand",
+   "chapter": "Objective"
+  },
+  {
+   "t": 542,
+   "ts": "9:02",
+   "text": "the global structure of the image that it wants to generate. So that's one.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 548,
+   "ts": "9:08",
+   "text": "But we also wanted to understand the nuances of the local details",
+   "chapter": "Objective"
+  },
+  {
+   "t": 553,
+   "ts": "9:13",
+   "text": "so that it can also generate crisp images.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 558,
+   "ts": "9:18",
+   "text": "And of course, we want a model that not only is able to have x t and t as input,",
+   "chapter": "Objective"
+  },
+  {
+   "t": 563,
+   "ts": "9:23",
+   "text": "but can also condition that based on external signals. And so here it can be input text or input image.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 572,
+   "ts": "9:32",
+   "text": "And we want, of course, that model to be scalable because of course, nowadays, we're",
+   "chapter": "Objective"
+  },
+  {
+   "t": 578,
+   "ts": "9:38",
+   "text": "generating images of very high resolution, and we're also generating videos, which we have not",
+   "chapter": "Objective"
+  },
+  {
+   "t": 584,
+   "ts": "9:44",
+   "text": "seen so far, but you can think of this as being also applicable",
+   "chapter": "Objective"
+  },
+  {
+   "t": 590,
+   "ts": "9:50",
+   "text": "there. So these are our wish lists.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 597,
+   "ts": "9:57",
+   "text": "And let's start with the first model by first thinking about how humans look at an image.",
+   "chapter": "Objective"
+  },
+  {
+   "t": 608,
+   "ts": "10:08",
+   "text": "So you see this teddy bear image. So you have an eye on the right side of the slide.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 614,
+   "ts": "10:14",
+   "text": "So when you look at this image, what you're doing is focusing on a specific part of the image",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 622,
+   "ts": "10:22",
+   "text": "and skimming through that image, scanning that image.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 627,
+   "ts": "10:27",
+   "text": "That's what we do as humans. So one natural way of thinking about how to build such a model",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 639,
+   "ts": "10:39",
+   "text": "is to have this bias.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 645,
+   "ts": "10:45",
+   "text": "I will call it bias, and I will justify it why I say it that way. We want to have our model be biased",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 653,
+   "ts": "10:53",
+   "text": "towards looking at the image in the way we humans look at it.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 658,
+   "ts": "10:58",
+   "text": "I'm going to call that bias, inductive bias. Who has heard of inductive bias by the way?",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 666,
+   "ts": "11:06",
+   "text": "Yeah, a few people. So we say that the model has an inductive bias when we build it",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 674,
+   "ts": "11:14",
+   "text": "in such a way that it behaves in some way that we think it should behave.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 681,
+   "ts": "11:21",
+   "text": "So in other words, here we're going to say, OK, we want our model to take some image as input,",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 688,
+   "ts": "11:28",
+   "text": "and scan it a little bit like humans do.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 693,
+   "ts": "11:33",
+   "text": "And that's the reason why I'm going to introduce an operation that maybe you're already",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 699,
+   "ts": "11:39",
+   "text": "familiar with, which is called the convolution operation, which",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 705,
+   "ts": "11:45",
+   "text": "takes some inputs, let's say an input image, and then uses a filter to perform convolution",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 715,
+   "ts": "11:55",
+   "text": "operation across that input in order to generate",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 721,
+   "ts": "12:01",
+   "text": "or in order to produce an output.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 726,
+   "ts": "12:06",
+   "text": "So just on the terminology side, the output is usually called feature map or activation map.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 735,
+   "ts": "12:15",
+   "text": "And here this convolution process typically leads to your output exhibiting things",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 744,
+   "ts": "12:24",
+   "text": "like edges, corners, texture, from your inputs.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 750,
+   "ts": "12:30",
+   "text": "So it's going to extract features, visual features.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 755,
+   "ts": "12:35",
+   "text": "So another thing that I will note is on this slide, you may think the convolution is done in a 2D manner,",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 764,
+   "ts": "12:44",
+   "text": "but let's remember that images are represented in height,",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 769,
+   "ts": "12:49",
+   "text": "width, but also depth, because you have the three values that represent a pixel.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 775,
+   "ts": "12:55",
+   "text": "And so the filter is as deep--",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 782,
+   "ts": "13:02",
+   "text": "if you want to think of it that way-- as the input. And so the convolution is really across the depth axis as well.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 792,
+   "ts": "13:12",
+   "text": "So in particular, those filters, they're 3D. They have a dimension of F times F times C,",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 800,
+   "ts": "13:20",
+   "text": "which is the same C as the number of channels from the input.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 806,
+   "ts": "13:26",
+   "text": "And we typically have K such filters. And then the number of steps by which",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 815,
+   "ts": "13:35",
+   "text": "we move the filter is called the stride.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 821,
+   "ts": "13:41",
+   "text": "So that's also a terminology you should have in mind. So based on that, let's remember the conditions we had.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 830,
+   "ts": "13:50",
+   "text": "We want our image to understand global structure. We want to preserve local details. We want external signals.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 837,
+   "ts": "13:57",
+   "text": "And we want it to be scalable. Well, with that, at least we have seemingly a tractable way",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 845,
+   "ts": "14:05",
+   "text": "of doing this computation. So let's say that number 4 is good.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 850,
+   "ts": "14:10",
+   "text": "Local details, I think that's also something that is valid here, because you",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 858,
+   "ts": "14:18",
+   "text": "are able to capture patterns within a certain range of,",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 866,
+   "ts": "14:26",
+   "text": "let's say, pixels. So that one is also good. But how about the global structure?",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 872,
+   "ts": "14:32",
+   "text": "You want your output-- so here you want your output to have seen the whole input to be able to be aware of it.",
+   "chapter": "Convolutions, filters"
+  },
+  {
+   "t": 884,
+   "ts": "14:44",
+   "text": "So there is this concept of a receptive field, which",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 889,
+   "ts": "14:49",
+   "text": "is defined by the area that an activation",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 894,
+   "ts": "14:54",
+   "text": "element is able to see. So here, let's suppose we have an input that",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 902,
+   "ts": "15:02",
+   "text": "has a series of convolutions. So what we're saying is if we take just one",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 907,
+   "ts": "15:07",
+   "text": "element from the output, we want to know how many elements from the input it has seen.",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 916,
+   "ts": "15:16",
+   "text": "So this is the receptive field. So there is some formulas there that I don't want us to just remember, but I just",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 923,
+   "ts": "15:23",
+   "text": "want to call out that the area that an element can see",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 929,
+   "ts": "15:29",
+   "text": "is a function of the filter dimension and the strides.",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 937,
+   "ts": "15:37",
+   "text": "And if you want the output to have seen all the input,",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 946,
+   "ts": "15:46",
+   "text": "you can imagine that you need a lot of convolutions,",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 952,
+   "ts": "15:52",
+   "text": "because here in this slide, if you do, let's say, just one convolution, then the area is just,",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 959,
+   "ts": "15:59",
+   "text": "let's say, five. So you do two convolutions actually.",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 965,
+   "ts": "16:05",
+   "text": "But images, they are typically 500 by 500, 1,000 by 1,000.",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 971,
+   "ts": "16:11",
+   "text": "So you need a lot of such convolutions, which may not be as tractable.",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 978,
+   "ts": "16:18",
+   "text": "So one idea that we can have is to have down-sampling operations",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 985,
+   "ts": "16:25",
+   "text": "that would allow us was to have a bigger receptive field early on so that we can have a global understanding of the structure,",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 997,
+   "ts": "16:37",
+   "text": "and then we can have some up-sampling operations to then",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 1003,
+   "ts": "16:43",
+   "text": "end up with the same dimensions as the input. That's just an idea I'm throwing out,",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 1011,
+   "ts": "16:51",
+   "text": "because let's remember that our model needs to have the inputs X--",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 1017,
+   "ts": "16:57",
+   "text": "so the noisy image as input. And it needs to return something that",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 1022,
+   "ts": "17:02",
+   "text": "is as the same dimension as the input as well. So you cannot just reduce the dimension and just call it",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 1030,
+   "ts": "17:10",
+   "text": "a day. You cannot do that. So for that reason, we're going to see",
+   "chapter": "Receptive field"
+  },
+  {
+   "t": 1036,
+   "ts": "17:16",
+   "text": "a series of operations that are going to help us",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1041,
+   "ts": "17:21",
+   "text": "in building such a model. So here let's see a very common down-sampling operation.",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1048,
+   "ts": "17:28",
+   "text": "So who has heard of pooling here? Pooling? Great. So pooling, as you know, is you take, let's say a given square,",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1058,
+   "ts": "17:38",
+   "text": "and what you do is you just down-sample it by either taking the max value or just the average value.",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1065,
+   "ts": "17:45",
+   "text": "So there is no learnable parameters there. And speaking of learnable parameters,",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1072,
+   "ts": "17:52",
+   "text": "I may have been a bit too fast there, but here the filters that are used for convolutional operation, they, of course,",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1081,
+   "ts": "18:01",
+   "text": "are learnable. And you have F times F times C parameters per filter",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1088,
+   "ts": "18:08",
+   "text": "plus some bias term, if you assume that there is bias, times K. Not that I want to go to formulas,",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1097,
+   "ts": "18:17",
+   "text": "but just giving you a sense of what is learned and what is not learned. So pooling, you don't learn anything--",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1104,
+   "ts": "18:24",
+   "text": "just the pooling operation. So this is just down-sampling operations.",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1111,
+   "ts": "18:31",
+   "text": "But I mentioned we want to also be able to up-sample. And there is an operation called the transpose convolution that",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1122,
+   "ts": "18:42",
+   "text": "we're not going to go into too much detail, but I just want to call out that there is an up-sampling",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1128,
+   "ts": "18:48",
+   "text": "operation, that is the transpose convolution that uses filters",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1135,
+   "ts": "18:55",
+   "text": "to broadcast elements from the input towards the output--",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1142,
+   "ts": "19:02",
+   "text": "so just up-samples it. So given that, I hope it's not coming out of the blue, that's",
+   "chapter": "Pooling"
+  },
+  {
+   "t": 1156,
+   "ts": "19:16",
+   "text": "a model that down-samples the input and then up-samples it could be a natural choice of such",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1165,
+   "ts": "19:25",
+   "text": "a model, because here what you're doing is during the down-sampling step,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1171,
+   "ts": "19:31",
+   "text": "you're able to have receptive fields of your output that sees most of the inputs, which is the global structure",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1181,
+   "ts": "19:41",
+   "text": "understanding part. And then you have the up-sampling part-- so the one on the right--",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1187,
+   "ts": "19:47",
+   "text": "that just increases your output once again back to the dimension",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1194,
+   "ts": "19:54",
+   "text": "that it was just in order for you to have a shape that's abides by what you want.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1202,
+   "ts": "20:02",
+   "text": "And here you can also have direct connections from one to the other to just transport some local details",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1214,
+   "ts": "20:14",
+   "text": "that you may have computed. So such a model is called U-Net--",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1224,
+   "ts": "20:24",
+   "text": "well, because it's a shape like a U when you do the illustration.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1229,
+   "ts": "20:29",
+   "text": "And so I mentioned a little bit of the intuition. But we're going to go step by step.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1236,
+   "ts": "20:36",
+   "text": "So the first step is the down-sampling step.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1241,
+   "ts": "20:41",
+   "text": "So it has a combination of convolutions and pooling",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1247,
+   "ts": "20:47",
+   "text": "that are able to down-sample the dimension of the feature map.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1254,
+   "ts": "20:54",
+   "text": "And as we saw, it just allows your output to have seen more and more of the input.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1261,
+   "ts": "21:01",
+   "text": "And when I say that, what I mean is if you take a single pixel, a single activation value,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1267,
+   "ts": "21:07",
+   "text": "it has seen more and more of the input-- a bigger area of the input.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1273,
+   "ts": "21:13",
+   "text": "So in that sense, what I'm saying is, it is able to understand the global structure of the inputs.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1281,
+   "ts": "21:21",
+   "text": "Is everyone clear on that statement?",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1287,
+   "ts": "21:27",
+   "text": "Cool. So this is similar to an encoder. And then you have the second step, which is the up-sampling part.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1295,
+   "ts": "21:35",
+   "text": "So you have here a feature map at the very beginning of the up-sampling step, which is very small.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1303,
+   "ts": "21:43",
+   "text": "And what you want is to up-sample that feature map back to the dimension of the input.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1311,
+   "ts": "21:51",
+   "text": "So here you're using a mix of transpose convolution also called up convolution and convolutions.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1319,
+   "ts": "21:59",
+   "text": "And you can think of this more as a decoder. So it just leverages the understanding,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1327,
+   "ts": "22:07",
+   "text": "the global structure understanding that is compressed in the representation",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1333,
+   "ts": "22:13",
+   "text": "at the very bottom, which is called the bottleneck. And it just gets it back to the same dimension as the input.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1342,
+   "ts": "22:22",
+   "text": "But at that step, you may tell me, well, sure, you can have a global understanding of the structure,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1350,
+   "ts": "22:30",
+   "text": "but you may lose the details. And that's where these connections come into play.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1359,
+   "ts": "22:39",
+   "text": "So during the down-sampling step, what you want is to leverage the patterns that you're computing",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1368,
+   "ts": "22:48",
+   "text": "in the up-sampling step. So what you're doing is you're taking at each level",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1376,
+   "ts": "22:56",
+   "text": "a part of the feature map, and you're just simply copying--",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1382,
+   "ts": "23:02",
+   "text": "so cropping and copying. So that just allows local details",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1390,
+   "ts": "23:10",
+   "text": "to flow from what you have computed in the down-sampling step to the up-sampling step.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1396,
+   "ts": "23:16",
+   "text": "Is that part clear? So the question is, what are you copying?",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1403,
+   "ts": "23:23",
+   "text": "What are you cropping? So great question. So what you're doing here is the feature map that",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1411,
+   "ts": "23:31",
+   "text": "you're computing in the down-sampling step, you're just literally taking that--",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1417,
+   "ts": "23:37",
+   "text": "literally doing that-- and then the feature map that",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1422,
+   "ts": "23:42",
+   "text": "is part of the up-sampling step, you're just concatenating those features",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1428,
+   "ts": "23:48",
+   "text": "to the features that are in the up-sampling step. So in other words, in the up-sampling procedure,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1437,
+   "ts": "23:57",
+   "text": "you may have a feature map that you're computing that is let's say of size O times O times C.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1445,
+   "ts": "24:05",
+   "text": "So what you're saying here is you're concatenating something that is also of size O times O times C, where",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1454,
+   "ts": "24:14",
+   "text": "maybe the C can be different, but you're just concatenating the two.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1461,
+   "ts": "24:21",
+   "text": "So of course, you have some variations of how this is done, but this is what this illustration represents.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1468,
+   "ts": "24:28",
+   "text": "So the question is, why are you not looking",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1474,
+   "ts": "24:34",
+   "text": "at the down-sampled features? Because we have already lost the details already. So if you see on the slide, we're",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1481,
+   "ts": "24:41",
+   "text": "actually copying and cropping the features that are before we're at that very down-sampled outputs.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1489,
+   "ts": "24:49",
+   "text": "Because as you go down, you lose more and more details, but then you're gaining global understanding of the inputs.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1497,
+   "ts": "24:57",
+   "text": "And so that's why you want your connections to go from the very top to the other way and so on.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1504,
+   "ts": "25:04",
+   "text": "Yeah. So the question is, how we're training this model. So we're training it jointly.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1511,
+   "ts": "25:11",
+   "text": "So we're not going to go into details there, but let's just assume you can train the whole thing by just",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1517,
+   "ts": "25:17",
+   "text": "considering it as just a model. So the question is, can the model output",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1524,
+   "ts": "25:24",
+   "text": "exactly what the input image? So that is not what you want because-- so I",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1530,
+   "ts": "25:30",
+   "text": "think you're maybe remembering the autoencoder that we saw last time. So the goal of the autoencoder is",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1538,
+   "ts": "25:38",
+   "text": "to learn a representation of the inputs and compress it into in a latent space so that you",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1545,
+   "ts": "25:45",
+   "text": "can sample from the latent space and then reconstruct it. And the problem here is you have the connections",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1551,
+   "ts": "25:51",
+   "text": "that come from the thing that you're not supposed to have. So you can think of this model as taking a noisy latent",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1561,
+   "ts": "26:01",
+   "text": "as input. But your goal is to not reconstruct that output, it's actually to predict the thing that",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1569,
+   "ts": "26:09",
+   "text": "will allow you to denoise it. So in that sense, there are some similarities",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1575,
+   "ts": "26:15",
+   "text": "with an autoencoder, but it's very different. Yep.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1580,
+   "ts": "26:20",
+   "text": "So the question is, does the output of the model have to be equal to the dimensions of the input?",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1586,
+   "ts": "26:26",
+   "text": "Yes. Because so the question is, why? Well if you take your input latent x t,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1595,
+   "ts": "26:35",
+   "text": "so if you remember back in lecture 3, which was like two or three weeks ago, we had the iterative step, which was,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1605,
+   "ts": "26:45",
+   "text": "sorry xt plus dt is equal to xt plus the velocity times dt.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1614,
+   "ts": "26:54",
+   "text": "So if you just look at that equation, you just see that the dimensions need to match.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1621,
+   "ts": "27:01",
+   "text": "Another way to think about it is in the diffusion with the DPM formulation.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1628,
+   "ts": "27:08",
+   "text": "What you want is to find the noise to remove, and that noise needs to match your input image.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1636,
+   "ts": "27:16",
+   "text": "Exactly, exactly. OK, perfect.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1642,
+   "ts": "27:22",
+   "text": "I have a lot of content. So we'll try to move a little bit faster,",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1647,
+   "ts": "27:27",
+   "text": "but I try to also do some pauses here and there to make sure we're still together now.",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1654,
+   "ts": "27:34",
+   "text": "So you have that model. But now you may wonder, well, how can you",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1659,
+   "ts": "27:39",
+   "text": "add external conditions? How can you inform your model that you're at time step t?",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1664,
+   "ts": "27:44",
+   "text": "How can you inform your model that you want to condition it with respect to some condition?",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1670,
+   "ts": "27:50",
+   "text": "Well, that's a great question. And so to answer that question, you first",
+   "chapter": "U-Net"
+  },
+  {
+   "t": 1676,
+   "ts": "27:56",
+   "text": "need to think about how you want to represent your time step t",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1683,
+   "ts": "28:03",
+   "text": "and your condition C. Well, let's start with the time step. Here the goal is to represent the time step in a D dimensional",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1693,
+   "ts": "28:13",
+   "text": "space. And before I tell you how we do it,",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1699,
+   "ts": "28:19",
+   "text": "I just want you to look at your watch. Well, as humans, we construct time",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1708,
+   "ts": "28:28",
+   "text": "as a function of different dimensions-- hours, minutes, seconds, days, and so on and so forth.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1718,
+   "ts": "28:38",
+   "text": "And you can think of each of these dimensions as being part of a vector if you think about it.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1726,
+   "ts": "28:46",
+   "text": "And one thing that's quite interesting about these dimensions is that they",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1732,
+   "ts": "28:52",
+   "text": "run at different frequencies. So for instance, an hour is kind of slow to pass.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1739,
+   "ts": "28:59",
+   "text": "So I hope, by the way, this lecture is fun so you're not feeling like an hour is low, but hour is slow.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1745,
+   "ts": "29:05",
+   "text": "Minute is faster. Seconds are even faster. So you have a difference in frequencies,",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1751,
+   "ts": "29:11",
+   "text": "a difference in frequencies, which hopefully motivates",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1757,
+   "ts": "29:17",
+   "text": "the fact that what we want is to represent these time steps",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1765,
+   "ts": "29:25",
+   "text": "as vectors of quantities that are also sinusoidal--",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1770,
+   "ts": "29:30",
+   "text": "so things that have some frequency to it-- where some dimensions are, let's say, slower than others.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1778,
+   "ts": "29:38",
+   "text": "So is that motivating example intuitive enough for this",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1786,
+   "ts": "29:46",
+   "text": "to be making sense? So in other words, let me tell you what that illustration represents.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1792,
+   "ts": "29:52",
+   "text": "If you take a single row, then what you have",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1797,
+   "ts": "29:57",
+   "text": "is an illustration of the values of each dimension.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1803,
+   "ts": "30:03",
+   "text": "So what that means is, for instance, at the very bottom, or let's start at the very top, let's say.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1811,
+   "ts": "30:11",
+   "text": "You have values that alternate between let's say 1 and 0 in this example.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1816,
+   "ts": "30:16",
+   "text": "And then as you move down, you see that some dimensions they vary faster than others.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1823,
+   "ts": "30:23",
+   "text": "And this is exactly matching the intuition I mentioned.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1829,
+   "ts": "30:29",
+   "text": "So that is for the time step. Now the condition.",
+   "chapter": "Timestep representation"
+  },
+  {
+   "t": 1834,
+   "ts": "30:34",
+   "text": "So I mentioned a condition can be a piece of text. Well, you have a number of ways to represent that text.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1841,
+   "ts": "30:41",
+   "text": "We've seen some methods in the past lecture in terms of how to represent text and image.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1847,
+   "ts": "30:47",
+   "text": "But here, I'll just mention just a few categories of methods. So there's one where you have very basic predefined class.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1858,
+   "ts": "30:58",
+   "text": "And what you're doing is you're just learning the vector representation of that class.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1865,
+   "ts": "31:05",
+   "text": "Or you can go more granular and divide your input text into tokens and then have representation",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1872,
+   "ts": "31:12",
+   "text": "for each of these tokens. So for both these categories of methods, you have a bunch of such methods.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1879,
+   "ts": "31:19",
+   "text": "But one very common method these days is just to get a pre-trained LLM, and just grab the embeddings, which",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1887,
+   "ts": "31:27",
+   "text": "we will not go into details here but what people do nowadays.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1892,
+   "ts": "31:32",
+   "text": "And then for the first method, we can simply take a VIT-based model",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1899,
+   "ts": "31:39",
+   "text": "and just take the representation of the CLS token, which I believe we briefly saw in the last lecture.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1909,
+   "ts": "31:49",
+   "text": "All of that to say that we have ways to represent the condition.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1916,
+   "ts": "31:56",
+   "text": "Cool. So let's suppose we have a representation of the time step. We have a representation of the condition.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1923,
+   "ts": "32:03",
+   "text": "Now, how do you inject it in your model? Well, here again, you have a number of methods.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1931,
+   "ts": "32:11",
+   "text": "There is no consensus. One is injecting that to the feature map.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1938,
+   "ts": "32:18",
+   "text": "So here what I mean is you take your vector t, you take your vector c, let's say you add them,",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1946,
+   "ts": "32:26",
+   "text": "and then you make sure that the dimension of your vector is, let's say, c the number of channels.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1954,
+   "ts": "32:34",
+   "text": "And then what you do is you add it to your feature map, which if you remember is of depth c.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1961,
+   "ts": "32:41",
+   "text": "So that can be one way. Another way is to modulate that feature.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1968,
+   "ts": "32:48",
+   "text": "And that part we will see that in about 20 minutes. So just wait for that.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1975,
+   "ts": "32:55",
+   "text": "And then the third one is you do some cross attention operation",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1981,
+   "ts": "33:01",
+   "text": "there, which we're going to see as well, maybe in 40 minutes. So all of that to say that there are a number of ways",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1990,
+   "ts": "33:10",
+   "text": "to inject TNC, and there is not like a standard way that people do it. So this is just a way for me to tell",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 1998,
+   "ts": "33:18",
+   "text": "you there are several methods. So in terms of timeline, we're in 2026.",
+   "chapter": "Class label representation"
+  },
+  {
+   "t": 2007,
+   "ts": "33:27",
+   "text": "So just giving you a sense of when these models were published when these were used.",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2014,
+   "ts": "33:34",
+   "text": "So in 2015, the U-Net paper came out in the context of image segmentation for, I believe,",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2023,
+   "ts": "33:43",
+   "text": "medical images. But it is something that has not been widely in use in the image",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2030,
+   "ts": "33:50",
+   "text": "generation field up until the early 2020s. So for instance, you have the DDPM paper,",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2037,
+   "ts": "33:57",
+   "text": "which if you remember, we focused on during lecture one that actually used U-Net as an architecture.",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2045,
+   "ts": "34:05",
+   "text": "And then another thing that's quite noteworthy is latent diffusion model, which was a paper that introduced",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2054,
+   "ts": "34:14",
+   "text": "or that popularized the fact of generating images in the latent",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2060,
+   "ts": "34:20",
+   "text": "space, also used some form of the U-Net.",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2065,
+   "ts": "34:25",
+   "text": "And then we also had a U-Net that was quite scaled in a very big way in Stable Diffusion, Excel,",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2073,
+   "ts": "34:33",
+   "text": "which was published in 2023. So if you look at that timeline and if you",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2081,
+   "ts": "34:41",
+   "text": "look at my explanations, you may think, well, that's great.",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2087,
+   "ts": "34:47",
+   "text": "We have everything. Let's stop here. We have our model.",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2092,
+   "ts": "34:52",
+   "text": "Well, not so fast, because in 2017 and in 2020,",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2100,
+   "ts": "35:00",
+   "text": "there are papers that were landmark papers that really revolutionize, for instance, transformer",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2106,
+   "ts": "35:06",
+   "text": "revolutionized the NLP field? And one question you may wonder is, well, they're",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2114,
+   "ts": "35:14",
+   "text": "performing so well there. What about here? What about us?",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2120,
+   "ts": "35:20",
+   "text": "And that's what the vision transformer did in the image understanding space, which",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2127,
+   "ts": "35:27",
+   "text": "took a backbone of the transformer and applied it in the image-understanding case",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2135,
+   "ts": "35:35",
+   "text": "and saw great results. And so now you may wonder, OK, but can we do the same",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2141,
+   "ts": "35:41",
+   "text": "for image-generation? And that's what we're going to see now.",
+   "chapter": "Timeline of U-Net models"
+  },
+  {
+   "t": 2148,
+   "ts": "35:48",
+   "text": "But before we do that, I told you I will try to not give you things out of the blue.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2154,
+   "ts": "35:54",
+   "text": "I'll try to build some intuition. And here, one thing I want to try to tell you",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2161,
+   "ts": "36:01",
+   "text": "is, why would such a model be beneficial for us? Because we have the global structure understanding.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2168,
+   "ts": "36:08",
+   "text": "We have the local details preserving. We have everything. Why would we need that?",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2173,
+   "ts": "36:13",
+   "text": "Well, imagine if you want to generate an image of a teddy bear next to a mirror.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2182,
+   "ts": "36:22",
+   "text": "Well, what happens is in your image, what you need is for the low level texture",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2191,
+   "ts": "36:31",
+   "text": "to be very similar in one part of the image and in a very different part of that same image.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2197,
+   "ts": "36:37",
+   "text": "So the problem with the U-Net is you have convolutions",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2206,
+   "ts": "36:46",
+   "text": "that are localized to in the neighborhood in the vicinity of pixels.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2213,
+   "ts": "36:53",
+   "text": "But as you go further from that pixel, you have a bunch of information that gets",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2219,
+   "ts": "36:59",
+   "text": "mixed in whatever you compute. So you don't have almost pixel to pixel or patches of pixel",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2227,
+   "ts": "37:07",
+   "text": "to patches of pixel interaction. So you're not able to cleanly capture or to cleanly",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2237,
+   "ts": "37:17",
+   "text": "have an understanding of a local detail in one part of the image and local detail in another part of the image.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2244,
+   "ts": "37:24",
+   "text": "And so this is a kind of example that the U-Net may actually fail.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2251,
+   "ts": "37:31",
+   "text": "And so for that reason, the transformer is actually a great model for that because--",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2258,
+   "ts": "37:38",
+   "text": "yeah, exactly. So the transformer is based on the concept of attention, which was initially introduced for texts.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2267,
+   "ts": "37:47",
+   "text": "I'm going to briefly mention it here, but the idea for text",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2273,
+   "ts": "37:53",
+   "text": "was you want to compute representations of your words",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2278,
+   "ts": "37:58",
+   "text": "as a function of all other words. So what you want is to have direct links from one word",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2288,
+   "ts": "38:08",
+   "text": "to another word, regardless of the distance. So what you have is a concept of queries, keys, and values.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2300,
+   "ts": "38:20",
+   "text": "So what you're wondering is, if you have a query, if you have a text, you want to know how relevant",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2308,
+   "ts": "38:28",
+   "text": "or how similar all the other pieces of text, a.k.a tokens are.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2315,
+   "ts": "38:35",
+   "text": "So you want to see how the query relates two keys.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2320,
+   "ts": "38:40",
+   "text": "And then once you how relevant they are, so you take some separation of the two-- so let's say",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2326,
+   "ts": "38:46",
+   "text": "dot product that's normalized in a good way. And then you can take the associated value.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2333,
+   "ts": "38:53",
+   "text": "So that's the attention mechanism or the self-attention mechanism that is aimed at removing the inductive bias.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2342,
+   "ts": "39:02",
+   "text": "And here we can actually use that same mechanism for images.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2347,
+   "ts": "39:07",
+   "text": "So you can think that you take pieces of your image",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2355,
+   "ts": "39:15",
+   "text": "and you're doing the same thing. So you say, OK, a given a set piece",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2361,
+   "ts": "39:21",
+   "text": "of image, what are the other pieces of the same image that",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2367,
+   "ts": "39:27",
+   "text": "are relevant to that one? So it's the same mechanism.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2373,
+   "ts": "39:33",
+   "text": "So what I told you also happens to be very nicely represented",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2379,
+   "ts": "39:39",
+   "text": "mathematically-- so very tractable computationally with the hardware that we have today.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2385,
+   "ts": "39:45",
+   "text": "So you may have seen the formula softmax of Q times K transpose",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2390,
+   "ts": "39:50",
+   "text": "over some normalization normalizing constant times V. So that is the self-attention operation just",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2397,
+   "ts": "39:57",
+   "text": "in matrix form. And on the right side of the slide, you have just the transformer architecture",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2404,
+   "ts": "40:04",
+   "text": "as it was initially introduced in the context of I believe it was translation-- so for instance,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2411,
+   "ts": "40:11",
+   "text": "English to French translation. So you had two parts-- one on the left side, which is called the encoder, which",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2418,
+   "ts": "40:18",
+   "text": "computes rich embeddings of your input, and the right side is the decoder that allows you to do translation one at a time,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2428,
+   "ts": "40:28",
+   "text": "by allowing each of your output to interact to output that you",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2434,
+   "ts": "40:34",
+   "text": "decoded so far, to interact with the whole input.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2439,
+   "ts": "40:39",
+   "text": "So four images. We're not translating anything, we're just",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2445,
+   "ts": "40:45",
+   "text": "processing pieces of images. So we're only going to borrow the encoder",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2452,
+   "ts": "40:52",
+   "text": "part of the transformer-- so the left part. And that's what we saw the vision transformer did.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2462,
+   "ts": "41:02",
+   "text": "So it took just the encoder part of the transformer, and it took an image as an input,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2471,
+   "ts": "41:11",
+   "text": "and it did something very special to that image as a pre-processing step. So what it did was cut it into patches,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2481,
+   "ts": "41:21",
+   "text": "and then consider these patches as tokens in the same way it is done for words,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2487,
+   "ts": "41:27",
+   "text": "and then process them again with the self-attention mechanism,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2493,
+   "ts": "41:33",
+   "text": "allowing each patch of image to interact with all other ones",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2499,
+   "ts": "41:39",
+   "text": "to just figure out which ones are actually relevant.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2504,
+   "ts": "41:44",
+   "text": "So this was the DiT. And let me introduce you to the vision generation equivalent,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2513,
+   "ts": "41:53",
+   "text": "the diffusion transformer, which it was introduced in 2022, which is also relying on the self-attention mechanism.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2525,
+   "ts": "42:05",
+   "text": "And we're going to see exactly how. But the idea is very similar.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2530,
+   "ts": "42:10",
+   "text": "You take a noisy latent as input, and what you do is--",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2536,
+   "ts": "42:16",
+   "text": "so remember the wish list that we had. We want to understand global structure. We want to preserve local details and so on and so forth.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2544,
+   "ts": "42:24",
+   "text": "So here what we're saying is we're just allowing all patches to interact with one another.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2551,
+   "ts": "42:31",
+   "text": "Does that make sense so far?",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2559,
+   "ts": "42:39",
+   "text": "It's not out of the blue that I brought up this model. No. All good?",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2564,
+   "ts": "42:44",
+   "text": "Perfect. So let's go step by step into what each component means here.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2574,
+   "ts": "42:54",
+   "text": "So you have on the illustration, a patchy file operation,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2580,
+   "ts": "43:00",
+   "text": "that takes in your noised latent and that divides it into patches.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2587,
+   "ts": "43:07",
+   "text": "So you have let's say, I times I times C tensor that you divide",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2592,
+   "ts": "43:12",
+   "text": "into P times P times C patches. And those patches you just want to consider them as tokens.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2602,
+   "ts": "43:22",
+   "text": "And you end up with an input length of I over P squared.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2608,
+   "ts": "43:28",
+   "text": "So the smaller your patches, the higher",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2613,
+   "ts": "43:33",
+   "text": "or the longer your sequence, which also matches your intuition.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2622,
+   "ts": "43:42",
+   "text": "So in that sense, you can also tell from this step that there is a trade off between how granular you",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2629,
+   "ts": "43:49",
+   "text": "want to be and how much computation you want to compute.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2636,
+   "ts": "43:56",
+   "text": "So that's for that. And then the second step is to actually inject your conditions-- so the external signals, the time",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2643,
+   "ts": "44:03",
+   "text": "step, and then the input text, let's say. So here what we do is we take our timestep embedding, which",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2653,
+   "ts": "44:13",
+   "text": "as we saw can be a series of sinusoidal functions",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2659,
+   "ts": "44:19",
+   "text": "that you have in a vector, and then your condition that can be just an embedding.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2664,
+   "ts": "44:24",
+   "text": "So I believe in the DiT paper, they just consider the embedding of the whole text-- so just one vector",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2671,
+   "ts": "44:31",
+   "text": "for the whole text. So let's suppose you have these two quantities.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2678,
+   "ts": "44:38",
+   "text": "Now the question is, how do you inject that into your model?",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2685,
+   "ts": "44:45",
+   "text": "So the paper went through different methods. But there was one that stood out.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2692,
+   "ts": "44:52",
+   "text": "So what we're going to do is for me to just tell you what methods they tried out and then",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2698,
+   "ts": "44:58",
+   "text": "focus on the one that performed the best. So the first method was called adaptive layer norm,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2706,
+   "ts": "45:06",
+   "text": "which consisted of taking the external signals",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2711,
+   "ts": "45:11",
+   "text": "and then modulating the tokens. So do you remember when I told you modulating in the U-Net?",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2718,
+   "ts": "45:18",
+   "text": "So that's the same modulating modulation I'm talking about. So that's the first method.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2725,
+   "ts": "45:25",
+   "text": "The second method is to say, OK, you have your external signals. What you can do is to have an extra step in your transformer",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2735,
+   "ts": "45:35",
+   "text": "block, where what you do is letting the tokens representing",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2742,
+   "ts": "45:42",
+   "text": "the image latents interact with the time step interacts",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2748,
+   "ts": "45:48",
+   "text": "with the label embedding via cross-attention.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2754,
+   "ts": "45:54",
+   "text": "So here you can think of it as you have queries which are your noise latents.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2759,
+   "ts": "45:59",
+   "text": "And you're wondering which ones of your conditions are relevant for your noise patch.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2769,
+   "ts": "46:09",
+   "text": "And then you do a query times key, let's say a dot product of those,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2775,
+   "ts": "46:15",
+   "text": "and then you multiply by value. So you express your noise latents",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2781,
+   "ts": "46:21",
+   "text": "as a function of your conditions. So this can be a second option.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2787,
+   "ts": "46:27",
+   "text": "And the third option is to just say, OK, actually we're going to take these vectors,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2794,
+   "ts": "46:34",
+   "text": "and we're just going to concatenate that in the input sequence. Very easy.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2800,
+   "ts": "46:40",
+   "text": "Well, it turns out that after they did all these experiments, they saw that the adaptive layer norm was the most performant.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2812,
+   "ts": "46:52",
+   "text": "I'm going to give you a preview of what we're going to see in lecture 7, which is how to quantify",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2819,
+   "ts": "46:59",
+   "text": "how good an image is. So there is a metric called the Fr\u00e9chet Inception Distance,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2825,
+   "ts": "47:05",
+   "text": "the FID, which is the one that is represented here where the lower that metric, the better it is.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2834,
+   "ts": "47:14",
+   "text": "And what you see here is when you use adaptive layer norm,",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2839,
+   "ts": "47:19",
+   "text": "you get the bottom curve that allows you to get better quality image quality compared",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2847,
+   "ts": "47:27",
+   "text": "to the other ones as a function of how far you are in the training process.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2855,
+   "ts": "47:35",
+   "text": "So if you saw, there's actually two versions of the adaptive layer norm. There is adaptive layer norm, and there's adaptive layer norm",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2861,
+   "ts": "47:41",
+   "text": "0. I'm going to tell you what that 0 is about.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2867,
+   "ts": "47:47",
+   "text": "But let's focus on adaptive layer norm. So I could very well just give you the formula",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2875,
+   "ts": "47:55",
+   "text": "and tell you that it is adaptive layer norm. But I think it's very convenient to just build",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2883,
+   "ts": "48:03",
+   "text": "an intuition as to why it may make sense. So I'm going to use an example for that.",
+   "chapter": "Diffusion Transformer (DiT)"
+  },
+  {
+   "t": 2893,
+   "ts": "48:13",
+   "text": "So I mentioned each patch can be represented by a vector.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2900,
+   "ts": "48:20",
+   "text": "Let's assume that we can interpret this vector",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2907,
+   "ts": "48:27",
+   "text": "and say that let's say a dimension is responsible for something and another one for something",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2912,
+   "ts": "48:32",
+   "text": "else, which may not be true. But for the sake of this example, let's suppose it is true.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2918,
+   "ts": "48:38",
+   "text": "So remember, we are in the latent space, and we can have some semantic interpretation",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2924,
+   "ts": "48:44",
+   "text": "of the dimensions. So there is some truth to what I'm saying. But let's suppose you have a vector where let's say the 10th",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2933,
+   "ts": "48:53",
+   "text": "dimension represents the intensity of, let's say, the brown color.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2940,
+   "ts": "49:00",
+   "text": "Let's say dimension 24 is how round the shape is. Dimension 59 is how fluffy the local details",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2948,
+   "ts": "49:08",
+   "text": "are and then dimension 130, which is how white the color is.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2954,
+   "ts": "49:14",
+   "text": "So let's suppose you have such dimensions. And now let's suppose you want to generate",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2963,
+   "ts": "49:23",
+   "text": "an image with the condition, a brown fluffy teddy bear.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2970,
+   "ts": "49:30",
+   "text": "So you want to generate that image. And as you remember, generating an image is not one shot.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2976,
+   "ts": "49:36",
+   "text": "Typically you do that iteratively where you take a noisy latent as inputs.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2981,
+   "ts": "49:41",
+   "text": "And then you have the condition. You have how noisy that image is, and you try to have something as output that will allow",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2988,
+   "ts": "49:48",
+   "text": "you to denoise your image. And let's suppose that we're at a stage where",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 2995,
+   "ts": "49:55",
+   "text": "there is a lot of noise. So, the noise can be represented on a scale that's",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3000,
+   "ts": "50:00",
+   "text": "here we're going to assume is between 0 and 1, where 0 is super noisy. 1 is clean.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3007,
+   "ts": "50:07",
+   "text": "And let's assume that time here is 0.1-- so a lot of noise.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3014,
+   "ts": "50:14",
+   "text": "So here what you would want is to focus on-- so",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3020,
+   "ts": "50:20",
+   "text": "at that stage of the generation, you want to focus on surfacing the global structure of the image",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3027,
+   "ts": "50:27",
+   "text": "because it's still super noisy. You're just trying to sketch what the final image is.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3033,
+   "ts": "50:33",
+   "text": "So here you want some brownness in the image. You want some round shapes that may represent",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3040,
+   "ts": "50:40",
+   "text": "your teddy bear and so on. So you want these features to surface. So our intuition tells us that you want these dimensions",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3049,
+   "ts": "50:49",
+   "text": "to have a higher intensity. In contrast to that, you don't want",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3057,
+   "ts": "50:57",
+   "text": "to have local details just yet because it's very noisy. So that's not the time.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3062,
+   "ts": "51:02",
+   "text": "And then you don't want any white color because your teddy bear is brown. It's not white.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3068,
+   "ts": "51:08",
+   "text": "Now let's suppose you have the same condition as inputs, but now you're at a more advanced stage",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3074,
+   "ts": "51:14",
+   "text": "in your generation process. Now t equals 0.9, which corresponds to almost no noise",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3083,
+   "ts": "51:23",
+   "text": "in your input image. So here you may wonder, OK, so now",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3089,
+   "ts": "51:29",
+   "text": "the input is already quite figured out in terms of global structure. Now I need to focus on the details.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3098,
+   "ts": "51:38",
+   "text": "So you want the, let's say fluffy details, to have a higher intensity.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3105,
+   "ts": "51:45",
+   "text": "And you don't want the round shape to be that intense because it's already there.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3111,
+   "ts": "51:51",
+   "text": "And the brown color is same. It's already there and then white color again. You don't want it.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3118,
+   "ts": "51:58",
+   "text": "So what I just told you is how we",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3123,
+   "ts": "52:03",
+   "text": "would like different dimensions of the patch embedding",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3129,
+   "ts": "52:09",
+   "text": "to have their intensity modulated as a function of the condition, which is,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3136,
+   "ts": "52:16",
+   "text": "for instance, the input text and the noise level in which you are.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3142,
+   "ts": "52:22",
+   "text": "So in that sense, what you want is for your patch embedding",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3153,
+   "ts": "52:33",
+   "text": "to exhibit higher intensities in the dimensions you care and lower intensity in the dimensions you don't care.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3164,
+   "ts": "52:44",
+   "text": "So in that sense, what I propose is how about we modulate these tokens?",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3170,
+   "ts": "52:50",
+   "text": "How about we modulate these vectors? So here what we would do is to take the condition",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3178,
+   "ts": "52:58",
+   "text": "to take the time step as input and to obtain some vectors.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3185,
+   "ts": "53:05",
+   "text": "So let's call them alpha, gamma, and beta. So let's assume we obtain these vectors that",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3190,
+   "ts": "53:10",
+   "text": "are a function of the condition and the noise level.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3195,
+   "ts": "53:15",
+   "text": "And what we want to do is to modulate the embedding of the patch.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3201,
+   "ts": "53:21",
+   "text": "So how would we do that? Well, you take your vector.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3209,
+   "ts": "53:29",
+   "text": "You do some normalization just because it's not part of the modulation procedure,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3215,
+   "ts": "53:35",
+   "text": "but it's just good because it just improves your training stability. So let's suppose you normalize your vector.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3224,
+   "ts": "53:44",
+   "text": "And you do an element-wise multiplication with 1 plus gamma.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3233,
+   "ts": "53:53",
+   "text": "So if gamma is equal to the vector 0, the element-wise multiplication of this and one",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3239,
+   "ts": "53:59",
+   "text": "is completely [INAUDIBLE] and nothing changes.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3244,
+   "ts": "54:04",
+   "text": "But if gamma is a vector that tells you that, OK, a given dimension should be higher",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3251,
+   "ts": "54:11",
+   "text": "and another dimension should be lower, then it will scale your x.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3259,
+   "ts": "54:19",
+   "text": "And by the way, I said 1, but it's the vector 1. So you can think of it as a vector matching the dimension",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3268,
+   "ts": "54:28",
+   "text": "of gamma of just filled with 1. So in that sense, you can think of gamma",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3274,
+   "ts": "54:34",
+   "text": "as being a scale coefficient, a scale vector because it scales x.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3282,
+   "ts": "54:42",
+   "text": "Then you can add beta, which is a bias,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3290,
+   "ts": "54:50",
+   "text": "and perform some operation, and have an element-wise multiplication of this whole quantity",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3298,
+   "ts": "54:58",
+   "text": "with alpha. And alpha will be your gate.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3304,
+   "ts": "55:04",
+   "text": "Because what you do is you take your x. You flow the same x.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3309,
+   "ts": "55:09",
+   "text": "And what you do is you make some operation with that x, and you scale it.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3315,
+   "ts": "55:15",
+   "text": "You shift it, and you gate it with alpha. And alpha is there to tell you how much of that",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3325,
+   "ts": "55:25",
+   "text": "change is going to flow in your embedding. So in that sense, I'm just going to, again, stress",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3334,
+   "ts": "55:34",
+   "text": "that these stars are element-wise multiplications.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3339,
+   "ts": "55:39",
+   "text": "And alpha, gamma, and beta have very specific roles. So alpha really gate keeps this whole quantity",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3347,
+   "ts": "55:47",
+   "text": "from being injected. Gamma is responsible for scaling the quantity.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3354,
+   "ts": "55:54",
+   "text": "And then beta is there to shift it because it's a plus with that quantity.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3362,
+   "ts": "56:02",
+   "text": "And do you remember I told you I'm going to say what adaptive layer norm 0 is?",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3369,
+   "ts": "56:09",
+   "text": "Do you remember in the chart? Well, adaptive layer norm 0 is adaptive layer norm",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3379,
+   "ts": "56:19",
+   "text": "where when you start training, you initialize your gates to 0, such that there is no modification.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3389,
+   "ts": "56:29",
+   "text": "So by the way you, you set alpha and gamma and beta to 0, I believe in most implementations,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3394,
+   "ts": "56:34",
+   "text": "but alpha being to 0 already guarantees that at the very beginning of training, you--",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3403,
+   "ts": "56:43",
+   "text": "yeah. So the question is unconditional. Yes. So at the very beginning, you don't have any impact from the condition on your embedding.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3411,
+   "ts": "56:51",
+   "text": "So far so good?",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3418,
+   "ts": "56:58",
+   "text": "So we will have a detailed example after that. So I hope it will be also clearer there.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3424,
+   "ts": "57:04",
+   "text": "But that is the high level intuition behind why adaptive LayerNorm is useful.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3434,
+   "ts": "57:14",
+   "text": "It is there to highlight dimensions that are",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3440,
+   "ts": "57:20",
+   "text": "important for the task at hand. And so here what we do is-- so just recapping what we said.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3448,
+   "ts": "57:28",
+   "text": "We take our condition. So it's the time step. It's the class label-- so t and c.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3453,
+   "ts": "57:33",
+   "text": "We add them together, and then we use just a multi-layer perceptron, which is just",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3460,
+   "ts": "57:40",
+   "text": "a linear projection, some activation, and another linear projection, to obtain this gate, scale,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3467,
+   "ts": "57:47",
+   "text": "and shift alpha, gamma and beta, that are then used to modulate the patch embeddings.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3478,
+   "ts": "57:58",
+   "text": "So the question is, is t corresponding to the diffusion time step? Yes. So it's how noisy you are in your generation process.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3487,
+   "ts": "58:07",
+   "text": "So one example is in the very, very beginning. If let's say, your input is super noisy,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3492,
+   "ts": "58:12",
+   "text": "then t is going to be very close to 0, for instance. But you will represent that by your vector that is composed",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3500,
+   "ts": "58:20",
+   "text": "of sinusoidal functions. Yeah, that's right. So the question is, is this a reverse process?",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3507,
+   "ts": "58:27",
+   "text": "Well, actually even during training, you would just inject the t that corresponds to the noise",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3513,
+   "ts": "58:33",
+   "text": "level of your image. So we're going to see exactly an example of this.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3518,
+   "ts": "58:38",
+   "text": "So I'll actually answer your question in great detail in a second.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3525,
+   "ts": "58:45",
+   "text": "Perfect. Well, with that, what I propose is we wrap up this,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3531,
+   "ts": "58:51",
+   "text": "and I walk you through an end to end example of what that looks like. So your patch embeddings, you run them through your diffusion",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3541,
+   "ts": "59:01",
+   "text": "transformer blocks. There can be several of them. And at the very end, you obtain encoded tokens-- so",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3551,
+   "ts": "59:11",
+   "text": "patch-embedding tokens that are aware of one another because they went through all these operations.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3556,
+   "ts": "59:16",
+   "text": "And remember what we want is to have an output that is of the same shape as the input.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3563,
+   "ts": "59:23",
+   "text": "And so here the step is to reshape that output in the shape",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3569,
+   "ts": "59:29",
+   "text": "that matters to you. Well, the authors of DiT applied this to the DDP end use case,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3578,
+   "ts": "59:38",
+   "text": "and they actually assumed that they were not just predicting the mean but also the covariance matrix.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3586,
+   "ts": "59:46",
+   "text": "So that's not very common by the way. So you would more predict the mean but not both.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3593,
+   "ts": "59:53",
+   "text": "But I'm saying this because that just explains why there are two outputs.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3599,
+   "ts": "59:59",
+   "text": "But in our case, we would just have one output-- in our case, the velocity, which should be",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3604,
+   "ts": "1:00:04",
+   "text": "in the same shape as the input.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3609,
+   "ts": "1:00:09",
+   "text": "And what the authors saw was that if you take the DiT",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3618,
+   "ts": "1:00:18",
+   "text": "architecture and if you scale it in terms of number of parameters, then you",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3626,
+   "ts": "1:00:26",
+   "text": "get better and better results. And they scaled it in terms of number of parameters,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3634,
+   "ts": "1:00:34",
+   "text": "but they also scaled it in terms of how granular the patches were, because the patches they have dimension",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3642,
+   "ts": "1:00:42",
+   "text": "p times p times c. And if you take big patches, then you have a much coarser",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3650,
+   "ts": "1:00:50",
+   "text": "view than let's say, a small patch, small p. The problem with the number of parameters",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3658,
+   "ts": "1:00:58",
+   "text": "is it does not convey that dimension. So you can have the same number of parameters",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3663,
+   "ts": "1:01:03",
+   "text": "but vary p, which is why the authors also use FLOPs.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3671,
+   "ts": "1:01:11",
+   "text": "So who has heard of FLOPs before? Floating Point Operations is just",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3676,
+   "ts": "1:01:16",
+   "text": "a measure of how many operations you're doing in your forward pass. And that actually includes patch size, because if you remember,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3684,
+   "ts": "1:01:24",
+   "text": "your input has a length of I over P squared.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3690,
+   "ts": "1:01:30",
+   "text": "So if you have a smaller p, you have a bigger sequence, which is reflected in your flops measure.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3696,
+   "ts": "1:01:36",
+   "text": "And in particular, so that's pretty interesting.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3702,
+   "ts": "1:01:42",
+   "text": "So you should not only scale one and not the other. So they see that if they scale the transformer size,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3711,
+   "ts": "1:01:51",
+   "text": "they get better results but not great. Now, if they only scale the patch size,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3717,
+   "ts": "1:01:57",
+   "text": "they get better results but not great. But if they scale both the transformer size and the patch",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3724,
+   "ts": "1:02:04",
+   "text": "size, then they get amazing results.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3731,
+   "ts": "1:02:11",
+   "text": "That's what you see in the figure on the right and also the chart that tells you this",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3737,
+   "ts": "1:02:17",
+   "text": "as a function of FID, which as I mentioned, is a metric we will see in two lectures,",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3743,
+   "ts": "1:02:23",
+   "text": "where the lower the value, the better it is.",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3749,
+   "ts": "1:02:29",
+   "text": "And that was the DiT. Given that the DiT is a pretty important architecture, what",
+   "chapter": "Adaptive layer normalization (adaLN)"
+  },
+  {
+   "t": 3757,
+   "ts": "1:02:37",
+   "text": "we will do is take our time to go through an end to end example of exactly how that works.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3764,
+   "ts": "1:02:44",
+   "text": "So our goal is to take an input-- so here, the input text,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3771,
+   "ts": "1:02:51",
+   "text": "generate an image of a teddy bear that is reading, and what we want as an output is the image itself",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3778,
+   "ts": "1:02:58",
+   "text": "or the generated image, I should say. So in lecture 4, we saw that we have a lot of incentive",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3787,
+   "ts": "1:03:07",
+   "text": "to do all of this in the latent space, because it's more tractable computationally, and it's just easier for a model.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3794,
+   "ts": "1:03:14",
+   "text": "So what we'll do is we'll take a look at the latent space learned by a VAE that is at our disposal.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3803,
+   "ts": "1:03:23",
+   "text": "And you see you have two distributions. You have on the bottom left, the initial distribution, which",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3809,
+   "ts": "1:03:29",
+   "text": "is very easy to sample from, and the target distribution, which is the one that you want to sample from.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3816,
+   "ts": "1:03:36",
+   "text": "So what you do is you sample from your easy distribution, typically your Gaussian distribution in your latent",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3822,
+   "ts": "1:03:42",
+   "text": "space. Let's call it z 0. And you obtain this thing--",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3828,
+   "ts": "1:03:48",
+   "text": "dimension I times I times C. What you do is you take that image,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3834,
+   "ts": "1:03:54",
+   "text": "and you divide it into patches. So each element has a dimension of p times p times c.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3843,
+   "ts": "1:04:03",
+   "text": "So if you do some counting, you will see that I squared over p squared patches.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3850,
+   "ts": "1:04:10",
+   "text": "And this is the length of your sequence.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3857,
+   "ts": "1:04:17",
+   "text": "So you take each patch, and you want to represent them with a vector.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3863,
+   "ts": "1:04:23",
+   "text": "So you just perform a linear projection. And you obtain a vector of, let's say, dimension D. Great for the patches.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3872,
+   "ts": "1:04:32",
+   "text": "Now let's take care of the conditions. So you have the timestamp embedding,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3877,
+   "ts": "1:04:37",
+   "text": "and then you have the label embedding corresponding to let's say the teddy bear.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3883,
+   "ts": "1:04:43",
+   "text": "And what you do is super simple. You just add them. Add them together. And you obtain your condition embedding.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3892,
+   "ts": "1:04:52",
+   "text": "So far so good? So here we are with our patchified input,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3899,
+   "ts": "1:04:59",
+   "text": "where each element is represented with an embedding.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3905,
+   "ts": "1:05:05",
+   "text": "There's something I have not told you about. And it's actually something that Shervine will cover in great detail in hopefully 20 minutes.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3915,
+   "ts": "1:05:15",
+   "text": "When you perform this self-attention operations, the great thing is you let everyone interact with everyone,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3923,
+   "ts": "1:05:23",
+   "text": "but then you lose the concept of how far different elements are",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3928,
+   "ts": "1:05:28",
+   "text": "just because you have direct links, which is why you need to specify in which position each input is.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3937,
+   "ts": "1:05:37",
+   "text": "You need to have a way to do that. And here a very naive approach is to just add some embedding that represents the position.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3947,
+   "ts": "1:05:47",
+   "text": "This is not the norm nowadays. Shervine will go deeper in there, but let's assume here that we add a position embedding",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3955,
+   "ts": "1:05:55",
+   "text": "to the patch embedding. And here we obtain a position-aware patch embedding.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3962,
+   "ts": "1:06:02",
+   "text": "And we do the same for all the patches in our input. And nowadays, GPUs they love matrices.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3970,
+   "ts": "1:06:10",
+   "text": "So we just put everything in a matrix format. So here we concatenate everything.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3976,
+   "ts": "1:06:16",
+   "text": "And we also have our conditioned embedding vector. Well, let's start with that.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3984,
+   "ts": "1:06:24",
+   "text": "So I mentioned that the diffusion transformer, so one method of injecting the conditions",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3990,
+   "ts": "1:06:30",
+   "text": "is to modulate the patch embeddings with the conditions.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 3996,
+   "ts": "1:06:36",
+   "text": "So a first step here is to obtain the gate, the scale,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4002,
+   "ts": "1:06:42",
+   "text": "and the shift coefficients corresponding to that condition. So let's do that here.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4007,
+   "ts": "1:06:47",
+   "text": "We input this embedding through an MLP layer, which is a projection and an activation",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4014,
+   "ts": "1:06:54",
+   "text": "function to introduce nonlinearities, and then another projection. And we obtain six quantities--",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4022,
+   "ts": "1:07:02",
+   "text": "two for gate, two for scale, two for shifts. So why two? Because we will have two operations in the diffusion",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4031,
+   "ts": "1:07:11",
+   "text": "transformer block. One is the self-attention operation. The other one is the feed-forward neural network.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4037,
+   "ts": "1:07:17",
+   "text": "And we want these quantities to be respectively",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4042,
+   "ts": "1:07:22",
+   "text": "to go to their own operation. So let's go back to our position where patch-embedding matrix.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4053,
+   "ts": "1:07:33",
+   "text": "We input that into our block. So what we do is we perform a layer normalization operation.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4060,
+   "ts": "1:07:40",
+   "text": "And right after that, we use gamma 1 and beta 1 to scale and shift them.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4068,
+   "ts": "1:07:48",
+   "text": "We input them to the self-attention layer, and then we get the result with alpha 1,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4077,
+   "ts": "1:07:57",
+   "text": "which we add to the input.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4083,
+   "ts": "1:08:03",
+   "text": "So this is becoming very complicated on the slide. So I'm just going to represent this operation with just self-attention and then alpha",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4090,
+   "ts": "1:08:10",
+   "text": "1, gamma 1, and beta 1.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4096,
+   "ts": "1:08:16",
+   "text": "And as you remember, this is what happens.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4101,
+   "ts": "1:08:21",
+   "text": "So you take your input, and then you do the attention operation with the scaled and shifted inputs.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4107,
+   "ts": "1:08:27",
+   "text": "And you get it by alpha 1, where the star operation here is just the element-wise operation.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4114,
+   "ts": "1:08:34",
+   "text": "You do the same thing for the feed forward neural network, along with the alpha 2, gamma 2, beta 2 coefficients.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4125,
+   "ts": "1:08:45",
+   "text": "And you obtain an output matrix that takes into consideration",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4134,
+   "ts": "1:08:54",
+   "text": "all other patch embeddings. So it's something that went through this self-attention computation.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4141,
+   "ts": "1:09:01",
+   "text": "So that's why I'm saying it's contextualized",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4146,
+   "ts": "1:09:06",
+   "text": "because it's in the context of the other patch embeddings. But now what you want is to have a prediction that",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4155,
+   "ts": "1:09:15",
+   "text": "matches the input shape. So what you do is you perform some normalization,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4161,
+   "ts": "1:09:21",
+   "text": "some linear operation reshaping in order to have your prediction, which is",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4168,
+   "ts": "1:09:28",
+   "text": "the predicted velocity of your input z at time t with condition c.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4177,
+   "ts": "1:09:37",
+   "text": "In the very beginning, z is z, 0, t is 0,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4183,
+   "ts": "1:09:43",
+   "text": "c is, well, just your class label. Just I want an image of a teddy bear that is reading a book.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4190,
+   "ts": "1:09:50",
+   "text": "So you have this. So just recapping exactly what I said.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4196,
+   "ts": "1:09:56",
+   "text": "So we have the latent z, 0. We have the time step t equals 0. We have the class label all fed into this diffusion transformer.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4205,
+   "ts": "1:10:05",
+   "text": "And at the end of it, we get the predicted velocity at z,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4210,
+   "ts": "1:10:10",
+   "text": "0 time t equals 0 and class label C. And that's great.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4217,
+   "ts": "1:10:17",
+   "text": "But we're not done here. We're only done here for the iteration that allows us",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4224,
+   "ts": "1:10:24",
+   "text": "to go to step 0 plus delta t. And we perform-- so the formula that I wrote",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4233,
+   "ts": "1:10:33",
+   "text": "is just a reference to the formula that we derived in the flow-matching case where you're just numerically solving.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4242,
+   "ts": "1:10:42",
+   "text": "So here's an Euler solver that just allows you to go from initial to target by just following",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4251,
+   "ts": "1:10:51",
+   "text": "the vector field. So that's exactly what you're doing. So you obtain this z 0 plus delta t",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4260,
+   "ts": "1:11:00",
+   "text": "that you can also have represented like this on the left in your latent space.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4267,
+   "ts": "1:11:07",
+   "text": "So that's great. So now let's do one more. You're at time step t i.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4273,
+   "ts": "1:11:13",
+   "text": "So you input your latent z t i, along with the time step t i",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4279,
+   "ts": "1:11:19",
+   "text": "and the condition c that is not-- or the class label c that is not changing--",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4284,
+   "ts": "1:11:24",
+   "text": "so your input text. So you put that in the diffusion transformer.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4290,
+   "ts": "1:11:30",
+   "text": "Again, you get a predicted velocity for that latent z",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4295,
+   "ts": "1:11:35",
+   "text": "t i for that time step t i and for the class label c. And you go through the same thing.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4301,
+   "ts": "1:11:41",
+   "text": "So you have the prediction. And you obtain z t i plus 1 by, again,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4308,
+   "ts": "1:11:48",
+   "text": "following the Euler method. So here on the left side, you have the next step.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4316,
+   "ts": "1:11:56",
+   "text": "You continue again and again and again and again and again up",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4321,
+   "ts": "1:12:01",
+   "text": "until z 1. So now you're at t equal 1. You have z 1. That's great.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4327,
+   "ts": "1:12:07",
+   "text": "Well, what do you have? Well, no. It's not noise. It's just it's the latent space.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4334,
+   "ts": "1:12:14",
+   "text": "So from a human perspective, you don't know what that is. So that's why I represent it with the noise image.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4343,
+   "ts": "1:12:23",
+   "text": "But it is actually your final latent. And so the last step is to take the final latent Z1",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4354,
+   "ts": "1:12:34",
+   "text": "and pass it through your VA decoder, because you want to go back to the pixel space,",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4359,
+   "ts": "1:12:39",
+   "text": "because we humans, we understand pixels. We don't understand the latent, or at least not yet.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4366,
+   "ts": "1:12:46",
+   "text": "And we get the pixel space image, which is the image of your teddy bear reading a book.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4375,
+   "ts": "1:12:55",
+   "text": "And that's great. And you will tell me, Afshine, that's great. We solved it.",
+   "chapter": "DiT end-to-end example"
+  },
+  {
+   "t": 4381,
+   "ts": "1:13:01",
+   "text": "Well, the truth is, these days people are actually",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4387,
+   "ts": "1:13:07",
+   "text": "using a variation of the diffusion transformer for a number of reasons",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4392,
+   "ts": "1:13:12",
+   "text": "that we're going to see now. And again, I just want to repeat one thing I said earlier, which",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4401,
+   "ts": "1:13:21",
+   "text": "is there is a number, infinite number of architectures out there, infinite number of variations, combinations.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4410,
+   "ts": "1:13:30",
+   "text": "My hope is to just motivate why some elements that we're",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4416,
+   "ts": "1:13:36",
+   "text": "going to see are being reused actively these days, but they're by no means exhaustive.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4425,
+   "ts": "1:13:45",
+   "text": "So let's go back to the example that we had with respect to us",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4432,
+   "ts": "1:13:52",
+   "text": "wanting to modulate patch embeddings. So do you remember the example we",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4438,
+   "ts": "1:13:58",
+   "text": "used where we said we want a brown fluffy teddy bear",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4443,
+   "ts": "1:14:03",
+   "text": "and we had all these dimensions? And we said, let's say at t equals 0.1,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4449,
+   "ts": "1:14:09",
+   "text": "we wanted brown color and round shape to be highlighted but not the other ones. Do you remember that?",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4456,
+   "ts": "1:14:16",
+   "text": "So let's suppose now I'm changing the class label or the condition, the text input,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4463,
+   "ts": "1:14:23",
+   "text": "to brown fluffy teddy bear surrounded by white walls.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4469,
+   "ts": "1:14:29",
+   "text": "So imagine I do that. Then the white color dimension, you",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4475,
+   "ts": "1:14:35",
+   "text": "would want to also have it emphasized because you have white in your input.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4483,
+   "ts": "1:14:43",
+   "text": "But remember that this modulation is happening for all tokens, regardless of where they are.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4494,
+   "ts": "1:14:54",
+   "text": "So in other words, what we're saying is if you want to predict the velocity to denoise an image,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4502,
+   "ts": "1:15:02",
+   "text": "you're going to modulate all patch embeddings in the same way.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4508,
+   "ts": "1:15:08",
+   "text": "But here what you want is for places where you have a Teddy bear to have Brown that's increased",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4515,
+   "ts": "1:15:15",
+   "text": "but not the white color and for places where there is the white wall to have",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4520,
+   "ts": "1:15:20",
+   "text": "white increase but not brown. Well, you cannot do that with the DiT,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4526,
+   "ts": "1:15:26",
+   "text": "and that's a big limitation, which is the reason why we want",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4533,
+   "ts": "1:15:33",
+   "text": "to change a little bit our approach. So that's great. We're having the self-attention mechanism there. It's amazing.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4540,
+   "ts": "1:15:40",
+   "text": "The only thing we want to do is to change the way we're injecting conditions.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4548,
+   "ts": "1:15:48",
+   "text": "So modulating with respect to the time step, I think we can all agree that makes sense",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4555,
+   "ts": "1:15:55",
+   "text": "because all tokens of your input, they're all at the same time step. So it's very fair to have the same treatment.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4564,
+   "ts": "1:16:04",
+   "text": "But we need to do something else when it comes to injecting the text input from the user.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4576,
+   "ts": "1:16:16",
+   "text": "We don't want to apply the same treatment to all tokens.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4582,
+   "ts": "1:16:22",
+   "text": "So out there, there are two main classes of methods that allows us to introduce some nuance",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4594,
+   "ts": "1:16:34",
+   "text": "to the way we do that. And while there is no standard classification out there,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4601,
+   "ts": "1:16:41",
+   "text": "I'm just telling you there is two main classes of methods that seem to emerge-- one that involves cross-attention and one",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4611,
+   "ts": "1:16:51",
+   "text": "that involves joint attention. So before we go further, I just want",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4618,
+   "ts": "1:16:58",
+   "text": "to explicit a little bit more what these two correspond to. So cross-attention is the idea of having something as input--",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4628,
+   "ts": "1:17:08",
+   "text": "so your queries, your patch embeddings-- and wondering how relevant your keys and values, which here is",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4637,
+   "ts": "1:17:17",
+   "text": "your text, is to your queries.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4643,
+   "ts": "1:17:23",
+   "text": "So in other words, I'm going to use an analogy, and I hope it's something that will be intuitive to you",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4650,
+   "ts": "1:17:30",
+   "text": "as well. So let's suppose you have a painter that paints the final image and then let's",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4659,
+   "ts": "1:17:39",
+   "text": "say a poet that writes the instruction in a very eloquent way.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4667,
+   "ts": "1:17:47",
+   "text": "So it's the same thing as saying, if we were to say that the painter, the one who determines",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4675,
+   "ts": "1:17:55",
+   "text": "what changes to bring to the image, is actually looking at a piece of text that",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4683,
+   "ts": "1:18:03",
+   "text": "is brought by the writer, and just based on that determines",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4688,
+   "ts": "1:18:08",
+   "text": "what to change on the image. So it pays attention to the input text for a given patch. It says, OK, what is the piece of text",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4697,
+   "ts": "1:18:17",
+   "text": "that is relevant to that? And then based on that it says, OK, I need to change this, change that. So that is cross-attention.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4704,
+   "ts": "1:18:24",
+   "text": "So now what is joint attention? Joint attention is saying, you are considering your image patch",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4714,
+   "ts": "1:18:34",
+   "text": "embeddings as inputs, but you're also considering your text embeddings as input as well.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4722,
+   "ts": "1:18:42",
+   "text": "And what you're saying is that both these modalities",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4728,
+   "ts": "1:18:48",
+   "text": "are being attended, if you want, through the self-attention layer.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4733,
+   "ts": "1:18:53",
+   "text": "So continuing the analogy, so let's say, sorry, I'm a painter.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4738,
+   "ts": "1:18:58",
+   "text": "And let's say Shervine is a poet. So instead of Shervine writing to me exactly what needs to be drawn, now, both Shervine and I",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4747,
+   "ts": "1:19:07",
+   "text": "are in the same room, and we're talking about how things should be placed with respect to the text.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4755,
+   "ts": "1:19:15",
+   "text": "And let's suppose if I paint something and then, I don't know, I need to write",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4761,
+   "ts": "1:19:21",
+   "text": "Stanford top right and then my drawing is in such a way that there is not that much space,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4769,
+   "ts": "1:19:29",
+   "text": "then we can talk amongst one another to say, OK, actually, I want Stanford to be written in maybe smaller",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4774,
+   "ts": "1:19:34",
+   "text": "fonts so we can change what we are each saying as a constraint",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4782,
+   "ts": "1:19:42",
+   "text": "and doing as an image, as a function of one another. So in other words, cross-attention",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4789,
+   "ts": "1:19:49",
+   "text": "is considering text more as being a given. So it's OK.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4796,
+   "ts": "1:19:56",
+   "text": "So you have a patch embedding. Look at which piece of text is relevant for you,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4801,
+   "ts": "1:20:01",
+   "text": "and just do something. And joint attention is saying, OK,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4807,
+   "ts": "1:20:07",
+   "text": "let's consider both, and try to find a representation of each,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4815,
+   "ts": "1:20:15",
+   "text": "such that we can get to our final destination in the best way possible.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4823,
+   "ts": "1:20:23",
+   "text": "So I hope this makes sense. All of that to say that nowadays most people do",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4830,
+   "ts": "1:20:30",
+   "text": "joint attention-related methods, and in particular, I'm going to introduce a term in one second.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4838,
+   "ts": "1:20:38",
+   "text": "But before I do that, it's exactly what I mentioned here-- the joint attention. We're considering the patch embeddings and the text",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4846,
+   "ts": "1:20:46",
+   "text": "embeddings all jointly that goes through this attention layer and so on.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4853,
+   "ts": "1:20:53",
+   "text": "And the name of such an architecture was coined as being an MM-DiT.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4860,
+   "ts": "1:21:00",
+   "text": "So I don't exactly know how you would pronounce it, but I just go by MM-DiT-- so Multi-Modal Diffusion",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4867,
+   "ts": "1:21:07",
+   "text": "Transformer. And this term was coined in a paper that's actually not that long ago-- so Stable Diffusion 3.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4875,
+   "ts": "1:21:15",
+   "text": "That was published two years ago-- so in 2024. And this relies on a joint attention",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4883,
+   "ts": "1:21:23",
+   "text": "of different modalities. Now, there is another dimension that some papers play around",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4892,
+   "ts": "1:21:32",
+   "text": "with, which is whether you want to consider each modality",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4897,
+   "ts": "1:21:37",
+   "text": "separately or jointly.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4902,
+   "ts": "1:21:42",
+   "text": "And in particular, you know in the diffusion transformer architecture, you have this feed-forward neural network",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4909,
+   "ts": "1:21:49",
+   "text": "where you project. You do some activation function, and you project again where you learn different ways to just represent",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4917,
+   "ts": "1:21:57",
+   "text": "the same thing. And if you were to consider all modalities as going",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4926,
+   "ts": "1:22:06",
+   "text": "through the same thing-- so just continuing the analogy of the writer and the poet,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4933,
+   "ts": "1:22:13",
+   "text": "it would be as if you were saying that both the poet and the-- sorry,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4939,
+   "ts": "1:22:19",
+   "text": "both the poet and the painter, they use the same tools.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4945,
+   "ts": "1:22:25",
+   "text": "So you learn the same projections. But if you were to consider each modality on their own,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4953,
+   "ts": "1:22:33",
+   "text": "if you were to consider specific projection, depending on which modality you're on,",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4958,
+   "ts": "1:22:38",
+   "text": "you're actually learning tools that are tailored to the task of whoever's doing it.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4964,
+   "ts": "1:22:44",
+   "text": "So the painter will have a great brush that is tailored to whatever they're doing, and the poet will have exactly whatever is tailored",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4973,
+   "ts": "1:22:53",
+   "text": "to their needs. Maybe I'm pushing it too far with this analogy, but all of that to say that we have two different classes",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4981,
+   "ts": "1:23:01",
+   "text": "of MM-DiT. One is single stream. So everything is treated equally.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4988,
+   "ts": "1:23:08",
+   "text": "And the second one is double stream. Each modality has its own stream.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 4994,
+   "ts": "1:23:14",
+   "text": "And you even have papers that mixes the two. So I call them hybrids here. So they contain both single stream and double stream layers.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 5003,
+   "ts": "1:23:23",
+   "text": "And the next few slides are just about calling out such models.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 5009,
+   "ts": "1:23:29",
+   "text": "So the state of the art models that you would see nowadays, they actually are relying on this architecture.",
+   "chapter": "Multimodal DiT (MM-DiT)"
+  },
+  {
+   "t": 5017,
+   "ts": "1:23:37",
+   "text": "So I'm going to just mention a double stream MM-DiT. So this one is an image for those of you",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5023,
+   "ts": "1:23:43",
+   "text": "who have heard of it. Then you have Z-image, as an example of a single stream--",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5030,
+   "ts": "1:23:50",
+   "text": "so here treating everything as one. And then for those of you who have heard of it,",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5036,
+   "ts": "1:23:56",
+   "text": "flux one contexts is actually doing a bit of both.",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5043,
+   "ts": "1:24:03",
+   "text": "So I put all the links in the slides. So we don't have time to talk about each of these papers.",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5049,
+   "ts": "1:24:09",
+   "text": "But if you're interested, you can just go there and just look at the papers to see how they design it.",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5057,
+   "ts": "1:24:17",
+   "text": "It is not in the scope of the finals, so don't worry if you don't go there. It's not required.",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5063,
+   "ts": "1:24:23",
+   "text": "But if you're interested, I think it's a good source. And just continuing the timeline.",
+   "chapter": "Qwen-Image, Z-Image, FLUX.1"
+  },
+  {
+   "t": 5070,
+   "ts": "1:24:30",
+   "text": "So nowadays, image-generation models",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5076,
+   "ts": "1:24:36",
+   "text": "are full of MM-DiT-based models. And in particular, if you think about when the diffusion",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5083,
+   "ts": "1:24:43",
+   "text": "transformer was published, which was in 2022, Stable Diffusion 3, which was the first one to coin MM-DiT",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5092,
+   "ts": "1:24:52",
+   "text": "was released in 2024. And then the models I mentioned were released in 2025.",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5097,
+   "ts": "1:24:57",
+   "text": "And again, the ones that are being published in 2026, they seem to follow the same trend. All of that to say that I think these are relevant",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5107,
+   "ts": "1:25:07",
+   "text": "architectures that I think are good to have in mind. I'm looking at the time.",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5112,
+   "ts": "1:25:12",
+   "text": "I'm slightly over time, but any questions on that?",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5121,
+   "ts": "1:25:21",
+   "text": "We're all good? Perfect. So with that, I'm going to give it to Shervine.",
+   "chapter": "Timeline of DiT models"
+  },
+  {
+   "t": 5126,
+   "ts": "1:25:26",
+   "text": "Thank you, Afshine. So with all these models, we have seen that one constant is that we need to represent",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5135,
+   "ts": "1:25:35",
+   "text": "the position of the input. So the next section here is called optimization.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5140,
+   "ts": "1:25:40",
+   "text": "But we're not going to look at optimizations of everything-- just the optimization of the position.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5147,
+   "ts": "1:25:47",
+   "text": "So in order to make things simple, I'm going to start in the 1D case.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5153,
+   "ts": "1:25:53",
+   "text": "And then we're going to see how we can adapt this concept of positions in the 2D one.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5159,
+   "ts": "1:25:59",
+   "text": "So as you recall, the original transformer was based on text tokens.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5166,
+   "ts": "1:26:06",
+   "text": "So in this case, where you have the sentence, a teddy bear is reading, what you would want is when you do comparisons between your tokens",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5176,
+   "ts": "1:26:16",
+   "text": "in the attention layer, that the token teddy bear or the representation of it is seen as being close to tokens",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5186,
+   "ts": "1:26:26",
+   "text": "around it or itself and far from others that are far from it.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5192,
+   "ts": "1:26:32",
+   "text": "That's the goal. So let's write that in mathematical form.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5198,
+   "ts": "1:26:38",
+   "text": "So what we want is a way for us to compare two embeddings",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5204,
+   "ts": "1:26:44",
+   "text": "and when you do an operation like the dot product to have it as a function of the distance.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5211,
+   "ts": "1:26:51",
+   "text": "But here I'm saying the dot product of embeddings of these tokens it's not totally true.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5217,
+   "ts": "1:26:57",
+   "text": "Here I'm going to put it in quotes, because in the case of attention, we're not comparing the same embeddings.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5224,
+   "ts": "1:27:04",
+   "text": "We're comparing the query embedding with the key embedding of the other token.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5230,
+   "ts": "1:27:10",
+   "text": "So it's modulo some transformation. And just to write things down, we",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5239,
+   "ts": "1:27:19",
+   "text": "are going to decompose, as a first approach, the representation of the embedding of a given token",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5247,
+   "ts": "1:27:27",
+   "text": "with what we call the input embedding, which is whatever representation we already have that is not position-specific,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5255,
+   "ts": "1:27:35",
+   "text": "and then adding it as an element-wise addition in the vector space, the position embedding.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5261,
+   "ts": "1:27:41",
+   "text": "That's what the original transformer paper proposed, such that when you do the dot product operation that I just",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5269,
+   "ts": "1:27:49",
+   "text": "mentioned, you have a term that pops out",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5275,
+   "ts": "1:27:55",
+   "text": "that is a dot product of these position embeddings together. And I'm not saying that all the other terms are not functions",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5285,
+   "ts": "1:28:05",
+   "text": "of this position embeddings. Some of them are cross terms, but we're just going to ignore them for now.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5291,
+   "ts": "1:28:11",
+   "text": "And we're going to focus on what choice to get for these position embeddings in order for the representation to make sense.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5301,
+   "ts": "1:28:21",
+   "text": "So the original transformer hard coded it with a formula",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5307,
+   "ts": "1:28:27",
+   "text": "that I just wrote down here. So it might look scary. Some of you might know about it already, but for all the others,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5313,
+   "ts": "1:28:33",
+   "text": "it might look scary. So you have a combination of sines and cosines",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5319,
+   "ts": "1:28:39",
+   "text": "that you might ask yourself, why are they here? So we're going to decompose all the notations in there",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5326,
+   "ts": "1:28:46",
+   "text": "and see intuitively what they are for. So you see that you have the position as a numerator",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5336,
+   "ts": "1:28:56",
+   "text": "within these sines and cosines. And on the denominator, you have some huge number",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5343,
+   "ts": "1:29:03",
+   "text": "put at some exponent. And that exponent is a function of the position in the vector",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5351,
+   "ts": "1:29:11",
+   "text": "and the dimension of the embedding altogether, such that when you vary",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5357,
+   "ts": "1:29:17",
+   "text": "this I between the first and the middle position, you cover exponents from 0 to 1.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5365,
+   "ts": "1:29:25",
+   "text": "So in other words, you have these signs that have frequencies that are either high",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5372,
+   "ts": "1:29:32",
+   "text": "when this I is close to 0 because you have the position over something that is small.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5379,
+   "ts": "1:29:39",
+   "text": "So it's going to vary quite fast. So we're going to call them high frequency.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5384,
+   "ts": "1:29:44",
+   "text": "And on the other end of the spectrum, when you have I close to the dimension of the vector over 2,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5392,
+   "ts": "1:29:52",
+   "text": "it's going to be close to 1. And as you can see, the number that",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5397,
+   "ts": "1:29:57",
+   "text": "is elevated to that exponent is some number that looks arbitrary, but it's quite large.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5406,
+   "ts": "1:30:06",
+   "text": "It's voluntarily taken quite large with respect to the sequence length, because the mindset behind it",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5415,
+   "ts": "1:30:15",
+   "text": "is that we want these frequencies when I is high,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5421,
+   "ts": "1:30:21",
+   "text": "to be considered as low. So in other words, when you have a sequence length of let's say",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5428,
+   "ts": "1:30:28",
+   "text": "500, we want these 1 over 10,000 to be so small that",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5434,
+   "ts": "1:30:34",
+   "text": "the variation of that sine and cosine is of low frequency with",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5441,
+   "ts": "1:30:41",
+   "text": "respect to the sequence length. Does that make sense?",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5447,
+   "ts": "1:30:47",
+   "text": "OK. Awesome. So now I'm going to show you the exact same figure that Afshine showed in a different context",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5455,
+   "ts": "1:30:55",
+   "text": "in a timestep embedding. But it turns out that here we choose a similar mathematical framing.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5461,
+   "ts": "1:31:01",
+   "text": "So the same graph applies. And we're going to analyze parts of these projection",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5468,
+   "ts": "1:31:08",
+   "text": "and then see how it compares with respect to our frequencies that we qualified as high and low.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5476,
+   "ts": "1:31:16",
+   "text": "So on the left, we're looking at dimensions that are early on in the vector.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5482,
+   "ts": "1:31:22",
+   "text": "So we call them the high frequencies.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5488,
+   "ts": "1:31:28",
+   "text": "And as you can see, when you vary the sequence position, these numbers, they vary between negative 1 and 1 quite fast.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5497,
+   "ts": "1:31:37",
+   "text": "And on the other end of the spectrum, when you look at positions of this vector",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5502,
+   "ts": "1:31:42",
+   "text": "that are larger than the cosine and sines take time in order",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5510,
+   "ts": "1:31:50",
+   "text": "to cover the whole face. So now I talked about a given frequency that was hard coded.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5521,
+   "ts": "1:32:01",
+   "text": "This is a design choice. We're going to hide it under some variable that I'm going to call omega y.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5528,
+   "ts": "1:32:08",
+   "text": "And we're going to look side by side what these vectors look",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5536,
+   "ts": "1:32:16",
+   "text": "like when you take position m on one hand and position n. And we're going to try to see what",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5543,
+   "ts": "1:32:23",
+   "text": "taking the dot products between both of them is going to give us.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5549,
+   "ts": "1:32:29",
+   "text": "So here you see that you have these sines that are aligned and these cosines, so that when you do the dot product,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5557,
+   "ts": "1:32:37",
+   "text": "you have a sum of these sines of similar frequencies at position",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5565,
+   "ts": "1:32:45",
+   "text": "m and n and plus a product of cosines of a same frequency",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5571,
+   "ts": "1:32:51",
+   "text": "at positions m and n again. And if you recall your trigonometry class,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5579,
+   "ts": "1:32:59",
+   "text": "sine A, sine B, plus cosine A cosine B is an identity.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5587,
+   "ts": "1:33:07",
+   "text": "And you can rewrite it as cosine of A minus B, such",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5592,
+   "ts": "1:33:12",
+   "text": "that when you compute this dot product, this is nothing else as the sum of about dimension of embeddings",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5602,
+   "ts": "1:33:22",
+   "text": "over 2 terms of this cosine of difference of terms.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5609,
+   "ts": "1:33:29",
+   "text": "So it's quite interpretable. So now let's take a look at when we compare positions",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5617,
+   "ts": "1:33:37",
+   "text": "m and n what the dot product evolves with respect to time. So you see that it has this natural curve that",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5627,
+   "ts": "1:33:47",
+   "text": "overall decreases. But it's not monotonic. It doesn't monotonically decrease,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5632,
+   "ts": "1:33:52",
+   "text": "but it tends to decrease. And you can see multiple regions in this curve",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5639,
+   "ts": "1:33:59",
+   "text": "that you can interpret as to why you have such phenomenon happening. So at the very beginning, you see a sudden drop.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5648,
+   "ts": "1:34:08",
+   "text": "And this can be interpreted by the fact that all your cosines in your sum,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5654,
+   "ts": "1:34:14",
+   "text": "whether high frequency or low frequency, start from an angle close to 0, and they",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5659,
+   "ts": "1:34:19",
+   "text": "all drop from these cosine of 0 equals 1. And then as you progress, when you",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5667,
+   "ts": "1:34:27",
+   "text": "increase the distance between positions, m and n, you have your high frequency cosine",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5673,
+   "ts": "1:34:33",
+   "text": "terms that oscillate between minus 1 and 1, and they will tend to cancel each other out.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5681,
+   "ts": "1:34:41",
+   "text": "So this is why you see some oscillations but not that much.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5687,
+   "ts": "1:34:47",
+   "text": "And then later on you see more and more oscillations coming in.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5693,
+   "ts": "1:34:53",
+   "text": "This is your low frequency terms that start oscillating, and this is how it can be interpreted.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5703,
+   "ts": "1:35:03",
+   "text": "So why are we choosing these positions embeddings in the first place?",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5708,
+   "ts": "1:35:08",
+   "text": "So we saw that we can have an interesting interpretation in terms of comparing two position embeddings when",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5716,
+   "ts": "1:35:16",
+   "text": "they are close versus far from each other. You have an intuitive interpretation",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5721,
+   "ts": "1:35:21",
+   "text": "as to the dot products that can be compared to the distance.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5726,
+   "ts": "1:35:26",
+   "text": "And also something that I haven't put here and that was highlighted by initial authors,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5733,
+   "ts": "1:35:33",
+   "text": "the position embedding when you increase the position by a given",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5740,
+   "ts": "1:35:40",
+   "text": "factor, k, can be represented by a linear operation. So when you have all these matrix multiplication",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5747,
+   "ts": "1:35:47",
+   "text": "operations, you can see that operation as being absorbed by these matrix computations,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5754,
+   "ts": "1:35:54",
+   "text": "such that position information can be taken into account. So it has this linear interpretation as well.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5761,
+   "ts": "1:36:01",
+   "text": "And the argument is that it's very simple because you",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5767,
+   "ts": "1:36:07",
+   "text": "have a pre-computed formula. So let's say at training time, you have a given constraint on the sequence length.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5775,
+   "ts": "1:36:15",
+   "text": "If at inference time you change that parameter, then you're not lost because you know how",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5783,
+   "ts": "1:36:23",
+   "text": "to extrapolate by the formula. And so we see that it just works well in practice.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5791,
+   "ts": "1:36:31",
+   "text": "But then on the flip side, and I'm not talking about the fact that it's hard-coded, but more about the absolute property",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5799,
+   "ts": "1:36:39",
+   "text": "of these position embeddings, we saw that it was introduced at the input level,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5806,
+   "ts": "1:36:46",
+   "text": "whereas the initial motivation where I mentioned position embeddings were helpful were more",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5814,
+   "ts": "1:36:54",
+   "text": "at the attention level. So it seems like we're injecting this position information",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5819,
+   "ts": "1:36:59",
+   "text": "at a place where that information doesn't matter most, but it might matter most at places",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5827,
+   "ts": "1:37:07",
+   "text": "where you want to compare embeddings with respect to one another. So we're going to see how to alleviate that.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5835,
+   "ts": "1:37:15",
+   "text": "And I mentioned as well this extra interaction terms. When you add position embeddings at the very beginning,",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5843,
+   "ts": "1:37:23",
+   "text": "that might interact with the input embeddings. And I'm not saying this is bad, but I'm",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5850,
+   "ts": "1:37:30",
+   "text": "saying this might not be the intention we have behind this position embeddings.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5855,
+   "ts": "1:37:35",
+   "text": "So it doesn't seem to align with the design choice that we have in mind.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5860,
+   "ts": "1:37:40",
+   "text": "And just to give you some information regarding who",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5865,
+   "ts": "1:37:45",
+   "text": "used it, basically, everyone. Like every first paper on transformers used absolute position embedding-- so not necessarily",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5873,
+   "ts": "1:37:53",
+   "text": "the hard-coded version, but the one that adds it in the input. So the transformer, of course, did it the way I presented.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5882,
+   "ts": "1:38:02",
+   "text": "The original VIT didn't hardcode it. It was something that was learned.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5887,
+   "ts": "1:38:07",
+   "text": "And then the DiT did hard-code it but in 2D space in a manner",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5893,
+   "ts": "1:38:13",
+   "text": "similar to one that we're going to see very soon. But it did so at the input level.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5901,
+   "ts": "1:38:21",
+   "text": "Yeah. A great point. So what about the 2D case? We're going to see it.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5908,
+   "ts": "1:38:28",
+   "text": "And yeah, great point.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5913,
+   "ts": "1:38:33",
+   "text": "But first before doing that, we're going to see if there is a better location to have these position embeddings be represented.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5920,
+   "ts": "1:38:40",
+   "text": "And as you might have guessed from all my hints, the attention layer is going to be the place to put them.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5927,
+   "ts": "1:38:47",
+   "text": "And this is the key insight from RoPE Rotary Position Embeddings.",
+   "chapter": "Absolute position embeddings"
+  },
+  {
+   "t": 5934,
+   "ts": "1:38:54",
+   "text": "That was a paper in 2021 that introduced these kinds of representation of positions,",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5941,
+   "ts": "1:39:01",
+   "text": "and that is the leading way people do it in practice today. And the way it works is as follows.",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5949,
+   "ts": "1:39:09",
+   "text": "You take queries. You take keys. And instead of fitting them in the dot product as is,",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5956,
+   "ts": "1:39:16",
+   "text": "you will rotate them by a rotation operation that takes into account their position.",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5963,
+   "ts": "1:39:23",
+   "text": "So you take the query. You rotate it with respect to something that depends on m. Same for key.",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5969,
+   "ts": "1:39:29",
+   "text": "That depends on n, its position. And you're going to do the dot product of these rotated queries",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5977,
+   "ts": "1:39:37",
+   "text": "and keys instead of the raw ones. And one nice property that is interpretable",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5983,
+   "ts": "1:39:43",
+   "text": "here is that you see a rotation matrix that depends on the difference of positions, n minus m, pop out.",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 5992,
+   "ts": "1:39:52",
+   "text": "So you feel like it's a design choice that that makes sense.",
+   "chapter": "Rotary position embeddings (RoPE)"
+  },
+  {
+   "t": 6000,
+   "ts": "1:40:00",
+   "text": "And then to answer your points, now we're good for 1D. But what about 2D?",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6007,
+   "ts": "1:40:07",
+   "text": "So 2D you have this coordinates. But if you don't talk about coordinates just yet,",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6013,
+   "ts": "1:40:13",
+   "text": "you might number them in a 1D manner. And it's not super clear whether it makes sense at all to compare",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6022,
+   "ts": "1:40:22",
+   "text": "1D numbers with respect to one another. So you have a few ways to get around it.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6029,
+   "ts": "1:40:29",
+   "text": "So the first idea, which is a similar flavor of what the original DiT paper used is to segregate axes,",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6039,
+   "ts": "1:40:39",
+   "text": "such that you represent vectors with respect to their coordinates in the 2D space.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6046,
+   "ts": "1:40:46",
+   "text": "And you do the x-axis in some part of the vector and the y-axis at some other part.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6054,
+   "ts": "1:40:54",
+   "text": "And here we're talking about one given design choice of how to order the indices with respect",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6062,
+   "ts": "1:41:02",
+   "text": "to where you project. But it doesn't have to be grouped by even or odd indices.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6068,
+   "ts": "1:41:08",
+   "text": "You can group these by any way you want because this is arbitrary.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6073,
+   "ts": "1:41:13",
+   "text": "And so this is one way of doing it. It's called axial RoPE.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6079,
+   "ts": "1:41:19",
+   "text": "There is another way that you could get around it that mitigates the fact that--",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6086,
+   "ts": "1:41:26",
+   "text": "so here if you do the actual way, one thing is that if you do the dot product between two",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6093,
+   "ts": "1:41:33",
+   "text": "rotated vectors, you realize that you're comparing x with x and y with y.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6099,
+   "ts": "1:41:39",
+   "text": "So you're missing that interaction component. And one way you can go around it is to mix rotations with respect",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6109,
+   "ts": "1:41:49",
+   "text": "to x and y in the same vector. So this is the so-called mixed RoPE.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6117,
+   "ts": "1:41:57",
+   "text": "And the authors of the paper that discuss these two 2D strategies made a representation of a given input position",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6129,
+   "ts": "1:42:09",
+   "text": "and applied a frequency-based technique that I know some of you might know from the physics space called the Fourier",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6137,
+   "ts": "1:42:17",
+   "text": "Transform. So to apply the Fourier Transform, it's filtered out for a given frequency's budget--",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6146,
+   "ts": "1:42:26",
+   "text": "only those that were taken into consideration. And after trying to reconstruct the signal",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6152,
+   "ts": "1:42:32",
+   "text": "from these set of frequencies, saw that Axial RoPE had all these axial artifacts that",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6160,
+   "ts": "1:42:40",
+   "text": "were due to this lack of interaction between the two axes, whereas Mixed RoPE was able to leverage",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6168,
+   "ts": "1:42:48",
+   "text": "the same set of frequencies, like the same set of frequencies budgets in a way more efficient way.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6175,
+   "ts": "1:42:55",
+   "text": "So these are two ways of looking at them, and mixing things seems to make it better.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6184,
+   "ts": "1:43:04",
+   "text": "And something else that you might worry about beyond taking into account the 2D case, is how to make sense of these positions",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6193,
+   "ts": "1:43:13",
+   "text": "when you have different number of patches presented to you. So, for example, let's say your teddy bear",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6200,
+   "ts": "1:43:20",
+   "text": "is in low resolution versus high resolution. How does it make sense me as a model",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6207,
+   "ts": "1:43:27",
+   "text": "to interpret what is at the center of the image versus what is on the left or what is on the right?",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6212,
+   "ts": "1:43:32",
+   "text": "And this is what Seedream 2 thought about.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6218,
+   "ts": "1:43:38",
+   "text": "And the idea here is to center the coordinates",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6223,
+   "ts": "1:43:43",
+   "text": "in a way that will tell the model where the center of the image is in order for it to locate",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6230,
+   "ts": "1:43:50",
+   "text": "different parts of the image. So instead of having like a grid that starts from 0,",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6237,
+   "ts": "1:43:57",
+   "text": "you have the 0 roughly being at the center of the image, and then you adjust the external points.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6245,
+   "ts": "1:44:05",
+   "text": "And one thing that you might wonder by Afshine's description",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6252,
+   "ts": "1:44:12",
+   "text": "of MM-DiT models, for example, those that perform joint attention, so you",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6257,
+   "ts": "1:44:17",
+   "text": "have these points in the architecture where you might have text tokens interacting with image tokens.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6265,
+   "ts": "1:44:25",
+   "text": "So one question you might ask yourself, how to quantify the position of one with respect to the other.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6271,
+   "ts": "1:44:31",
+   "text": "And by thinking about this, one thing you might want to think about is what wouldn't work.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6279,
+   "ts": "1:44:39",
+   "text": "So what wouldn't work intuitively is the positions at the horizontal lines of the image",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6289,
+   "ts": "1:44:49",
+   "text": "and the vertical ones. Because intuitively, you do not want your model",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6294,
+   "ts": "1:44:54",
+   "text": "to think that your text tokens are a continuation of your image. So one natural position that the coin image paper points out",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6304,
+   "ts": "1:45:04",
+   "text": "is the diagonal, because it's clear that it's out of the area of the image.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6310,
+   "ts": "1:45:10",
+   "text": "And by doing so, they see that they can just live together.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6317,
+   "ts": "1:45:17",
+   "text": "And if you use an actual formulation of the 2D",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6323,
+   "ts": "1:45:23",
+   "text": "representation, you even notice that your text tokens become",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6329,
+   "ts": "1:45:29",
+   "text": "equivalent to the 1D case because you have your x and y's that are incremented by 1 between one another.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6336,
+   "ts": "1:45:36",
+   "text": "So just you fall back on the same case. And so I just went through some of the keys that made some",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6345,
+   "ts": "1:45:45",
+   "text": "of these techniques work well. I just want to say that this is very much an open problem.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6353,
+   "ts": "1:45:53",
+   "text": "There is no many papers that use the same techniques but rather many that use variations to reach their own architectures,",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6363,
+   "ts": "1:46:03",
+   "text": "goals. And then there are trade offs as well.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6368,
+   "ts": "1:46:08",
+   "text": "And you might remember from the early slides that we were talking about teddy bear that was wanting to dance.",
+   "chapter": "2D RoPE variants"
+  },
+  {
+   "t": 6377,
+   "ts": "1:46:17",
+   "text": "So here is our teddy bear wishing you a great weekend.",
+   "chapter": "2D RoPE variants"
+  }
+ ],
+ "chapters": [
+  {
+   "name": "Introduction",
+   "t": 0
+  },
+  {
+   "name": "Objective",
+   "t": 333
+  },
+  {
+   "name": "Convolutions, filters",
+   "t": 608
+  },
+  {
+   "name": "Receptive field",
+   "t": 884
+  },
+  {
+   "name": "Pooling",
+   "t": 1036
+  },
+  {
+   "name": "U-Net",
+   "t": 1156
+  },
+  {
+   "name": "Timestep representation",
+   "t": 1676
+  },
+  {
+   "name": "Class label representation",
+   "t": 1834
+  },
+  {
+   "name": "Timeline of U-Net models",
+   "t": 2007
+  },
+  {
+   "name": "Diffusion Transformer (DiT)",
+   "t": 2148
+  },
+  {
+   "name": "Adaptive layer normalization (adaLN)",
+   "t": 2893
+  },
+  {
+   "name": "DiT end-to-end example",
+   "t": 3757
+  },
+  {
+   "name": "Multimodal DiT (MM-DiT)",
+   "t": 4381
+  },
+  {
+   "name": "Qwen-Image, Z-Image, FLUX.1",
+   "t": 5017
+  },
+  {
+   "name": "Timeline of DiT models",
+   "t": 5070
+  },
+  {
+   "name": "Absolute position embeddings",
+   "t": 5126
+  },
+  {
+   "name": "Rotary position embeddings (RoPE)",
+   "t": 5934
+  },
+  {
+   "name": "2D RoPE variants",
+   "t": 6000
+  },
+  {
+   "name": "Stanford CME29",
+   "pending": true
+  }
+ ]
+}

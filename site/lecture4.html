@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 4: Latent space and guidance — CME 296: Diffusion &amp; Large Vision Models</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<p class="course"><a href="index.html">CME 296: Diffusion &amp; Large Vision Models</a></p>
+<h1>Lecture 4: Latent space and guidance</h1>
+<p class="meta">April 24th, 2026 &middot;
+<a href="https://cme296.stanford.edu/slides/spring26-cme296-lecture4.pdf" target="_blank" rel="noopener">Slides (PDF)</a> &middot;
+<a href="https://www.youtube.com/watch?v=WUUq6TVAu8U" target="_blank" rel="noopener">Video on YouTube</a></p>
+<nav class="lnav"><a href="lecture3.html">&larr; Lecture 3</a><a href="index.html">All lectures</a><a href="lecture5.html">Lecture 5 &rarr;</a></nav>
+</div>
+</header>
+<details class="toc wrap"><summary>Chapters</summary><p><a href="#ch-Introduction">Introduction</a> &middot; <a href="#ch-Pixel-space">Pixel space</a> &middot; <a href="#ch-Semantic-vs-perceptual-similarity">Semantic vs perceptual similarity</a> &middot; <a href="#ch-Autoencoder">Autoencoder</a> &middot; <a href="#ch-Variational-autoencoders">Variational autoencoders</a> &middot; <a href="#ch-ELBO-derivation">ELBO derivation</a> &middot; <a href="#ch-Blurriness-issue-of-VAEs">Blurriness issue of VAEs</a> &middot; <a href="#ch-Reconstruction-loss">Reconstruction loss</a> &middot; <a href="#ch-KL-regularization-loss">KL regularization loss</a> &middot; <a href="#ch-Perceptual-loss">Perceptual loss</a> &middot; <a href="#ch-Adversarial-loss">Adversarial loss</a> &middot; <a href="#ch-Latent-diffusion-models">Latent diffusion models</a> &middot; <a href="#ch-Encoder-vs-decoder-trade-off">Encoder vs decoder trade-off</a> &middot; <a href="#ch-Text-representation-with-Transformers">Text representation with Transformers</a> &middot; <a href="#ch-Image-representation-with-ViT">Image representation with ViT</a> &middot; <a href="#ch-Contrastive-learning-with-CLIP">Contrastive learning with CLIP</a> &middot; <a href="#ch-Classifier-based-guidance">Classifier-based guidance</a> &middot; <a href="#ch-Classifier-free-guidance">Classifier-free guidance</a></p></details>
+<main class="wrap">
+<div class="chapter" id="ch-Introduction"><span>Introduction</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=0s" target="_blank" rel="noopener">0:00</a></div><section class="row" id="s0">
+<figure>
+<a href="slides/l4/p001.jpg" target="_blank">
+<img src="slides/l4/p001.jpg" alt="Slide p. 1: CME 296: Diﬀusion &amp;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 1 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=0s" target="_blank" rel="noopener" title="Watch on YouTube from 0:00">&#9658; 0:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=0s" target="_blank" rel="noopener">0:00</a> 0:05 Hello, everyone. And welcome to lecture 4 of CME 296. So before we start, I just want to say that those first three lectures were really the most technical and mathematically challenging. So in that sense, I&#x27;m still glad you&#x27;re here.</p>
+</div>
+</section><section class="row" id="s1">
+<figure>
+<a href="slides/l4/p002.jpg" target="_blank">
+<img src="slides/l4/p002.jpg" alt="Slide p. 2: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 2 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=25s" target="_blank" rel="noopener" title="Watch on YouTube from 0:25">&#9658; 0:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=25s" target="_blank" rel="noopener">0:25</a> And I really hope that those three lectures gave you the intuition as to why we were going to use this generation paradigm. Because there are going to be used as building blocks for everything that we&#x27;re going to see from now on. In particular, during the first three lectures, we focused on unconditional generation. And now, what we&#x27;re going to see is how we can generate images with a condition which</p>
+</div>
+</section><section class="row" id="s2">
+<figure>
+<a href="slides/l4/p003.jpg" target="_blank">
+<img src="slides/l4/p003.jpg" alt="Slide p. 3: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 3 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=58s" target="_blank" rel="noopener" title="Watch on YouTube from 0:58">&#9658; 0:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=58s" target="_blank" rel="noopener">0:58</a> can be a user prompt, like input text, or an input image. And so in that sense, the title of today&#x27;s lecture is multi-modal guided generation. With that, we&#x27;re going to start. And as usual, I&#x27;m going to just recap what we did the previous times. So as I mentioned, the first three lectures</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=86s" target="_blank" rel="noopener">1:26</a> were mathematically challenging, and they were about seeing how we could generate images, what were the paradigms that we could use. So the first lecture was focused on the diffusion paradigm with DDPM, where we saw that we were taking clean images, that we were noising in a discrete way. And so here, we had this formula, which was a combination of a clean image and Gaussian noise</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=116s" target="_blank" rel="noopener">1:56</a> that we weighted with those coefficients. And what we saw with a bunch of math was that we could derive an expression that we could optimize in order to reconstruct those clean images that we&#x27;ve noised. And we ended up with a very nice expression, an L2 loss on the noise that was added. And in particular, if we wanted to denoise,</p>
+</div>
+</section><section class="row" id="s3">
+<figure>
+<a href="slides/l4/p004.jpg" target="_blank">
+<img src="slides/l4/p004.jpg" alt="Slide pp. 4–7: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 4–7 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=147s" target="_blank" rel="noopener" title="Watch on YouTube from 2:27">&#9658; 2:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=147s" target="_blank" rel="noopener">2:27</a> we had the following formula that allowed you to go from a step t to step t minus 1 using this model e theta, which was the predicted noise that was added. And so in that sense, it was parameterized with respect to the noise epsilon. Then in lecture 2, what we did was that we derived the continuous version of what we derived</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=177s" target="_blank" rel="noopener">2:57</a> in a discrete way in lecture 1. And we also saw a second paradigm, a second way of seeing things, which was score matching. And we saw that when we looked at these two ways of doing things, if we were to take the increment of time from t to t plus 1 and tend it to 0, we had a general expression of the increment in x, which would be as a function of dt,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=212s" target="_blank" rel="noopener">3:32</a> the increment in time, and dw, which is the continuous version of adding noise. And in particular, you had these two terms. So on the left side, the drift term, and then on the right side was the diffusion term. And we saw that in order to reverse the noise that was added, so a.k.a. reverse process, we could use a result from theories</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=241s" target="_blank" rel="noopener">4:01</a> on stochastic differential equations, where we saw that we could derive the reverse process if we knew the score, which is why this formulation was parameterized as a function of the score. So here it&#x27;s noted S of theta. And in lecture three, we saw that actually, we</p>
+</div>
+</section><section class="row" id="s4">
+<figure>
+<a href="slides/l4/p008.jpg" target="_blank">
+<img src="slides/l4/p008.jpg" alt="Slide p. 8: Today&#x27;s lecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 8 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=266s" target="_blank" rel="noopener" title="Watch on YouTube from 4:26">&#9658; 4:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=266s" target="_blank" rel="noopener">4:26</a> could think of this whole thing as a completely-- in a completely different way. And we can think of it as transporting a probability mass from an initial distribution up to a target distribution. And in that sense, we could express a noisy image as a combination of noise and sample from the target distribution. And all of what we had to do was to just predict the vector field, a.k.a.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=298s" target="_blank" rel="noopener">4:58</a> The velocity, which was noted u of theta. But one thing that we kept silent was how we could actually represent all of these quantities, in particular xt, the representation of the image when it&#x27;s noised at a given level, the noise itself.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=328s" target="_blank" rel="noopener">5:28</a> All of these, we just assumed that there was some way of representing these in some n or d dimensional space. So one thing that we will do today is to see what space could actually be more appropriate for this kind of work. And then the second thing is, as you can see, the models that we need to estimate-- so epsilon theta, s</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=358s" target="_blank" rel="noopener">5:58</a> of theta, you have theta. There are only a function of denoised image and the time, but they&#x27;re not a function of any condition, any user input. So this is also something that we&#x27;re going to see, a.k.a. How can we incorporate a condition that could guide the generation towards what we want.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=384s" target="_blank" rel="noopener">6:24</a> So this is the menu for today. So to recap, we&#x27;re going to see three things. The first one is how can we represent those noisy images. The second thing that we&#x27;re going to see is how to represent the conditions that we want as inputs. So for instance, the input text here, a Teddy bear reading a book that we want to generate an image for</p>
+</div>
+</section><section class="row" id="s5">
+<figure>
+<a href="slides/l4/p009.jpg" target="_blank">
+<img src="slides/l4/p009.jpg" alt="Slide p. 9: Today&#x27;s lecture: Part 1" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 9 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=409s" target="_blank" rel="noopener" title="Watch on YouTube from 6:49">&#9658; 6:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=409s" target="_blank" rel="noopener">6:49</a> or an input image that you want to condition your generation for.</p>
+</div>
+</section><section class="row" id="s6">
+<figure>
+<a href="slides/l4/p010.jpg" target="_blank">
+<img src="slides/l4/p010.jpg" alt="Slide p. 10: From pixel to latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 10 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=409s" target="_blank" rel="noopener">&#8776; 6:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s7">
+<figure>
+<a href="slides/l4/p011.jpg" target="_blank">
+<img src="slides/l4/p011.jpg" alt="Slide p. 11: Pixel space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 11 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=414s" target="_blank" rel="noopener" title="Watch on YouTube from 6:54">&#9658; 6:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=414s" target="_blank" rel="noopener">6:54</a> And then the third thing is how we can guide the generation process using that as an input. So we&#x27;re going to start with number one, how to represent these noisy images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=432s" target="_blank" rel="noopener">7:12</a> And I&#x27;m going to start with the most natural approach that you could have when you see those images. We, as humans, we are very accustomed to seeing things in the pixel space. So here, if you take this image as an example, this image has a certain height H, certain width, W. So what you can do is to represent each pixel</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=462s" target="_blank" rel="noopener">7:42</a> as a function of the intensity of the color that composes it. And in particular, a very common representation is using R, so red, green, and blue. So in other words, you would have each pixel that would have three values, which would make up the color. And you would have these values cover all pixels of the image.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=492s" target="_blank" rel="noopener">8:12</a> So you would have a dimension n that would be equal to 3 times the size, the number of pixels, which is h times w. And so you could represent your image as a tensor along the axis, the height, the width, and the number of channels here, which are three, which represents R, G, and B.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=520s" target="_blank" rel="noopener">8:40</a> So this could be one way. But the big problem with that is that it&#x27;s very high dimension. So if we take the example of a, quote, unquote, &quot;regular image,&quot; so 1,024 times 1,024 pixels, then we would end up with a number of dimensions, which would be on the order of a million. So 10 to the power of 6. And if you think about it, this is just a lot of dimensions to consider in our training generation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=557s" target="_blank" rel="noopener">9:17</a> paradigm algorithms, which are, of course, a function of the dimension in which you operate. So that&#x27;s one very big drawback. The second drawback is if you look at your image, you actually see that you have a lot of redundancies. So if you see, for instance, in a given neighborhood of pixels, you have a lot of very similar values. So in a sense, you can consider this as a waste of dimensions.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=591s" target="_blank" rel="noopener">9:51</a> So it&#x27;s not very compact. And then the third thing is if you remember our whole first three lectures were about taking the image, and adding noise, and then just moving it in the space with respect to added noise. Well, here, if you take an image, and you were to move it slightly in that space</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=615s" target="_blank" rel="noopener">10:15</a> by adding some noise, you would actually obtain an image, a noisy image that would actually not be very meaningful. It would not mean anything. So in particular, so I&#x27;m not sure if you recall this nice graphs or charts, where you would see the areas of high density of your target</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=640s" target="_blank" rel="noopener">10:40</a> desired distribution. So here, what we want is clusters of observations that are likely to occur. But what we get is actually the thing on the right, which is a space with very spiky regions, where each spike represents an actual valid image. And that&#x27;s not good. So for all these reasons, we&#x27;re going</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=670s" target="_blank" rel="noopener">11:10</a> to just come up with a wish list of a space that we would like to have. So I&#x27;m going to go through that step by step. So the first one is the high dimensionality observation that I made. So here, what we want is a dimension that&#x27;s more, quote, unquote, &quot;tractable.&quot; So that&#x27;s number one. Number two of our wish list is to have a representation that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=697s" target="_blank" rel="noopener">11:37</a> does not have a lot of redundancies, that has some way of compacting things. So number 2 is compact representation. Number 3, regarding the representation not being meaningful, so here, we want a representation that is meaningful. And you can think of this when I say what meaningful means.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=724s" target="_blank" rel="noopener">12:04</a> It&#x27;s when you look at the space, and you&#x27;re able to have clusters of regions where valid images happen. That&#x27;s what I mean by meaningful space. So this is our wish list. So before we move ahead, I want to take the time to introduce two terminologies that are widely used in those papers.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=753s" target="_blank" rel="noopener">12:33</a> So I prefer to define them now and clearly so that you what they refer to.</p>
+</div>
+</section><section class="row" id="s8">
+<figure>
+<a href="slides/l4/p015.jpg" target="_blank">
+<img src="slides/l4/p015.jpg" alt="Slide pp. 12–15: Limitations of the pixel space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 12–15 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=753s" target="_blank" rel="noopener">&#8776; 12:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s9">
+<figure>
+<a href="slides/l4/p016.jpg" target="_blank">
+<img src="slides/l4/p016.jpg" alt="Slide p. 16: Wish list of an ideal space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 16 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=753s" target="_blank" rel="noopener">&#8776; 12:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s10">
+<figure>
+<a href="slides/l4/p017.jpg" target="_blank">
+<img src="slides/l4/p017.jpg" alt="Slide p. 17: Wish list of an ideal space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 17 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=753s" target="_blank" rel="noopener">&#8776; 12:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s11">
+<figure>
+<a href="slides/l4/p018.jpg" target="_blank">
+<img src="slides/l4/p018.jpg" alt="Slide p. 18: Wish list of an ideal space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 18 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=753s" target="_blank" rel="noopener">&#8776; 12:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Semantic-vs-perceptual-similarity"><span>Semantic vs perceptual similarity</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=760s" target="_blank" rel="noopener">12:40</a></div><section class="row" id="s12">
+<figure>
+<a href="slides/l4/p019.jpg" target="_blank">
+<img src="slides/l4/p019.jpg" alt="Slide p. 19: Terminology" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 19 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=760s" target="_blank" rel="noopener" title="Watch on YouTube from 12:40">&#9658; 12:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=760s" target="_blank" rel="noopener">12:40</a> So you will see that there is a lot talk about semantic similarity. So what does semantic similarity mean? So semantic similarity of an image is something that refers to its global geometry to its overall structure. And in particular, what that means is if two images are semantically similar,</p>
+</div>
+</section><section class="row" id="s13">
+<figure>
+<a href="slides/l4/p020.jpg" target="_blank">
+<img src="slides/l4/p020.jpg" alt="Slide p. 20: Terminology" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 20 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=787s" target="_blank" rel="noopener" title="Watch on YouTube from 13:07">&#9658; 13:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=787s" target="_blank" rel="noopener">13:07</a> what that means is that they roughly represent the same thing. So here on the slide, you have on the left a Teddy bear that is reading a book. On the right, you have also a Teddy bear that is reading a book. They&#x27;re not exactly aligned pixel wise, but they&#x27;re semantically similar. So that&#x27;s for semantic similarity. Now, you have another notation, which is perceptual similarity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=818s" target="_blank" rel="noopener">13:38</a> So this one refers to more of the local details of an image. More to the lower level texture of an image. And when you say that two images are perceptually similar, what that means is that to the human eye, they look the same. So for instance, you have, again, two pictures of a Teddy bear. So I&#x27;m not sure if you see the one on the right</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=846s" target="_blank" rel="noopener">14:06</a> has some little glasses. But it&#x27;s perceptually very similar. Does that make sense, that distinction? Yeah. The reason why I say that is I&#x27;m going to use that terminology going forward, so I just want to make sure we all what these are.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=868s" target="_blank" rel="noopener">14:28</a> So what are we doing? What we want is to come up with a space that</p>
+</div>
+</section><div class="chapter" id="ch-Autoencoder"><span>Autoencoder</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=875s" target="_blank" rel="noopener">14:35</a></div><section class="row" id="s14">
+<figure>
+<a href="slides/l4/p021.jpg" target="_blank">
+<img src="slides/l4/p021.jpg" alt="Slide p. 21: Attempt 1: Learn representation via an autoencoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 21 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=875s" target="_blank" rel="noopener" title="Watch on YouTube from 14:35">&#9658; 14:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=875s" target="_blank" rel="noopener">14:35</a> fulfills our wish list that we established before.</p>
+</div>
+</section><section class="row" id="s15">
+<figure>
+<a href="slides/l4/p022.jpg" target="_blank">
+<img src="slides/l4/p022.jpg" alt="Slide p. 22: Attempt 1: Learn representation via an autoencoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 22 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=881s" target="_blank" rel="noopener" title="Watch on YouTube from 14:41">&#9658; 14:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=881s" target="_blank" rel="noopener">14:41</a> So here is our first attempt. So how about we take an image in the pixel space, and what we try to do is find a representation that&#x27;s meaningful using the following architecture. So let&#x27;s assume we take that image, and we put it into some model.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=908s" target="_blank" rel="noopener">15:08</a> Let&#x27;s call it an encoder that encodes the image and produces an output that is of lower dimensionality as the input. So here, we go from an image of size HW and number of channels, which, as you know, is equal to 3 in the pixel space because in the RGB</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=932s" target="_blank" rel="noopener">15:32</a> representation. And here, we end up with a latent representation of size lowercase h, lowercase w, and little c. And then what we do is we put that representation back to the decoder. So if we were to do that, our objective</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=957s" target="_blank" rel="noopener">15:57</a> is to recover the original image. So we don&#x27;t want to lose any information by encoding our image into a lower dimensional space. So here, such a setup is called an autoencoder. So the only job of an autoencoder is to find a lower dimension representation that&#x27;s called</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=986s" target="_blank" rel="noopener">16:26</a> the latent representation. And what it does us is take an image in the pixel space as input, compress it, and then decode it. And here, the task is making sure that what you get as output is the same as what you get as input. So you may think, OK, it&#x27;s a very useless model, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1015s" target="_blank" rel="noopener">16:55</a> I agree, unless you&#x27;re interested in the latent space, which we are. This is what we&#x27;re interested in. So does this setup make sense? Cool. And then terminology wise, the latent space, like that part, is called the bottleneck just because we&#x27;re forcing the model to rely on fewer dimensions, and we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1042s" target="_blank" rel="noopener">17:22</a> want the model to still preserve the richness of the details that are present in the image. So let&#x27;s see how we do that. But before we go, I want to introduce another notation that you also see a lot in papers, which is called the spatial compression ratio, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1066s" target="_blank" rel="noopener">17:46</a> is defined by the amount by which you go from Big H to little h. So it&#x27;s just the ratio between the two. And that ratio is typically on the order of 8. So that&#x27;s the order of magnitude that you should have in mind.</p>
+</div>
+</section><section class="row" id="s16">
+<figure>
+<a href="slides/l4/p023.jpg" target="_blank">
+<img src="slides/l4/p023.jpg" alt="Slide p. 23: Encoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 23 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1088s" target="_blank" rel="noopener" title="Watch on YouTube from 18:08">&#9658; 18:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1088s" target="_blank" rel="noopener">18:08</a> Cool. So let&#x27;s see now based on what I told you how each component works. So in terms of what is input in the encoder, as we mentioned, we have our input image. Let&#x27;s note it x that we put in our encoder, that we note E phi. And we get a latent representation z that is equal to E phi of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1120s" target="_blank" rel="noopener">18:40</a> And so the way we would do that would be to use a network that contains some downsampling operations. So what that means is it allows us to go from a bigger dimension to a lower dimension. We&#x27;re not going to go into too much details into what that network is because we&#x27;re going to talk more about this in the next lecture.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1147s" target="_blank" rel="noopener">19:07</a> But I just want to tell you roughly the two main operations that you can expect, which you may have seen. So the first one is convolutions. So who has heard of convolutions before?</p>
+</div>
+</section><section class="row" id="s17">
+<figure>
+<a href="slides/l4/p024.jpg" target="_blank">
+<img src="slides/l4/p024.jpg" alt="Slide p. 24: Quick refresher on convolutions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 24 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1160s" target="_blank" rel="noopener" title="Watch on YouTube from 19:20">&#9658; 19:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1160s" target="_blank" rel="noopener">19:20</a> Yeah, everyone. So I can go fast. Convolutions is just a way to scan your image using a filter.</p>
+</div>
+</section><section class="row" id="s18">
+<figure>
+<a href="slides/l4/p025.jpg" target="_blank">
+<img src="slides/l4/p025.jpg" alt="Slide p. 25: Quick refresher on convolutions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 25 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1168s" target="_blank" rel="noopener" title="Watch on YouTube from 19:28">&#9658; 19:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1168s" target="_blank" rel="noopener">19:28</a> So the image is in red, the filter is in blue. And what you get is what we call an activation map or a feature map that is in purple. And then the second operation that you see in these kinds of networks is pooling. So pooling is a downsampling operator that allows you to either take the maximum of a given square,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1195s" target="_blank" rel="noopener">19:55</a> or the average, or either max pooling or average pooling. And it allows you to introduce some spatial invariance just because you can aggregate the pixels to a higher</p>
+</div>
+</section><section class="row" id="s19">
+<figure>
+<a href="slides/l4/p026.jpg" target="_blank">
+<img src="slides/l4/p026.jpg" alt="Slide p. 26: Decoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 26 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1208s" target="_blank" rel="noopener" title="Watch on YouTube from 20:08">&#9658; 20:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1208s" target="_blank" rel="noopener">20:08</a> granularity. We&#x27;re not going to go into too much detail, but these are just for reference. So when it comes to the decoder, what you would do is take the latent representation z into the decoder d theta. And you would get your reconstructed output x hat. So here, you would use upsampling operations, for instance reverse convolutions.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1240s" target="_blank" rel="noopener">20:40</a> And the goal of this model is as much as possible,</p>
+</div>
+</section><section class="row" id="s20">
+<figure>
+<a href="slides/l4/p027.jpg" target="_blank">
+<img src="slides/l4/p027.jpg" alt="Slide p. 27: Loss function of autoencoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 27 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1245s" target="_blank" rel="noopener" title="Watch on YouTube from 20:45">&#9658; 20:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1245s" target="_blank" rel="noopener">20:45</a> for your reconstructed output to be as close as possible to your input. So the loss function of such a model would be something along the lines of just an L2 regression between the input x and the reconstructed input x hat.</p>
+</div>
+</section><section class="row" id="s21">
+<figure>
+<a href="slides/l4/p028.jpg" target="_blank">
+<img src="slides/l4/p028.jpg" alt="Slide p. 28: Checklist for attempt 1" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 28 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1266s" target="_blank" rel="noopener" title="Watch on YouTube from 21:06">&#9658; 21:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1266s" target="_blank" rel="noopener">21:06</a> So I have a question for you. Do you think this model is a good model? 21:18 So this is what we&#x27;re going to see now. So let&#x27;s go through our checklist. First one is, OK., is the dimension more tractable? Yes, more tractable. Is the representation more compact? Yes, it&#x27;s more compact. Is the representation meaningful?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1298s" target="_blank" rel="noopener">21:38</a> Meaning do you have a nice shape in your latent space in the way we represent it?</p>
+</div>
+</section><section class="row" id="s22">
+<figure>
+<a href="slides/l4/p029.jpg" target="_blank">
+<img src="slides/l4/p029.jpg" alt="Slide p. 29: Attempt 2: Learn a constrained latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 29 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1306s" target="_blank" rel="noopener" title="Watch on YouTube from 21:46">&#9658; 21:46</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1306s" target="_blank" rel="noopener">21:46</a> Yes, exactly. Not necessarily. Well, the reason for that is we have not</p>
+</div>
+</section><section class="row" id="s23">
+<figure>
+<a href="slides/l4/p030.jpg" target="_blank">
+<img src="slides/l4/p030.jpg" alt="Slide p. 30: Attempt 2: Learn a constrained latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 30 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1312s" target="_blank" rel="noopener" title="Watch on YouTube from 21:52">&#9658; 21:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1312s" target="_blank" rel="noopener">21:52</a> constrained our latent space to be structured in any particular way. So the model is just only incentivized to reconstruct the input as best as it can. And it really doesn&#x27;t care what shape the latent space is. So you actually still end up with this kind of space, which is not good.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1337s" target="_blank" rel="noopener">22:17</a> This is not good because your flow matching model, your diffusion model is just not able to learn very well in those spaces because, first of all, the representations are all over the place. And if you remember, one common thing with all of these generation paradigms is that you start from a normal distribution, like a standard normal distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1365s" target="_blank" rel="noopener">22:45</a> So you need a way for you to not get lost. So if everything is far apart, it just doesn&#x27;t work. So that&#x27;s not good. So let&#x27;s go back to the drawing board, and let&#x27;s see what we can change.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1382s" target="_blank" rel="noopener">23:02</a> So we take our image, we compress it, and then we decompress it. Everything&#x27;s perfect. Well, let&#x27;s see what we can do in the latent space. Our goal here would be to, quote, unquote, &quot;enforce&quot; the latent space to have some structure. So this is our goal.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1407s" target="_blank" rel="noopener">23:27</a> And we&#x27;re going to see how we can do that. OK, let&#x27;s go back to where we were. We take our input image x. But instead of just letting it through a standard encoder, what we will do is to actually not try to predict or generate the latent representation directly.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1439s" target="_blank" rel="noopener">23:59</a> We will actually predict two things, the mean and the standard deviation of the distribution that it can be drawn from. So in other words, what we&#x27;re going to see to say is instead of saying that one x corresponds to one latent representation,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1466s" target="_blank" rel="noopener">24:26</a> we&#x27;re going to say that 1x actually is mapped to some probability distribution, which sounds kind of weird, right? It&#x27;s not very natural. But we&#x27;re going to see why that mitigates the problem. So here, as a reminder, so the output of the encoder will not be just a latent vector.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1493s" target="_blank" rel="noopener">24:53</a> It will be-- so the mean mu phi. And the variance sigma squared phi. So these are the two outputs of the encoder. And what we will say is that the latent representation of this distribution, this latent representation is actually drawn from this distribution. That&#x27;s what we&#x27;re going to say.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1521s" target="_blank" rel="noopener">25:21</a> And we&#x27;re going to say something else. So in a bit of an informal way, we&#x27;re going to say that this distribution is going to be roughly forced to follow or to approximate another distribution. So it&#x27;s not very mathematically rigorous.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1544s" target="_blank" rel="noopener">25:44</a> We were going to see exactly how we can express that. But in your mind, I want you to know that this is a condition for us to structure the latent space in a way where we say the latent representation of an input x will be roughly in a given region of the space. We&#x27;re going to force that, or we&#x27;re going to incentivize the model to learn that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1571s" target="_blank" rel="noopener">26:11</a> So that&#x27;s the idea.</p>
+</div>
+</section><div class="chapter" id="ch-Variational-autoencoders"><span>Variational autoencoders</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1577s" target="_blank" rel="noopener">26:17</a></div><section class="row" id="s24">
+<figure>
+<a href="slides/l4/p031.jpg" target="_blank">
+<img src="slides/l4/p031.jpg" alt="Slide p. 31: Revised encoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 31 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1577s" target="_blank" rel="noopener" title="Watch on YouTube from 26:17">&#9658; 26:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1577s" target="_blank" rel="noopener">26:17</a> Cool. And yeah, this distribution is-- OK, you may have guessed it.</p>
+</div>
+</section><section class="row" id="s25">
+<figure>
+<a href="slides/l4/p033.jpg" target="_blank">
+<img src="slides/l4/p033.jpg" alt="Slide pp. 32–33: Revised decoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 32–33 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1582s" target="_blank" rel="noopener" title="Watch on YouTube from 26:22">&#9658; 26:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1582s" target="_blank" rel="noopener">26:22</a> Again, standard normal distribution just because it&#x27;s. It&#x27;s a nice distribution with great properties. And by the way, this distribution, we&#x27;re going to call it the prior distribution. So let&#x27;s see how the decoder works. So let&#x27;s assume we have put our input image into the encoder. We have predicted the mean. We have predicted the standard deviation. We have drawn a latent representation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1614s" target="_blank" rel="noopener">26:54</a> from the distribution. So now, the decoding stage will be around taking that representation and passing it through the decoder which again will output two things, the mean new theta of this latent representation z and standard deviation. And what we&#x27;re going to say is, again,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1641s" target="_blank" rel="noopener">27:21</a> that the reconstructed image is going to be drawn from a probability distribution of these two parameters. Well, one thing that I want to say is actually, we&#x27;re going to simplify this part of the problem a little bit. We&#x27;re actually going to say that the variance is not something we&#x27;re going to predict. We&#x27;re just going to fix it to be constant just because there</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1673s" target="_blank" rel="noopener">27:53</a> is less impact in you making sure to introduce some variation in the output. Because in the pixel space, even if you add a little bit of noise, it&#x27;s not going to change the image a whole lot. So that&#x27;s why people just say, OK, we&#x27;re going to take some variants that&#x27;s constant fixed, and we&#x27;re not going to predict that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1699s" target="_blank" rel="noopener">28:19</a> We&#x27;re only going to predict the mean. We can draw from this distribution. But sometimes, people also just take the mean as the output. So this part is more of a detail. Yeah. So the question here is that whether the latency is drawn from the Gaussian or is drawn from the q-- the encoder here q phi z given x. So it&#x27;s a great question. So this model, which we&#x27;re going to see what the name is,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1733s" target="_blank" rel="noopener">28:53</a> is both a model that we can use to learn the latent space, And so have a reconstruction task. But it&#x27;s also something that can be interpreted as a generative model. So if your goal is to reconstruct the input, then your input here is going to be the z that you drew from that distribution. So it&#x27;s going to be the latent representation of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1760s" target="_blank" rel="noopener">29:20</a> But if your goal is to generate just a new image, then you would actually draw that z from the prior distribution. So the question is the encoder gives you a mean and a variance. It does not give you something deterministic exactly. It gives you a mean and a variance. And what you&#x27;re doing is just drawing from that. So you-- yes, you draw from that.</p>
+</div>
+</section><section class="row" id="s26">
+<figure>
+<a href="slides/l4/p034.jpg" target="_blank">
+<img src="slides/l4/p034.jpg" alt="Slide p. 34: Objective" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 34 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1785s" target="_blank" rel="noopener" title="Watch on YouTube from 29:45">&#9658; 29:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1785s" target="_blank" rel="noopener">29:45</a> So great question. So the question is, well, if you have a generative model here, why would you bother.</p>
+</div>
+</section><section class="row" id="s27">
+<figure>
+<a href="slides/l4/p035.jpg" target="_blank">
+<img src="slides/l4/p035.jpg" alt="Slide p. 35: Step 1: Re-using ELBO trick from Lecture 1!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 35 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1792s" target="_blank" rel="noopener" title="Watch on YouTube from 29:52">&#9658; 29:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1792s" target="_blank" rel="noopener">29:52</a> And just use diffusion, use flow matching, use all these things? It&#x27;s a great question. You have a number of differences between the two which makes diffusion flow matching and score actually perform better than VAE. One of the differences is here, you only go from latent to pixel in just one step, whereas the other ones, you have several steps that just allows you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1818s" target="_blank" rel="noopener">30:18</a> to put more compute in there. That&#x27;s one reason. But there are some others that I hope we can get to if we get some time. But we&#x27;re going to see the relationship between the two. Another question? Yeah. The question is, does the latent space look like a normal distribution? So there is something that makes it be &quot;regularized,&quot; quote,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1845s" target="_blank" rel="noopener">30:45</a> unquote, to be a normal distribution. It depends on a term that you can tweak with respect to a coefficient that we&#x27;re going to see. And depending on the value of that coefficient, it may look more or less than a normal distribution. But we&#x27;re going to see that. Cool. So the first time I saw this model, I was confused. You may be confused now, and I hope</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1873s" target="_blank" rel="noopener">31:13</a> what we&#x27;re going to see will make you a bit less confused. So here, one thing that I want to say is in the autoencoder case, the loss function was pretty clear.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1889s" target="_blank" rel="noopener">31:29</a> You would just try to estimate the reconstructed output in such a way that it&#x27;s as close as possible to your input. But here, you have a bunch of distributions everywhere. There&#x27;s not like an obvious way of expressing that without doing some math. So what I propose is that we derive the loss function</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1919s" target="_blank" rel="noopener">31:59</a> for this model, which I&#x27;m not sure if I can tell it now, but I&#x27;m going to tell it. It&#x27;s called the variational autoencoder. And we&#x27;re going to see what makes it variational. So if you remember, in a lot of cases, the way you derive a loss function is by doing maximum likelihood estimation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1948s" target="_blank" rel="noopener">32:28</a> So what does that mean? That means that you have some model of parameters theta. And what you want is to find the parameters theta that maximize the probability of your model seeing the data. That&#x27;s what ML is. And that&#x27;s what we&#x27;re going to use to see how we can derive a loss function that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=1975s" target="_blank" rel="noopener">32:55</a> can help us learn theta. So in particular, what we want is to maximize the log of p theta of x. So I&#x27;m going to write it down. So what we want is to express log p theta of x with respect to something that we can compute. Because this, we cannot really compute something just by looking at it. So let&#x27;s see how we can do that. So I&#x27;m going to just start with expressing p theta of x</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2014s" target="_blank" rel="noopener">33:34</a> as a function of something. So this model can be seen as a generative model that starts from a latent variable that you draw from what we call a prior distribution. So one idea of expressing p theta of x, if you remember lecture 1, we can consider</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2044s" target="_blank" rel="noopener">34:04</a> the joint probability distribution of p theta of z, a latent, and x, and sum across all latent z that led to x. We can do that, right? So what we say is that p theta of x is equal to this joint probability distribution of x, your image in pixel space, and z, your latent.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2081s" target="_blank" rel="noopener">34:41</a> And you&#x27;re just going to integrate over all possible latent representations. So this quantity is nothing else than you&#x27;re drawing from a prior, so p of z, and then using your decoder to estimate x given z. So this quantity is the integral of your prior times</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2121s" target="_blank" rel="noopener">35:21</a> p theta of x given z, dz. P of z. Yeah, exactly. So the Gaussian. p theta x given z. Well, it&#x27;s your model, your model that you want to find. The problem is that you need to compute this for all possible latent z.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2153s" target="_blank" rel="noopener">35:53</a> And z is still high dimensional-- high dimensional vector. So this, if you were to compute this quantity for all z, it&#x27;s actually not something that you can do. Because you would have to compute a lot of such quantities with given zs in order to get a good estimate. And it&#x27;s just not something that you can do.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2180s" target="_blank" rel="noopener">36:20</a> So do you remember a similar setting we had in lecture 1, which is the reason why we&#x27;re going to see how we can find a convenient bound that could be maybe more tractable? Because so far, I have not used the fact that we also have a way to encode the input in order</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2206s" target="_blank" rel="noopener">36:46</a> to get latents that are more likely to be the ones that I want to consider here. So what I&#x27;m going to do now is to find-- so what I want to do first is to maximize this quantity. So I want to find theta that maximizes this quantity. So we saw just now that this quantity is not something that I can actually compute.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2235s" target="_blank" rel="noopener">37:15</a> So what we&#x27;re going to do is to find a lower bound that could be something that you could compute. And what we want to do is to maximize that lower bound in the hope that it will also maximize this in order to find our parameters theta. So let&#x27;s do it. So you would have the following. So I&#x27;m going to just come here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2264s" target="_blank" rel="noopener">37:44</a> I would just say that p of x is equal to the integral of p of z times p theta of x given z, which is just at that point, I&#x27;m going to use the same trick that we did in lecture 1, which is to involve the output of the encoder. And here, it is q phi of z given x times q phi of z given x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2302s" target="_blank" rel="noopener">38:22</a> So what does this represent? So this represents the probability distribution of the zs that are likely to occur for this given x. Because here, in the original form, what you were doing was to just sum across all possible latent representations out there, but there are many of them. So it&#x27;s like, you&#x27;re in the ocean,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2339s" target="_blank" rel="noopener">38:59</a> and someone tells you, OK, just look through the whole ocean. But the thing is, only a small subset of the zs are actually the ones that you want. They&#x27;re actually only a subset of the zs that are the ones that are responsible for your x to appear, which is the reason why we&#x27;re letting these q</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2365s" target="_blank" rel="noopener">39:25</a> phi of z given x pop up. And this expression, so this is equal to this. And this gets equal to just the expectation of p of z times p theta of x given z over q phi of z given x, where your z is drawn from q phi of z given x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2400s" target="_blank" rel="noopener">40:00</a> So why am I doing this whole thing? Because what I want to do is to take the log of this whole thing. I want to take the log of this whole thing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2423s" target="_blank" rel="noopener">40:23</a> and do the same trick as we did for the DPM, which is the Jensen&#x27;s inequality. And I&#x27;m going to say that it&#x27;s the expectation of the log of this whole thing.</p>
+</div>
+</section><div class="chapter" id="ch-ELBO-derivation"><span>ELBO derivation</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2438s" target="_blank" rel="noopener">40:38</a></div><section class="row" id="s28">
+<figure>
+<a href="slides/l4/p036.jpg" target="_blank">
+<img src="slides/l4/p036.jpg" alt="Slide p. 36: Step 2: Expand terms of the lower bound" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 36 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2438s" target="_blank" rel="noopener" title="Watch on YouTube from 40:38">&#9658; 40:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2438s" target="_blank" rel="noopener">40:38</a> 40:46 So I&#x27;m taking the log of this quantity, which I expressed as a function of the output given by the encoder for which I can find a lower bound. And now, we&#x27;re going to see that this lower bound is actually something that is tractable.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2472s" target="_blank" rel="noopener">41:12</a> We&#x27;re going to see it now. So what I&#x27;m going to do is to just rewrite this expression. So we have-- so the expectation of the log of the whole thing, which is equal to the expectation of the log of p theta of x given z plus the expectation of--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2509s" target="_blank" rel="noopener">41:49</a> so I&#x27;m going to be a little bit smart. I will say minus the expectation of the log of q phi of z given x over your prior distribution. So here, what I just did was I take the log of pz times p theta of x given z over q phi of z given x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2542s" target="_blank" rel="noopener">42:22</a> And what I did is I just-- I used the property of the log, which is logarithm of the product, is the sum of the logarithm of the terms. So I had this one pop up. And this one, I just rearranged. I put the denominator in the numerator, and I added the minus. And given that it&#x27;s an expectation for both of these that are over z drawn from your encoder output, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2575s" target="_blank" rel="noopener">42:55</a> is q phi of z given x, this term is actually the KL divergence of q phi of z given x and your prior. 43:19 So what does this all mean? What this all means is in order to find the theta that maximizes this quantity,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2613s" target="_blank" rel="noopener">43:33</a> we derived a lower bound. That is something that will see is tractable. So it&#x27;s this expression, which we have divided into two terms. So the first one is expectation of the logarithm of p theta of x given z. And the other one is a KL divergence.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2637s" target="_blank" rel="noopener">43:57</a> So we&#x27;re going to see that these two terms are actually quite interpretable. The first one is actually a reconstruction term.</p>
+</div>
+</section><section class="row" id="s29">
+<figure>
+<a href="slides/l4/p037.jpg" target="_blank">
+<img src="slides/l4/p037.jpg" alt="Slide p. 37: Loss function of variational autoencoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 37 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2649s" target="_blank" rel="noopener" title="Watch on YouTube from 44:09">&#9658; 44:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2649s" target="_blank" rel="noopener">44:09</a> Because if you remember, p theta of x given z is a normal distribution with fixed variance. So we know the probability density analytically. So if you take the log of the probability density of a Gaussian, you actually end up with something super simple, which is the norm of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2677s" target="_blank" rel="noopener">44:37</a> So the input and the reconstructed outputs. And then the second term is actually a term. So back to your question. It is a term that penalizes the distribution coming from your encoder being far from this fixed prior distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2700s" target="_blank" rel="noopener">45:00</a> So loss functions usually have a coefficient in front of this term to penalize more or less the fact of being far or close from this prior distribution. And depending on the coefficient there, you&#x27;re going to have either something that will look like a normal distribution or not.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2726s" target="_blank" rel="noopener">45:26</a> So that is the part of your loss that will allow you to do that. I&#x27;m looking at the time. I&#x27;m not super in advance, but I&#x27;m going to just pause for one minute if you have any questions. So the question is we&#x27;re pushing the distribution of the encoder to be more of the normal distribution. So we want to do that to normalize the latent space,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2751s" target="_blank" rel="noopener">45:51</a> but we don&#x27;t want to do that too much. Otherwise, so the prior distribution is p of z. It doesn&#x27;t care what x is. And in other words, if you push it too much towards something that is just static, it will just not consider the input at all. It will collapse. Yeah, so it&#x27;s called posterior collapse.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2778s" target="_blank" rel="noopener">46:18</a> So just one other question, and then I&#x27;ll move on. Yeah. So the question is-- so we had this image with the little spikiness and that was the autoencoder, the standard autoencoder part. This one is actually structured in the latent space in a way that makes it more smooth, more well put together, and yes.</p>
+</div>
+</section><section class="row" id="s30">
+<figure>
+<a href="slides/l4/p038.jpg" target="_blank">
+<img src="slides/l4/p038.jpg" alt="Slide p. 38: Checklist for attempt 2" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 38 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2797s" target="_blank" rel="noopener" title="Watch on YouTube from 46:37">&#9658; 46:37</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2797s" target="_blank" rel="noopener">46:37</a> So I&#x27;m going to speed up a little bit.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2803s" target="_blank" rel="noopener">46:43</a> Let&#x27;s go through our checklist. Tractable dimension, yes. Compact representation, yes. Meaningful representation, yes. Oops, truthful representation. No. Wait. Why is that? So these models, they actually end up reconstructing the image</p>
+</div>
+</section><div class="chapter" id="ch-Blurriness-issue-of-VAEs"><span>Blurriness issue of VAEs</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2833s" target="_blank" rel="noopener">47:13</a></div><section class="row" id="s31">
+<figure>
+<a href="slides/l4/p039.jpg" target="_blank">
+<img src="slides/l4/p039.jpg" alt="Slide p. 39: Attempt 3: address limitations of original VAE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 39 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2833s" target="_blank" rel="noopener" title="Watch on YouTube from 47:13">&#9658; 47:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2833s" target="_blank" rel="noopener">47:13</a> in an imperfect way. And what we actually obtain are more blurry images.</p>
+</div>
+</section><section class="row" id="s32">
+<figure>
+<a href="slides/l4/p040.jpg" target="_blank">
+<img src="slides/l4/p040.jpg" alt="Slide p. 40: Refresher on reconstruction loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 40 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2841s" target="_blank" rel="noopener" title="Watch on YouTube from 47:21">&#9658; 47:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2841s" target="_blank" rel="noopener">47:21</a> And so I&#x27;m hoping that in the next nine minutes, we&#x27;re going to see why that is the case and how we can solve it. So first of all, let&#x27;s look at the loss function that we have derived, which is composed of a reconstruction loss and a regularization loss.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2864s" target="_blank" rel="noopener">47:44</a> So the reconstruction loss. What is it? We have not derived it here. But I am telling you that if you derive it, it is the pixel wise L2 between the input and the reconstructed output, the reconstructed input, sorry. And so what that means is if the generation is a little bit off</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2892s" target="_blank" rel="noopener">48:12</a> by a few pixels, it will actually get very penalized. Because the distance is pixel wise. So what ends up happening is the model tends to produce values that are more averaged, which produces this blurriness sensation that you&#x27;re seeing. But then you will tell me, well, Afshin, the standard autoencoder</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2922s" target="_blank" rel="noopener">48:42</a> also had that loss. So why didn&#x27;t it happen there? Well, the fact is, it also happened there, but it&#x27;s even more pronounced here because of the structure of the model that we have defined,</p>
+</div>
+</section><div class="chapter" id="ch-KL-regularization-loss"><span>KL regularization loss</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2940s" target="_blank" rel="noopener">49:00</a></div><section class="row" id="s33">
+<figure>
+<a href="slides/l4/p041.jpg" target="_blank">
+<img src="slides/l4/p041.jpg" alt="Slide p. 41: Refresher on KL regularization" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 41 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2940s" target="_blank" rel="noopener" title="Watch on YouTube from 49:00">&#9658; 49:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2940s" target="_blank" rel="noopener">49:00</a> which is that the latent representation is not a one to one mapping with the input x, it is not. Instead, what we have said is a given input x maps to a probability distribution, like a set of probable points that could be actually latent representations of this x. So the model will introduce this uncertainty even more in the reconstruction that it will output.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=2973s" target="_blank" rel="noopener">49:33</a> And here, what we want to do is to combat that blurriness sensation. Because here, if we were to perform diffusion in the latent space, and if we were to decode the final output in the latent space, the last thing that we want is for our output to be blurry.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3001s" target="_blank" rel="noopener">50:01</a> We do not want that. So now, we&#x27;re going to see a couple of strategies</p>
+</div>
+</section><section class="row" id="s34">
+<figure>
+<a href="slides/l4/p043.jpg" target="_blank">
+<img src="slides/l4/p043.jpg" alt="Slide pp. 42–43: Combat blurriness with perceptual loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 42–43 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3009s" target="_blank" rel="noopener" title="Watch on YouTube from 50:09">&#9658; 50:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3009s" target="_blank" rel="noopener">50:09</a> that will allow us to combat that blurriness artifact that we&#x27;re seeing. And the first one is going to be about a kind of loss that&#x27;s</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3022s" target="_blank" rel="noopener">50:22</a> called the perceptual loss. I&#x27;m going to say exactly what that means. So let&#x27;s imagine you have your image x. The intuition here is we don&#x27;t want the reconstructed output to be compared with the input pixel to pixel because it does not allow for little shifting</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3047s" target="_blank" rel="noopener">50:47</a> here and there. So what we want instead is to be able to compare the input and the reconstruction more in terms of similarity, that something that looks similar to you as a human, perceptually similar. So how can you do that? Well, there are some models out there</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3074s" target="_blank" rel="noopener">51:14</a> that there are convolutional based, for instance, that actually extract features from these images in their layers. And here, we refer them as feature maps. And one good thing-- one good thing about these feature maps is that they represent things from this image that have more of a spatial invariance compared to the original image.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3108s" target="_blank" rel="noopener">51:48</a> So what does that mean? That means that if you have two images that are slightly shifted, slightly different, then their feature maps will actually not be that different. So the idea here is instead of comparing the pixel based images one to the other, we&#x27;re going to compare their representation, their feature maps</p>
+</div>
+</section><div class="chapter" id="ch-Perceptual-loss"><span>Perceptual loss</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3138s" target="_blank" rel="noopener">52:18</a></div><section class="row" id="s35">
+<figure>
+<a href="slides/l4/p045.jpg" target="_blank">
+<img src="slides/l4/p045.jpg" alt="Slide pp. 44–46: Combat blurriness with perceptual loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 44–46 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3138s" target="_blank" rel="noopener" title="Watch on YouTube from 52:18">&#9658; 52:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3138s" target="_blank" rel="noopener">52:18</a> one to another. And I&#x27;m not sure if you&#x27;ve heard that loss, but there is a loss that&#x27;s called LPIPS, so Learn Perceptual Image Patch Similarity. So it is a loss or it is a metric I should say, that is composed of the difference between the feature maps of two images, and that are weighted by a coefficient, which</p>
+</div>
+</section><section class="row" id="s36">
+<figure>
+<a href="slides/l4/p047.jpg" target="_blank">
+<img src="slides/l4/p047.jpg" alt="Slide p. 47: Combat blurriness with perceptual loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 47 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3166s" target="_blank" rel="noopener" title="Watch on YouTube from 52:46">&#9658; 52:46</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3166s" target="_blank" rel="noopener">52:46</a> is here WL. There are coefficients that are tuned by the authors of this paper in order to match what humans consider as being perceptually similar. So long story short-- so by the way, the formula is scary, but it&#x27;s not that big of a deal. We don&#x27;t care about the whole thing. What we care about is that we&#x27;re not comparing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3193s" target="_blank" rel="noopener">53:13</a> images in the pixel space. We&#x27;re comparing images between their feature maps. And what we&#x27;re saying here is that the feature maps of two images better reflect their structure, their details, and are less sensitive to spatial differences. So that is one strategy. So one thing to note is that we would weight this loss</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3226s" target="_blank" rel="noopener">53:46</a> by some coefficients. You could think, OK, this loss is answering all our needs.</p>
+</div>
+</section><section class="row" id="s37">
+<figure>
+<a href="slides/l4/p048.jpg" target="_blank">
+<img src="slides/l4/p048.jpg" alt="Slide p. 48: No" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 48 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3231s" target="_blank" rel="noopener" title="Watch on YouTube from 53:51">&#9658; 53:51</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3231s" target="_blank" rel="noopener">53:51</a> Let&#x27;s have the weight for this part of the loss be super high. Well, if you do that, actually, there are some bad things that also happen. So we have what we call checkerboard artifacts, which as you can tell is like a grid like artifact in the image that is similar to this one. So you don&#x27;t want to have too big of a weight either.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3258s" target="_blank" rel="noopener">54:18</a> So that&#x27;s one. And then a second strategy to combat blurriness is what we&#x27;re going to see now. So the problem that we have is that the decoder of the VA</p>
+</div>
+</section><div class="chapter" id="ch-Adversarial-loss"><span>Adversarial loss</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3273s" target="_blank" rel="noopener">54:33</a></div><section class="row" id="s38">
+<figure>
+<a href="slides/l4/p049.jpg" target="_blank">
+<img src="slides/l4/p049.jpg" alt="Slide pp. 49–50: Make output more realistic with adversarial loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 49–50 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3273s" target="_blank" rel="noopener" title="Watch on YouTube from 54:33">&#9658; 54:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3273s" target="_blank" rel="noopener">54:33</a> is outputting an image that is blurry. So one idea could be to ask another model to tell you whether the input image, so in this case, the blurry image is a real image or not? And based on that, what we would do is incentivize this other network called the discriminator, to distinguish outputs coming</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3304s" target="_blank" rel="noopener">55:04</a> from the decoder compared to real images, which would then flag blurry images as being fake. And we would penalize the decoder for generating images that would be flagged as fake by the discriminator. So have you heard of GANs before? So we don&#x27;t have time to talk about them in detail, but I think this slide is summing up what is happening.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3335s" target="_blank" rel="noopener">55:35</a> So you have two models that are competing with one another. The decoder that wants to produce images that the discriminator cannot distinguish from being fake, and the discriminator that wants to distinguish the output from the decoder compared to images from real life. And what this will do is incentivize the decoder to produce more realistic images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3369s" target="_blank" rel="noopener">56:09</a> And in doing so, it will help with removing that blurriness. So that is called adversarial loss. So what we saw was that the original loss of the VA, which we derived here, led to outputs that were too blurry.</p>
+</div>
+</section><section class="row" id="s39">
+<figure>
+<a href="slides/l4/p051.jpg" target="_blank">
+<img src="slides/l4/p051.jpg" alt="Slide p. 51: Make output more realistic with adversarial loss" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 51 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3393s" target="_blank" rel="noopener" title="Watch on YouTube from 56:33">&#9658; 56:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3393s" target="_blank" rel="noopener">56:33</a> It was fulfilling all the wish list that we had, but it was not leading to a truthful reconstruction, which is the reason why we saw two different strategies to add to our loss, to counterbalance the tendency for the model to produce blurry outputs. So these are the perceptual loss and the adversarial loss.</p>
+</div>
+</section><div class="chapter" id="ch-Latent-diffusion-models"><span>Latent diffusion models</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3421s" target="_blank" rel="noopener">57:01</a></div><section class="row" id="s40">
+<figure>
+<a href="slides/l4/p052.jpg" target="_blank">
+<img src="slides/l4/p052.jpg" alt="Slide p. 52: Summary of reﬁned VAE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 52 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3421s" target="_blank" rel="noopener" title="Watch on YouTube from 57:01">&#9658; 57:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3421s" target="_blank" rel="noopener">57:01</a> So before giving it to Sherwin, I could not let you without telling you</p>
+</div>
+</section><section class="row" id="s41">
+<figure>
+<a href="slides/l4/p053.jpg" target="_blank">
+<img src="slides/l4/p053.jpg" alt="Slide p. 53: From pixel to latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 53 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3426s" target="_blank" rel="noopener" title="Watch on YouTube from 57:06">&#9658; 57:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3426s" target="_blank" rel="noopener">57:06</a> how this fits together with the diffusion models. So in particular, the reason why we did this whole thing is for us to use our diffusion flow matching model not in the pixel space, but in the latent space. Because computationally it&#x27;s just cheaper and it&#x27;s able to scale.</p>
+</div>
+</section><section class="row" id="s42">
+<figure>
+<a href="slides/l4/p054.jpg" target="_blank">
+<img src="slides/l4/p054.jpg" alt="Slide p. 54: Diﬀusion in latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 54 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3451s" target="_blank" rel="noopener" title="Watch on YouTube from 57:31">&#9658; 57:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3451s" target="_blank" rel="noopener">57:31</a> So now, we&#x27;re going to see what our strategy for training and inference is. So for training, what we do is we first train the VA exactly like we saw. And then what we&#x27;re going to do is to train our image generation model, like using for instance flow matching, in the latent space of the VA. And we&#x27;re going to see how we do that.</p>
+</div>
+</section><section class="row" id="s43">
+<figure>
+<a href="slides/l4/p055.jpg" target="_blank">
+<img src="slides/l4/p055.jpg" alt="Slide pp. 55–56: Training leverages encoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 55–56 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3480s" target="_blank" rel="noopener" title="Watch on YouTube from 58:00">&#9658; 58:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3480s" target="_blank" rel="noopener">58:00</a> So let&#x27;s suppose we have an image from our target data distribution. We pass it through the encoder. Our encoder gives us two quantities. So the mean and the standard deviation. And what we do is we sample from that distribution</p>
+</div>
+</section><section class="row" id="s44">
+<figure>
+<a href="slides/l4/p057.jpg" target="_blank">
+<img src="slides/l4/p057.jpg" alt="Slide p. 57: Diﬀusion in latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 57 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3500s" target="_blank" rel="noopener" title="Watch on YouTube from 58:20">&#9658; 58:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3500s" target="_blank" rel="noopener">58:20</a> to get our latent representation. And then what happens is in our latent space, so we hopefully have a smoother latent space. We have our z1, which corresponds to the clean image. We sample from the noisy data distribution. And here, I&#x27;m just illustrating the case of flow matching, we have zt, which is a weighted combination of the two.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3529s" target="_blank" rel="noopener">58:49</a> And what we do is we optimize for, let&#x27;s say, our velocity like the l2 loss. We&#x27;ll do that. This is for training. So how about inference? Well, let&#x27;s assume that you have trained your model. Then now, what you want to do is to generate new images. So what you&#x27;re going to do is to first sample</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3558s" target="_blank" rel="noopener">59:18</a> from an easy distribution in the latent space. So for instance, Gaussian noise. And you&#x27;re going to use, for instance flow matching, the velocity that you have learned to solve it numerically and arrive, at let&#x27;s say a point z1, which is the latent representation of your end trajectory. And what we&#x27;re going to do is to use the VAE decoder to decode that output back to pixel space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3593s" target="_blank" rel="noopener">59:53</a> So let&#x27;s see how it looks like. So this is your latent space that you have learned. You sample from the noisy distribution in that latent space. You solve numerically the ODE using the learned vector fields that we&#x27;ve trained right before. You obtain z1. The problem is, z1 to us, it doesn&#x27;t mean anything because it&#x27;s not in a pixel space. So what you do is you take that z1,</p>
+</div>
+</section><section class="row" id="s45">
+<figure>
+<a href="slides/l4/p058.jpg" target="_blank">
+<img src="slides/l4/p058.jpg" alt="Slide p. 58: Inference leverages decoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 58 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3622s" target="_blank" rel="noopener" title="Watch on YouTube from 1:00:22">&#9658; 1:00:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3622s" target="_blank" rel="noopener">1:00:22</a> you pass it through the decoder, and you obtain the image in pixel space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3631s" target="_blank" rel="noopener">1:00:31</a> So to conclude, what we&#x27;ve seen is a way</p>
+</div>
+</section><div class="chapter" id="ch-Encoder-vs-decoder-trade-off"><span>Encoder vs decoder trade-off</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3636s" target="_blank" rel="noopener">1:00:36</a></div><section class="row" id="s46">
+<figure>
+<a href="slides/l4/p059.jpg" target="_blank">
+<img src="slides/l4/p059.jpg" alt="Slide p. 59: VAE used for image generation models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 59 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3636s" target="_blank" rel="noopener" title="Watch on YouTube from 1:00:36">&#9658; 1:00:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3636s" target="_blank" rel="noopener">1:00:36</a> to find a latent space that is of lower dimension, that</p>
+</div>
+</section><section class="row" id="s47">
+<figure>
+<a href="slides/l4/p060.jpg" target="_blank">
+<img src="slides/l4/p060.jpg" alt="Slide p. 60: VAE used for image generation models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 60 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3642s" target="_blank" rel="noopener" title="Watch on YouTube from 1:00:42">&#9658; 1:00:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3642s" target="_blank" rel="noopener">1:00:42</a> is smoother, and that is also able to preserve</p>
+</div>
+</section><section class="row" id="s48">
+<figure>
+<a href="slides/l4/p061.jpg" target="_blank">
+<img src="slides/l4/p061.jpg" alt="Slide p. 61: VAE used for image generation models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 61 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3649s" target="_blank" rel="noopener" title="Watch on YouTube from 1:00:49">&#9658; 1:00:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3649s" target="_blank" rel="noopener">1:00:49</a> the details of your image. And so in particular, we say that the encoder acts as a low pass filter. Because what it does represents those images mostly based on their semantic similarity. So this is actually something we have not seen. But for a diffusion model to find all the details</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3680s" target="_blank" rel="noopener">1:01:20</a> in its exploration is much harder than finding something that is semantically what it wants to generate. So this is the reason why we&#x27;re giving the decoder the task of conveying all the low level details, all the perceptual elements. And the role of the decoder is to take that latent representation and to make it an output that is full of details, that is realistic,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3711s" target="_blank" rel="noopener">1:01:51</a> and that is matching what we want. And for that reason, you have the encoder and the decoder, which you would think is symmetric. But in practice, the VAEs that are used in conjunction with diffusion models are such that the decoder is actually bigger than the encoder. 1:02:20 Does that make sense? So we don&#x27;t have a lot of time. So one thing that I put down there</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3747s" target="_blank" rel="noopener">1:02:27</a> is a longer form version of everything I mentioned in some very interesting articles, which I recommend reading, but not mandatory as part of this class, which is some results from flux 2, which is a text to image model, and the LDM paper, the Latent Diffusion Model paper that is at the bottom of the slide.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3774s" target="_blank" rel="noopener">1:02:54</a> Yeah. So the question is, what should we think of the role of the encoder and the decoder? So at the end of the day, what you want is to have an easy time generating images, at the end of the day. And what you want is to not have too high of a computational burden for your diffusion model to operate.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3798s" target="_blank" rel="noopener">1:03:18</a> So what you want is a latent space that is low in dimensionality, and that is easy for you to learn. So what does easy for you to learn mean? It means having a space that is not super spiky, but that is more smooth. And in particular, in order for you to obtain such a space, it is actually something that in practice, something that you can obtain if you focus on the semantic meaning</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3834s" target="_blank" rel="noopener">1:03:54</a> of these images, as opposed to capturing all the low level details. So in other words, what I&#x27;m saying is, even if two images are perceptually not very similar,</p>
+</div>
+</section><section class="row" id="s49">
+<figure>
+<a href="slides/l4/p062.jpg" target="_blank">
+<img src="slides/l4/p062.jpg" alt="Slide p. 62: From pixel to latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 62 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3848s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:08">&#9658; 1:04:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3848s" target="_blank" rel="noopener">1:04:08</a> but if they represent the same thing, what we want for these images is to be located not too far from one another in the latent space. So we want the encoder to mostly capture the semantic meaning. So the encoder, what we want is to make the job of the diffusion model easy. And so this is the learnability. You will see in those paper, learnability.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3874s" target="_blank" rel="noopener">1:04:34</a> So once you have images that are semantically similar, that are close to one another, you do your diffusion process. You obtain, let&#x27;s say a point that you say, OK, this is the latent representation that I want to have in the pixel space. So now, the job of your decoder is to make sure that all the details that you want to have in this final image are there.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3903s" target="_blank" rel="noopener">1:05:03</a> So in that sense, in contrast to the encoder, the decoders job is to make sure all the perceptual details are present in the final decoded image in the pixel space. So in that sense, you have these two different roles of the encoder and the decoder. So you want your diffusion model to have an easy time learning this thing, and you want a space that has some semantic information, which is what</p>
+</div>
+</section><section class="row" id="s50">
+<figure>
+<a href="slides/l4/p063.jpg" target="_blank">
+<img src="slides/l4/p063.jpg" alt="Slide p. 63: Today&#x27;s lecture: Part 2" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 63 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3934s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:34">&#9658; 1:05:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3934s" target="_blank" rel="noopener">1:05:34</a> I mentioned the encoder can do. But what you want, at the end of the day, is to have an image that contains the details that you want, and that part is mostly something that decoder can help with in the decoding stage. OK, I&#x27;m 10 minutes over time, but with that, I&#x27;ll give it to Sherwin.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3958s" target="_blank" rel="noopener">1:05:58</a> Thank you, Afshin. So now, we&#x27;re going to see together how to represent the conditions that we have at the input of this generation models. So the first kind of condition that we can have</p>
+</div>
+</section><div class="chapter" id="ch-Text-representation-with-Transformers"><span>Text representation with Transformers</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3971s" target="_blank" rel="noopener">1:06:11</a></div><section class="row" id="s51">
+<figure>
+<a href="slides/l4/p064.jpg" target="_blank">
+<img src="slides/l4/p064.jpg" alt="Slide p. 64: Class of models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 64 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3971s" target="_blank" rel="noopener" title="Watch on YouTube from 1:06:11">&#9658; 1:06:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3971s" target="_blank" rel="noopener">1:06:11</a> is the text one. So the text world, when it comes to representing embeddings has a long history. And I&#x27;m not going to go through the whole history of how we represent embeddings. I&#x27;m just going to focus on how people do it today. And the way they do it is with transformer-based architectures.</p>
+</div>
+</section><section class="row" id="s52">
+<figure>
+<a href="slides/l4/p065.jpg" target="_blank">
+<img src="slides/l4/p065.jpg" alt="Slide p. 65: Tokenization" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 65 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3993s" target="_blank" rel="noopener" title="Watch on YouTube from 1:06:33">&#9658; 1:06:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=3993s" target="_blank" rel="noopener">1:06:33</a> So let&#x27;s first see how we can decompose the input sentence. So we have this concept called tokenization, which is the practice of decomposing any piece of text into atomic components. So you can have something that operates at an arbitrary level, word level, subword level</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4018s" target="_blank" rel="noopener">1:06:58</a> or character level. And a software level is usually algorithms that learn how to best decompose the tokens with respect to the data by focusing a vocabulary budget on those tokens that most frequently occur. And the tokenization technique that&#x27;s most used these days is subword. But for simplicity, the one that you&#x27;re</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4048s" target="_blank" rel="noopener">1:07:28</a> going to see in the slides is more towards arbitrary, but it&#x27;s just for representation purposes. So who knows about transformers? OK, so most of you.</p>
+</div>
+</section><section class="row" id="s53">
+<figure>
+<a href="slides/l4/p066.jpg" target="_blank">
+<img src="slides/l4/p066.jpg" alt="Slide p. 66: Transformer architecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 66 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4060s" target="_blank" rel="noopener" title="Watch on YouTube from 1:07:40">&#9658; 1:07:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4060s" target="_blank" rel="noopener">1:07:40</a> So there is a sister course that talks about transformers at length. I&#x27;m not going to talk about transformers at length, but just give the main pieces of information that you should know. So it is an encoder, decoder architecture that is centered on the concept of extension. And it came out in 2017. And most of the language models that you see today are based off of it. Even vision models, you have many of them</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4091s" target="_blank" rel="noopener">1:08:11</a> that are based on the transformer. And the good thing about it that made it work well is that it&#x27;s inductive biases are based on the concept of attention that proved to be generalizable. And let&#x27;s focus now on this concept of attention.</p>
+</div>
+</section><section class="row" id="s54">
+<figure>
+<a href="slides/l4/p067.jpg" target="_blank">
+<img src="slides/l4/p067.jpg" alt="Slide p. 67: Attention mechanism" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 67 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4110s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:30">&#9658; 1:08:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4110s" target="_blank" rel="noopener">1:08:30</a> So if we had to summarize in a single sentence what it is, it is the practice of representing</p>
+</div>
+</section><section class="row" id="s55">
+<figure>
+<a href="slides/l4/p068.jpg" target="_blank">
+<img src="slides/l4/p068.jpg" alt="Slide p. 68: Attention mechanism" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 68 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4118s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:38">&#9658; 1:08:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4118s" target="_blank" rel="noopener">1:08:38</a> a given piece of input as a function of all the others. And here, with the example, a cute Teddy bear is reading, if we want to represent in the space of attention the token Teddy bear, what we do is that we have embeddings for all these tokens. You have learnable matrices that will turn them into the space of queries, q, keys, k, and values, v.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4148s" target="_blank" rel="noopener">1:09:08</a> And what you&#x27;re going to learn is a distribution of keys--</p>
+</div>
+</section><section class="row" id="s56">
+<figure>
+<a href="slides/l4/p069.jpg" target="_blank">
+<img src="slides/l4/p069.jpg" alt="Slide p. 69: Attention locations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 69 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4153s" target="_blank" rel="noopener" title="Watch on YouTube from 1:09:13">&#9658; 1:09:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4153s" target="_blank" rel="noopener">1:09:13</a> of this key over keys. And the weights that you obtain are going to be those that you place on the corresponding values. So in summary, you&#x27;re able to represent the embedding of Teddy bear with respect to the others in this sentence in that way. And you can write this down in matrix form, which is this softmax term that represents this probability</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4182s" target="_blank" rel="noopener">1:09:42</a> distribution. So the square root of DK is just a normalizing constant that prevents the sum from becoming too large. So the dimension of these queries and keys. And multiplied by the value, which carries the embedding of the values. So you can find this attention layer at three different locations. So two of them are self-attention layers.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4212s" target="_blank" rel="noopener">1:10:12</a> So in the encoder and another one masked self-attention, which conveys the fact that tokens can attend only on those that were predicted before. And then you have another layer, where attention occurs, which is called cross attention, which will make these queries attend on other encoded keys</p>
+</div>
+</section><section class="row" id="s57">
+<figure>
+<a href="slides/l4/p070.jpg" target="_blank">
+<img src="slides/l4/p070.jpg" alt="Slide p. 70: Input" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 70 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4237s" target="_blank" rel="noopener" title="Watch on YouTube from 1:10:37">&#9658; 1:10:37</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4237s" target="_blank" rel="noopener">1:10:37</a> and values. So this is the high level. And in just a few words, the main components</p>
+</div>
+</section><section class="row" id="s58">
+<figure>
+<a href="slides/l4/p071.jpg" target="_blank">
+<img src="slides/l4/p071.jpg" alt="Slide p. 71: ... with a trick!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 71 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4245s" target="_blank" rel="noopener" title="Watch on YouTube from 1:10:45">&#9658; 1:10:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4245s" target="_blank" rel="noopener">1:10:45</a> is that your input tokens are converted into embeddings with a learnable layer. You add some information regarding the position of your tokens. Then you make it through or go through an encoder that will apply this concept of attention</p>
+</div>
+</section><section class="row" id="s59">
+<figure>
+<a href="slides/l4/p072.jpg" target="_blank">
+<img src="slides/l4/p072.jpg" alt="Slide p. 72: Encoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 72 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4263s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:03">&#9658; 1:11:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4263s" target="_blank" rel="noopener">1:11:03</a> and also add on top of it some learnable mechanism to add some complexity for each tokens representation, which</p>
+</div>
+</section><section class="row" id="s60">
+<figure>
+<a href="slides/l4/p073.jpg" target="_blank">
+<img src="slides/l4/p073.jpg" alt="Slide p. 73: Output &quot;shifted right&quot;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 73 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4275s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:15">&#9658; 1:11:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4275s" target="_blank" rel="noopener">1:11:15</a> is those feedforward network. And then the decoder level, when you want to generate,</p>
+</div>
+</section><section class="row" id="s61">
+<figure>
+<a href="slides/l4/p074.jpg" target="_blank">
+<img src="slides/l4/p074.jpg" alt="Slide p. 74: Decoder" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 74 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4282s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:22">&#9658; 1:11:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4282s" target="_blank" rel="noopener">1:11:22</a> let&#x27;s say a sentence, you start with some placeholder token that you-- for which you add position embeddings as well, that you self-attention and then perform cross-attention with respect to your encoders tokens. And then you also have feedforward there</p>
+</div>
+</section><section class="row" id="s62">
+<figure>
+<a href="slides/l4/p075.jpg" target="_blank">
+<img src="slides/l4/p075.jpg" alt="Slide p. 75: Output" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 75 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4302s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:42">&#9658; 1:11:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4302s" target="_blank" rel="noopener">1:11:42</a> to finally obtain your output. So I&#x27;m telling you all that to mention</p>
+</div>
+</section><section class="row" id="s63">
+<figure>
+<a href="slides/l4/p076.jpg" target="_blank">
+<img src="slides/l4/p076.jpg" alt="Slide p. 76: Typical embeddings location" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 76 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4310s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:50">&#9658; 1:11:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4310s" target="_blank" rel="noopener">1:11:50</a> that there are locations where embeddings can be extracted out of all of these. So if you use the encoder part of the network, you can find the ends of the encoders, a location where you have an encoded meaning of your inputs tokens.</p>
+</div>
+</section><section class="row" id="s64">
+<figure>
+<a href="slides/l4/p077.jpg" target="_blank">
+<img src="slides/l4/p077.jpg" alt="Slide p. 77: From pixel to latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 77 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4325s" target="_blank" rel="noopener">&#8776; 1:12:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s65">
+<figure>
+<a href="slides/l4/p078.jpg" target="_blank">
+<img src="slides/l4/p078.jpg" alt="Slide p. 78: Today&#x27;s lecture: Part 2" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 78 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4325s" target="_blank" rel="noopener">&#8776; 1:12:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s66">
+<figure>
+<a href="slides/l4/p079.jpg" target="_blank">
+<img src="slides/l4/p079.jpg" alt="Slide pp. 79–80: Adapting attention mechanism to images" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 79–80 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4331s" target="_blank" rel="noopener" title="Watch on YouTube from 1:12:11">&#9658; 1:12:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4331s" target="_blank" rel="noopener">1:12:11</a> And this is typically one of those locations, where you could say these are the embeddings of my input.</p>
+</div>
+</section><section class="row" id="s67">
+<figure>
+<a href="slides/l4/p081.jpg" target="_blank">
+<img src="slides/l4/p081.jpg" alt="Slide p. 81: Adapting attention mechanism to images" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 81 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4339s" target="_blank" rel="noopener" title="Watch on YouTube from 1:12:19">&#9658; 1:12:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4339s" target="_blank" rel="noopener">1:12:19</a> OK, great. So now, doing the same for images. Let&#x27;s say you have a condition that is based on images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4348s" target="_blank" rel="noopener">1:12:28</a> One thing that is pretty nice is that everything that we mentioned just now can be reproduced with images.</p>
+</div>
+</section><div class="chapter" id="ch-Image-representation-with-ViT"><span>Image representation with ViT</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4356s" target="_blank" rel="noopener">1:12:36</a></div><section class="row" id="s68">
+<figure>
+<a href="slides/l4/p082.jpg" target="_blank">
+<img src="slides/l4/p082.jpg" alt="Slide p. 82: Vision Transformer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 82 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4356s" target="_blank" rel="noopener" title="Watch on YouTube from 1:12:36">&#9658; 1:12:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4356s" target="_blank" rel="noopener">1:12:36</a> So all these token representations are just numbers. And you could well represent these numbers. You can associate them with patches of images. And this is what the ViT vision transformer paper does, which follows the same principle. But instead of learning embeddings on tokens, you learn embeddings of on patches of images. So everything stays the same.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4390s" target="_blank" rel="noopener">1:13:10</a> And you can perform tasks, such as image classification with it.</p>
+</div>
+</section><section class="row" id="s69">
+<figure>
+<a href="slides/l4/p084.jpg" target="_blank">
+<img src="slides/l4/p084.jpg" alt="Slide pp. 83–85: ViT end-to-end example" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 83–85 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4399s" target="_blank" rel="noopener" title="Watch on YouTube from 1:13:19">&#9658; 1:13:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4399s" target="_blank" rel="noopener">1:13:19</a> And something that I haven&#x27;t done in the tech space that we can do here together in this image world, is to see how these pieces come together in this example of a Teddy bear reading a book. So here, you decompose your image into these patches that we mentioned. Each of these patches, you have a learnable layer that gives you an initial representation of what</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4424s" target="_blank" rel="noopener">1:13:44</a> they mean. So in the case of text, you would have a dictionary of tokens that are mapped to embeddings. But here, you have something that is more continuous. So you can have a linear layer. You can have a convolutional layer. You can have everything you want. So you have something at that stage</p>
+</div>
+</section><section class="row" id="s70">
+<figure>
+<a href="slides/l4/p086.jpg" target="_blank">
+<img src="slides/l4/p086.jpg" alt="Slide p. 86: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 86 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4444s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:04">&#9658; 1:14:04</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4444s" target="_blank" rel="noopener">1:14:04</a> that gives a representation of these patches. And then in a classification setting, you have a token.</p>
+</div>
+</section><section class="row" id="s71">
+<figure>
+<a href="slides/l4/p087.jpg" target="_blank">
+<img src="slides/l4/p087.jpg" alt="Slide p. 87: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 87 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4453s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:13">&#9658; 1:14:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4453s" target="_blank" rel="noopener">1:14:13</a> So for example here, CLS that will carry information regarding the class of your image that you want to predict.</p>
+</div>
+</section><section class="row" id="s72">
+<figure>
+<a href="slides/l4/p088.jpg" target="_blank">
+<img src="slides/l4/p088.jpg" alt="Slide p. 88: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 88 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4462s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:22">&#9658; 1:14:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4462s" target="_blank" rel="noopener">1:14:22</a> So each of these can be represented by embeddings. And we mentioned that we have position information encoded in them. And next class, we&#x27;re going to see more about position encoding and all of this. So I&#x27;m not going to expand too much. So you have a representation for each of these patches of your input that you then feed your VIT.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4493s" target="_blank" rel="noopener">1:14:53</a> And exactly, as we mentioned, at the output of the encoder, you can locate one specific embedding</p>
+</div>
+</section><section class="row" id="s73">
+<figure>
+<a href="slides/l4/p089.jpg" target="_blank">
+<img src="slides/l4/p089.jpg" alt="Slide p. 89: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 89 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4502s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:02">&#9658; 1:15:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4502s" target="_blank" rel="noopener">1:15:02</a> that carries the semantic information of your input image. So here, it would be the output corresponding to the CLS token</p>
+</div>
+</section><section class="row" id="s74">
+<figure>
+<a href="slides/l4/p090.jpg" target="_blank">
+<img src="slides/l4/p090.jpg" alt="Slide p. 90: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 90 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4513s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:13">&#9658; 1:15:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4513s" target="_blank" rel="noopener">1:15:13</a> that here, you project to learn a classification task for example. But let&#x27;s say you are at a representation</p>
+</div>
+</section><section class="row" id="s75">
+<figure>
+<a href="slides/l4/p091.jpg" target="_blank">
+<img src="slides/l4/p091.jpg" alt="Slide p. 91: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 91 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4521s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:21">&#9658; 1:15:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4521s" target="_blank" rel="noopener">1:15:21</a> stage of your workflow. You would just take the embedding</p>
+</div>
+</section><section class="row" id="s76">
+<figure>
+<a href="slides/l4/p092.jpg" target="_blank">
+<img src="slides/l4/p092.jpg" alt="Slide p. 92: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 92 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4526s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:26">&#9658; 1:15:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4526s" target="_blank" rel="noopener">1:15:26</a> that you see in orange at the top as your representation of the image.</p>
+</div>
+</section><section class="row" id="s77">
+<figure>
+<a href="slides/l4/p093.jpg" target="_blank">
+<img src="slides/l4/p093.jpg" alt="Slide p. 93: [CLS]" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 93 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4531s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:31">&#9658; 1:15:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4531s" target="_blank" rel="noopener">1:15:31</a> OK, great. So something that I didn&#x27;t tell you is that for texts,</p>
+</div>
+</section><section class="row" id="s78">
+<figure>
+<a href="slides/l4/p095.jpg" target="_blank">
+<img src="slides/l4/p095.jpg" alt="Slide pp. 94–95: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 94–95 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4541s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:41">&#9658; 1:15:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4541s" target="_blank" rel="noopener">1:15:41</a> doing that process is cheap in data because the task that we use to learn these models is self-supervised by nature. We anchor on next token prediction in the world of text, and you have a bunch of text in the internet. It&#x27;s easy to have such data, and it&#x27;s easy to learn. But in the image world, if you want to handcraft a similar task that is as meaningful as what</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4571s" target="_blank" rel="noopener">1:16:11</a> we have in the text world, we have a bit more trouble. One of these candidates that I just shown is the classification task, for example, for which you need to gather labels. So it&#x27;s quite expensive. And I just want to say that one follow up work that works on embedding of images that we&#x27;re not going to see in details today is Dino self-distillation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4602s" target="_blank" rel="noopener">1:16:42</a> with no Labels for which the concept is to have a teacher and a student model that receive the different kinds of inputs. And they aim at learning similar probability distribution in the output that are prototypes. So I think it&#x27;s a very interesting paper to see how we can build representations out of no labels, just out of the images themselves.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4632s" target="_blank" rel="noopener">1:17:12</a> So OK.</p>
+</div>
+</section><section class="row" id="s79">
+<figure>
+<a href="slides/l4/p096.jpg" target="_blank">
+<img src="slides/l4/p096.jpg" alt="Slide p. 96: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 96 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4637s" target="_blank" rel="noopener" title="Watch on YouTube from 1:17:17">&#9658; 1:17:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4637s" target="_blank" rel="noopener">1:17:17</a> Great. So now, we went through how we can represent text and images. So did everything make sense so far? So we went slightly fast, but I just want to make sure we got the gist out of it. Yeah, the comment is in the image world. Do these images become tokenized? So you can think of them that way. The only difference is that we don&#x27;t have a dictionary of tokens, but rather we look at them</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4669s" target="_blank" rel="noopener">1:17:49</a> in a continuous manner. Because in the text world, you would just have a lookup. But here, a learnable. So that&#x27;s exactly right. Yeah. So the comment is depending on how you cut your image, you can have errors. Yeah, totally right. And this is why it&#x27;s a hyperparameter. This ViT model comes with different batch sizes, and this is one of the trade offs. Yeah, so I mean, absolutely.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4695s" target="_blank" rel="noopener">1:18:15</a> OK, awesome. So now that we have seen how to represent text and images</p>
+</div>
+</section><section class="row" id="s80">
+<figure>
+<a href="slides/l4/p097.jpg" target="_blank">
+<img src="slides/l4/p097.jpg" alt="Slide p. 97: From pixel to latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 97 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4700s" target="_blank" rel="noopener" title="Watch on YouTube from 1:18:20">&#9658; 1:18:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4700s" target="_blank" rel="noopener">1:18:20</a> separately, you might wonder, OK, hey, I want to generate a new image with conditioning.</p>
+</div>
+</section><section class="row" id="s81">
+<figure>
+<a href="slides/l4/p099.jpg" target="_blank">
+<img src="slides/l4/p099.jpg" alt="Slide pp. 98–99: Contrastive learning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 98–99 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4706s" target="_blank" rel="noopener" title="Watch on YouTube from 1:18:26">&#9658; 1:18:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4706s" target="_blank" rel="noopener">1:18:26</a> That depends on both, let&#x27;s say, were I want to condition on either, but I don&#x27;t want to have to deal with two spaces. So how would you bring them together?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4719s" target="_blank" rel="noopener">1:18:39</a> So what we want is to learn a relationship between text and image that has this nice property of when you look at the embedding space, you want similar concepts, either image text to be grouped together, and dissimilar ones to be pushed away</p>
+</div>
+</section><div class="chapter" id="ch-Contrastive-learning-with-CLIP"><span>Contrastive learning with CLIP</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4743s" target="_blank" rel="noopener">1:19:03</a></div><section class="row" id="s82">
+<figure>
+<a href="slides/l4/p100.jpg" target="_blank">
+<img src="slides/l4/p100.jpg" alt="Slide p. 100: Contrastive learning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 100 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4743s" target="_blank" rel="noopener" title="Watch on YouTube from 1:19:03">&#9658; 1:19:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4743s" target="_blank" rel="noopener">1:19:03</a> from each other with respect to some metric. So let&#x27;s take the example of our Teddy bear and something totally unrelated. Let&#x27;s say a water polo ball. So the Teddy bear with the text token, Teddy bear is similar. Same with the water polo ball image and the water polo ball token. But the opposite pairs are nuts. And we want a way to quantify each situation</p>
+</div>
+</section><section class="row" id="s83">
+<figure>
+<a href="slides/l4/p102.jpg" target="_blank">
+<img src="slides/l4/p102.jpg" alt="Slide pp. 101–102: Contrastive learning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 101–102 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4775s" target="_blank" rel="noopener" title="Watch on YouTube from 1:19:35">&#9658; 1:19:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4775s" target="_blank" rel="noopener">1:19:35</a> and learn it automatically. So how can we do that? So let&#x27;s build a matrix of these two. So this is just phrasing in a different way What.</p>
+</div>
+</section><section class="row" id="s84">
+<figure>
+<a href="slides/l4/p103.jpg" target="_blank">
+<img src="slides/l4/p103.jpg" alt="Slide p. 103: Contrastive learning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 103 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4786s" target="_blank" rel="noopener" title="Watch on YouTube from 1:19:46">&#9658; 1:19:46</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4786s" target="_blank" rel="noopener">1:19:46</a> I&#x27;ve just said. And what we want is Teddy bear and the image of Teddy bear to be of high similarity. So what we&#x27;re going to do is project these embeddings that we talked about in the same space. So we&#x27;re going to build these vectors with the representations that we just saw before. So what we&#x27;re doing here is the same. So we have our patches of images alongside the CLS token</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4818s" target="_blank" rel="noopener">1:20:18</a> that you pass through the VIT architecture. And then once you get the last embedding representation, what we&#x27;re going to do is to project it in a space that we&#x27;re going to have it shared with the tech space. So the property of that projection layer that we built is that it&#x27;s going to output a vector of same dimension by construction as the one for text. So we do that here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4849s" target="_blank" rel="noopener">1:20:49</a> And then we do the same for the text world. So by the way, I mentioned to you that we would look at embeddings at the end of the encoder layer. And here, I&#x27;m showing another procedure to get embeddings of text, which is to pass all of these tokens to the decoder and decode the one corresponding to the last token.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4876s" target="_blank" rel="noopener">1:21:16</a> And by construction of the attention mechanism and the transformer, these embedding coming out of the last token is going to represent the whole sentence. So it&#x27;s another equivalent way of showing the representation of tokens. And we&#x27;re going to take that representation and project it, as we said, in that same shared space. And by construction, these u and v are now comparable.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4906s" target="_blank" rel="noopener">1:21:46</a> You can do dot products. You can compute similarities. And we define these similarity S variable that is the scaled dot product. And one thing that we can do now is to transform this notion of similarity into some score that can be seen as a probability distribution through the softmax operator. So if you compute the exponential of the similarity</p>
+</div>
+</section><section class="row" id="s85">
+<figure>
+<a href="slides/l4/p104.jpg" target="_blank">
+<img src="slides/l4/p104.jpg" alt="Slide p. 104: How to ﬁnd a same space?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 104 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4933s" target="_blank" rel="noopener">&#8776; 1:22:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s86">
+<figure>
+<a href="slides/l4/p105.jpg" target="_blank">
+<img src="slides/l4/p105.jpg" alt="Slide p. 105: How to ﬁnd a same space?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 105 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4933s" target="_blank" rel="noopener">&#8776; 1:22:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s87">
+<figure>
+<a href="slides/l4/p106.jpg" target="_blank">
+<img src="slides/l4/p106.jpg" alt="Slide p. 106: Notation." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 106 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4933s" target="_blank" rel="noopener">&#8776; 1:22:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s88">
+<figure>
+<a href="slides/l4/p107.jpg" target="_blank">
+<img src="slides/l4/p107.jpg" alt="Slide p. 107: Notation." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 107 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4933s" target="_blank" rel="noopener">&#8776; 1:22:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s89">
+<figure>
+<a href="slides/l4/p108.jpg" target="_blank">
+<img src="slides/l4/p108.jpg" alt="Slide p. 108: Contrastive learning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 108 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4939s" target="_blank" rel="noopener" title="Watch on YouTube from 1:22:19">&#9658; 1:22:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4939s" target="_blank" rel="noopener">1:22:19</a> between image Teddy bear and Teddy bear over the sum of the exponentials of this image Teddy</p>
+</div>
+</section><section class="row" id="s90">
+<figure>
+<a href="slides/l4/p109.jpg" target="_blank">
+<img src="slides/l4/p109.jpg" alt="Slide p. 109: Notation." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 109 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4946s" target="_blank" rel="noopener" title="Watch on YouTube from 1:22:26">&#9658; 1:22:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4946s" target="_blank" rel="noopener">1:22:26</a> bear and all the other text tokens, you find the probability distribution</p>
+</div>
+</section><section class="row" id="s91">
+<figure>
+<a href="slides/l4/p110.jpg" target="_blank">
+<img src="slides/l4/p110.jpg" alt="Slide p. 110: Contrastive learning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 110 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4952s" target="_blank" rel="noopener" title="Watch on YouTube from 1:22:32">&#9658; 1:22:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4952s" target="_blank" rel="noopener">1:22:32</a> that this image corresponds to that piece of text. So you can do that from a fixed image to the set of texts. And you can do that on the other hand, with a fixed piece of text token to all the images. So you can have both ways. And what we do is that we can define two losses that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=4980s" target="_blank" rel="noopener">1:23:00</a> look symmetric, that represents respectively, how similar, like the penalization of any error of a fixed image based on all pieces of text and similarity error of a piece of text with respect to all the images. So it&#x27;s symmetric cross entropy. And then when we sum these two losses, we can obtain a final formulation that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5009s" target="_blank" rel="noopener">1:23:29</a> represents what we care about. So that is the key of the CLIP model that trains the representations of both image and text worlds into, like with this way of training things. So what we do is that we scrape a bunch of images</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5036s" target="_blank" rel="noopener">1:23:56</a> and captions off of the internet. And then for a given batch, we say that a given image has its associated caption as the true label, and then all the other captions in that batch are negatives. So it&#x27;s called in batch negatives. And you do the same thing of captions with respect to all the images. And you obtain that way final embeddings in the text and image</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5067s" target="_blank" rel="noopener">1:24:27</a> encoders here that will generate the representation that you&#x27;re looking for. So here, just to give some order of magnitude, the paper talked about 400M pairs of data. And it&#x27;s great reach great accuracy even unsupervised tasks. But the issue here is this softmax. So every time you have a huge batch of data,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5099s" target="_blank" rel="noopener">1:24:59</a> you need to build a similarity matrix of a fixed image with respect to all the captions and symmetrically. And this is not a great computationally. And also, from a mining standpoint, what you&#x27;re truly saying in your loss is that you want to maximize the similarity of your true image caption pair, but you don&#x27;t it&#x27;s truly enforce the fact</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5127s" target="_blank" rel="noopener">1:25:27</a> that all the other similarities should be each very small. So some follow up work reframes this problem into a sigmoid loss one. So instead of saying I want this one image to have a probability distribution that matches that of the true caption, we take one caption and one image separately, and we ask ourselves the question, do they match or not? And by doing so you don&#x27;t have all this similarity matrix</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5164s" target="_blank" rel="noopener">1:26:04</a> complexities. And also, you have a stronger statement at your loss level that&#x27;s pushes the positives together and the negatives further apart. OK, so any questions on this contrastive learning part? Yep? The question is, do you start from a pre-trained encoder, and what weights do you change?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5190s" target="_blank" rel="noopener">1:26:30</a> So I think in the paper, they start from scratch. And they train both encoders from scratch. You could very well freeze or start with some pre-trained encoder. Freeze all the layers. Let the last layer. I think typically, you would just train everything. And in real life, I think you just wouldn&#x27;t train anything. You would just pick something out of Hugging Face.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5214s" target="_blank" rel="noopener">1:26:54</a> But yeah, in practice, since it&#x27;s easy to get all this data-- so typically, you would scrape the internet. Look at images, and look at all tags in HTML. So you can get all these pairs. So I think you&#x27;re in such a setup, where doing it from scratch makes sense, but what you suggested makes sense as well. Yeah. So I think it depends on what works best.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5240s" target="_blank" rel="noopener">1:27:20</a> Yeah. So the question is the transformer architecture a prerequisite for this task. Not at all. So you can do it with any encoders. And the reason why I talked about transformers is to ground the way of encoding into what people do in practice. But you don&#x27;t have to have this architecture as a prerequisite. Yeah. OK, awesome. So now, we&#x27;re going to reach the most exciting part</p>
+</div>
+</section><section class="row" id="s92">
+<figure>
+<a href="slides/l4/p111.jpg" target="_blank">
+<img src="slides/l4/p111.jpg" alt="Slide p. 111: 1" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 111 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s93">
+<figure>
+<a href="slides/l4/p112.jpg" target="_blank">
+<img src="slides/l4/p112.jpg" alt="Slide p. 112: 1" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 112 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s94">
+<figure>
+<a href="slides/l4/p116.jpg" target="_blank">
+<img src="slides/l4/p116.jpg" alt="Slide pp. 113–116: CLIP" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 113–116 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s95">
+<figure>
+<a href="slides/l4/p117.jpg" target="_blank">
+<img src="slides/l4/p117.jpg" alt="Slide p. 117: Each term." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 117 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s96">
+<figure>
+<a href="slides/l4/p118.jpg" target="_blank">
+<img src="slides/l4/p118.jpg" alt="Slide p. 118: Each term." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 118 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s97">
+<figure>
+<a href="slides/l4/p119.jpg" target="_blank">
+<img src="slides/l4/p119.jpg" alt="Slide p. 119: CLIP characteristics" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 119 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s98">
+<figure>
+<a href="slides/l4/p120.jpg" target="_blank">
+<img src="slides/l4/p120.jpg" alt="Slide p. 120: Training." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 120 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s99">
+<figure>
+<a href="slides/l4/p122.jpg" target="_blank">
+<img src="slides/l4/p122.jpg" alt="Slide pp. 121–122: Discussion of CLIP" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 121–122 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s100">
+<figure>
+<a href="slides/l4/p123.jpg" target="_blank">
+<img src="slides/l4/p123.jpg" alt="Slide p. 123: From pixel to latent space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 123 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5258s" target="_blank" rel="noopener">&#8776; 1:27:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Classifier-based-guidance"><span>Classifier-based guidance</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5265s" target="_blank" rel="noopener">1:27:45</a></div><section class="row" id="s101">
+<figure>
+<a href="slides/l4/p124.jpg" target="_blank">
+<img src="slides/l4/p124.jpg" alt="Slide p. 124: Today&#x27;s lecture: Part 3" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 124 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5265s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:45">&#9658; 1:27:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5265s" target="_blank" rel="noopener">1:27:45</a> of the class, which is finally, how do you guide our generation model with the condition. And we&#x27;re going to go back to thinking about what we discussed</p>
+</div>
+</section><section class="row" id="s102">
+<figure>
+<a href="slides/l4/p125.jpg" target="_blank">
+<img src="slides/l4/p125.jpg" alt="Slide p. 125: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 125 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5279s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27:59">&#9658; 1:27:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5279s" target="_blank" rel="noopener">1:27:59</a> these past lectures. So we had this diffusion mechanism, where you are at a given step here, xt plus 1. And you want to find the less noisy version of the image xt.</p>
+</div>
+</section><section class="row" id="s103">
+<figure>
+<a href="slides/l4/p126.jpg" target="_blank">
+<img src="slides/l4/p126.jpg" alt="Slide p. 126: First idea: guide the generation with a classiﬁer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 126 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5294s" target="_blank" rel="noopener" title="Watch on YouTube from 1:28:14">&#9658; 1:28:14</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5294s" target="_blank" rel="noopener">1:28:14</a> And the thing that we want to do now is to do that with a condition that I called y, but that you might see called c in papers. So you want to guide the generation towards generating a sample that follows y. So a first idea that you might have is OK, it&#x27;s a classification.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5319s" target="_blank" rel="noopener">1:28:39</a> There is a concept of classification. I can come up with a classifier of weights phi</p>
+</div>
+</section><section class="row" id="s104">
+<figure>
+<a href="slides/l4/p127.jpg" target="_blank">
+<img src="slides/l4/p127.jpg" alt="Slide pp. 127–128: Justiﬁcation: Apply conditional Bayes’ rule on" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 127–128 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5326s" target="_blank" rel="noopener" title="Watch on YouTube from 1:28:46">&#9658; 1:28:46</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5326s" target="_blank" rel="noopener">1:28:46</a> and try to make it work. So how could you make it work? You start from this probability distribution that you want to sample from. And then by applying Bayes&#x27; rule, like the conditional version with the right arguments for A, B, and C, you obtain this product of two probability distributions that you can see on the left represents the one step generation process that we know.</p>
+</div>
+</section><section class="row" id="s105">
+<figure>
+<a href="slides/l4/p129.jpg" target="_blank">
+<img src="slides/l4/p129.jpg" alt="Slide p. 129: Justiﬁcation:" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 129 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5358s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:18">&#9658; 1:29:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5358s" target="_blank" rel="noopener">1:29:18</a> And on the right side, you have the probability distribution of y given xt, which would typically be what</p>
+</div>
+</section><section class="row" id="s106">
+<figure>
+<a href="slides/l4/p130.jpg" target="_blank">
+<img src="slides/l4/p130.jpg" alt="Slide p. 130: Justiﬁcation: Apply conditional Bayes’ rule on" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 130 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5366s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:26">&#9658; 1:29:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5366s" target="_blank" rel="noopener">1:29:26</a> the classifier would give you. So now, let&#x27;s see how we could sample from this.</p>
+</div>
+</section><section class="row" id="s107">
+<figure>
+<a href="slides/l4/p131.jpg" target="_blank">
+<img src="slides/l4/p131.jpg" alt="Slide p. 131: Let’s focus on" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 131 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5373s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:33">&#9658; 1:29:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5373s" target="_blank" rel="noopener">1:29:33</a> So taking a look at the probability distribution on the left. So if we recall the first lecture,</p>
+</div>
+</section><section class="row" id="s108">
+<figure>
+<a href="slides/l4/p132.jpg" target="_blank">
+<img src="slides/l4/p132.jpg" alt="Slide p. 132: Justiﬁcation: Plug in expressions into" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 132 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5379s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:39">&#9658; 1:29:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5379s" target="_blank" rel="noopener">1:29:39</a> let&#x27;s say in the DDPM world, you know that this probability distribution follows a normal distribution of a mean that we learn and of variance that is following a noise schedule. So we don&#x27;t learn it. It&#x27;s something that we have. So we know the expression of this. If you look at the probability distribution of this,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5407s" target="_blank" rel="noopener">1:30:07</a> it&#x27;s something that we know. So we have that on one hand. And on the other, we look at our probability distribution at the end of the classifier. So here, why are we not happy with that-- I mean, we have the data of the probability distribution. You just have to put the noisy image to your classifier,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5434s" target="_blank" rel="noopener">1:30:34</a> and then you have it. You have a probability distribution. Why are we not happy with that? It&#x27;s because we cannot plug it into that product equation that we saw and then easily sample from it. We want to reframe it in a way that we can have this nice Gaussian distribution that we had, for example, at the unconditioned generation step. So what we do is that we have a trick that expands this probability distribution with a Taylor</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5467s" target="_blank" rel="noopener">1:31:07</a> expansion. And then you come up with a first term that is a function of xt. And when you plug the probability, I mean the log of p phi that we just found into this product, you see that the probability distribution that you want to learn is simply the same one that you had, but with a shifted mean.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5495s" target="_blank" rel="noopener">1:31:35</a> So I just want to take a pause for a second. So we went through a process that where we tried to find an easy probability distribution to sample from. So we went through a series of equations. But all I want you to know from all of that is that we tried to get to this state, where</p>
+</div>
+</section><section class="row" id="s109">
+<figure>
+<a href="slides/l4/p133.jpg" target="_blank">
+<img src="slides/l4/p133.jpg" alt="Slide p. 133: And what about the training loss?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 133 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5519s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:59">&#9658; 1:31:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5519s" target="_blank" rel="noopener">1:31:59</a> we can sample from an easy distribution, and that&#x27;s what we reached. So in some way, we&#x27;re happy.</p>
+</div>
+</section><section class="row" id="s110">
+<figure>
+<a href="slides/l4/p134.jpg" target="_blank">
+<img src="slides/l4/p134.jpg" alt="Slide p. 134: And what about the training loss?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 134 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5525s" target="_blank" rel="noopener" title="Watch on YouTube from 1:32:05">&#9658; 1:32:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5525s" target="_blank" rel="noopener">1:32:05</a> And then here, what&#x27;s good about it is that you don&#x27;t need to retrain your unconditioned model.</p>
+</div>
+</section><section class="row" id="s111">
+<figure>
+<a href="slides/l4/p135.jpg" target="_blank">
+<img src="slides/l4/p135.jpg" alt="Slide p. 135: Training" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 135 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5531s" target="_blank" rel="noopener" title="Watch on YouTube from 1:32:11">&#9658; 1:32:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5531s" target="_blank" rel="noopener">1:32:11</a> So your theta and your sigma t are things that. And there is a downside to it. Now, I mentioned classifiers. You need to learn a classifier that operates on noisy images. And the process here is that you need to have that classifier that predicts some probability distribution, and then you need to take the backward pass on the network in order to find the gradient.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5562s" target="_blank" rel="noopener">1:32:42</a> Did that make sense so far? OK, great. So when we sample from the distribution that I mentioned in practice, one thing that people see is that it doesn&#x27;t produce samples that follow the y condition enough. So this is why you see that W factor being introduced</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5588s" target="_blank" rel="noopener">1:33:08</a> that can be tuned to force the generation process to follow the classifier&#x27;s gradients more. And this is what we call the guidance part. So we saw that we don&#x27;t have to retrain the unconditioned model in order to sample from this distribution. But on the other hand, you need to have a classifier that operates on top of a domain that can be composed of noisy images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5617s" target="_blank" rel="noopener">1:33:37</a> And the bad thing about it is that you typically don&#x27;t have that out of the box. So it&#x27;s typically something that you have to train as part of your training process, which is a downside. And also, the fact that you need to compute the backwards pass</p>
+</div>
+</section><section class="row" id="s112">
+<figure>
+<a href="slides/l4/p136.jpg" target="_blank">
+<img src="slides/l4/p136.jpg" alt="Slide p. 136: Giving more weight to the condition signal" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 136 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5635s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33:55">&#9658; 1:33:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5635s" target="_blank" rel="noopener">1:33:55</a> of your classifier is quite expensive, which is also not great. And something else that I will mention is that you not only need to have that extra classifier and spend all these budgets to compute the gradients, but you need to make sure that the signal of your gradients scales well with the coefficient w that you introduce.</p>
+</div>
+</section><section class="row" id="s113">
+<figure>
+<a href="slides/l4/p138.jpg" target="_blank">
+<img src="slides/l4/p138.jpg" alt="Slide pp. 137–138: Limitations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 137–138 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5666s" target="_blank" rel="noopener" title="Watch on YouTube from 1:34:26">&#9658; 1:34:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5666s" target="_blank" rel="noopener">1:34:26</a> So you need some hyperparameter tuning to make sure that the operation that you&#x27;re doing is meaningful.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5675s" target="_blank" rel="noopener">1:34:35</a> So one question that you might ask yourself, is it possible to do this guided generation without the needs</p>
+</div>
+</section><div class="chapter" id="ch-Classifier-free-guidance"><span>Classifier-free guidance</span><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5683s" target="_blank" rel="noopener">1:34:43</a></div><section class="row" id="s114">
+<figure>
+<a href="slides/l4/p139.jpg" target="_blank">
+<img src="slides/l4/p139.jpg" alt="Slide p. 139: Reﬁned goal" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 139 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5683s" target="_blank" rel="noopener" title="Watch on YouTube from 1:34:43">&#9658; 1:34:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5683s" target="_blank" rel="noopener">1:34:43</a> of a classifier? And the answer is yes.</p>
+</div>
+</section><section class="row" id="s115">
+<figure>
+<a href="slides/l4/p141.jpg" target="_blank">
+<img src="slides/l4/p141.jpg" alt="Slide pp. 140–141: Any way to get rid of the classiﬁer part?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 140–141 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5689s" target="_blank" rel="noopener" title="Watch on YouTube from 1:34:49">&#9658; 1:34:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5689s" target="_blank" rel="noopener">1:34:49</a> So if you use Bayes&#x27; formula, you can see that you can define an implicit classifier,</p>
+</div>
+</section><section class="row" id="s116">
+<figure>
+<a href="slides/l4/p142.jpg" target="_blank">
+<img src="slides/l4/p142.jpg" alt="Slide p. 142: Change of mindset" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 142 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5697s" target="_blank" rel="noopener" title="Watch on YouTube from 1:34:57">&#9658; 1:34:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5697s" target="_blank" rel="noopener">1:34:57</a> so called p of y given x based on the generation, like the unconditioned generation of your image and the conditioned generation of your image, so conditioned on y. Which means that if you have a network that can generate an image without any conditions and that can generate an image with a given condition,</p>
+</div>
+</section><section class="row" id="s117">
+<figure>
+<a href="slides/l4/p143.jpg" target="_blank">
+<img src="slides/l4/p143.jpg" alt="Slide pp. 143–144: Training for classiﬁer-free guidance" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 143–144 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5727s" target="_blank" rel="noopener" title="Watch on YouTube from 1:35:27">&#9658; 1:35:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5727s" target="_blank" rel="noopener">1:35:27</a> then you can solve this problem by plugging this equation back into what we had, which is what we do here. So the equation that I showed regarding the distribution of the next sampling step can be written in epsilon space. So I mentioned this Gaussian distribution of shifted mean.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5753s" target="_blank" rel="noopener">1:35:53</a> You can rewrite the noise that you want to predict into one that takes into account that classifier signal. And what the authors of the paper of the classifier free guidance paper did is that they plugged in the P phi. Expression with the implicit classifier, the expression that I just mentioned before.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5781s" target="_blank" rel="noopener">1:36:21</a> And they obtained this very nice expression that is a function of the noise that we want to remove based on a model that isn&#x27;t fed any condition, and one for which a condition is provided. And what you can see is that there is this w term in the middle that has about the same interpretation as the one</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5806s" target="_blank" rel="noopener">1:36:46</a> that we saw before that will tweak the generation to be more or less towards the condition that you bring. So there&#x27;s that. And then now, we are happy because we no longer have to train separate classifier phi. We can just rely on the generation network&#x27;s weights.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5831s" target="_blank" rel="noopener">1:37:11</a> So how does that look like in practice? So with a certain probability called the unconditional probability, what you can do is sample an image from your training set, and time step, and noise, and try to predict the noise from it, which is what we saw in the past. And with probability 1 minus p unconditional, what you can do</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5860s" target="_blank" rel="noopener">1:37:40</a> is do the same. But then use the embeddings that we saw in the parts just before to feed that network with this additional information and predict the quantity of noise to remove with the condition y. So you do that 1 minus p and conditional times.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5885s" target="_blank" rel="noopener">1:38:05</a> And what you get is something interesting, which is if you look at how your predictions look like, so let&#x27;s say the noise that you want to remove is the points top left, and then the noise that you want to remove when you have a condition is the one in the middle. Then the guidance hyperparameter w</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5911s" target="_blank" rel="noopener">1:38:31</a> will push the prediction of the noise more towards the noise of the condition sample. And the reason why we do that is that because in practice, if you don&#x27;t have this hyperparameter, you tend. And if you just use the condition sample noise as the one that you use to denoise your noisy latents, you might obtain images that do not follow your prompts very</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5943s" target="_blank" rel="noopener">1:39:03</a> closely. And this is why we have such a hyperparameter in the first place. In terms of numbers, the guidance parameter is typically set to just a few, I think three. In the paper, so typically more than one. And I just want to put a disclaimer here that the equations that I showed with the classifier guidance</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=5969s" target="_blank" rel="noopener">1:39:29</a> hyperparameter might have several definitions. So you might see formulas with w in there, w plus 1. So all these values of w that you take are dependent on the equation that you operate from. So this is 1. And then the other thing is that in practice at training time, the proportion of time for which you show unconditioned generation is typically 10%, 20% of time.</p>
+</div>
+</section><section class="row" id="s118">
+<figure>
+<a href="slides/l4/p145.jpg" target="_blank">
+<img src="slides/l4/p145.jpg" alt="Slide p. 145: Sampling for classiﬁer-free guidance" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 145 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6001s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:01">&#9658; 1:40:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6001s" target="_blank" rel="noopener">1:40:01</a> And this time, you do not need to have an additional classifier at hand and to do</p>
+</div>
+</section><section class="row" id="s119">
+<figure>
+<a href="slides/l4/p146.jpg" target="_blank">
+<img src="slides/l4/p146.jpg" alt="Slide p. 146: Practical considerations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 146 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6008s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:08">&#9658; 1:40:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6008s" target="_blank" rel="noopener">1:40:08</a> an expensive backward pass. But you still need to do two inference steps.</p>
+</div>
+</section><section class="row" id="s120">
+<figure>
+<a href="slides/l4/p147.jpg" target="_blank">
+<img src="slides/l4/p147.jpg" alt="Slide p. 147: Practical considerations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 147 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6015s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:15">&#9658; 1:40:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6015s" target="_blank" rel="noopener">1:40:15</a> Because we saw that the equation has this epsilon theta of xt and no condition, and the one with the condition which is 2 forward passes. So you still have some extra cost, although it&#x27;s better than the other technique. And this technique, CFG is the one that&#x27;s most used today.</p>
+</div>
+</section><section class="row" id="s121">
+<figure>
+<a href="slides/l4/p148.jpg" target="_blank">
+<img src="slides/l4/p148.jpg" alt="Slide p. 148: Thank you for your attention!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 148 <a class="tlink chip" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6038s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:38">&#9658; 1:40:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=WUUq6TVAu8U&t=6038s" target="_blank" rel="noopener">1:40:38</a> OK. So any questions? OK, great. With that, I hope you have a great weekend. [APPLAUSE] Stanford CME29</p>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<p>Slides &copy; CME 296 instructors (Afshine Amidi &amp; Shervine Amidi), Stanford University.
+Transcript from the lecture video. Slide&ndash;transcript alignment is automatic
+(content matching) and approximate; timestamps link to the video.</p>
+<nav class="lnav"><a href="lecture3.html">&larr; Lecture 3</a><a href="index.html">All lectures</a><a href="lecture5.html">Lecture 5 &rarr;</a></nav>
+</footer>
+</body>
+</html>

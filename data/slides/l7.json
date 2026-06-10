@@ -1,0 +1,1273 @@
+{
+ "lecture": 7,
+ "n_pages": 137,
+ "groups": [
+  {
+   "pages": [
+    1
+   ],
+   "id": 0,
+   "img": "p001.jpg",
+   "page_first": 1,
+   "page_last": 1,
+   "title": "CME 296: Di\ufb00usion &",
+   "text": "CME 296: Di\ufb00usion & Large Vision Models Afshine Amidi & Shervine Amidi Lecture 7"
+  },
+  {
+   "pages": [
+    2,
+    3,
+    4
+   ],
+   "id": 1,
+   "img": "p003.jpg",
+   "page_first": 2,
+   "page_last": 4,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Logit-Normal distribution Figure from Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024."
+  },
+  {
+   "pages": [
+    5
+   ],
+   "id": 2,
+   "img": "p005.jpg",
+   "page_first": 5,
+   "page_last": 5,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Pre-training \ud83d\uddbc Learn how to generate images 1"
+  },
+  {
+   "pages": [
+    6
+   ],
+   "id": 3,
+   "img": "p006.jpg",
+   "page_first": 6,
+   "page_last": 6,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Pre-training Post-training \ud83d\uddbc \ud83d\ude03 Learn how to generate images Learn how to generate good images 1 2"
+  },
+  {
+   "pages": [
+    7
+   ],
+   "id": 4,
+   "img": "p007.jpg",
+   "page_first": 7,
+   "page_last": 7,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Pre-training Post-training Tuning \ud83d\uddbc \ud83d\ude03 \u2699 Learn how to generate images Learn how to generate good images Learn how to generate images for a special case 1 2 3"
+  },
+  {
+   "pages": [
+    8
+   ],
+   "id": 5,
+   "img": "p008.jpg",
+   "page_first": 8,
+   "page_last": 8,
+   "title": "Recap of last episode\u2026",
+   "text": "Recap of last episode\u2026 Pre-training Post-training Tuning Distillation \u26a1 \ud83d\uddbc \ud83d\ude03 \u2699 Learn how to generate images Learn how to generate good images Learn how to generate images for a special case Learn how to generate images, fast 1 2 3 4"
+  },
+  {
+   "pages": [
+    9
+   ],
+   "id": 6,
+   "img": "p009.jpg",
+   "page_first": 9,
+   "page_last": 9,
+   "title": "Today's lecture",
+   "text": "Today's lecture A teddy bear reading a book Generation model Today's lecture: Evaluation Evaluation"
+  },
+  {
+   "pages": [
+    10
+   ],
+   "id": 7,
+   "img": "p010.jpg",
+   "page_first": 10,
+   "page_last": 10,
+   "title": "Setup",
+   "text": "Setup Input prompt A teddy bear reading a book Image Generation model"
+  },
+  {
+   "pages": [
+    11
+   ],
+   "id": 8,
+   "img": "p011.jpg",
+   "page_first": 11,
+   "page_last": 11,
+   "title": "Motivating example",
+   "text": "Motivating example Generated image Generation model Input prompt A teddy bear reading a book Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    12
+   ],
+   "id": 9,
+   "img": "p012.jpg",
+   "page_first": 12,
+   "page_last": 12,
+   "title": "Motivating example: does not look real / high quality!",
+   "text": "Motivating example: does not look real / high quality! Generation model Input prompt A teddy bear reading a book Image generated with ChatGPT on May 17th, 2026. \u274c Generated image"
+  },
+  {
+   "pages": [
+    13
+   ],
+   "id": 10,
+   "img": "p013.jpg",
+   "page_first": 13,
+   "page_last": 13,
+   "title": "Motivating example",
+   "text": "Motivating example Generated image Generation model Input prompt A teddy bear reading a book Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    14
+   ],
+   "id": 11,
+   "img": "p014.jpg",
+   "page_first": 14,
+   "page_last": 14,
+   "title": "Motivating example: does not follow prompt!",
+   "text": "Motivating example: does not follow prompt! Generated image Generation model Input prompt A teddy bear reading a book \u274c Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    15
+   ],
+   "id": 12,
+   "img": "p015.jpg",
+   "page_first": 15,
+   "page_last": 15,
+   "title": "Motivating example",
+   "text": "Motivating example Generation model Input prompt A teddy bear reading a book Generated image Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    16
+   ],
+   "id": 13,
+   "img": "p016.jpg",
+   "page_first": 16,
+   "page_last": 16,
+   "title": "Motivating example: follows prompt and high quality!",
+   "text": "Motivating example: follows prompt and high quality! Generation model Input prompt A teddy bear reading a book \u2705 Image generated with ChatGPT on May 17th, 2026. Generated image"
+  },
+  {
+   "pages": [
+    17
+   ],
+   "id": 14,
+   "img": "p017.jpg",
+   "page_first": 17,
+   "page_last": 17,
+   "title": "Tractable scope",
+   "text": "Tractable scope Aesthetics \"Is this a good picture?\" \u25cf Physical plausibility \u25cf Cleanliness \u25cf Perceptual quality \u25cf Realism Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    18
+   ],
+   "id": 15,
+   "img": "p018.jpg",
+   "page_first": 18,
+   "page_last": 18,
+   "title": "Tractable scope",
+   "text": "Tractable scope Aesthetics \"Is this a good picture?\" Prompt adherence \"Did it follow instructions?\" \u25cf Physical plausibility \u25cf Cleanliness \u25cf Perceptual quality \u25cf Realism \u25cf Object recall \u25cf Counting \u25cf Text rendering \u25cf Style adherence A teddy bear reading a book Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    19
+   ],
+   "id": 16,
+   "img": "p019.jpg",
+   "page_first": 19,
+   "page_last": 19,
+   "title": "\u2026but not exhaustive!",
+   "text": "\u2026but not exhaustive! Other notable dimensions. \u25cf \ud83d\udee1 Safety \u25cf \ud83e\udde9 Diversity \u25cf \ud83e\udde0 Memorization \u25cf \ud83d\udd0d Bias"
+  },
+  {
+   "pages": [
+    20
+   ],
+   "id": 17,
+   "img": "p020.jpg",
+   "page_first": 20,
+   "page_last": 20,
+   "title": "Human ratings",
+   "text": "Human ratings Reference-free metrics Reference-based metrics Multimodal LLMs MLLM-as-a-Judge Benchmarks Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    21
+   ],
+   "id": 18,
+   "img": "p021.jpg",
+   "page_first": 21,
+   "page_last": 21,
+   "title": "Attempt 1: rate images on a scale",
+   "text": "Attempt 1: rate images on a scale A teddy bear reading a book Very good Good Neutral Bad Very bad \u2696 Image generated with ChatGPT on May 17th, 2026. Model A 5 4 3 2 1"
+  },
+  {
+   "pages": [
+    22
+   ],
+   "id": 19,
+   "img": "p022.jpg",
+   "page_first": 22,
+   "page_last": 22,
+   "title": "Attempt 1: rate images on a scale",
+   "text": "Attempt 1: rate images on a scale A teddy bear reading a book Very good Good Neutral Bad Very bad \u2696 Image generated with ChatGPT on May 17th, 2026. Model A 4 3 2 1 5"
+  },
+  {
+   "pages": [
+    23
+   ],
+   "id": 20,
+   "img": "p023.jpg",
+   "page_first": 23,
+   "page_last": 23,
+   "title": "Attempt 1: rate images on a scale",
+   "text": "Attempt 1: rate images on a scale Score Average of ratings Discussion. \u25cf Good to have nuance in score \u25cf Ratings may be noisy \u25cf Hard to rate on an absolute scale Sum of ratings Number of ratings"
+  },
+  {
+   "pages": [
+    24,
+    25
+   ],
+   "id": 21,
+   "img": "p024.jpg",
+   "page_first": 24,
+   "page_last": 25,
+   "title": "Attempt 2: rate images on a binary scale",
+   "text": "Attempt 2: rate images on a binary scale Good Bad or A teddy bear reading a book Image generated with ChatGPT on May 17th, 2026. 1 0 Model A"
+  },
+  {
+   "pages": [
+    26
+   ],
+   "id": 22,
+   "img": "p026.jpg",
+   "page_first": 26,
+   "page_last": 26,
+   "title": "Attempt 2: rate images on a binary scale",
+   "text": "Attempt 2: rate images on a binary scale Discussion. \u25cf Easier task compared to nuanced scale \u25cf Still hard to rate on an absolute scale Score Proportion of pass Sum of ratings Number of ratings"
+  },
+  {
+   "pages": [
+    27
+   ],
+   "id": 23,
+   "img": "p027.jpg",
+   "page_first": 27,
+   "page_last": 27,
+   "title": "Attempt 3: rate images via pairwise comparisons",
+   "text": "Attempt 3: rate images via pairwise comparisons A teddy bear reading a book > = < Images generated with ChatGPT on May 17th, 2026. Model A Model B"
+  },
+  {
+   "pages": [
+    28
+   ],
+   "id": 24,
+   "img": "p028.jpg",
+   "page_first": 28,
+   "page_last": 28,
+   "title": "Attempt 3: rate images via pairwise comparisons",
+   "text": "Attempt 3: rate images via pairwise comparisons A teddy bear reading a book Images generated with ChatGPT on May 17th, 2026. Model A Model B > = <"
+  },
+  {
+   "pages": [
+    29
+   ],
+   "id": 25,
+   "img": "p029.jpg",
+   "page_first": 29,
+   "page_last": 29,
+   "title": "Win rate",
+   "text": "Win rate Score Win rate Number of wins Number of comparisons Discussion. \u25cf Much easier task than absolute scale! \u25cf Win rate depends on who we are comparing with who\u2026"
+  },
+  {
+   "pages": [
+    30
+   ],
+   "id": 26,
+   "img": "p030.jpg",
+   "page_first": 30,
+   "page_last": 30,
+   "title": "Cases where win rate is not great\u2026",
+   "text": "Cases where win rate is not great\u2026 Arti\ufb01cial Analysis Image Arena Leaderboard, edited screenshot taken on May 17th, 2026."
+  },
+  {
+   "pages": [
+    31
+   ],
+   "id": 27,
+   "img": "p031.jpg",
+   "page_first": 31,
+   "page_last": 31,
+   "title": "\u2026and intuition behind how to \ufb01x this!",
+   "text": "\u2026and intuition behind how to \ufb01x this! Objective. Compute win rate\u2026 by taking into account \"strength\" of opponent! Sure, Model A won. So what? \ud83e\udd37 > Images generated with ChatGPT on May 17th, 2026. Model A Bad model"
+  },
+  {
+   "pages": [
+    32
+   ],
+   "id": 28,
+   "img": "p032.jpg",
+   "page_first": 32,
+   "page_last": 32,
+   "title": "\u2026and intuition behind how to \ufb01x this!",
+   "text": "\u2026and intuition behind how to \ufb01x this! Objective. Compute win rate\u2026 by taking into account \"strength\" of opponent! Sure, Model A won. So what? \ud83e\udd37 WOW, Model A won!!!! \ud83c\udf89 > > Images generated with ChatGPT on May 17th, 2026. Model A Bad model Model A Good model"
+  },
+  {
+   "pages": [
+    33
+   ],
+   "id": 29,
+   "img": "p033.jpg",
+   "page_first": 33,
+   "page_last": 33,
+   "title": "Elo score",
+   "text": "Elo score Model A Bad model Compute expected score 1"
+  },
+  {
+   "pages": [
+    34
+   ],
+   "id": 30,
+   "img": "p034.jpg",
+   "page_first": 34,
+   "page_last": 34,
+   "title": "Elo score",
+   "text": "Elo score Compute expected score Obtain actual score 1 2 Loss Win Tie Model A Bad model"
+  },
+  {
+   "pages": [
+    35
+   ],
+   "id": 31,
+   "img": "p035.jpg",
+   "page_first": 35,
+   "page_last": 35,
+   "title": "Elo score",
+   "text": "Elo score Compute expected score Obtain actual score Compare actual score with expected score 1 2 3 Model A Bad model if Model A wins if there is a tie if Model A loses"
+  },
+  {
+   "pages": [
+    36
+   ],
+   "id": 32,
+   "img": "p036.jpg",
+   "page_first": 36,
+   "page_last": 36,
+   "title": "Elo score",
+   "text": "Elo score Compute expected score Obtain actual score Compare actual score with expected score 1 2 Update rating 3 4 Model A Bad model"
+  },
+  {
+   "pages": [
+    37
+   ],
+   "id": 33,
+   "img": "p037.jpg",
+   "page_first": 37,
+   "page_last": 37,
+   "title": "Leaderboard of text-to-image models",
+   "text": "Leaderboard of text-to-image models Arti\ufb01cial Analysis Image Arena Leaderboard, screenshot taken on May 17th, 2026."
+  },
+  {
+   "pages": [
+    38
+   ],
+   "id": 34,
+   "img": "p038.jpg",
+   "page_first": 38,
+   "page_last": 38,
+   "title": "Limitations with human ratings",
+   "text": "Limitations with human ratings \u25cf \ud83d\udcb8 Expensive \u25cf \ud83d\udc0c Slow \u25cf \u274c Not necessarily ground truth (fatigue, cultural bias) \u25cf \ud83e\udd37 Subjective"
+  },
+  {
+   "pages": [
+    39
+   ],
+   "id": 35,
+   "img": "p039.jpg",
+   "page_first": 39,
+   "page_last": 39,
+   "title": "Human ratings",
+   "text": "Human ratings Reference-free metrics Reference-based metrics Multimodal LLMs MLLM-as-a-Judge Benchmarks Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    40
+   ],
+   "id": 36,
+   "img": "p040.jpg",
+   "page_first": 40,
+   "page_last": 40,
+   "title": "Motivation",
+   "text": "Motivation Input prompt A teddy bear reading a book Valid generated images Generation model Many valid images! Images generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    41
+   ],
+   "id": 37,
+   "img": "p041.jpg",
+   "page_first": 41,
+   "page_last": 41,
+   "title": "Motivation",
+   "text": "Motivation Input prompt A teddy bear reading a book Valid generated images Generation model Many valid images! Unfair to compare to a single image! Images generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    42
+   ],
+   "id": 38,
+   "img": "p042.jpg",
+   "page_first": 42,
+   "page_last": 42,
+   "title": "Back to our problem",
+   "text": "Back to our problem Generated image Generation model Input prompt A teddy bear reading a book Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    43
+   ],
+   "id": 39,
+   "img": "p043.jpg",
+   "page_first": 43,
+   "page_last": 43,
+   "title": "Back to our problem",
+   "text": "Back to our problem Generated image Generation model Input prompt A teddy bear reading a book 1 Aesthetics Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    44
+   ],
+   "id": 40,
+   "img": "p044.jpg",
+   "page_first": 44,
+   "page_last": 44,
+   "title": "Aesthetics",
+   "text": "Aesthetics Real image Generated image Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    45
+   ],
+   "id": 41,
+   "img": "p045.jpg",
+   "page_first": 45,
+   "page_last": 45,
+   "title": "Aesthetics",
+   "text": "Aesthetics Real image distribution Generated image distribution Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    46
+   ],
+   "id": 42,
+   "img": "p046.jpg",
+   "page_first": 46,
+   "page_last": 46,
+   "title": "Aesthetics",
+   "text": "Aesthetics Real image distribution Generated image distribution ? Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    47,
+    48,
+    49,
+    50
+   ],
+   "id": 43,
+   "img": "p047.jpg",
+   "page_first": 47,
+   "page_last": 50,
+   "title": "Aesthetics",
+   "text": "Aesthetics Pre-trained encoder Pre-trained encoder Real image distribution Generated image distribution Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    51
+   ],
+   "id": 44,
+   "img": "p051.jpg",
+   "page_first": 51,
+   "page_last": 51,
+   "title": "Distance between real and generated distributions",
+   "text": "Distance between real and generated distributions GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, Heusel et al., 2017. Idea. Quantify distance between generated and real images Location di\ufb00erence Shape di\ufb00erence"
+  },
+  {
+   "pages": [
+    52
+   ],
+   "id": 45,
+   "img": "p052.jpg",
+   "page_first": 52,
+   "page_last": 52,
+   "title": "Fr\u00e9chet inception distance",
+   "text": "Fr\u00e9chet inception distance GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, Heusel et al., 2017. FID = Fr\u00e9chet Inception Distance Idea. Quantify distance between generated and real images Location di\ufb00erence Shape di\ufb00erence The lower, the better!"
+  },
+  {
+   "pages": [
+    53
+   ],
+   "id": 46,
+   "img": "p053.jpg",
+   "page_first": 53,
+   "page_last": 53,
+   "title": "We already saw plots using FID in the class!",
+   "text": "We already saw plots using FID in the class! Lecture 5 Lecture 6 Figure from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022. Figure from Representation Alignment for Generation: Training Di\ufb00usion Transformers Is Easier Than You Think, Yu et al., 2024."
+  },
+  {
+   "pages": [
+    54,
+    55
+   ],
+   "id": 47,
+   "img": "p055.jpg",
+   "page_first": 54,
+   "page_last": 55,
+   "title": "Discussion on the FID",
+   "text": "Discussion on the FID What it measures. \u25cf Location di\ufb00erence. Quality, style \u25cf Shape di\ufb00erence. Diversity, variety Discussion. Depends on: \u25cf Sample size (common: FID-50k) \u25cf Reference data distribution \u25cf Normality assumption"
+  },
+  {
+   "pages": [
+    56
+   ],
+   "id": 48,
+   "img": "p056.jpg",
+   "page_first": 56,
+   "page_last": 56,
+   "title": "Back to our problem",
+   "text": "Back to our problem Generated image Generation model Input prompt A teddy bear reading a book 1 Aesthetics 2 Prompt adherence Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    57
+   ],
+   "id": 49,
+   "img": "p057.jpg",
+   "page_first": 57,
+   "page_last": 57,
+   "title": "Reminder from Lecture 4: CLIP!",
+   "text": "Reminder from Lecture 4: CLIP! CLIP = Contrastive Language-Image Pretraining Learning Transferable Visual Models From Natural Language Supervision, Radford et al., 2021"
+  },
+  {
+   "pages": [
+    58
+   ],
+   "id": 50,
+   "img": "p058.jpg",
+   "page_first": 58,
+   "page_last": 58,
+   "title": "Image-text alignment via CLIPScore",
+   "text": "Image-text alignment via CLIPScore CLIPScore: A Reference-free Evaluation Metric for Image Captioning, Hessel et al., 2021. A teddy bear reading a book CLIPScore Alignment between text and image Raw CLIP model"
+  },
+  {
+   "pages": [
+    59
+   ],
+   "id": 51,
+   "img": "p059.jpg",
+   "page_first": 59,
+   "page_last": 59,
+   "title": "Human preference with PickScore",
+   "text": "Human preference with PickScore Pick-a-Pic: An Open Dataset of User Preferences for Text-to-Image Generation, Kirstain et al., 2023. A teddy bear reading a book PickScore Human preference CLIP model trained on preference data"
+  },
+  {
+   "pages": [
+    60
+   ],
+   "id": 52,
+   "img": "p060.jpg",
+   "page_first": 60,
+   "page_last": 60,
+   "title": "Human ratings",
+   "text": "Human ratings Reference-free metrics Reference-based metrics Multimodal LLMs MLLM-as-a-Judge Benchmarks Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    61
+   ],
+   "id": 53,
+   "img": "p061.jpg",
+   "page_first": 61,
+   "page_last": 61,
+   "title": "Cases where reference image is available",
+   "text": "Cases where reference image is available Encoder Decoder Reconstructed input Original input Other tasks where reference is available. Image editing, distillation Image generated with ChatGPT on May 17th, 2026."
+  },
+  {
+   "pages": [
+    62
+   ],
+   "id": 54,
+   "img": "p062.jpg",
+   "page_first": 62,
+   "page_last": 62,
+   "title": "Notations",
+   "text": "Notations Original input Reconstructed input Image generated with ChatGPT on May 17th, 2026. ?"
+  },
+  {
+   "pages": [
+    63
+   ],
+   "id": 55,
+   "img": "p063.jpg",
+   "page_first": 63,
+   "page_last": 63,
+   "title": "Pixel-wise comparisons",
+   "text": "Pixel-wise comparisons Idea. Pixel-wise distance MSE = Mean Squared Error Discussion. Not interpretable and sensitive to pixel position"
+  },
+  {
+   "pages": [
+    64
+   ],
+   "id": 56,
+   "img": "p064.jpg",
+   "page_first": 64,
+   "page_last": 64,
+   "title": "PSNR = Peak Signal-to-Noise Ratio",
+   "text": "PSNR = Peak Signal-to-Noise Ratio Pixel-wise comparisons Idea. Normalized pixel-wise distance Discussion. More interpretable but still sensitive to pixel position"
+  },
+  {
+   "pages": [
+    65,
+    66
+   ],
+   "id": 57,
+   "img": "p065.jpg",
+   "page_first": 65,
+   "page_last": 66,
+   "title": "Structure comparison",
+   "text": "Structure comparison Original input Reconstructed input"
+  },
+  {
+   "pages": [
+    67
+   ],
+   "id": 58,
+   "img": "p067.jpg",
+   "page_first": 67,
+   "page_last": 67,
+   "title": "Structure comparison",
+   "text": "Structure comparison Mean Variance Covariance \u25cf Luminance. Same brightness? \u25cf Contrast. Same variance? \u25cf Structure. Correlation between pixels?"
+  },
+  {
+   "pages": [
+    68,
+    69,
+    70,
+    71
+   ],
+   "id": 59,
+   "img": "p070.jpg",
+   "page_first": 68,
+   "page_last": 71,
+   "title": "Structure comparison",
+   "text": "Structure comparison \u25cf Luminance similarity \u25cf Contrast similarity \u25cf Structure similarity"
+  },
+  {
+   "pages": [
+    72,
+    73,
+    74
+   ],
+   "id": 60,
+   "img": "p072.jpg",
+   "page_first": 72,
+   "page_last": 74,
+   "title": "Structure comparison",
+   "text": "Structure comparison Luminance similarity Contrast similarity Structure similarity"
+  },
+  {
+   "pages": [
+    75
+   ],
+   "id": 61,
+   "img": "p075.jpg",
+   "page_first": 75,
+   "page_last": 75,
+   "title": "SSIM = Structural SIMilarity",
+   "text": "SSIM = Structural SIMilarity Image Quality Assessment: From Error Visibility to Structural Similarity, Wang et al., 2004. Structure comparison Idea. Measure structural similarity by comparing patch statistics Limitations. Still vulnerable to \"spatial shift\""
+  },
+  {
+   "pages": [
+    76
+   ],
+   "id": 62,
+   "img": "p076.jpg",
+   "page_first": 76,
+   "page_last": 76,
+   "title": "LPIPS = Learned Perceptual Image Patch Similarity",
+   "text": "LPIPS = Learned Perceptual Image Patch Similarity The Unreasonable E\ufb00ectiveness of Deep Features as a Perceptual Metric, Zhang et al., 2018. Feature comparison Idea. Use pre-trained model to compute features that align with visual perception Limitations. Not directly interpretable"
+  },
+  {
+   "pages": [
+    77
+   ],
+   "id": 63,
+   "img": "p077.jpg",
+   "page_first": 77,
+   "page_last": 77,
+   "title": "Human ratings",
+   "text": "Human ratings Reference-free metrics Reference-based metrics Multimodal LLMs MLLM-as-a-Judge Benchmarks Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    78,
+    79
+   ],
+   "id": 64,
+   "img": "p079.jpg",
+   "page_first": 78,
+   "page_last": 79,
+   "title": "Objective",
+   "text": "Objective Gap. Fixed metrics are not interpretable. \u25cf Many of them \u25cf Operate at di\ufb00erent levels \u25cf Fragmentation of meaning \u25cf Inevitable misalignments Detour. Model that \"speaks\"? LLMs! Any way to adapt wins to images?"
+  },
+  {
+   "pages": [
+    80,
+    81
+   ],
+   "id": 65,
+   "img": "p081.jpg",
+   "page_first": 80,
+   "page_last": 81,
+   "title": "Objective",
+   "text": "Objective Figures adapted from Attention Is All You Need, Vaswani et al., 2017, Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022, Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024. Transformer DiT MM-DiT text text"
+  },
+  {
+   "pages": [
+    82
+   ],
+   "id": 66,
+   "img": "p082.jpg",
+   "page_first": 82,
+   "page_last": 82,
+   "title": "Objective",
+   "text": "Objective Figures adapted from Attention Is All You Need, Vaswani et al., 2017, Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022, Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024. Transformer DiT MM-DiT image image and/or label text text"
+  },
+  {
+   "pages": [
+    83
+   ],
+   "id": 67,
+   "img": "p083.jpg",
+   "page_first": 83,
+   "page_last": 83,
+   "title": "Objective",
+   "text": "Objective Figures adapted from Attention Is All You Need, Vaswani et al., 2017, Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022, Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024. Transformer MM-DiT image and/or text image DiT image text text image and/or label"
+  },
+  {
+   "pages": [
+    84
+   ],
+   "id": 68,
+   "img": "p084.jpg",
+   "page_first": 84,
+   "page_last": 84,
+   "title": "Objective",
+   "text": "Objective text image and/or text ?"
+  },
+  {
+   "pages": [
+    85
+   ],
+   "id": 69,
+   "img": "p085.jpg",
+   "page_first": 85,
+   "page_last": 85,
+   "title": "Image understanding based on text input",
+   "text": "Image understanding based on text input How cute is this teddy bear? ? Very cute!"
+  },
+  {
+   "pages": [
+    86
+   ],
+   "id": 70,
+   "img": "p086.jpg",
+   "page_first": 86,
+   "page_last": 86,
+   "title": "Tokenization",
+   "text": "Tokenization How cute is this teddy bear? How cute is this teddy bear ?"
+  },
+  {
+   "pages": [
+    87
+   ],
+   "id": 71,
+   "img": "p087.jpg",
+   "page_first": 87,
+   "page_last": 87,
+   "title": "Idea 1: leverage the original Transformer!",
+   "text": "Idea 1: leverage the original Transformer! Figure adapted from Attention Is All You Need, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    88
+   ],
+   "id": 72,
+   "img": "p088.jpg",
+   "page_first": 88,
+   "page_last": 88,
+   "title": "How cute is this teddy bear?",
+   "text": "How cute is this teddy bear? Decoder with cross-attention Very cute! Idea 1: leverage the original Transformer!"
+  },
+  {
+   "pages": [
+    89
+   ],
+   "id": 73,
+   "img": "p089.jpg",
+   "page_first": 89,
+   "page_last": 89,
+   "title": "Idea. Encode image modality as cross-attention keys/values.",
+   "text": "Idea. Encode image modality as cross-attention keys/values. Flamingo: a Visual Language Model for Few-Shot Learning, Alayrac et al., 2022. Flamingo (2022) Idea 1: leverage the original Transformer!"
+  },
+  {
+   "pages": [
+    90
+   ],
+   "id": 74,
+   "img": "p090.jpg",
+   "page_first": 90,
+   "page_last": 90,
+   "title": "Idea 2: recycle decoder-only architecture",
+   "text": "Idea 2: recycle decoder-only architecture How cute is this teddy bear? \"Typical\" LLM Very cute!"
+  },
+  {
+   "pages": [
+    91
+   ],
+   "id": 75,
+   "img": "p091.jpg",
+   "page_first": 91,
+   "page_last": 91,
+   "title": "Idea 2: recycle decoder-only architecture",
+   "text": "Idea 2: recycle decoder-only architecture Idea. Just treat it as a regular LLM input! Visual Instruction Tuning, Liu et al., 2023. LLaVA (2023)"
+  },
+  {
+   "pages": [
+    92
+   ],
+   "id": 76,
+   "img": "p092.jpg",
+   "page_first": 92,
+   "page_last": 92,
+   "title": "Trends",
+   "text": "Trends Architecture. Decoder with joint attention. Qwen3-VL Technical Report, Bai et al., 2025, GLM-4.5V and GLM-4.1V-Thinking, GLM-V Team, 2025."
+  },
+  {
+   "pages": [
+    93
+   ],
+   "id": 77,
+   "img": "p093.jpg",
+   "page_first": 93,
+   "page_last": 93,
+   "title": "Trends",
+   "text": "Trends Architecture. Decoder with joint attention. Capabilities. \u25cf Work across resolutions \u25cf Spatial awareness \u25cf OCR \u25cf Includes other modalities \u25cf Reasoning Qwen3-VL Technical Report, Bai et al., 2025, GLM-4.5V and GLM-4.1V-Thinking, GLM-V Team, 2025."
+  },
+  {
+   "pages": [
+    94
+   ],
+   "id": 78,
+   "img": "p094.jpg",
+   "page_first": 94,
+   "page_last": 94,
+   "title": "Human ratings",
+   "text": "Human ratings Reference-free metrics Reference-based metrics Multimodal LLMs MLLM-as-a-Judge Benchmarks Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    95
+   ],
+   "id": 79,
+   "img": "p095.jpg",
+   "page_first": 95,
+   "page_last": 95,
+   "title": "Motivation",
+   "text": "Motivation Complaint. Traditional metrics are both holistic and opaque. A cute teddy bear is reading a book CLIPScore: 0.922 why?"
+  },
+  {
+   "pages": [
+    96
+   ],
+   "id": 80,
+   "img": "p096.jpg",
+   "page_first": 96,
+   "page_last": 96,
+   "title": "TIFA",
+   "text": "TIFA A cute teddy bear is reading a book Is there a teddy bear? TIFA = Text-to-Image Faithfulness Evaluation with QA TIFA: Accurate and Interpretable Text-to-Image Faithfulness Evaluation with Question Answering, Hu et al., 2023. Is the teddy bear cute? Is there a book? Is the teddy bear reading the book? \u2705 \u2705 \u2705 \u2705 TIFA: 100.0 Idea. Decompose faithfulness into atomic questions."
+  },
+  {
+   "pages": [
+    97,
+    98
+   ],
+   "id": 81,
+   "img": "p098.jpg",
+   "page_first": 97,
+   "page_last": 98,
+   "title": "TIFA",
+   "text": "TIFA TIFA: Accurate and Interpretable Text-to-Image Faithfulness Evaluation with Question Answering, Hu et al., 2023. Bene\ufb01ts. \u25cf Simple to understand \u25cf Score debugging is easy Drawbacks. \u25cf Not easy to convey per-claim importance \u25cf Question generation itself error-prone"
+  },
+  {
+   "pages": [
+    99
+   ],
+   "id": 82,
+   "img": "p099.jpg",
+   "page_first": 99,
+   "page_last": 99,
+   "title": "Motivation",
+   "text": "Motivation Complaint. Traditional metrics do not carry composition well. A cute teddy bear is reading a book A cute book is reading a teddy bear CLIPScore \u2248 CLIPScore"
+  },
+  {
+   "pages": [
+    100
+   ],
+   "id": 83,
+   "img": "p100.jpg",
+   "page_first": 100,
+   "page_last": 100,
+   "title": "VQAScore",
+   "text": "VQAScore Evaluating Text-to-Visual Generation with Image-to-Text Generation, Lin et al., 2024. Figure adapted from Super Study Guide: Transformers and Large Language Models, Amidi et al., 2024. VQAScore = Visual Question Answering Score [Image] Does this \ufb01gure show [Prompt]? Please answer yes or no. yes VQAScore"
+  },
+  {
+   "pages": [
+    101
+   ],
+   "id": 84,
+   "img": "p101.jpg",
+   "page_first": 101,
+   "page_last": 101,
+   "title": "Bene\ufb01t. Leverages LLM-style understanding capabilities.",
+   "text": "Bene\ufb01t. Leverages LLM-style understanding capabilities. A cute teddy bear is reading a book A cute book is reading a teddy bear VQAScore > VQAScore VQAScore Evaluating Text-to-Visual Generation with Image-to-Text Generation, Lin et al., 2024."
+  },
+  {
+   "pages": [
+    102
+   ],
+   "id": 85,
+   "img": "p102.jpg",
+   "page_first": 102,
+   "page_last": 102,
+   "title": "VQAScore",
+   "text": "VQAScore Evaluating Text-to-Visual Generation with Image-to-Text Generation, Lin et al., 2024. Limitations. \u25cf Assumes access to token probabilities \u25cf TIFA + VQAScore means multiple MLLM calls \u25cf Feels like there should be a more generic approach"
+  },
+  {
+   "pages": [
+    103
+   ],
+   "id": 86,
+   "img": "p103.jpg",
+   "page_first": 103,
+   "page_last": 103,
+   "title": "VQAScore",
+   "text": "VQAScore Limitations. \u25cf Assumes access to token probabilities \u25cf TIFA + VQAScore means multiple MLLM calls \u25cf Feels like there should be a more generic approach Attractive alternative mindset Engineer outcome Infer outcome"
+  },
+  {
+   "pages": [
+    104
+   ],
+   "id": 87,
+   "img": "p104.jpg",
+   "page_first": 104,
+   "page_last": 104,
+   "title": "VIEScore",
+   "text": "VIEScore VIEScore: Towards Explainable Metrics for Conditional Image Synthesis Evaluation, Ku et al., 2023. VIEScore = Visual Instruction-guided Explainable Score \u2696  MLLM-as-a-Judge \ud83d\udcdd Prompt \ud83e\udd16 Generated image \ud83d\udd0d Rubric \ud83c\udfaf Score A cute teddy bear is reading a book Semantic consistency \u2705 \ud83d\udcad Evidence A soft, fluffy brown teddy bear is sitting on a bed..."
+  },
+  {
+   "pages": [
+    105
+   ],
+   "id": 88,
+   "img": "p105.jpg",
+   "page_first": 105,
+   "page_last": 105,
+   "title": "Dimensions",
+   "text": "Dimensions Example. Rubrics could be: \u25cf Semantic consistency: How aligned with the conditions? \u25cf Perceptual quality: How authentic and natural? VIEScore: Towards Explainable Metrics for Conditional Image Synthesis Evaluation, Ku et al., 2023. \u2705 \u2705 \u2705 \u274c"
+  },
+  {
+   "pages": [
+    106
+   ],
+   "id": 89,
+   "img": "p106.jpg",
+   "page_first": 106,
+   "page_last": 106,
+   "title": "Structure",
+   "text": "Structure Input: A cute teddy bear is reading a book, Rubric: Please the input across the following axes - Dimension 1: Guidelines... - Dimension 2: Guidelines... Output: Return the graded result in JSON format: { \"rationale\": ..., \"score\": ..., } Example of a judge prompt. How to ensure calibration?"
+  },
+  {
+   "pages": [
+    107
+   ],
+   "id": 90,
+   "img": "p107.jpg",
+   "page_first": 107,
+   "page_last": 107,
+   "title": "Typical work\ufb02ow",
+   "text": "Typical work\ufb02ow MLLM-as-a-Judge \ud83d\udc07 Seed. Seek human expertise about task at hand. Image generation Human ratings \ud83d\udc22"
+  },
+  {
+   "pages": [
+    108
+   ],
+   "id": 91,
+   "img": "p108.jpg",
+   "page_first": 108,
+   "page_last": 108,
+   "title": "Typical work\ufb02ow",
+   "text": "Typical work\ufb02ow Image generation \ud83d\udc07 Calibrate. Align MLLM-as-a-Judge with human expertise. Human ratings MLLM-as-a-Judge \ud83d\udc22"
+  },
+  {
+   "pages": [
+    109
+   ],
+   "id": 92,
+   "img": "p109.jpg",
+   "page_first": 109,
+   "page_last": 109,
+   "title": "Typical work\ufb02ow",
+   "text": "Typical work\ufb02ow Human ratings \ud83d\udc22 Automate. Rely on MLLM-as-a-Judge for general cases. Image generation MLLM-as-a-Judge \ud83d\udc07"
+  },
+  {
+   "pages": [
+    110
+   ],
+   "id": 93,
+   "img": "p110.jpg",
+   "page_first": 110,
+   "page_last": 110,
+   "title": "Use cases",
+   "text": "Use cases Pointwise Pairwise Which one is better: Response A or Response B ? Response A Evaluate the quality of: Response Very good \u2696 \u2696 Batch ranking Rank the following: Response A Response B Response C ... B \u2192 A \u2192 C \u2696 MLLM-as-a-Judge: Assessing Multimodal LLM-as-a-Judge with Vision-Language Benchmark, Chen et al., 2024."
+  },
+  {
+   "pages": [
+    111
+   ],
+   "id": 94,
+   "img": "p111.jpg",
+   "page_first": 111,
+   "page_last": 111,
+   "title": "Use cases",
+   "text": "Use cases Pointwise Pairwise Which one is better: Response A or Response B ? Response A Evaluate the quality of: Response Very good \u2696 \u2696 Batch ranking Rank the following: Response A Response B Response C ... 2/1/3 \u2696 great for diagnostics MLLM-as-a-Judge: Assessing Multimodal LLM-as-a-Judge with Vision-Language Benchmark, Chen et al., 2024."
+  },
+  {
+   "pages": [
+    112
+   ],
+   "id": 95,
+   "img": "p112.jpg",
+   "page_first": 112,
+   "page_last": 112,
+   "title": "B \u2192 A \u2192 C",
+   "text": "B \u2192 A \u2192 C Use cases Pointwise Evaluate the quality of: Response Very good \u2696 Batch ranking Rank the following: Response A Response B Response C ... \u2696 great for diagnostics MLLM-as-a-Judge: Assessing Multimodal LLM-as-a-Judge with Vision-Language Benchmark, Chen et al., 2024. Pairwise Which one is better: Response A or Response B ? Response A \u2696 great to compare models"
+  },
+  {
+   "pages": [
+    113
+   ],
+   "id": 96,
+   "img": "p113.jpg",
+   "page_first": 113,
+   "page_last": 113,
+   "title": "Use cases",
+   "text": "Use cases Pointwise Pairwise Which one is better: Response A or Response B ? Response A Evaluate the quality of: Response Very good \u2696 \u2696 great to compare models great for diagnostics MLLM-as-a-Judge: Assessing Multimodal LLM-as-a-Judge with Vision-Language Benchmark, Chen et al., 2024. B \u2192 A \u2192 C Batch ranking Rank the following: Response A Response B Response C ... \u2696 sensitive to ordering not really used in practice"
+  },
+  {
+   "pages": [
+    114,
+    115,
+    116,
+    117,
+    118
+   ],
+   "id": 97,
+   "img": "p118.jpg",
+   "page_first": 114,
+   "page_last": 118,
+   "title": "Best practices",
+   "text": "Best practices \u25cf Parse score into atomic criteria \u25cf Ask MLLM to describe evidence before giving a score \u25cf Use low temperature and structured outputs \u25cf Randomize A/B order for pairwise judging \u25cf Validate judge scores against human ratings before trusting it"
+  },
+  {
+   "pages": [
+    119
+   ],
+   "id": 98,
+   "img": "p119.jpg",
+   "page_first": 119,
+   "page_last": 119,
+   "title": "Human ratings",
+   "text": "Human ratings Reference-free metrics Reference-based metrics Multimodal LLMs MLLM-as-a-Judge Benchmarks Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    120
+   ],
+   "id": 99,
+   "img": "p120.jpg",
+   "page_first": 120,
+   "page_last": 120,
+   "title": "Common benchmarks",
+   "text": "Common benchmarks Object alignment \u2022 Verify objects, counts, colors \u2022 Tests compositional image generation \u2022 Fine-grained failure diagnosis GenEval"
+  },
+  {
+   "pages": [
+    121
+   ],
+   "id": 100,
+   "img": "p121.jpg",
+   "page_first": 121,
+   "page_last": 121,
+   "title": "Text-to-image alignment example: GenEval",
+   "text": "Text-to-image alignment example: GenEval GenEval: An Object-Focused Framework for Evaluating Text-to-Image Alignment, Ghosh et al., 2023. GenEval = Generation Evaluation ? Goal. Tests rendering speci\ufb01c objects and their attributes. Characteristics: \u25cf ~600 prompts across 6 tasks \u25cf Tasks: 1/2 objects, counts, colors, position, color attribution Evaluation criteria. Yes/no per task associated to prompt. Object detection, geometry, color classi\ufb01cation"
+  },
+  {
+   "pages": [
+    122
+   ],
+   "id": 101,
+   "img": "p122.jpg",
+   "page_first": 122,
+   "page_last": 122,
+   "title": "Text-to-image alignment example: GenEval",
+   "text": "Text-to-image alignment example: GenEval GenEval: An Object-Focused Framework for Evaluating Text-to-Image Alignment, Ghosh et al., 2023. Samples."
+  },
+  {
+   "pages": [
+    123
+   ],
+   "id": 102,
+   "img": "p123.jpg",
+   "page_first": 123,
+   "page_last": 123,
+   "title": "Common benchmarks",
+   "text": "Common benchmarks Object alignment Dense prompts \u2022 Verify objects, counts, colors \u2022 Tests compositional image generation \u2022 Fine-grained failure diagnosis \u2022 Follow long detailed prompts \u2022 Track entities, attributes, relations \u2022 Evaluates semantic completeness GenEval DPG-Bench"
+  },
+  {
+   "pages": [
+    124
+   ],
+   "id": 103,
+   "img": "p124.jpg",
+   "page_first": 124,
+   "page_last": 124,
+   "title": "Dense prompt following example: DPG-Bench",
+   "text": "Dense prompt following example: DPG-Bench DPG-Bench = Dense Prompt Graph Benchmark Goal. Remembers every detail when given a massive paragraph of text. Characteristics: \u25cf Graph of questions derived with the \"DSG\" pipeline into entity/attribute/relation \u25cf ~14,000 questions across ~1,000 prompts Evaluation criteria. Yes/no to questions in graph. VQA judge in graph ELLA: Equip Di\ufb00usion Models with LLM for Enhanced Semantic Alignment, Hu et al., 2024."
+  },
+  {
+   "pages": [
+    125,
+    126,
+    127,
+    128,
+    129
+   ],
+   "id": 104,
+   "img": "p126.jpg",
+   "page_first": 125,
+   "page_last": 129,
+   "title": "Example.",
+   "text": "Example. Dense prompt following example: DPG-Bench ELLA: Equip Di\ufb00usion Models with LLM for Enhanced Semantic Alignment, Hu et al., 2024. An empty space where an invisible man would be, with a pair of horn-rimmed glasses seemingly floating in mid-air, and a pearl bead necklace draped in the space below them. In the space where his hands would be, a smartphone is held... the room appears ordinary, with a couch and a coffee table nearby, upon which rests a scattering of magazines and a remote control. Empty space? Invisible man? Glasses? Glasses horn-rimmed? Glasses \ufb02oating in the space? Room? Couch? Yes/No?"
+  },
+  {
+   "pages": [
+    130
+   ],
+   "id": 105,
+   "img": "p130.jpg",
+   "page_first": 130,
+   "page_last": 130,
+   "title": "Common benchmarks",
+   "text": "Common benchmarks Object alignment Dense prompts Text rendering \u2022 Verify objects, counts, colors \u2022 Tests compositional image generation \u2022 Fine-grained failure diagnosis \u2022 Follow long detailed prompts \u2022 Track entities, attributes, relations \u2022 Evaluates semantic completeness \u2022 Generate readable text in images \u2022 Handles long strings \u2022 Tests OCR-level \ufb01delity GenEval DPG-Bench LongText-Bench"
+  },
+  {
+   "pages": [
+    131
+   ],
+   "id": 106,
+   "img": "p131.jpg",
+   "page_first": 131,
+   "page_last": 131,
+   "title": "Text rendering example: LongText-Bench",
+   "text": "Text rendering example: LongText-Bench LongText-Bench = Long Text-Rendering Benchmark ? Goal. Render readable multi-line text in images. Characteristics: \u25cf 160 English + 160 Chinese prompts \u25cf 8 scenarios: signs, labels, printed materials, webpages, slides, posters, captions, dialogues. Evaluation criteria. OCR extraction of rendered text. OCR match X-Omni: Reinforcement Learning Makes Discrete Autoregressive Image Generative Models Great Again, Geng et al., 2025."
+  },
+  {
+   "pages": [
+    132
+   ],
+   "id": 107,
+   "img": "p132.jpg",
+   "page_first": 132,
+   "page_last": 132,
+   "title": "Text rendering example: LongText-Bench",
+   "text": "Text rendering example: LongText-Bench Samples. X-Omni: Reinforcement Learning Makes Discrete Autoregressive Image Generative Models Great Again, Geng et al., 2025."
+  },
+  {
+   "pages": [
+    133
+   ],
+   "id": 108,
+   "img": "p133.jpg",
+   "page_first": 133,
+   "page_last": 133,
+   "title": "Common benchmarks",
+   "text": "Common benchmarks Object alignment Dense prompts Text rendering Image editing \u2022 Verify objects, counts, colors \u2022 Tests compositional image generation \u2022 Fine-grained failure diagnosis \u2022 Follow long detailed prompts \u2022 Track entities, attributes, relations \u2022 Evaluates semantic completeness \u2022 Generate readable text in images \u2022 Handles long strings \u2022 Tests OCR-level \ufb01delity \u2022 Apply user edit instructions \u2022 Preserve source image quality \u2022 Covers real-world edit types GenEval DPG-Bench LongText-Bench GEdit-Bench"
+  },
+  {
+   "pages": [
+    134
+   ],
+   "id": 109,
+   "img": "p134.jpg",
+   "page_first": 134,
+   "page_last": 134,
+   "title": "Image editing example: GEdit-Bench",
+   "text": "Image editing example: GEdit-Bench GEdit-Bench = Grounded Edit Benchmark ? Goal. Edit an image without destroying the original context. Characteristics: \u25cf ~600 editing examples \u25cf 11 categories: background/color/material/motion/style/text change, photoshopping, subject add/remove/replace, tone transfer Evaluation criteria. VIEScore-style judge. MLLM-as-a-Judge Step1X-Edit: A Practical Framework for General Image Editing, Liu et al., 2025."
+  },
+  {
+   "pages": [
+    135
+   ],
+   "id": 110,
+   "img": "p135.jpg",
+   "page_first": 135,
+   "page_last": 135,
+   "title": "Image editing example: GEdit-Bench",
+   "text": "Image editing example: GEdit-Bench Step1X-Edit: A Practical Framework for General Image Editing, Liu et al., 2025. Samples."
+  },
+  {
+   "pages": [
+    136
+   ],
+   "id": 111,
+   "img": "p136.jpg",
+   "page_first": 136,
+   "page_last": 136,
+   "title": "Last thoughts",
+   "text": "Last thoughts Sample images. \"See how well my model performs!\" Beware when used as \"proof\"!"
+  },
+  {
+   "pages": [
+    137
+   ],
+   "id": 112,
+   "img": "p137.jpg",
+   "page_first": 137,
+   "page_last": 137,
+   "title": "Thank you for your attention!",
+   "text": "Thank you for your attention!"
+  }
+ ]
+}

@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 3: Flow matching — CME 296: Diffusion &amp; Large Vision Models</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<p class="course"><a href="index.html">CME 296: Diffusion &amp; Large Vision Models</a></p>
+<h1>Lecture 3: Flow matching</h1>
+<p class="meta">April 17th, 2026 &middot;
+<a href="https://cme296.stanford.edu/slides/spring26-cme296-lecture3.pdf" target="_blank" rel="noopener">Slides (PDF)</a> &middot;
+<a href="https://www.youtube.com/watch?v=agN3AlfGFrk" target="_blank" rel="noopener">Video on YouTube</a></p>
+<nav class="lnav"><a href="lecture2.html">&larr; Lecture 2</a><a href="index.html">All lectures</a><a href="lecture4.html">Lecture 4 &rarr;</a></nav>
+</div>
+</header>
+<details class="toc wrap"><summary>Chapters</summary><p><a href="#ch-Introduction">Introduction</a> &middot; <a href="#ch-Recap-of-last-episodes">Recap of last episodes</a> &middot; <a href="#ch-Problem-formulation">Problem formulation</a> &middot; <a href="#ch-Trajectory">Trajectory</a> &middot; <a href="#ch-Flow">Flow</a> &middot; <a href="#ch-Probability-path">Probability path</a> &middot; <a href="#ch-Vector-field">Vector field</a> &middot; <a href="#ch-Ordinary-differential-equation">Ordinary differential equation</a> &middot; <a href="#ch-Continuity-equation">Continuity equation</a> &middot; <a href="#ch-Micro-and-macro-perspectives">Micro and macro perspectives</a> &middot; <a href="#ch-Flow-models">Flow models</a> &middot; <a href="#ch-Continuous-normalizing-flows">Continuous normalizing flows</a> &middot; <a href="#ch-Flow-matching">Flow matching</a> &middot; <a href="#ch-Conditional-probability-path-and-vector-field">Conditional probability path and vector field</a> &middot; <a href="#ch-Marginal-probability-path-and-vector-field">Marginal probability path and vector field</a> &middot; <a href="#ch-Conditional-flow-matching">Conditional flow matching</a> &middot; <a href="#ch-Why-not-velocity-matching">Why not velocity matching</a> &middot; <a href="#ch-Training">Training</a> &middot; <a href="#ch-Inference">Inference</a> &middot; <a href="#ch-Rectified-flow">Rectified flow</a> &middot; <a href="#ch-Links-with-diffusion-and-score-matching">Links with diffusion and score matching</a></p></details>
+<main class="wrap">
+<div class="chapter" id="ch-Introduction"><span>Introduction</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=0s" target="_blank" rel="noopener">0:00</a></div><section class="row" id="s0">
+<figure>
+<a href="slides/l3/p001.jpg" target="_blank">
+<img src="slides/l3/p001.jpg" alt="Slide p. 1: CME 296: Diﬀusion &amp;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 1 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=0s" target="_blank" rel="noopener" title="Watch on YouTube from 0:00">&#9658; 0:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=0s" target="_blank" rel="noopener">0:00</a> 0:05 Hello, everyone, and welcome to lecture 3 of CME 296. So today is a very special day because we&#x27;re going to talk about flow matching, which</p>
+</div>
+</section><section class="row" id="s1">
+<figure>
+<a href="slides/l3/p002.jpg" target="_blank">
+<img src="slides/l3/p002.jpg" alt="Slide p. 2: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 2 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=19s" target="_blank" rel="noopener" title="Watch on YouTube from 0:19">&#9658; 0:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=19s" target="_blank" rel="noopener">0:19</a> is a generation paradigm that is quite trendy these days.</p>
+</div>
+</section><section class="row" id="s2">
+<figure>
+<a href="slides/l3/p003.jpg" target="_blank">
+<img src="slides/l3/p003.jpg" alt="Slide p. 3: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 3 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=24s" target="_blank" rel="noopener" title="Watch on YouTube from 0:24">&#9658; 0:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=24s" target="_blank" rel="noopener">0:24</a> So if you&#x27;re a member, lectures 1 and lecture 2 were also about generation paradigm where we talked about diffusion with DPM and lecture 1 and score matching in lecture 2. So flow matching is yet another generation paradigm. And we&#x27;re going to see in this lecture what is the mindset behind that separate paradigm and how it relates to diffusion and score matching.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=55s" target="_blank" rel="noopener">0:55</a> So as usual we&#x27;re going to start the class with a recap of the last episodes. So if you remember lecture 1, we saw how we could generate new samples,</p>
+</div>
+</section><div class="chapter" id="ch-Recap-of-last-episodes"><span>Recap of last episodes</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=71s" target="_blank" rel="noopener">1:11</a></div><section class="row" id="s3">
+<figure>
+<a href="slides/l3/p004.jpg" target="_blank">
+<img src="slides/l3/p004.jpg" alt="Slide p. 4: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 4 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=71s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11">&#9658; 1:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=71s" target="_blank" rel="noopener">1:11</a> and the way we thought about doing that was taking images from our training set, which we named clean images. And what we did is that we gradually corrupted them with a process that we defined, a process q, which, given an image at a given time step, noised it by adding some Gaussian noise weighted by some coefficients.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=101s" target="_blank" rel="noopener">1:41</a> And the goal of diffusion with DPM was to find or was to learn a reverse process, which we noted p theta that removed the noise gradually. And what we saw was that in order to learn p theta. What we did is try to maximize the likelihood of our model seeing the training data. And if you remember, we did some clever math</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=130s" target="_blank" rel="noopener">2:10</a> with some estimation of the lower bound. So the elbow and we derived some terms and we ended up with a pretty good looking loss, which was just an L2 regression on the noise that was added up to the image at timestamp t. And so this was lecture 1. Lecture 2 was taking another perspective</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=162s" target="_blank" rel="noopener">2:42</a> and just taking a step back, thinking of images in the space of the n dimensional space of images, and the fact that what we wanted to do was sample from an easy distribution and then work our way up until the true data distribution. So how did we do that? The whole point of the lecture was to learn what we call the score, which is</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=194s" target="_blank" rel="noopener">3:14</a> the gradient of the log of p. And why did we do that? Because it acted as a compass from where we were up until regions of high density. And if we learn such a score, what we could do was use sampling techniques such as Langevin sampling, which allowed us to move towards high density regions, but also allow for some diversity with some noise term.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=230s" target="_blank" rel="noopener">3:50</a> And we saw that in order for us to estimate that score, we cleverly noised the initial data distribution in order to learn the score of the noised distribution. And then we had a progressive noise schedule that allowed us to progressively work our way up until the data distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=258s" target="_blank" rel="noopener">4:18</a> So we ended up with a score function that was a function of the position in space, but also the noise level. And again, after doing some clever math, we also ended up with an L2 regression loss, which was quite easy to compute. But what we also saw was that what we saw in lecture 2 was actually quite related to what we saw in lecture 1,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=285s" target="_blank" rel="noopener">4:45</a> because both involved adding noise. And in particular, we saw that there was a relationship between the score of a noisy distribution and the noise that we added from the clean image to the noisy image. So given that, what we did was think</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=311s" target="_blank" rel="noopener">5:11</a> of a unified way of looking at both these perspectives, and we moved from a discrete representation</p>
+</div>
+</section><section class="row" id="s4">
+<figure>
+<a href="slides/l3/p005.jpg" target="_blank">
+<img src="slides/l3/p005.jpg" alt="Slide p. 5: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 5 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=320s" target="_blank" rel="noopener" title="Watch on YouTube from 5:20">&#9658; 5:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=320s" target="_blank" rel="noopener">5:20</a> to a continuous one, and we obtained this SDE, which was of the form dx equal f of x and t dt plus gt times dw, where w is our Wiener process which is introducing the stochasticity. And in particular, the first term is called the drift term, and it is a term that quantifies the deterministic movement in space across time. And the second term is called the diffusion term,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=353s" target="_blank" rel="noopener">5:53</a> which quantifies the amount of stochasticity that you have in your process. So this expression is the expression of the forward pass, meaning, you&#x27;re actually noising your images. And we saw that in space, if we were to represent that, it meant, again, having a drift component and a diffusion component.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=381s" target="_blank" rel="noopener">6:21</a> So now if we wanted to denoise our image, we were actually interested in the reverse process, which we saw thanks to the result from the &#x27;80s involved knowing the score. So this expression is the reverse process that allows us to denoise images, which is why we need to learn the score.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=406s" target="_blank" rel="noopener">6:46</a> And this is where the score comes in, in the continuous view. So this was two weeks ago and a week ago. But today we&#x27;re going to see this third generation paradigm,</p>
+</div>
+</section><section class="row" id="s5">
+<figure>
+<a href="slides/l3/p006.jpg" target="_blank">
+<img src="slides/l3/p006.jpg" alt="Slide p. 6: Today&#x27;s lecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 6 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=414s" target="_blank" rel="noopener">&#8776; 6:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s6">
+<figure>
+<a href="slides/l3/p007.jpg" target="_blank">
+<img src="slides/l3/p007.jpg" alt="Slide p. 7: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 7 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=414s" target="_blank" rel="noopener">&#8776; 6:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Problem-formulation"><span>Problem formulation</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=423s" target="_blank" rel="noopener">7:03</a></div><section class="row" id="s7">
+<figure>
+<a href="slides/l3/p008.jpg" target="_blank">
+<img src="slides/l3/p008.jpg" alt="Slide p. 8: Problem formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 8 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=423s" target="_blank" rel="noopener" title="Watch on YouTube from 7:03">&#9658; 7:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=423s" target="_blank" rel="noopener">7:03</a> which is called flow matching. And similar to the past lectures, what we&#x27;re going to try to do is to have a nice balance between intuition and math, because you will see that these papers are full of math, full of equations, and we will try to approach it from an intuitive perspective, but not shy away from the math either.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=449s" target="_blank" rel="noopener">7:29</a> And of course, please interrupt me at any point if you feel there&#x27;s something that&#x27;s not clear. Cool? OK, let&#x27;s start. So the whole point of these first three lectures is to find a way to go from somewhere that is easy to sample from up until our data distribution of interests. So the way that flow matching works is.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=483s" target="_blank" rel="noopener">8:03</a> It has two distributions. The first one is called the initial distribution, which is the distribution that you&#x27;re starting from. And then the second distribution is called the target distribution, and it is the distribution that you want to end up with. And the whole point of flow matching is finding a way to transport our initial data distribution up</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=513s" target="_blank" rel="noopener">8:33</a> until the target distribution. And just note the terminology I&#x27;m using, transport. So what we want is to transport the whole density that we have, and remember that probability, densities have this very nice property of summing to 1. So we want to transport the whole density distribution from one place to another.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=542s" target="_blank" rel="noopener">9:02</a> So this is the idea behind flow matching. And we&#x27;re going to see how we can do that. So I&#x27;m going to just give you a warning in terms of conventions. In the past, we&#x27;ve seen that 0 was clean data and then capital T was the noise data. But here it&#x27;s going to be different. So we will be noting p0 our initial data distribution, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=572s" target="_blank" rel="noopener">9:32</a> is typically something that is easy to sample from such as Gaussian noise. And the target data distribution is going to be noted p1, t equal 1, and this is where we want to end up with. And then again, so this slide is just to say that lectures 1 and 2 we said 0 was clean, capital T was noise.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=599s" target="_blank" rel="noopener">9:59</a> But here 0 will be noise and 1 will be what we want, which is the clean images, which is the data distribution. So the reason why we chose to proceed that way is just that the field chose these conventions. And if we were to keep the conventions of the diffusion and score matching fields, it would just completely confuse if you were to read papers from the flow matching</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=630s" target="_blank" rel="noopener">10:30</a> field, which is the reason why we&#x27;re keeping things consistent with the paper. But just keep those things in mind, because sometimes these conventions can also be reversed, depending on which paper you&#x27;re reading. But this one is by far the most common. So with that warning aside, what we want to do</p>
+</div>
+</section><section class="row" id="s8">
+<figure>
+<a href="slides/l3/p009.jpg" target="_blank">
+<img src="slides/l3/p009.jpg" alt="Slide pp. 9–10: Intuition behind ﬂows" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 9–10 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=645s" target="_blank" rel="noopener">&#8776; 10:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s9">
+<figure>
+<a href="slides/l3/p011.jpg" target="_blank">
+<img src="slides/l3/p011.jpg" alt="Slide p. 11: Notations" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 11 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=645s" target="_blank" rel="noopener">&#8776; 10:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s10">
+<figure>
+<a href="slides/l3/p013.jpg" target="_blank">
+<img src="slides/l3/p013.jpg" alt="Slide pp. 12–13: ⚠ Important note on conventions ⚠" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 12–13 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=645s" target="_blank" rel="noopener">&#8776; 10:45</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Trajectory"><span>Trajectory</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=655s" target="_blank" rel="noopener">10:55</a></div><section class="row" id="s11">
+<figure>
+<a href="slides/l3/p014.jpg" target="_blank">
+<img src="slides/l3/p014.jpg" alt="Slide p. 14: Trajectory" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 14 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=655s" target="_blank" rel="noopener" title="Watch on YouTube from 10:55">&#9658; 10:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=655s" target="_blank" rel="noopener">10:55</a> is to sample an observation from our initial data distribution and then map it to the target data distribution. So in order to do that, we&#x27;re now going to go through some common notations. And the first one is called the trajectory. So the trajectory is notated xt, and it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=681s" target="_blank" rel="noopener">11:21</a> is the path that is taken by an observation between times 0 and 1. So by the way, the time 0 and 1 is arbitrary. It&#x27;s just a way for us to say, OK, when are we starting and when are we ending? And so here at time t equals 0, we have x0. And what we want to do is for our trajectory to map a point from p0 up until p1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=712s" target="_blank" rel="noopener">11:52</a> So that&#x27;s our goal. So now, let&#x27;s see another notation.</p>
+</div>
+</section><div class="chapter" id="ch-Flow"><span>Flow</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=718s" target="_blank" rel="noopener">11:58</a></div><section class="row" id="s12">
+<figure>
+<a href="slides/l3/p015.jpg" target="_blank">
+<img src="slides/l3/p015.jpg" alt="Slide p. 15: Flow" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 15 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=718s" target="_blank" rel="noopener" title="Watch on YouTube from 11:58">&#9658; 11:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=718s" target="_blank" rel="noopener">11:58</a> So this one is called the flow. The flow is known as psi of T of x0. So I&#x27;m just going to write that down here. So it is a function that takes time and an initial condition. And it gives you where that point at time t. So this is the time so belongs to 01. This one is to your space, which is maybe--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=759s" target="_blank" rel="noopener">12:39</a> I don&#x27;t know-- d dimensional. And this one is also in the d dimensional space. And you have psi of T of x0, which is equal to your point at time t, which is x of t. So the flow you can interpret it in different ways. So one way you can interpret it is it&#x27;s</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=784s" target="_blank" rel="noopener">13:04</a> a collection of trajectories. Because if you change the initial condition x0, then psi t of x0 is all the possible trajectories that go from an initial condition x0 up until time t. Yeah? The flow can also be seen as a function that maps your initial condition to where it should be at time t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=817s" target="_blank" rel="noopener">13:37</a> And this is why it&#x27;s called the flow. So this function is quite important because at the end of the day, what you want is psi 1 of x0 to be sampled from-- to be as if it was sampled from p1, which is your target distribution, data distribution.</p>
+</div>
+</section><div class="chapter" id="ch-Probability-path"><span>Probability path</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=840s" target="_blank" rel="noopener">14:00</a></div><section class="row" id="s13">
+<figure>
+<a href="slides/l3/p016.jpg" target="_blank">
+<img src="slides/l3/p016.jpg" alt="Slide p. 16: Probability path" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 16 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=840s" target="_blank" rel="noopener" title="Watch on YouTube from 14:00">&#9658; 14:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=840s" target="_blank" rel="noopener">14:00</a> Cool. So now we have our next terminology which is called the probability path, and it&#x27;s denoted pt of x. So pt of x is the probability distribution of your observations at time t. So p0 of x is your initial data distribution, and p1 of x is your target data distribution. So if t is between 0 and 1, it&#x27;s basically</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=874s" target="_blank" rel="noopener">14:34</a> the intermediary probability data distribution. And as you can imagine, in order to go from p0 to p1, you have an infinite number of ways of going from one to the other. So pt by no means unique. There are many ways for you to go from 0 to 1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=902s" target="_blank" rel="noopener">15:02</a> Cool. And now we&#x27;re going to talk about a central object</p>
+</div>
+</section><div class="chapter" id="ch-Vector-field"><span>Vector field</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=911s" target="_blank" rel="noopener">15:11</a></div><section class="row" id="s14">
+<figure>
+<a href="slides/l3/p017.jpg" target="_blank">
+<img src="slides/l3/p017.jpg" alt="Slide p. 17: Vector ﬁeld, also known as velocity" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 17 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=911s" target="_blank" rel="noopener" title="Watch on YouTube from 15:11">&#9658; 15:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=911s" target="_blank" rel="noopener">15:11</a> of this whole field, and it&#x27;s called the vector field. So vector field is noted ut of x. And it is a function that takes in a place in space, so x, and a time t. And it gives you a vector. And that vector, you can interpret it as the direction and the speed that particles should move</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=941s" target="_blank" rel="noopener">15:41</a> at that location at that time. So again, the vector field takes in a vector, which is your position in space and gives you also a vector, which is where you need to move and how fast. And we&#x27;re going to see that the vector field is quite central to flow matching.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=966s" target="_blank" rel="noopener">16:06</a> But before we do that, I know last lecture, we talked about the score. And the score was also a vector. And if you remember, the score was also something we used in order to go from noise to data. So one natural question you may be asking yourself right now is, well, how does this vector field or velocity relate</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=996s" target="_blank" rel="noopener">16:36</a> to the score? So I&#x27;m going to give you the following analogy. So let&#x27;s suppose you want to go from your initial distribution to your target distribution. And let&#x27;s suppose that you&#x27;re thinking of this in terms of self-driving cars that are distributed, let&#x27;s say, in a Gaussian fashion in the middle of the desert. And what you want to do is to position your self-driving cars</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1026s" target="_blank" rel="noopener">17:06</a> in a certain way so that it follows, let&#x27;s say, a target data distribution. So the way you would think of the velocity would be instructions that you would give to your self-driving cars at a given location and at a given time t So if the vector field was not time</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1050s" target="_blank" rel="noopener">17:30</a> dependent, you could even think of it as highways or routes with speed limits. But here, the vector field is actually time dependent, which means that at a given location x and at two different time steps, t1 and t2, that vector can actually be different.</p>
+</div>
+</section><section class="row" id="s15">
+<figure>
+<a href="slides/l3/p018.jpg" target="_blank">
+<img src="slides/l3/p018.jpg" alt="Slide p. 18: Diﬀerences between velocity and score function" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 18 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1071s" target="_blank" rel="noopener" title="Watch on YouTube from 17:51">&#9658; 17:51</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1071s" target="_blank" rel="noopener">17:51</a> And in that sense, just following with that self-driving car example,</p>
+</div>
+</section><section class="row" id="s16">
+<figure>
+<a href="slides/l3/p019.jpg" target="_blank">
+<img src="slides/l3/p019.jpg" alt="Slide p. 19: Diﬀerences between velocity and score function" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 19 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1077s" target="_blank" rel="noopener" title="Watch on YouTube from 17:57">&#9658; 17:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1077s" target="_blank" rel="noopener">17:57</a> the score would be a bit like a compass that you could see in your car of where high density regions are. So I hope this is useful to just picture the difference between what a velocity is and what a score is. So these two are vectors, but they have different interpretations.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1104s" target="_blank" rel="noopener">18:24</a> Any questions so far? We&#x27;ve barely started, so we&#x27;re going to see a few things here. But I just want to make sure that the notation so far are clear. Yeah, all good? Cool. So we&#x27;re going to see our first identity here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1126s" target="_blank" rel="noopener">18:46</a> So we introduced the vector field, a.k.a. the velocity, because this is the way we&#x27;re going to have our particles move from one place to another. And in particular, the definition</p>
+</div>
+</section><div class="chapter" id="ch-Ordinary-differential-equation"><span>Ordinary differential equation</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1144s" target="_blank" rel="noopener">19:04</a></div><section class="row" id="s17">
+<figure>
+<a href="slides/l3/p020.jpg" target="_blank">
+<img src="slides/l3/p020.jpg" alt="Slide p. 20: Perspective of a single sample with ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 20 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1144s" target="_blank" rel="noopener" title="Watch on YouTube from 19:04">&#9658; 19:04</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1144s" target="_blank" rel="noopener">19:04</a> we&#x27;re giving to the velocity, a.k.a. the vector field, is given as follows. So what we&#x27;re going to say is that a change in position will be associated with the velocity at that location at that time t times dt. So in other words, a given particle in a given location will be moving according to that velocity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1173s" target="_blank" rel="noopener">19:33</a> And one thing that I want to tell you is that the trajectory, which as a reminder, is the whole path that the particle is taking from time t equals 0 to time t equal to 1, that trajectory is actually going to be unique for a given initial condition</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1199s" target="_blank" rel="noopener">19:59</a> if there is a special condition on the vector field, which is that if the vector field is Lipschitz continuous. So the reason why I&#x27;m bringing this up is because it&#x27;s going to be important. And so who knows what Lipschitz continuity is? Have you ever heard of this term? Yeah? No? OK, so maybe I can just recap the mathematical definition</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1227s" target="_blank" rel="noopener">20:27</a> and maybe how it means-- what it means. So Lipschitz continuity of a function f is when you have some constants, let&#x27;s call it m such that for all x and y in your space of interest, you have your function f that satisfies this relationship.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1261s" target="_blank" rel="noopener">21:01</a> So the norm of f of x minus f of y is less than or equal than m times the norm of x minus y. So what this means is that f needs to be continuous, but also not in a very dramatic way. So this is the mathematical definition of Lipschitz continuity. And what I&#x27;m saying here is if the vector field</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1290s" target="_blank" rel="noopener">21:30</a> is Lipschitz continuous, then the trajectories x will be unique for a given initial condition. And so I&#x27;m going to just give you an example of when trajectories are not unique. So here we have our ODE which is here like so.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1324s" target="_blank" rel="noopener">22:04</a> So I&#x27;m just going to give you an example of if we have a vector field that is not Lipschitz continuous, how we can have trajectories that start from the same point but that are actually different. So here, the example is as follows. So let&#x27;s suppose we have your vector field, which is given this, by, let&#x27;s say, square root of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1350s" target="_blank" rel="noopener">22:30</a> And you only consider, by the way, x positive or 0.</p>
+</div>
+</section><section class="row" id="s18">
+<figure>
+<a href="slides/l3/p021.jpg" target="_blank">
+<img src="slides/l3/p021.jpg" alt="Slide p. 21: Perspective of a distribution via &quot;mass conservation&quot;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 21 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1356s" target="_blank" rel="noopener" title="Watch on YouTube from 22:36">&#9658; 22:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1356s" target="_blank" rel="noopener">22:36</a> So if your vector field, by the way, is time independent and it&#x27;s just a function of x by square root of x, then</p>
+</div>
+</section><section class="row" id="s19">
+<figure>
+<a href="slides/l3/p022.jpg" target="_blank">
+<img src="slides/l3/p022.jpg" alt="Slide p. 22: Intuition behind divergence in 1D" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 22 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1367s" target="_blank" rel="noopener" title="Watch on YouTube from 22:47">&#9658; 22:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1367s" target="_blank" rel="noopener">22:47</a> if you say you want your initial condition to be x0 is equal to 0, then xt equal to 0 is going to be a solution,</p>
+</div>
+</section><section class="row" id="s20">
+<figure>
+<a href="slides/l3/p023.jpg" target="_blank">
+<img src="slides/l3/p023.jpg" alt="Slide p. 23: Intuition behind divergence in 1D" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 23 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1385s" target="_blank" rel="noopener" title="Watch on YouTube from 23:05">&#9658; 23:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1385s" target="_blank" rel="noopener">23:05</a> but xt equals to t squared over 4</p>
+</div>
+</section><section class="row" id="s21">
+<figure>
+<a href="slides/l3/p024.jpg" target="_blank">
+<img src="slides/l3/p024.jpg" alt="Slide p. 24: Intuition behind divergence in 1D" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 24 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1393s" target="_blank" rel="noopener" title="Watch on YouTube from 23:13">&#9658; 23:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1393s" target="_blank" rel="noopener">23:13</a> is also going to be a solution. So here t squared over 4.</p>
+</div>
+</section><section class="row" id="s22">
+<figure>
+<a href="slides/l3/p026.jpg" target="_blank">
+<img src="slides/l3/p026.jpg" alt="Slide pp. 25–26: Intuition behind divergence in 1D" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 25–26 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1398s" target="_blank" rel="noopener" title="Watch on YouTube from 23:18">&#9658; 23:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1398s" target="_blank" rel="noopener">23:18</a> So the derivative is t over 2. And here&#x27;s when you put this also in the square root,</p>
+</div>
+</section><section class="row" id="s23">
+<figure>
+<a href="slides/l3/p027.jpg" target="_blank">
+<img src="slides/l3/p027.jpg" alt="Slide p. 27: Divergence: yes. But of what?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 27 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1406s" target="_blank" rel="noopener" title="Watch on YouTube from 23:26">&#9658; 23:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1406s" target="_blank" rel="noopener">23:26</a> it&#x27;s also t over 2. So all of that to say that your vector field needs</p>
+</div>
+</section><section class="row" id="s24">
+<figure>
+<a href="slides/l3/p028.jpg" target="_blank">
+<img src="slides/l3/p028.jpg" alt="Slide p. 28: Perspective of a distribution with continuity equation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 28 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1415s" target="_blank" rel="noopener" title="Watch on YouTube from 23:35">&#9658; 23:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1415s" target="_blank" rel="noopener">23:35</a> to behave in a certain way if you want to guarantee that your trajectories are unique. And this is Lipschitz continuity. And you&#x27;re going to see why that matters. Cool. So that&#x27;s the first equation that&#x27;s going to be important.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1434s" target="_blank" rel="noopener">23:54</a> So the ODE here, which is dx over dt is equal to the velocity at location x and time t. It&#x27;s the first one. The second one that we&#x27;re going to see is the following. So I told you that what we want to do is transport our distribution from one place to another. So when you transport something, one thing that you want to guarantee is that you&#x27;re not</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1466s" target="_blank" rel="noopener">24:26</a> going to lose or gain anything of what you&#x27;re transporting. You have what we call conservation of mass. And this idea is also something we want to put in writing. And in particular, we&#x27;re going to focus on the following case. So let&#x27;s assume you&#x27;re in a region of space and you consider a very small area.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1495s" target="_blank" rel="noopener">24:55</a> And here you have your data distribution that is around it. So the equation that we want to put in writing is around making sure that the evolution of your density at time t is equal to the density that is coming minus the density that is going out or that is leaving.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1526s" target="_blank" rel="noopener">25:26</a> Do you all agree with this idea? So the evolution of density as at time t is a function of how much density comes in minus how many comes out. So the left-hand side is kind of easy. It&#x27;s just a partial derivative of your probability path at that region with respect to time.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1554s" target="_blank" rel="noopener">25:54</a> But then the right side, I don&#x27;t about you, but very intuitively, there&#x27;s not like a supernatural operator that does that. So what we&#x27;re going to see now is how we can quantify the idea on the right side of the equal sign. But before we do that, I just want to take a pause.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1579s" target="_blank" rel="noopener">26:19</a> Does this idea make sense, conservation of mass? By the way, have you seen it in another topic? Yeah? So in physics, you have the same thing, and it&#x27;s actually called-- it has a name. It&#x27;s called the continuity equation. Anyways, so instead of just giving you the formula, we&#x27;re just going to intuitively get to it. And in particular, I want us to think about this right-hand side</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1612s" target="_blank" rel="noopener">26:52</a> of this equation and think for a bit how we want to quantify the inflow minus outflow bit. So let&#x27;s suppose you have an operator that&#x27;s called of the divergence. But right now, I&#x27;m not telling you anything about what that operator is. I&#x27;m just telling you that the operator is positive</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1640s" target="_blank" rel="noopener">27:20</a> when things are coming out more than coming in. And we&#x27;re going to see what happens then. So here, when we&#x27;re talking about coming in and coming out, we&#x27;re, of course, talking about vectors. So here we&#x27;re assuming, for instance, if there&#x27;s more coming out than coming in that-- let&#x27;s assume if we are in one dimensional space,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1673s" target="_blank" rel="noopener">27:53</a> you have a vector that is such that at first it&#x27;s small in magnitude, and then it&#x27;s much bigger in magnitude. So here, do you agree with me that whatever this vector is representing, there is more coming out than coming in? You all agree? OK, so that&#x27;s one case where coming out can be more than coming in.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1700s" target="_blank" rel="noopener">28:20</a> So let&#x27;s see a second case. So second case is here. And then let&#x27;s say your vector is coming out here and coming out there. Yeah? I&#x27;m sure you can have more cases than that. But in this 1D example, if you were to represent your vector, let&#x27;s say f, over the dimension x, here,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1732s" target="_blank" rel="noopener">28:52</a> what is the magnitude of f doing? It is increasing. OK, so here, we just see that partial derivative of x/x is increasing. How about here? So here it&#x27;s negative. And then it becomes positive. Also increasing, right?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1756s" target="_blank" rel="noopener">29:16</a> OK, so based on this very back-of-the-envelope intuition, we see that when things are leaving, partial derivative of x over this dimension of f over this dimension x is positive, which seems to match the sign that we want from our divergence operation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1785s" target="_blank" rel="noopener">29:45</a> So now let&#x27;s see the other case. So let&#x27;s assume that we have now the case where we want our operator to be negative when there is, quote unquote, &quot;more coming than leaving.&quot; So here again, this example. So you have, let&#x27;s say, a bigger vector here coming and then a smaller one leaving. And then let&#x27;s say you have another case, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1815s" target="_blank" rel="noopener">30:15</a> is given by this, which is just vectors pointing towards that area. So here you see that f is becoming more and more negative when you project it on x. So here you have partial derivative of f over x, which is negative. And here you see that it was first positive,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1844s" target="_blank" rel="noopener">30:44</a> and then it becomes negative, which again, boils down to this. So this is by no means a formal proof, but I hope I gave you some intuition that if you take the partial derivative of your function that is outputting a vector over its coordinates, at least in 1D,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1875s" target="_blank" rel="noopener">31:15</a> it would give you this intuition that if it&#x27;s positive, then it&#x27;s more coming out, and when it&#x27;s negative, then there&#x27;s more coming in. So based on this intuition, what I&#x27;m now telling you is that there is an operator that is indeed called the divergence that is a function of a vector, that is a function of x, which is also multidimensional.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1904s" target="_blank" rel="noopener">31:44</a> And what it is doing is it is just the sum of the partial derivatives of x over each dimension. So the divergence is a scalar. It&#x27;s a number. And if it&#x27;s positive, it just means that there are more things coming out. And if it&#x27;s negative, it means there are more things coming in. So based on that, we want to see how we can use this divergence</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1936s" target="_blank" rel="noopener">32:16</a> operator back into our continuity equation example, where we want to quantify the fact that we want the net inflows, which is how much density is coming in versus out. So now a second question is something that we ask ourselves, which is OK, what should we use as f? What should f be?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1967s" target="_blank" rel="noopener">32:47</a> So we saw the vector field, which is a vector that could be a candidate. So do you think the vector field could be a good candidate? So let&#x27;s see with an example. So let&#x27;s suppose you have two points in space, let&#x27;s say x1 and x2. And then you have their respective vector fields.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=1990s" target="_blank" rel="noopener">33:10</a> If you happen to have a higher density in one of the two points, then our intuition tells us that you would want the point in the higher density region to transport more things than the one in the lower density region. So in that case, the vector field alone would actually not be a good candidate. Instead, and maybe you have guessed it, in order</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2021s" target="_blank" rel="noopener">33:41</a> to quantify the movement of density, we, of course, need to take into consideration the probability density. And so here the actual quantity that we will use is called the probability flux, and it is defined by dt, which is a scalar times ut, which is the vector field.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2050s" target="_blank" rel="noopener">34:10</a> So going back to the equation that we wanted to put in writing, what we&#x27;re saying is that the temporal evolution of the density at time t, which we said is simply the partial derivative of p with respect to t. We&#x27;re now saying that this is equal to minus the divergence</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2076s" target="_blank" rel="noopener">34:36</a> of the probability flux. And this quantity, so minus divergence of dt ut of x. It just means that we&#x27;re interested in the net inflows of density within our small volume. So all in all, that equation, which I&#x27;m going to write,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2103s" target="_blank" rel="noopener">35:03</a> is nothing else than the continuity equation, which you may have seen in physics. 35:16 So I&#x27;m going to write it down. And of course, OK, this is here. So what we&#x27;re saying is that the evolution of density at a given location, the temporal evolution of the density at a given location, is given by how much density is coming in minus</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2146s" target="_blank" rel="noopener">35:46</a> how much density is coming out. And this just conveys the facts that we&#x27;re not creating new density out of thin air, we&#x27;re just conserving it when time goes from t0 to 1. And compared to the ODE that we saw before, you can think of this equation as being a macro perspective of how your probability path evolves.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2184s" target="_blank" rel="noopener">36:24</a> And the ODE itself is actually centered on how one particle evolves, which is more a micro perspective, which we&#x27;re going to see here. So a single sample, you take your sample x at time t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2200s" target="_blank" rel="noopener">36:40</a> And what you&#x27;re saying is that how fast that particle is going is actually given by the vector field at that location at that time. So the distance dx is given by ut of x times dt. So this is the micro perspective. But we also saw that this vector field that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2226s" target="_blank" rel="noopener">37:06</a> was coming into the picture in this micro perspective is also in the macro perspective. And what we&#x27;re saying is given that we&#x27;re transporting the density and we&#x27;re not losing it or gaining it, we also have this nice identity that we can use, which is also called the continuity equation. And so there is expression that you will see a lot in papers.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2256s" target="_blank" rel="noopener">37:36</a> I&#x27;m going to read it out loud. The vector field ut of x generates the probability path. So when people say that, what they mean is that ut and dt satisfy the continuity equation. So now you may wonder, well, why should we care? So just remember that our goal is</p>
+</div>
+</section><div class="chapter" id="ch-Micro-and-macro-perspectives"><span>Micro and macro perspectives</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2284s" target="_blank" rel="noopener">38:04</a></div><section class="row" id="s25">
+<figure>
+<a href="slides/l3/p029.jpg" target="_blank">
+<img src="slides/l3/p029.jpg" alt="Slide pp. 29–30: Two perspectives involving the velocity" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 29–30 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2284s" target="_blank" rel="noopener" title="Watch on YouTube from 38:04">&#9658; 38:04</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2284s" target="_blank" rel="noopener">38:04</a> to sample an observation from the initial distribution p0, and to map it to the target data distribution. And the way we want to map it is we want that particle to go from one place to another using the vector field. And so what we want is to find a probability path that will</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2310s" target="_blank" rel="noopener">38:30</a> allow us to go from p0 to p1. And in order to find the probability path, we also need to find the associated vector field that will allow us to actually do the mapping because that vector field is in the single sample perspective. So that&#x27;s the idea. We&#x27;re going to see it in other words, in a little bit. But this is the intuition behind flow models.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2343s" target="_blank" rel="noopener">39:03</a> Any questions on this? Everything is clear so far? Yep. So question is the solution of this equation would be the target. So on the left-hand side, if we know ut and if we know that ut is allowing pt to go from p0,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2371s" target="_blank" rel="noopener">39:31</a> something that we decide that is easy to sample to p1, what we care about, what we&#x27;re saying is if we know such a ut, then on the left-hand side, if you sample x from p0, you have your initial condition. And if you ut, what that means is you can solve this equation in order to find x1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2400s" target="_blank" rel="noopener">40:00</a> And x1, by definition, will be as if it was sample from p1. So that&#x27;s the idea. I know it was a lot. I know it may not seem clear, but don&#x27;t worry, we have a lot of examples down the line. So let&#x27;s move on. Oh, this is exactly my next slide actually. So here what we&#x27;re saying is the relationship between these two</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2426s" target="_blank" rel="noopener">40:26</a> perspectives, I&#x27;m going to just repeat what I said but in mathematical terms, is if we sample x0 from p0. Given that our particle x is subject to velocity, then what that means is, if that velocity is actually generating the probability path from the initial to the target one, then what that means is that xt will be sampled from dt.</p>
+</div>
+</section><section class="row" id="s26">
+<figure>
+<a href="slides/l3/p031.jpg" target="_blank">
+<img src="slides/l3/p031.jpg" alt="Slide p. 31: Flow models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 31 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2462s" target="_blank" rel="noopener" title="Watch on YouTube from 41:02">&#9658; 41:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2462s" target="_blank" rel="noopener">41:02</a> And in particular, t=1, x1 will be sampled from p1. OK, cool. So don&#x27;t worry. We&#x27;re going to go into more details on this. So the whole goal of flow models is to map points, is to map x0</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2485s" target="_blank" rel="noopener">41:25</a> to x1. So what is our strategy here? We saw that the vector field was a central piece of this whole problem. So number one, step number one is for us to estimate this vector field via some model that we&#x27;re going to note ut theta of x. So theta is the parameters that we&#x27;re learning. So if we learn such a vector field, then what we&#x27;re going to do in order to map x0 to x1</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2522s" target="_blank" rel="noopener">42:02</a> is we&#x27;re going to use the ODE and solve it numerically. So what does that mean? That means that we&#x27;re going to sample x0, and we&#x27;re just going to follow the vector field up until time equal to 1. So this integral here in practice is going to be just a numerical solver that maybe Euler,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2547s" target="_blank" rel="noopener">42:27</a> for instance. And it&#x27;s going to be giving you x1, which is what you want, because at the end of the day, you want to be able to sample from your target data distribution. So starting from now, our full focus will be around finding the vector field ut theta of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2572s" target="_blank" rel="noopener">42:52</a> Because right now, I just told you what we care about. But I didn&#x27;t tell you how we&#x27;re going to do that. So now we&#x27;re going to focus on that. So in the past, there has been many papers</p>
+</div>
+</section><div class="chapter" id="ch-Continuous-normalizing-flows"><span>Continuous normalizing flows</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2586s" target="_blank" rel="noopener">43:06</a></div><section class="row" id="s27">
+<figure>
+<a href="slides/l3/p032.jpg" target="_blank">
+<img src="slides/l3/p032.jpg" alt="Slide p. 32: Focus of the rest of this lecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 32 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2586s" target="_blank" rel="noopener" title="Watch on YouTube from 43:06">&#9658; 43:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2586s" target="_blank" rel="noopener">43:06</a> published on how you can estimate your vector field. And there is one method that I&#x27;m going to mention here, which is not going to be the focus of this class because it is a method that was used a number of years ago. So eight years ago, I believe.</p>
+</div>
+</section><section class="row" id="s28">
+<figure>
+<a href="slides/l3/p033.jpg" target="_blank">
+<img src="slides/l3/p033.jpg" alt="Slide p. 33: Earlier attempts to learn the velocity" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 33 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2606s" target="_blank" rel="noopener" title="Watch on YouTube from 43:26">&#9658; 43:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2606s" target="_blank" rel="noopener">43:26</a> But it is not something that could be used in practice. So people are not using it so far. But I&#x27;m just telling you just for historical purposes. So one way of learning the vector fields is by maximizing the likelihood that your model is seeing the data, the training set. So how can you do that? Well, if you take the continuity equation that we saw, so this one-- so if you take this equation, then what happens</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2643s" target="_blank" rel="noopener">44:03</a> is if you do some math, you can actually pop up that log of dt of x, which is what you want to maximize. And you can have the following strategy. So you want to determine log of p1 of x1. So x1 is the data from the training set. So you want to compute the probability of your model</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2674s" target="_blank" rel="noopener">44:34</a> seeing x1. The problem is you don&#x27;t how to compute it. So the way you&#x27;re going to do this is you&#x27;re first going to realize that you can compute the probability that the initial distribution is seeing x0, because typically, the initial distribution is an easy one, something that you can analytically compute, such as a Gaussian.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2700s" target="_blank" rel="noopener">45:00</a> So you know how to compute log p0 of x0. And what you&#x27;re going to do is you&#x27;re going to link x1 and x0 by integrating the divergence of the vector fields, because you have-- the formula above that is true. So if you know log p0 of x0 and if you know the vector field, then you can compute this quantity. And so what that paper was doing, which is called continuous normalizing flow,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2731s" target="_blank" rel="noopener">45:31</a> was that it was us trying to learn the parameters theta by maximizing the likelihood of your training sets happening under theta. And it was computing the likelihood using this formula. So what is the problem? The problem is that at training time, you need to constantly solve this integral. So it&#x27;s a numerical solver that works all the time.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2763s" target="_blank" rel="noopener">46:03</a> So it&#x27;s very expensive and very slow, which is why we have a snail emoji.</p>
+</div>
+</section><section class="row" id="s29">
+<figure>
+<a href="slides/l3/p034.jpg" target="_blank">
+<img src="slides/l3/p034.jpg" alt="Slide p. 34: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 34 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2769s" target="_blank" rel="noopener" title="Watch on YouTube from 46:09">&#9658; 46:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2769s" target="_blank" rel="noopener">46:09</a> So it&#x27;s just not practical. People just couldn&#x27;t use that.</p>
+</div>
+</section><div class="chapter" id="ch-Flow-matching"><span>Flow matching</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2776s" target="_blank" rel="noopener">46:16</a></div><section class="row" id="s30">
+<figure>
+<a href="slides/l3/p035.jpg" target="_blank">
+<img src="slides/l3/p035.jpg" alt="Slide p. 35: Flow matching" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 35 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2776s" target="_blank" rel="noopener" title="Watch on YouTube from 46:16">&#9658; 46:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2776s" target="_blank" rel="noopener">46:16</a> And for that reason, I hope I did a good job of motivating the reason why we needed another approach. The approach we&#x27;re going to see now is actually what is called flow matching, because we&#x27;re going to see we&#x27;re not doing maximum likelihood estimation. We&#x27;re instead trying to directly learn the vector field.</p>
+</div>
+</section><section class="row" id="s31">
+<figure>
+<a href="slides/l3/p036.jpg" target="_blank">
+<img src="slides/l3/p036.jpg" alt="Slide p. 36: Flow matching" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 36 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2803s" target="_blank" rel="noopener" title="Watch on YouTube from 46:43">&#9658; 46:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2803s" target="_blank" rel="noopener">46:43</a> So if you remember for score matching, you were directly trying to learn the score. So here we&#x27;re directly trying to learn the vector field. But the problem is that you don&#x27;t know what it is. So we&#x27;re going to see how we can compute this loss and indeed optimize on theta in order to find our vector field.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2832s" target="_blank" rel="noopener">47:12</a> So just remember that the problem that we have is we have an initial data distribution and a target data distribution. And what we care about is finding this ut of x, which will allow us to go from p0 to p1. That is our goal. Well, p0 is easy, so it&#x27;s a Gaussian typically.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2858s" target="_blank" rel="noopener">47:38</a> But then p1 can be super complicated. So one idea we can have is what if we just remember that the target data distribution is just composed of points from your training data? So it&#x27;s like individual points. So what if instead we simplify our problem</p>
+</div>
+</section><section class="row" id="s32">
+<figure>
+<a href="slides/l3/p037.jpg" target="_blank">
+<img src="slides/l3/p037.jpg" alt="Slide p. 37: Back to the deﬁnition of a vector ﬁeld" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 37 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2875s" target="_blank" rel="noopener">&#8776; 47:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s33">
+<figure>
+<a href="slides/l3/p038.jpg" target="_blank">
+<img src="slides/l3/p038.jpg" alt="Slide p. 38: Vector ﬁeld is unknown to us" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 38 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2875s" target="_blank" rel="noopener">&#8776; 47:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s34">
+<figure>
+<a href="slides/l3/p039.jpg" target="_blank">
+<img src="slides/l3/p039.jpg" alt="Slide pp. 39–40: Let&#x27;s fall back to an easier setup" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 39–40 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2875s" target="_blank" rel="noopener">&#8776; 47:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Conditional-probability-path-and-vector-field"><span>Conditional probability path and vector field</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2883s" target="_blank" rel="noopener">48:03</a></div><section class="row" id="s35">
+<figure>
+<a href="slides/l3/p041.jpg" target="_blank">
+<img src="slides/l3/p041.jpg" alt="Slide p. 41: How to go from initial to Dirac distribution?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 41 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2883s" target="_blank" rel="noopener" title="Watch on YouTube from 48:03">&#9658; 48:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2883s" target="_blank" rel="noopener">48:03</a> and we ask ourselves how we can transport the initial data distribution, not to the target one, but to a single point? How about if we just move our whole data distribution from initial to a single point? And here, I noted the single point with the distribution delta x1. So delta x1 is the notation for a Dirac delta distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2913s" target="_blank" rel="noopener">48:33</a> So who has heard of the Dirac distribution? Yeah? So Dirac distribution is actually probably the simplest distribution out there because it&#x27;s a deterministic distribution. It will always give you one quantity.</p>
+</div>
+</section><section class="row" id="s36">
+<figure>
+<a href="slides/l3/p042.jpg" target="_blank">
+<img src="slides/l3/p042.jpg" alt="Slide p. 42: Proposed conditional probability path" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 42 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2927s" target="_blank" rel="noopener" title="Watch on YouTube from 48:47">&#9658; 48:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2927s" target="_blank" rel="noopener">48:47</a> So here delta-- so I&#x27;m going to write it down. So delta x1 of x is going to be 0 if x is different than x1. And otherwise, it will be actually a very high number. So typically, people say, let&#x27;s say infinity. But of course, it&#x27;s infinity, but the integral of this distribution, like the density needs to be 1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2961s" target="_blank" rel="noopener">49:21</a> So long story short is that we simplified our problem from initial data distribution to your target one. So we changed from that formulation to initial data distribution to a single point. So one idea could be for us to think of the following way</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=2989s" target="_blank" rel="noopener">49:49</a> of going from one to the other. So let&#x27;s suppose you have a probability path that is super simple. It&#x27;s just a Gaussian distribution that is being interpolated between 0 and x1. So here what I&#x27;m saying is, how about we think of the way we want to go from 0 to the points by taking our normal distribution of mean 0</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3025s" target="_blank" rel="noopener">50:25</a> and variance identity? And how about we just scale it down, scale it down and then move it towards x1 until it becomes just that point? So here pt-- so we say x given x1, because it&#x27;s a conditional probability, it&#x27;s like given we&#x27;re arriving at x1 at time t equal 1, it will be given by a mean of t x1</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3056s" target="_blank" rel="noopener">50:56</a> and a variance of 1 minus t squared times identity. So let me tell you why that is the case. So what I&#x27;m saying here is that I&#x27;m proposing a way for us to go from the normal distribution that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3089s" target="_blank" rel="noopener">51:29</a> is this one of mean 0 and then variance the identity. So what I&#x27;m saying is in order to go from here to this point, which is x1, what I&#x27;m telling you is we&#x27;re going to have a path pt given x1, which is a normal distribution of-- as a function of t because it&#x27;s probability path at time t, t x1 and 1 minus t squared I. So when t equals 0, this is 0, this is identity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3132s" target="_blank" rel="noopener">52:12</a> So p0 is just the normal distribution of 0 and I. And p1 is-- well, t=1 is just x1. And this one is a variance of 0. So you can think of t just tending to 0. So p1 is just a Dirac distribution. So this probability path that I&#x27;m telling you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3163s" target="_blank" rel="noopener">52:43</a> is something that is letting us go from our initial data distribution to this point. So it&#x27;s a valid one. So why am I choosing this? Well it can be shown that one vector field that is generating this probability path has the following expression. So ut of x given x1 is x1 minus x over 1 minus t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3192s" target="_blank" rel="noopener">53:12</a> So I&#x27;m just giving you the formula so you can derive it. So I&#x27;m looking at the time, we will not have time. But the reason why I proposed the probability path, the conditional probability path is because it&#x27;s much easier for us to compute a vector field,</p>
+</div>
+</section><section class="row" id="s37">
+<figure>
+<a href="slides/l3/p043.jpg" target="_blank">
+<img src="slides/l3/p043.jpg" alt="Slide p. 43: Conditional vector ﬁeld" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 43 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3205s" target="_blank" rel="noopener">&#8776; 53:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s38">
+<figure>
+<a href="slides/l3/p045.jpg" target="_blank">
+<img src="slides/l3/p045.jpg" alt="Slide pp. 44–45: Generation of conditional probability path" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 44–45 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3211s" target="_blank" rel="noopener" title="Watch on YouTube from 53:31">&#9658; 53:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3211s" target="_blank" rel="noopener">53:31</a> and it&#x27;s something that we can actually write. And it is this one. And what I&#x27;m going to tell you is that this vector field is generating the conditional probability path. So in other words, the vector field will be such that if you sample from p0 of this conditional probability path,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3237s" target="_blank" rel="noopener">53:57</a> and if you follow these conditional vector fields, what I am telling you is that you will end up at time equal t with xt following your conditional probability path. Well, that&#x27;s a huge step forward, no? So how do you prove that, by the way? So you just use the quantities, you use the vector field that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3266s" target="_blank" rel="noopener">54:26</a> is just this formula, and you use the conditional probability paths which you can analytically derive. Because, if you remember the Gaussian distribution, we just know everything about it. We also know the density formula. So if you take both formula and if you use the continuity equation, which is here, you can show that this expression is true.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3300s" target="_blank" rel="noopener">55:00</a> And this is how you prove that. Now we&#x27;re not going to do it because this is just some math. But maybe one thing I will tell you is why that vector fields makes sense. So we said that-- we said that the conditional vector field, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3329s" target="_blank" rel="noopener">55:29</a> is noted ut of x given x1, what we said was that this was equal to x1 minus x over 1 minus t. Well, when t is approaching 1, and when your x is not near x1, then what you&#x27;re seeing is that this quantity goes crazy, goes very close to infinity. It goes very, very high. Well, why does that make sense? It&#x27;s because at time t equal 1, your distribution is literally</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3365s" target="_blank" rel="noopener">56:05</a> a deterministic distribution that is x1. So you want all your particles to be exactly at x1. So if you&#x27;re not at x1, then you better hurry. Your velocity will be very, very high. So that&#x27;s one thing I want to say. And one other thing I want to say is there is a very nice expression</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3392s" target="_blank" rel="noopener">56:32</a> of the conditional vector fields if xt is drawn from that conditional probability path, which as a reminder, is a normal distribution of mean t x1 and 1 minus t squared I. So if xt is drawn from such a conditional probability</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3418s" target="_blank" rel="noopener">56:58</a> path, that means that you can express xt as follows. So t x1 plus 1 minus t x0, with x0 drawn from a normal distribution. So what that means is ut of xt, given x1,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3449s" target="_blank" rel="noopener">57:29</a> if I were to just replace xt in this formula, what I would obtain is x1 minus-- so x, I&#x27;m just going to directly replace just because I don&#x27;t have space. So t x1 plus 1 minus t x0 over 1 minus t. So x1 minus t x1 is 1 minus t times x1 minus 1 minus t</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3486s" target="_blank" rel="noopener">58:06</a> times x0 over 1 minus t. So what that means this is equal to x1 minus x0. The conditional vector field for xt, which is drawn from a conditional probability path, is nothing else than x1 minus x0, which is very nice. So why is it very nice? Well, it&#x27;s tractable and it&#x27;s going to be useful for us.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3525s" target="_blank" rel="noopener">58:45</a> OK, any questions? Yeah? So the question is, how do we get to that equation? So the question is, where does this equation come from? So this one, the one above is just an equation that I&#x27;m just telling you, I&#x27;m just giving you.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3552s" target="_blank" rel="noopener">59:12</a> And you can verify that it actually is generating the conditional probability path. You can prove it, but we&#x27;re not doing it. So given that this part is just me telling you that this expression can be even further simplified if the x that you&#x27;re putting here is actually drawn from the conditional probability path. So as a reminder, the conditional probability path</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3582s" target="_blank" rel="noopener">59:42</a> is given by a normal distribution of mean t x1 and 1 minus t squared I. So if you were to draw from such a distribution. It would be the same thing because you x1. It would be the same thing as sampling from just a standard normal Gaussian and writing xt as follows, because this is your variance,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3614s" target="_blank" rel="noopener">1:00:14</a> this is the mean. So this is the mean plus the variance times something that is run from the normal distribution. And so what I&#x27;m telling you is if you were to plug in that expression in here, then a lot of simplifications occur. And you end up with a very simple expression</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3637s" target="_blank" rel="noopener">1:00:37</a> of the conditional vector field at that point being equal to just x1 minus x0, where x0 is basically this component of xt. And follow up question is, well, why are you telling me this? It&#x27;s a very fair question. I&#x27;m going to tell you in 15 minutes. But does everyone agree with me so far?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3667s" target="_blank" rel="noopener">1:01:07</a> I&#x27;m going to take that as a yes. OK, so now that we looked at a very simple case of transporting</p>
+</div>
+</section><div class="chapter" id="ch-Marginal-probability-path-and-vector-field"><span>Marginal probability path and vector field</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3678s" target="_blank" rel="noopener">1:01:18</a></div><section class="row" id="s39">
+<figure>
+<a href="slides/l3/p048.jpg" target="_blank">
+<img src="slides/l3/p048.jpg" alt="Slide pp. 46–48: Marginal probability path" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 46–48 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3678s" target="_blank" rel="noopener" title="Watch on YouTube from 1:01:18">&#9658; 1:01:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3678s" target="_blank" rel="noopener">1:01:18</a> our data distribution from this initial one to a single point,</p>
+</div>
+</section><section class="row" id="s40">
+<figure>
+<a href="slides/l3/p049.jpg" target="_blank">
+<img src="slides/l3/p049.jpg" alt="Slide p. 49: Marginal probability path" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 49 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3683s" target="_blank" rel="noopener" title="Watch on YouTube from 1:01:23">&#9658; 1:01:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3683s" target="_blank" rel="noopener">1:01:23</a> now our goal is going to figure out how we can map that back to our initial problem. So our initial problem is to map from the initial data distribution to the target data distribution. So an idea to obtain the target data distribution is to replicate this conditional path over all points of your target data distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3717s" target="_blank" rel="noopener">1:01:57</a> So if we do that, we consider, let&#x27;s say, one point of your target data distribution, we have this conditional probability path. We consider a second point. And let&#x27;s assume here that our target data distribution, our training set only has two points. Then what that means is that at time t,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3741s" target="_blank" rel="noopener">1:02:21</a> we can consider what we call a marginal probability path. So marginal because we marginalize across the x1&#x27;s. And we will end up with a mixture of Gaussians, where each Gaussian is interpolating between the normal one to the single point. So let me tell you why I&#x27;m telling you all of this.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3769s" target="_blank" rel="noopener">1:02:49</a> So just remember that what we care about is to map our initial distribution to the target one. So there are many ways to go from one to the other. And what we say is that we can just propose this marginal probability path, which I&#x27;m</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3796s" target="_blank" rel="noopener">1:03:16</a> going to explain in a second. So what I&#x27;m telling you is let&#x27;s fix x1. And just consider the conditional probability path. So p of x given x1 which is what we saw. Before Now let&#x27;s consider all such conditional probability</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3822s" target="_blank" rel="noopener">1:03:42</a> path across all the x1&#x27;s that are composing our target data distribution. And let&#x27;s consider the following expression, which is a natural way of defining it. So we notice that p0 of x--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3846s" target="_blank" rel="noopener">1:04:06</a> so p0 of x, given x1 is just the standard normal distribution, p0. So this is indeed the initial data distribution. So the standard Gaussian. And p1, what is p1? So we said that when t equals 1, p of x given x1 is the Dirac.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3881s" target="_blank" rel="noopener">1:04:41</a> So when t equal 1, this one is equal to Dirac of x1 at x. So this whole thing simplifies to P data of x. So this marginal probability path is verifying p0, like t equals 0,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3912s" target="_blank" rel="noopener">1:05:12</a> is equal to your initial data distribution. And p1 is your target data distribution. So it is a valid path to go from 0 to 1. So now our goal-- because just remember, what we want is to go from 0 to 1. And we want to learn the vector field that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3934s" target="_blank" rel="noopener">1:05:34</a> is getting us from 0 to 1. So the good thing here is we have a probability path that is getting us from 0 to 1. So now let&#x27;s look at the vector field. Let&#x27;s see if there is a way for us to aggregate the conditional vector fields such that it is going to enable us to go from 0 to 1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3959s" target="_blank" rel="noopener">1:05:59</a> So here we consider the conditional vector field for each data point like conditional on each data point. So this one and this one. And what we want is to also have a marginal vector field, something that is able to generate the marginal probability path. And what I&#x27;m going to tell you is that the way we want to aggregate the vector field</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=3990s" target="_blank" rel="noopener">1:06:30</a> is going to actually be quite intuitive. So I&#x27;m going to just write it down. So up until now, what we&#x27;re doing is we&#x27;re constructing things. We&#x27;re constructing things, and then we&#x27;re verifying that it&#x27;s actually something that is what we want. So what I&#x27;m saying is we&#x27;re going to aggregate the conditional vector fields by considering</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4017s" target="_blank" rel="noopener">1:06:57</a> the following aggregation. So I&#x27;m going to take my conditional vector fields. I&#x27;m going to aggregate it as follows. So I&#x27;m going to say it&#x27;s equal to this. So the conditional probability path times p data of x1 over the marginal probability path which we have derived a short while ago.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4040s" target="_blank" rel="noopener">1:07:20</a> And I&#x27;m going to say that this is my definition. This is my proposed definition of the marginal vector field. So this expression may seem scary to you, but if you remember Bayes&#x27; rule, this one-- you recognize Bayes&#x27; rule here, a little bit? So it&#x27;s as if-- so I&#x27;m going to put this in quotes.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4066s" target="_blank" rel="noopener">1:07:46</a> So it&#x27;s as if it was the probability of x1 being where you&#x27;re headed given x, which is where you are. So the way you&#x27;re aggregating your conditional vector fields is OK, I&#x27;m at point x and I&#x27;m going to weight each conditional vector fields with a weight that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4098s" target="_blank" rel="noopener">1:08:18</a> is telling me the probability of this x1 being my destination given where I am. So you can think of this as the posterior mean. And this coefficient can be interpreted as OK, given where I am, how likely is it that this point is where I want to go?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4125s" target="_blank" rel="noopener">1:08:45</a> And now I&#x27;m going to tell you the biggest result. These marginal vector field which we defined is actually generating the probability path, the marginal probability path. So this is a big deal. So what that means is there is a vector field that is generating the probability path that is actually something that satisfies what we want, which is it&#x27;s a path that goes</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4156s" target="_blank" rel="noopener">1:09:16</a> from the initial to the target. So I&#x27;m looking at the time. I&#x27;m not going to derive it, but I&#x27;m going to derive something else instead. So in order for you to show that this vector field is generating the probability path is by just plugging these quantities</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4183s" target="_blank" rel="noopener">1:09:43</a> in the continuity equation. So I&#x27;m not going to do it. I&#x27;m just going to tell you how you would do it. So you just do that. So you take your marginal probability path. You derive it here, and just recognize that it is indeed the minus the divergence of the marginal probability path and the marginal vector field. So what this is telling us is if we sample x0</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4210s" target="_blank" rel="noopener">1:10:10</a> from p0, which is the initial one, then if we follow the marginal vector field, then xt is going to be following the probability path p of t. This is huge because if you take x0 and you take it all the way to t equal 1 with the vector field, then x1 will be actually following p1, which is what you care about.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4244s" target="_blank" rel="noopener">1:10:44</a> So this is huge. This can be proven mathematically. We&#x27;re not going to do it with respect to how much time we have. And so this leads us to our initial problem,</p>
+</div>
+</section><section class="row" id="s41">
+<figure>
+<a href="slides/l3/p052.jpg" target="_blank">
+<img src="slides/l3/p052.jpg" alt="Slide pp. 50–52: Marginal vector ﬁeld" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 50–52 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4250s" target="_blank" rel="noopener">&#8776; 1:10:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s42">
+<figure>
+<a href="slides/l3/p053.jpg" target="_blank">
+<img src="slides/l3/p053.jpg" alt="Slide p. 53: Marginal vector ﬁeld" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 53 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4250s" target="_blank" rel="noopener">&#8776; 1:10:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s43">
+<figure>
+<a href="slides/l3/p055.jpg" target="_blank">
+<img src="slides/l3/p055.jpg" alt="Slide pp. 54–55: Generation of probability path" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 54–55 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4250s" target="_blank" rel="noopener">&#8776; 1:10:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s44">
+<figure>
+<a href="slides/l3/p056.jpg" target="_blank">
+<img src="slides/l3/p056.jpg" alt="Slide p. 56: Deriving conditional ﬂow matching" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 56 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4250s" target="_blank" rel="noopener">&#8776; 1:10:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Conditional-flow-matching"><span>Conditional flow matching</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4259s" target="_blank" rel="noopener">1:10:59</a></div><section class="row" id="s45">
+<figure>
+<a href="slides/l3/p057.jpg" target="_blank">
+<img src="slides/l3/p057.jpg" alt="Slide p. 57: Conditional ﬂow matching" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 57 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4259s" target="_blank" rel="noopener" title="Watch on YouTube from 1:10:59">&#9658; 1:10:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4259s" target="_blank" rel="noopener">1:10:59</a> which is us wanting to learn a vector field that will allow us to go from p0 to p1. So here, what I&#x27;m going to tell you is that optimizing for the flow matching loss that I told you at the very beginning is equivalent to you optimizing for what</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4284s" target="_blank" rel="noopener">1:11:24</a> we call the conditional flow matching loss, which is given by here. And I&#x27;m going to tell you more about this for the next five minutes. So let me take this. So here, what we want is to have a tractable loss.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4309s" target="_blank" rel="noopener">1:11:49</a> And if you look at the flow matching loss, it is still a loss that is quite complex. So our goal is to really make our loss as tractable as possible. So as a result what we&#x27;re saying is that the loss of flow matching, which is given by this, so it&#x27;s the expectation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4338s" target="_blank" rel="noopener">1:12:18</a> of the squared distance of your learned vector field minus the marginal vector field that you constructed. So what we&#x27;re saying is optimizing for the loss above is the same as optimizing for the conditional flow matching loss, which is this one.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4372s" target="_blank" rel="noopener">1:12:52</a> So if we aggregate over time steps t and x drawn from the probability path dt of this expression, what I&#x27;m saying is that optimizing for this loss is the same as optimizing for the conditional flow matching loss, where the expectation is over t x1, and then x belonging to the conditional probability path.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4407s" target="_blank" rel="noopener">1:13:27</a> And back to your question. This whole expression that we had here was ut of xt given x1, which was x1 minus x0. So this thing is super simple. It is just the thing that you want to learn minus x1 minus x0. Super simple. OK, so now why is it equivalent to optimize</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4443s" target="_blank" rel="noopener">1:14:03</a> on the flow matching and the conditional flow matching loss? That&#x27;s another question. So if you remember, for score matching, we had a very similar question. So I&#x27;m going to give you the same trick. So let&#x27;s assume you have distance squared of a minus B, which is basically what we have here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4468s" target="_blank" rel="noopener">1:14:28</a> And what you want is to optimize these losses with respect to the parameters of the model theta. So everything that you care here is only terms that are a function of theta. So a minus b that norm squared is equal to a squared minus 2 dot product of a and b plus b squared.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4501s" target="_blank" rel="noopener">1:15:01</a> So ut theta x squared, this and this are the same. Perfect. So how about this term. The b term is actually not dependent on theta. So we actually don&#x27;t care. So a is good. It&#x27;s the same. b is not a function of theta. We don&#x27;t care.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4528s" target="_blank" rel="noopener">1:15:28</a> The only thing that is different between these two is the dot product of a and b. So this one and this one and this one and this one. So what we want to show is the expectation over t and x of this dot product is the same as the expectation over this. So t x1 and x over the conditional probability part of this one and this one.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4555s" target="_blank" rel="noopener">1:15:55</a> We want to show that these two are the same. So I&#x27;m going to do this in two minutes. 1:16:10 OK. So let&#x27;s suppose-- so we&#x27;re going to go from one side and end up with another. So what I&#x27;m going to do is start from the dot product</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4591s" target="_blank" rel="noopener">1:16:31</a> of the conditional flow matching loss and end up with the one from the flow matching one. So what I&#x27;m going to compute is the expectation. And here, I&#x27;m going to say t x1 and x of the dot product of ut theta of x and your conditional vector field. So ut of x given x1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4625s" target="_blank" rel="noopener">1:17:05</a> So what I&#x27;m telling you is by definition of the expectation-- so this is just a bunch of integrals. So this is the integral over t over x1 and x of ut of theta of x dot product with the conditional vector field ut of x given x1. And this is over x1 and x so I&#x27;m going to say it&#x27;s p data of x1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4657s" target="_blank" rel="noopener">1:17:37</a> And then the conditional probability path x given x1 dx1, dx, dt. So far so good? So here what we notice is that if we put this quantity here, this quantity here, and if I divide by dt of x and I do times dt of x, then what I&#x27;m</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4698s" target="_blank" rel="noopener">1:18:18</a> going to recognize is the marginal vector field that we have constructed. So this is going to be equal to the integral over t integral. So this integral over x1 is also going to come here. So integral over t, integral over x of ut theta of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4732s" target="_blank" rel="noopener">1:18:52</a> And this ut of x, which is the marginal vector field, times this marginal probability path dt of x, dx, dt. And this is nothing else than the expectation over t and x, which is run from the marginal probability path of the dot product of ut theta of x</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4764s" target="_blank" rel="noopener">1:19:24</a> and the marginal vector field, which is exactly what we want. So what I&#x27;m showing you here is that the marginal vector field, the way we constructed it, allows us to optimize on a loss, the conditional flow matching loss, which is much more tractable, and leads us to the same gradients with respect to theta.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4792s" target="_blank" rel="noopener">1:19:52</a> And so long story short, we have this loss, which is called the conditional flow matching loss, which is the expectation over t x1, which is run over the pdata, and then x drawn over the conditional probability path of a quantity that is extremely simple. So it&#x27;s just the squared distance between the learned velocity, which is what you want to learn,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4827s" target="_blank" rel="noopener">1:20:27</a> and the conditional vector field, which we saw was nothing else than just x1 minus x0. So it&#x27;s a very tractable loss, and it does exactly what you want. Any questions? So it&#x27;s a lot. Are we all clear with this?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4858s" target="_blank" rel="noopener">1:20:58</a> OK, I&#x27;m going to say that it&#x27;s OK if you feel like it&#x27;s a lot. It is indeed a lot. So I&#x27;m going to recap the strategy. So what we said at the very beginning was that we had two different views of how we want to go from one distribution to another distribution. What we said was that there was this quantity called the vector</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4885s" target="_blank" rel="noopener">1:21:25</a> field, a.k.a. the velocity that was linked to how we could move our particles, so with the ODE dx over dt equal vector field that one, but also the continuity equation that linked the vector field with the probability path. So what we want is to find the vector field that will allow us to go from p0 to p1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4913s" target="_blank" rel="noopener">1:21:53</a> So what you need to do is to find first a probability path that goes from p1 to-- sorry, from p0 to p1. First you need to find that. And then you need to construct a vector field that indeed allows you to go from p0 to p1. So how do you do-- how do you do that? Well, you propose some quantities and you try to see if the continuity equation is indeed</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4944s" target="_blank" rel="noopener">1:22:24</a> satisfied. So that&#x27;s step number one. Once you your vector field of interest, your goal now is to learn it. Because if you learn it, then what you can do is to integrate the ODE. Why do you want to integrate the ODE? It&#x27;s because you want to go from x0 to x1.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=4970s" target="_blank" rel="noopener">1:22:50</a> Therefore, you need to learn your vector field. And here what we did is, in order to learn the vector field, we first thought of a very simple case of us wanting to go from the initial to a single point via the conditional probability path and the conditional vector field. So this is the simple case with the Dirac distribution</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5002s" target="_blank" rel="noopener">1:23:22</a> being the target distribution. And then what we said was OK, given this very simple case that is super tractable, let&#x27;s try to match our initial distribution with the actual target one of interest, which is the whole data distribution, not just a single point, but the whole data distribution. And we proposed the marginal probability</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5030s" target="_blank" rel="noopener">1:23:50</a> path which satisfies t equals 0 equals p0 and t equal 1. It&#x27;s equal to p data. So it was a valid probability path. And we also saw that the constructed vector field was actually generating that proposed marginal probability path. It was generating it, why? Because it satisfies the continuity equation, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5059s" target="_blank" rel="noopener">1:24:19</a> I said I don&#x27;t have time to derive, but you just need to replace the quantities and see that the continuity equation is indeed satisfied. So given that we were finally with the vector field, that was something that was adapted to our use case. But now what we wanted to do was to learn it with the tractable loss.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5087s" target="_blank" rel="noopener">1:24:47</a> So in this last part, what we did is show that the loss that we wanted to optimize was actually equivalent to another loss that was extremely tractable, which is the conditional flow matching loss. And the way we showed that was by showing that the gradient of this losses with respect to theta were equal, which is what I did here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5115s" target="_blank" rel="noopener">1:25:15</a> And then finally, we have our final loss function, which is ut theta of x minus x1 minus x0 expectation of that. So it&#x27;s incredibly simple. So everything I told you is actually-- so a lot of it is coming from this paper that&#x27;s called Flow Matching for Generative Modeling.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5145s" target="_blank" rel="noopener">1:25:45</a> So I highly recommend reading it. It may not be the simplest to read, but I hope what I just told you actually will allow you to understand the formulas in there a bit better. But I didn&#x27;t want to give it to Shervine before telling you a bit more about why we&#x27;re calling</p>
+</div>
+</section><section class="row" id="s46">
+<figure>
+<a href="slides/l3/p058.jpg" target="_blank">
+<img src="slides/l3/p058.jpg" alt="Slide p. 58: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 58 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5160s" target="_blank" rel="noopener">&#8776; 1:26:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s47">
+<figure>
+<a href="slides/l3/p059.jpg" target="_blank">
+<img src="slides/l3/p059.jpg" alt="Slide p. 59: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 59 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5160s" target="_blank" rel="noopener">&#8776; 1:26:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s48">
+<figure>
+<a href="slides/l3/p060.jpg" target="_blank">
+<img src="slides/l3/p060.jpg" alt="Slide p. 60: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 60 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5160s" target="_blank" rel="noopener">&#8776; 1:26:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s49">
+<figure>
+<a href="slides/l3/p061.jpg" target="_blank">
+<img src="slides/l3/p061.jpg" alt="Slide p. 61: Recap" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 61 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5160s" target="_blank" rel="noopener">&#8776; 1:26:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Why-not-velocity-matching"><span>Why not velocity matching</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5167s" target="_blank" rel="noopener">1:26:07</a></div><section class="row" id="s50">
+<figure>
+<a href="slides/l3/p062.jpg" target="_blank">
+<img src="slides/l3/p062.jpg" alt="Slide p. 62: Recommended read: Flow Matching paper" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 62 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5167s" target="_blank" rel="noopener" title="Watch on YouTube from 1:26:07">&#9658; 1:26:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5167s" target="_blank" rel="noopener">1:26:07</a> this whole thing flow matching. Because core matching, it was called core matching because you tried to match the score.</p>
+</div>
+</section><section class="row" id="s51">
+<figure>
+<a href="slides/l3/p063.jpg" target="_blank">
+<img src="slides/l3/p063.jpg" alt="Slide p. 63: Wait, why &quot;Flow Matching&quot;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 63 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5176s" target="_blank" rel="noopener" title="Watch on YouTube from 1:26:16">&#9658; 1:26:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5176s" target="_blank" rel="noopener">1:26:16</a> But here, we&#x27;re not matching the flow, we&#x27;re matching the velocity. So one natural question is, why is it not called velocity matching? Why is it not called vector field matching? Why is it called flow matching? So these points are a bit more informal. It&#x27;s just a personal take on why that is the case. So one potential reason is, historically, these models which are flow models,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5203s" target="_blank" rel="noopener">1:26:43</a> meaning trying to map a point to another via this psi t of x minus 0, they had the term flow in their names, and in particular the method that I mentioned that try to learn the vector field with maximum likelihood estimation. That one was called continuous normalizing flows. So one reason is maybe branding, but actually, I</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5233s" target="_blank" rel="noopener">1:27:13</a> want to get back to my earlier Lipschitz continuity comment. It turns out that if the vector field that you learn here is Lipschitz continuous, then what happens is that your trajectories, they&#x27;re all unique.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5256s" target="_blank" rel="noopener">1:27:36</a> So you actually have a mapping between vector fields that you learn and the flow. So if you&#x27;re matching the velocity, you&#x27;re also matching the flow. Now you may be wondering, OK, how do that the learned vector field is indeed Lipschitz continuous?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5280s" target="_blank" rel="noopener">1:28:00</a> Well, we have not seen that yet. We&#x27;re going to see that in lecture 5. But the model that is behind this learned vector field is something that is composed of matrix multiplications and some smooth activation functions. All of that is Lipschitz continuous.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5306s" target="_blank" rel="noopener">1:28:26</a> So what you will learn is actually Lipschitz continuous vector field with respect to x, which is going to give you a one-to-one mapping between velocity and flow. And we have two minutes. So bear with me.</p>
+</div>
+</section><section class="row" id="s52">
+<figure>
+<a href="slides/l3/p064.jpg" target="_blank">
+<img src="slides/l3/p064.jpg" alt="Slide p. 64: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 64 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5329s" target="_blank" rel="noopener" title="Watch on YouTube from 1:28:49">&#9658; 1:28:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5329s" target="_blank" rel="noopener">1:28:49</a> In two minutes, I&#x27;m going to cover how we train and do inference. But it&#x27;s going to be very easy.</p>
+</div>
+</section><div class="chapter" id="ch-Training"><span>Training</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5336s" target="_blank" rel="noopener">1:28:56</a></div><section class="row" id="s53">
+<figure>
+<a href="slides/l3/p065.jpg" target="_blank">
+<img src="slides/l3/p065.jpg" alt="Slide p. 65: Training procedure" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 65 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5336s" target="_blank" rel="noopener" title="Watch on YouTube from 1:28:56">&#9658; 1:28:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5336s" target="_blank" rel="noopener">1:28:56</a> So let&#x27;s see how we do training. So as I mentioned, the loss is extremely simple. And so what we do is we sample the noise. So x0 from your standard Gaussian distribution, your clean image, so x1 from your training set, which is pdata, and you also sample your time step. And what you do is you construct xt, your noise image. And what I&#x27;m telling you is thanks to the loss function</p>
+</div>
+</section><section class="row" id="s54">
+<figure>
+<a href="slides/l3/p066.jpg" target="_blank">
+<img src="slides/l3/p066.jpg" alt="Slide p. 66: Training procedure" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 66 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5370s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:30">&#9658; 1:29:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5370s" target="_blank" rel="noopener">1:29:30</a> that we derived, what we do is we use xt, the noise image and t</p>
+</div>
+</section><section class="row" id="s55">
+<figure>
+<a href="slides/l3/p067.jpg" target="_blank">
+<img src="slides/l3/p067.jpg" alt="Slide p. 67: Training procedure" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 67 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5378s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:38">&#9658; 1:29:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5378s" target="_blank" rel="noopener">1:29:38</a> to predict x1 minus x0, which is the conditional vector field via this model that is your vector field model. And you&#x27;re going to compute the loss and backpropagate. That&#x27;s how you do training.</p>
+</div>
+</section><section class="row" id="s56">
+<figure>
+<a href="slides/l3/p068.jpg" target="_blank">
+<img src="slides/l3/p068.jpg" alt="Slide p. 68: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 68 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5389s" target="_blank" rel="noopener">&#8776; 1:29:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s57">
+<figure>
+<a href="slides/l3/p069.jpg" target="_blank">
+<img src="slides/l3/p069.jpg" alt="Slide p. 69: Inference" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 69 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5389s" target="_blank" rel="noopener">&#8776; 1:29:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Inference"><span>Inference</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5395s" target="_blank" rel="noopener">1:29:55</a></div><section class="row" id="s58">
+<figure>
+<a href="slides/l3/p070.jpg" target="_blank">
+<img src="slides/l3/p070.jpg" alt="Slide p. 70: Inference" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 70 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5395s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:55">&#9658; 1:29:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5395s" target="_blank" rel="noopener">1:29:55</a> Now, how do you do inference? Well, inference, you just sample from an easy data distribution. And here it&#x27;s, again, standard, normal distribution. And what you&#x27;re going to do is to numerically solve the ODE.</p>
+</div>
+</section><section class="row" id="s59">
+<figure>
+<a href="slides/l3/p071.jpg" target="_blank">
+<img src="slides/l3/p071.jpg" alt="Slide p. 71: Inference" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 71 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5412s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:12">&#9658; 1:30:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5412s" target="_blank" rel="noopener">1:30:12</a> So what you do is you go time step to time step, and you use your learned vector fields, and you end up with your final estimated image x1. And that&#x27;s how you do inference. And with that, I&#x27;m going to give it to Shervine.</p>
+</div>
+</section><div class="chapter" id="ch-Rectified-flow"><span>Rectified flow</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5432s" target="_blank" rel="noopener">1:30:32</a></div><section class="row" id="s60">
+<figure>
+<a href="slides/l3/p072.jpg" target="_blank">
+<img src="slides/l3/p072.jpg" alt="Slide p. 72: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 72 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5432s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:32">&#9658; 1:30:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5432s" target="_blank" rel="noopener">1:30:32</a> Thank you, Afshine. So now we&#x27;re going to see in a more visual manner</p>
+</div>
+</section><section class="row" id="s61">
+<figure>
+<a href="slides/l3/p073.jpg" target="_blank">
+<img src="slides/l3/p073.jpg" alt="Slide pp. 73–76: Recap of ﬂow matching training" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 73–76 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5437s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:37">&#9658; 1:30:37</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5437s" target="_blank" rel="noopener">1:30:37</a> the training process and discuss some edge cases and how to solve them in practice. So you remember the training process that Afshine just mentioned. You sample x0 from the normal distribution, you sample x1 from your training set. And what you do is that you draw a straight line between the two, and you try to fit the velocity to this x1 minus x0.</p>
+</div>
+</section><section class="row" id="s62">
+<figure>
+<a href="slides/l3/p078.jpg" target="_blank">
+<img src="slides/l3/p078.jpg" alt="Slide pp. 77–78: Are we happy?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 77–78 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5466s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:06">&#9658; 1:31:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5466s" target="_blank" rel="noopener">1:31:06</a> Now I want you to imagine that we do that for a given pair.</p>
+</div>
+</section><section class="row" id="s63">
+<figure>
+<a href="slides/l3/p079.jpg" target="_blank">
+<img src="slides/l3/p079.jpg" alt="Slide p. 79: Are we happy?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 79 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5471s" target="_blank" rel="noopener" title="Watch on YouTube from 1:31:11">&#9658; 1:31:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5471s" target="_blank" rel="noopener">1:31:11</a> And now for another pair. And suppose that these pairings intersect at a given point. And let&#x27;s suppose that this intersection is for a same t. So in other words, we&#x27;re trying to fit the loss at a same x, at a same T on two different vectors. So who knows what the resulting learned velocity will be?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5499s" target="_blank" rel="noopener">1:31:39</a> So it cannot be two velocities right. We cannot have two vectors at a single point. It has to be one. So we have this MSE loss that will make it such that it will be an average of all the vectors that we tried to fit at that given point points x</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5523s" target="_blank" rel="noopener">1:32:03</a> and at given point t and you see that as being a problem or, so what does that mean? So here in practice, let&#x27;s say you&#x27;re at inference time and you want to go from, let&#x27;s say, x0 to x1. And let&#x27;s say you have learned a vector fields of velocity that doesn&#x27;t go to x1. That goes in an average direction.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5553s" target="_blank" rel="noopener">1:32:33</a> Are you going to be able to go to x1? No, right? So the thing that will occur is that you&#x27;re going to have something averaged that might repel the trajectories that you try to learn into different directions. But be reassured, we showed that these learned vector fields was such that if you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5581s" target="_blank" rel="noopener">1:33:01</a> sample a point in the normal distribution and follow the learned vector field, you land into a distribution land, that will be your distribution pdata. So that part is fine. But still, you have this property that the learned trajectories are not going to be the same as the ones that you teach your model.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5605s" target="_blank" rel="noopener">1:33:25</a> And that is a source of what I would call complexity, where you teach a model that doesn&#x27;t follow what you said at test time. So that is inherently-- so your intuition could make you feel that this is not efficient. And the second thing that I want to say is that you could have this phenomenon happening, even though the points of intersection are not at the exact same T, because in practice, you&#x27;re</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5639s" target="_blank" rel="noopener">1:33:59</a> going to learn this vector field with a neural network. And neural network are going to be a class of functions that are going to be smoothing things in space. So you won&#x27;t have a drastic change of velocity for neighboring t&#x27;s. And so because one thing that you could have told me is, but Shervine, that is never going to happen. 01 is an interval with infinitely many numbers.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5670s" target="_blank" rel="noopener">1:34:30</a> You&#x27;re never going to draw the same t, and you would be right. And I&#x27;m just saying that it could be valid for neighboring t&#x27;s. And more importantly, let&#x27;s say you sample your point x0 out of your normal distribution. What is going to be your issue here? Afshine mentioned that you want to integrate the ODE at inference time. And we had seen last time that you want to find methods that optimize that number of NFEs</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5704s" target="_blank" rel="noopener">1:35:04</a> in such a way that you can find your target sample in a minimum amount of steps. And when you have a path that is getting curved, so you don&#x27;t have these straight lines at inference time, you&#x27;re not going to be able to solve that in a single step. Because let&#x27;s say you use Euler. Euler is estimating the velocity at the beginning points. And if you try to do it in a single step,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5729s" target="_blank" rel="noopener">1:35:29</a> it will end up somewhere else. It will follow a straight path, whereas the curve isn&#x27;t going to be taken into account. And you&#x27;re going to tell me, but Shervine, you have tricks in your pockets. Last time you talked about a DPM solver in a different setting that was able to reframe things in an exact way. Well, no.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5753s" target="_blank" rel="noopener">1:35:53</a> This time, the ODE that we want to integrate has no linear components. It&#x27;s all non-linear because here we&#x27;re directly learning that velocity field. So no DPM solver here. You need to use traditional sampler techniques. So not quite happy.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5777s" target="_blank" rel="noopener">1:36:17</a> We&#x27;re happy but not quite. So now I&#x27;m going to walk you through the intuition of a retraining or fine tuning procedure that is called reflow.</p>
+</div>
+</section><section class="row" id="s64">
+<figure>
+<a href="slides/l3/p080.jpg" target="_blank">
+<img src="slides/l3/p080.jpg" alt="Slide p. 80: Step 0. Train initial model: “1-rectiﬁed ﬂow”" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 80 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5790s" target="_blank" rel="noopener" title="Watch on YouTube from 1:36:30">&#9658; 1:36:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5790s" target="_blank" rel="noopener">1:36:30</a> And so first I&#x27;m going to recap the training procedure that we have already. So you sample a point x0, you sample a point x1, you draw a path and then you fit a velocity on it. So it is called in that paper a one rectified flow model. And you obtain trajectories that we saw we&#x27;re going to be curved.</p>
+</div>
+</section><section class="row" id="s65">
+<figure>
+<a href="slides/l3/p081.jpg" target="_blank">
+<img src="slides/l3/p081.jpg" alt="Slide p. 81: Step 1. Create paired data out of “1-rectiﬁed ﬂow” model" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 81 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5815s" target="_blank" rel="noopener" title="Watch on YouTube from 1:36:55">&#9658; 1:36:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5815s" target="_blank" rel="noopener">1:36:55</a> And one idea that we have here, one temptation, is to locate these new pairings. So you started from point x0. You integrated the ODE. You ended up at somewhere in the distribution of pdata. You&#x27;re tempted to use these new pairs as your new pairings, because they will be, by construction,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5842s" target="_blank" rel="noopener">1:37:22</a> in such a way that the velocity field will carry the trajectory directly there. So the reflow procedure says, OK, let&#x27;s take these new pairs as those that we use to retrain the model. So this will be our new lines that we fit our new model. And so this is the reflow step. And you do that process again and again</p>
+</div>
+</section><section class="row" id="s66">
+<figure>
+<a href="slides/l3/p082.jpg" target="_blank">
+<img src="slides/l3/p082.jpg" alt="Slide p. 82: Step 2. Train on paired data: “2-rectiﬁed ﬂow”" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 82 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5872s" target="_blank" rel="noopener" title="Watch on YouTube from 1:37:52">&#9658; 1:37:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5872s" target="_blank" rel="noopener">1:37:52</a> until your lines becomes straighter. And once that is the case, at inference time,</p>
+</div>
+</section><section class="row" id="s67">
+<figure>
+<a href="slides/l3/p083.jpg" target="_blank">
+<img src="slides/l3/p083.jpg" alt="Slide p. 83: Further steps. Repeat steps 2-3 as desired" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 83 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5879s" target="_blank" rel="noopener" title="Watch on YouTube from 1:37:59">&#9658; 1:37:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5879s" target="_blank" rel="noopener">1:37:59</a> you&#x27;re able to use a limited amount of inference steps in order to get your sample in the pdata space. So does this procedure make sense? Yep? So the comment is if you retrain, then the two points are going to be from the new distribution.</p>
+</div>
+</section><section class="row" id="s68">
+<figure>
+<a href="slides/l3/p084.jpg" target="_blank">
+<img src="slides/l3/p084.jpg" alt="Slide p. 84: Why does it work?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 84 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5908s" target="_blank" rel="noopener" title="Watch on YouTube from 1:38:28">&#9658; 1:38:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5908s" target="_blank" rel="noopener">1:38:28</a> So the magic in all of this-- so first, you&#x27;re going to keep that Gaussian distribution at the beginning. That will not change. And at the end, we&#x27;re going to see that there are some properties that makes it such that the resulting points that you get still preserve the distribution p data. So there is some theoretical justification that it does follow pdata.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5933s" target="_blank" rel="noopener">1:38:53</a> But this is a great point. We&#x27;re going to discuss that in more detail in two slides. Any other questions or comments? OK, so you&#x27;re right to be skeptical. So this works because of two things. So first, actually, one slide. So we need to show that this follows the distribution pdata.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5960s" target="_blank" rel="noopener">1:39:20</a> So I&#x27;m not going to give you the whole proof, just the gist of it. So you start by defining this random variable that starts at x0. And you integrate the ODE to end up in the new space and define this velocity for the x random variable and the proof to show that the law that you get for the end distribution after a reflow procedure goes through,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=5993s" target="_blank" rel="noopener">1:39:53</a> showing that these two probability flows respect the same continuity equation. And with some uniqueness theorem and the presence of initial conditions at the fact that dt equals 0 is still the Gaussian distribution, you can show that it&#x27;s valid for all t and, in particular, t equals 1.</p>
+</div>
+</section><section class="row" id="s69">
+<figure>
+<a href="slides/l3/p085.jpg" target="_blank">
+<img src="slides/l3/p085.jpg" alt="Slide p. 85: Why does it work?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 85 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6022s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:22">&#9658; 1:40:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6022s" target="_blank" rel="noopener">1:40:22</a> So yeah, just hand-waving the proof here. So it&#x27;s theoretically the case.</p>
+</div>
+</section><section class="row" id="s70">
+<figure>
+<a href="slides/l3/p086.jpg" target="_blank">
+<img src="slides/l3/p086.jpg" alt="Slide p. 86: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 86 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6029s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:29">&#9658; 1:40:29</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6029s" target="_blank" rel="noopener">1:40:29</a> But you are right to be skeptical, because once you integrate the ODE, you have errors that come in from two sources. So the first error is the discretization error. So as we said, we&#x27;re sampling these new points. So maybe you have some errors in the way you do these steps. So you don&#x27;t necessarily end up in a theoretical location you should be at.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6055s" target="_blank" rel="noopener">1:40:55</a> And the second point is that you&#x27;re operating off of a learned vector field that is approximated by a neural network, and it is possible that you haven&#x27;t learned it perfectly. I mean, of course it&#x27;s sure that you haven&#x27;t learned it perfectly. And the quality of your results will be a function of how well you learn that vector field and of your discretization errors.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6082s" target="_blank" rel="noopener">1:41:22</a> And we&#x27;re going to see very soon that this is one of the reasons why we don&#x27;t perform this procedure too many times, because the degradation is going to be a trade off to balance here. So this is the first point I wanted to justify. The second point I wanted to justify is we hand waved the fact that the flows like the trajectories were getting straighter, and there is a mathematical way of writing it down and proving it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6115s" target="_blank" rel="noopener">1:41:55</a> And this is also something that is being proven in case you&#x27;re interested. And for the interest of time, I&#x27;m not going to be covering it, but that s quantity quantifies straightness and compares the actual velocity with the theoretical one. And we show that it decays with a good speed. And this is why we&#x27;re saying it&#x27;s getting straighter.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6144s" target="_blank" rel="noopener">1:42:24</a> And exactly as we discussed, the reflow procedure is one that you wouldn&#x27;t want to do too many times, but usually, one procedure is already great. And the goal is for us to use a very simple sampling techniques, such as Euler, optimally in just a few steps, finding the right solution. And of course, it isn&#x27;t a free lunch. It comes at a trade off. So you&#x27;re trading off simplicity and potentially lower quality</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6176s" target="_blank" rel="noopener">1:42:56</a> for faster inference time speeds.</p>
+</div>
+</section><section class="row" id="s71">
+<figure>
+<a href="slides/l3/p087.jpg" target="_blank">
+<img src="slides/l3/p087.jpg" alt="Slide p. 87: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 87 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6181s" target="_blank" rel="noopener" title="Watch on YouTube from 1:43:01">&#9658; 1:43:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6181s" target="_blank" rel="noopener">1:43:01</a> OK, great. So this past three lectures, including this one, we&#x27;ve come across these concepts of diffusion, score matching,</p>
+</div>
+</section><div class="chapter" id="ch-Links-with-diffusion-and-score-matching"><span>Links with diffusion and score matching</span><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6192s" target="_blank" rel="noopener">1:43:12</a></div><section class="row" id="s72">
+<figure>
+<a href="slides/l3/p088.jpg" target="_blank">
+<img src="slides/l3/p088.jpg" alt="Slide p. 88: Discrete-time diﬀusion." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 88 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6192s" target="_blank" rel="noopener" title="Watch on YouTube from 1:43:12">&#9658; 1:43:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6192s" target="_blank" rel="noopener">1:43:12</a> and now flows, flow matching. And I want to spend five minutes together</p>
+</div>
+</section><section class="row" id="s73">
+<figure>
+<a href="slides/l3/p090.jpg" target="_blank">
+<img src="slides/l3/p090.jpg" alt="Slide pp. 89–90: Forward process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 89–90 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6197s" target="_blank" rel="noopener" title="Watch on YouTube from 1:43:17">&#9658; 1:43:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6197s" target="_blank" rel="noopener">1:43:17</a> to tie all of these frameworks together in a way that will hopefully show links between them and the fact that we are solving the same category of problems but from different lenses. And in order to do that, I&#x27;m going to look at each of the processes that we defined and then look at the difference with respect to each method. So the first one is the forward process.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6226s" target="_blank" rel="noopener">1:43:46</a> So it&#x27;s a long time ago. Already two weeks ago, we talked about DPM and all this class of discrete time, diffusion. And then we saw in score-based diffusion world that if you reframed these equations and converted it into continuous time, put some delta t to 0, you could get some SDE formulation that was equivalent to it, Where we saw at the DPM solver section</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6260s" target="_blank" rel="noopener">1:44:20</a> that actually, in diffusion space, you could approximate-- I mean, you could always assume that f of x and t was linear in x. And this is why. So it&#x27;s something that we haven&#x27;t seen so far but I&#x27;m telling you that you have a nice closed form expression with respect to f and g of xt. And now we saw today that you can write down xt as an interpolation between x0 and x1 in flow matching.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6291s" target="_blank" rel="noopener">1:44:51</a> And now we&#x27;re going to see that in all of these methods, you start from a clean sample. So in a diffusion space, we start the clean sample from t equals 0. But in flow matching space, we saw that the notation was reversed. Clean sample is t equals 1. And on the other side of the spectrum, you have noise, which was in diffusion world t equals big t.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6319s" target="_blank" rel="noopener">1:45:19</a> And here it&#x27;s t equals 0. So you&#x27;re here drawing an interpolation between the two</p>
+</div>
+</section><section class="row" id="s74">
+<figure>
+<a href="slides/l3/p091.jpg" target="_blank">
+<img src="slides/l3/p091.jpg" alt="Slide p. 91: Forward process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 91 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6326s" target="_blank" rel="noopener" title="Watch on YouTube from 1:45:26">&#9658; 1:45:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6326s" target="_blank" rel="noopener">1:45:26</a> in each of these cases. Now when we look at the loss functions, we saw that the diffusion view of writing things down</p>
+</div>
+</section><section class="row" id="s75">
+<figure>
+<a href="slides/l3/p092.jpg" target="_blank">
+<img src="slides/l3/p092.jpg" alt="Slide p. 92: What’s learned" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 92 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6338s" target="_blank" rel="noopener" title="Watch on YouTube from 1:45:38">&#9658; 1:45:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6338s" target="_blank" rel="noopener">1:45:38</a> was focusing on noise. The score matching view was linking scores, and you had a nice relationship between noise and score.</p>
+</div>
+</section><section class="row" id="s76">
+<figure>
+<a href="slides/l3/p093.jpg" target="_blank">
+<img src="slides/l3/p093.jpg" alt="Slide p. 93: Generation process" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 93 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6351s" target="_blank" rel="noopener" title="Watch on YouTube from 1:45:51">&#9658; 1:45:51</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6351s" target="_blank" rel="noopener">1:45:51</a> And in the flow matching world, you were directly fitting the velocity field such that you have the simplest ODE to integrate in the end. Now, when we look at the generation process, we saw in the diffusion world that you had all these steps to go through</p>
+</div>
+</section><section class="row" id="s77">
+<figure>
+<a href="slides/l3/p094.jpg" target="_blank">
+<img src="slides/l3/p094.jpg" alt="Slide p. 94: Deterministic counterpart" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 94 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6371s" target="_blank" rel="noopener" title="Watch on YouTube from 1:46:11">&#9658; 1:46:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6371s" target="_blank" rel="noopener">1:46:11</a> with some stochasticity, which you also had in the score-based diffusion world, and you had for the first two, a deterministic counterpart. And you will notice that the flow matching one doesn&#x27;t have such a balance because it&#x27;s deterministic to start with. And I&#x27;m just showing you some relationships between all</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6396s" target="_blank" rel="noopener">1:46:36</a> these methods, but actually, there is a whole theory linking these concepts in a very nice way.</p>
+</div>
+</section><section class="row" id="s78">
+<figure>
+<a href="slides/l3/p095.jpg" target="_blank">
+<img src="slides/l3/p095.jpg" alt="Slide p. 95: Stochastic interpolants" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 95 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6402s" target="_blank" rel="noopener" title="Watch on YouTube from 1:46:42">&#9658; 1:46:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6402s" target="_blank" rel="noopener">1:46:42</a> And this is why I recommend if you&#x27;re interested. So it&#x27;s out of scope for this class. And just if you&#x27;re interested, to take a look at the paper called Stochastic Interpolants that writes down equations that links all of these together. And turns out that r of noise, score, and velocity, if you know two of them, you can deduce the third one. And that paper designs a problem space</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6433s" target="_blank" rel="noopener">1:47:13</a> that is bigger than what each of these frameworks detailed. And all of these frameworks can live in the same unified framework. And with that, I hope you have a great weekend.</p>
+</div>
+</section><section class="row" id="s79">
+<figure>
+<a href="slides/l3/p096.jpg" target="_blank">
+<img src="slides/l3/p096.jpg" alt="Slide p. 96: Thank you for your attention!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 96 <a class="tlink chip" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6448s" target="_blank" rel="noopener" title="Watch on YouTube from 1:47:28">&#9658; 1:47:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=agN3AlfGFrk&t=6448s" target="_blank" rel="noopener">1:47:28</a> Stanford CME29</p>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<p>Slides &copy; CME 296 instructors (Afshine Amidi &amp; Shervine Amidi), Stanford University.
+Transcript from the lecture video. Slide&ndash;transcript alignment is automatic
+(content matching) and approximate; timestamps link to the video.</p>
+<nav class="lnav"><a href="lecture2.html">&larr; Lecture 2</a><a href="index.html">All lectures</a><a href="lecture4.html">Lecture 4 &rarr;</a></nav>
+</footer>
+</body>
+</html>

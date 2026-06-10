@@ -1,0 +1,5306 @@
+{
+ "lecture": 3,
+ "video_id": "agN3AlfGFrk",
+ "segments": [
+  {
+   "t": 0,
+   "ts": "0:00",
+   "text": "0:05 Hello, everyone, and welcome to lecture 3 of CME 296.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 12,
+   "ts": "0:12",
+   "text": "So today is a very special day because we're going to talk about flow matching, which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 19,
+   "ts": "0:19",
+   "text": "is a generation paradigm that is quite trendy these days.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 24,
+   "ts": "0:24",
+   "text": "So if you're a member, lectures 1 and lecture 2 were also about generation paradigm",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 31,
+   "ts": "0:31",
+   "text": "where we talked about diffusion with DPM and lecture 1 and score matching in lecture 2.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 39,
+   "ts": "0:39",
+   "text": "So flow matching is yet another generation paradigm. And we're going to see in this lecture",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 45,
+   "ts": "0:45",
+   "text": "what is the mindset behind that separate paradigm and how it relates to diffusion and score matching.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 55,
+   "ts": "0:55",
+   "text": "So as usual we're going to start the class with a recap of the last episodes.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 62,
+   "ts": "1:02",
+   "text": "So if you remember lecture 1, we saw how we could generate new samples,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 71,
+   "ts": "1:11",
+   "text": "and the way we thought about doing that was taking images from our training set, which",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 78,
+   "ts": "1:18",
+   "text": "we named clean images. And what we did is that we gradually corrupted them",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 85,
+   "ts": "1:25",
+   "text": "with a process that we defined, a process q, which, given an image at a given time step,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 94,
+   "ts": "1:34",
+   "text": "noised it by adding some Gaussian noise weighted by some coefficients.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 101,
+   "ts": "1:41",
+   "text": "And the goal of diffusion with DPM was to find or was to learn a reverse process, which",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 108,
+   "ts": "1:48",
+   "text": "we noted p theta that removed the noise gradually.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 114,
+   "ts": "1:54",
+   "text": "And what we saw was that in order to learn p theta. What we did is try to maximize the likelihood of our model",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 125,
+   "ts": "2:05",
+   "text": "seeing the training data. And if you remember, we did some clever math",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 130,
+   "ts": "2:10",
+   "text": "with some estimation of the lower bound. So the elbow and we derived some terms",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 138,
+   "ts": "2:18",
+   "text": "and we ended up with a pretty good looking loss, which was just an L2 regression on the noise that",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 147,
+   "ts": "2:27",
+   "text": "was added up to the image at timestamp t.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 153,
+   "ts": "2:33",
+   "text": "And so this was lecture 1. Lecture 2 was taking another perspective",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 162,
+   "ts": "2:42",
+   "text": "and just taking a step back, thinking of images in the space of the n dimensional space of images,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 172,
+   "ts": "2:52",
+   "text": "and the fact that what we wanted to do was sample from an easy distribution",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 179,
+   "ts": "2:59",
+   "text": "and then work our way up until the true data distribution.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 186,
+   "ts": "3:06",
+   "text": "So how did we do that? The whole point of the lecture was to learn what we call the score, which is",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 194,
+   "ts": "3:14",
+   "text": "the gradient of the log of p. And why did we do that?",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 200,
+   "ts": "3:20",
+   "text": "Because it acted as a compass from where we were up until regions of high density.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 209,
+   "ts": "3:29",
+   "text": "And if we learn such a score, what we could do was use sampling techniques such as Langevin sampling, which",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 219,
+   "ts": "3:39",
+   "text": "allowed us to move towards high density regions, but also allow for some diversity with some noise term.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 230,
+   "ts": "3:50",
+   "text": "And we saw that in order for us to estimate that score,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 236,
+   "ts": "3:56",
+   "text": "we cleverly noised the initial data distribution in order",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 241,
+   "ts": "4:01",
+   "text": "to learn the score of the noised distribution. And then we had a progressive noise schedule",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 252,
+   "ts": "4:12",
+   "text": "that allowed us to progressively work our way up until the data distribution.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 258,
+   "ts": "4:18",
+   "text": "So we ended up with a score function that was a function of the position in space,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 265,
+   "ts": "4:25",
+   "text": "but also the noise level. And again, after doing some clever math,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 271,
+   "ts": "4:31",
+   "text": "we also ended up with an L2 regression loss, which was quite easy to compute.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 278,
+   "ts": "4:38",
+   "text": "But what we also saw was that what we saw in lecture 2 was actually quite related to what we saw in lecture 1,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 285,
+   "ts": "4:45",
+   "text": "because both involved adding noise. And in particular, we saw that there",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 293,
+   "ts": "4:53",
+   "text": "was a relationship between the score of a noisy distribution",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 299,
+   "ts": "4:59",
+   "text": "and the noise that we added from the clean image",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 304,
+   "ts": "5:04",
+   "text": "to the noisy image. So given that, what we did was think",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 311,
+   "ts": "5:11",
+   "text": "of a unified way of looking at both these perspectives, and we moved from a discrete representation",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 320,
+   "ts": "5:20",
+   "text": "to a continuous one, and we obtained this SDE, which was of the form dx equal f of x and t dt plus gt times",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 331,
+   "ts": "5:31",
+   "text": "dw, where w is our Wiener process which is introducing the stochasticity.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 338,
+   "ts": "5:38",
+   "text": "And in particular, the first term is called the drift term, and it is a term that quantifies the deterministic movement",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 347,
+   "ts": "5:47",
+   "text": "in space across time. And the second term is called the diffusion term,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 353,
+   "ts": "5:53",
+   "text": "which quantifies the amount of stochasticity that you have in your process.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 360,
+   "ts": "6:00",
+   "text": "So this expression is the expression of the forward pass, meaning, you're actually noising your images.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 369,
+   "ts": "6:09",
+   "text": "And we saw that in space, if we were to represent that, it meant, again,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 375,
+   "ts": "6:15",
+   "text": "having a drift component and a diffusion component.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 381,
+   "ts": "6:21",
+   "text": "So now if we wanted to denoise our image, we were actually interested in the reverse process,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 389,
+   "ts": "6:29",
+   "text": "which we saw thanks to the result from the '80s involved",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 395,
+   "ts": "6:35",
+   "text": "knowing the score. So this expression is the reverse process",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 401,
+   "ts": "6:41",
+   "text": "that allows us to denoise images, which is why we need to learn the score.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 406,
+   "ts": "6:46",
+   "text": "And this is where the score comes in, in the continuous view.",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 414,
+   "ts": "6:54",
+   "text": "So this was two weeks ago and a week ago. But today we're going to see this third generation paradigm,",
+   "chapter": "Recap of last episodes"
+  },
+  {
+   "t": 423,
+   "ts": "7:03",
+   "text": "which is called flow matching. And similar to the past lectures, what",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 429,
+   "ts": "7:09",
+   "text": "we're going to try to do is to have a nice balance between intuition and math,",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 437,
+   "ts": "7:17",
+   "text": "because you will see that these papers are full of math, full of equations, and we will try",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 442,
+   "ts": "7:22",
+   "text": "to approach it from an intuitive perspective, but not shy away from the math either.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 449,
+   "ts": "7:29",
+   "text": "And of course, please interrupt me at any point if you feel there's something that's not clear.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 457,
+   "ts": "7:37",
+   "text": "Cool? OK, let's start. So the whole point of these first three lectures",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 466,
+   "ts": "7:46",
+   "text": "is to find a way to go from somewhere that is easy to sample from up until our data",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 476,
+   "ts": "7:56",
+   "text": "distribution of interests. So the way that flow matching works is.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 483,
+   "ts": "8:03",
+   "text": "It has two distributions. The first one is called the initial distribution,",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 489,
+   "ts": "8:09",
+   "text": "which is the distribution that you're starting from. And then the second distribution is called the target",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 495,
+   "ts": "8:15",
+   "text": "distribution, and it is the distribution that you want to end up with.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 501,
+   "ts": "8:21",
+   "text": "And the whole point of flow matching is finding a way to transport our initial data distribution up",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 513,
+   "ts": "8:33",
+   "text": "until the target distribution. And just note the terminology I'm using, transport.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 521,
+   "ts": "8:41",
+   "text": "So what we want is to transport the whole density that we have,",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 527,
+   "ts": "8:47",
+   "text": "and remember that probability, densities have this very nice property of summing to 1.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 533,
+   "ts": "8:53",
+   "text": "So we want to transport the whole density distribution from one place to another.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 542,
+   "ts": "9:02",
+   "text": "So this is the idea behind flow matching. And we're going to see how we can do that.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 549,
+   "ts": "9:09",
+   "text": "So I'm going to just give you a warning in terms of conventions.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 556,
+   "ts": "9:16",
+   "text": "In the past, we've seen that 0 was clean data and then capital T was the noise data.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 564,
+   "ts": "9:24",
+   "text": "But here it's going to be different. So we will be noting p0 our initial data distribution, which",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 572,
+   "ts": "9:32",
+   "text": "is typically something that is easy to sample from such as Gaussian noise.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 578,
+   "ts": "9:38",
+   "text": "And the target data distribution is going to be noted p1, t equal 1, and this is",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 586,
+   "ts": "9:46",
+   "text": "where we want to end up with. And then again, so this slide is just",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 592,
+   "ts": "9:52",
+   "text": "to say that lectures 1 and 2 we said 0 was clean, capital T was noise.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 599,
+   "ts": "9:59",
+   "text": "But here 0 will be noise and 1 will be what we want,",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 605,
+   "ts": "10:05",
+   "text": "which is the clean images, which is the data distribution. So the reason why we chose to proceed that way",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 614,
+   "ts": "10:14",
+   "text": "is just that the field chose these conventions. And if we were to keep the conventions of the diffusion",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 622,
+   "ts": "10:22",
+   "text": "and score matching fields, it would just completely confuse if you were to read papers from the flow matching",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 630,
+   "ts": "10:30",
+   "text": "field, which is the reason why we're keeping things consistent with the paper.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 637,
+   "ts": "10:37",
+   "text": "But just keep those things in mind, because sometimes these conventions can also be reversed, depending on which paper you're reading.",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 645,
+   "ts": "10:45",
+   "text": "But this one is by far the most common. So with that warning aside, what we want to do",
+   "chapter": "Problem formulation"
+  },
+  {
+   "t": 655,
+   "ts": "10:55",
+   "text": "is to sample an observation from our initial data distribution",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 661,
+   "ts": "11:01",
+   "text": "and then map it to the target data distribution.",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 667,
+   "ts": "11:07",
+   "text": "So in order to do that, we're now going to go through some common notations.",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 672,
+   "ts": "11:12",
+   "text": "And the first one is called the trajectory. So the trajectory is notated xt, and it",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 681,
+   "ts": "11:21",
+   "text": "is the path that is taken by an observation between times 0",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 687,
+   "ts": "11:27",
+   "text": "and 1. So by the way, the time 0 and 1 is arbitrary. It's just a way for us to say, OK, when are we starting",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 695,
+   "ts": "11:35",
+   "text": "and when are we ending? And so here at time t equals 0, we have x0.",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 701,
+   "ts": "11:41",
+   "text": "And what we want to do is for our trajectory to map a point from p0 up until p1.",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 712,
+   "ts": "11:52",
+   "text": "So that's our goal. So now, let's see another notation.",
+   "chapter": "Trajectory"
+  },
+  {
+   "t": 718,
+   "ts": "11:58",
+   "text": "So this one is called the flow. The flow is known as psi of T of x0.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 728,
+   "ts": "12:08",
+   "text": "So I'm just going to write that down here. So it is a function that takes time and an initial condition.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 743,
+   "ts": "12:23",
+   "text": "And it gives you where that point at time t.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 750,
+   "ts": "12:30",
+   "text": "So this is the time so belongs to 01. This one is to your space, which is maybe--",
+   "chapter": "Flow"
+  },
+  {
+   "t": 759,
+   "ts": "12:39",
+   "text": "I don't know-- d dimensional. And this one is also in the d dimensional space.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 765,
+   "ts": "12:45",
+   "text": "And you have psi of T of x0, which",
+   "chapter": "Flow"
+  },
+  {
+   "t": 770,
+   "ts": "12:50",
+   "text": "is equal to your point at time t, which is x of t.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 777,
+   "ts": "12:57",
+   "text": "So the flow you can interpret it in different ways. So one way you can interpret it is it's",
+   "chapter": "Flow"
+  },
+  {
+   "t": 784,
+   "ts": "13:04",
+   "text": "a collection of trajectories. Because if you change the initial condition x0,",
+   "chapter": "Flow"
+  },
+  {
+   "t": 791,
+   "ts": "13:11",
+   "text": "then psi t of x0 is all the possible trajectories that go from an initial condition x0 up until time t.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 804,
+   "ts": "13:24",
+   "text": "Yeah? The flow can also be seen as a function that",
+   "chapter": "Flow"
+  },
+  {
+   "t": 810,
+   "ts": "13:30",
+   "text": "maps your initial condition to where it should be at time t.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 817,
+   "ts": "13:37",
+   "text": "And this is why it's called the flow. So this function is quite important",
+   "chapter": "Flow"
+  },
+  {
+   "t": 823,
+   "ts": "13:43",
+   "text": "because at the end of the day, what you want is psi 1 of x0 to be sampled from-- to be as if it",
+   "chapter": "Flow"
+  },
+  {
+   "t": 833,
+   "ts": "13:53",
+   "text": "was sampled from p1, which is your target distribution, data distribution.",
+   "chapter": "Flow"
+  },
+  {
+   "t": 840,
+   "ts": "14:00",
+   "text": "Cool. So now we have our next terminology which is called the probability path, and it's denoted pt of x.",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 850,
+   "ts": "14:10",
+   "text": "So pt of x is the probability distribution of your observations at time t.",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 860,
+   "ts": "14:20",
+   "text": "So p0 of x is your initial data distribution, and p1 of x",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 866,
+   "ts": "14:26",
+   "text": "is your target data distribution. So if t is between 0 and 1, it's basically",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 874,
+   "ts": "14:34",
+   "text": "the intermediary probability data distribution.",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 881,
+   "ts": "14:41",
+   "text": "And as you can imagine, in order to go from p0 to p1,",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 887,
+   "ts": "14:47",
+   "text": "you have an infinite number of ways of going from one to the other.",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 894,
+   "ts": "14:54",
+   "text": "So pt by no means unique. There are many ways for you to go from 0 to 1.",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 902,
+   "ts": "15:02",
+   "text": "Cool. And now we're going to talk about a central object",
+   "chapter": "Probability path"
+  },
+  {
+   "t": 911,
+   "ts": "15:11",
+   "text": "of this whole field, and it's called the vector field.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 916,
+   "ts": "15:16",
+   "text": "So vector field is noted ut of x. And it is a function that takes in a place in space, so x,",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 927,
+   "ts": "15:27",
+   "text": "and a time t. And it gives you a vector.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 933,
+   "ts": "15:33",
+   "text": "And that vector, you can interpret it as the direction and the speed that particles should move",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 941,
+   "ts": "15:41",
+   "text": "at that location at that time.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 947,
+   "ts": "15:47",
+   "text": "So again, the vector field takes in a vector, which is your position in space and gives you",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 952,
+   "ts": "15:52",
+   "text": "also a vector, which is where you need to move and how fast.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 958,
+   "ts": "15:58",
+   "text": "And we're going to see that the vector field is quite central to flow matching.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 966,
+   "ts": "16:06",
+   "text": "But before we do that, I know last lecture, we talked about the score.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 973,
+   "ts": "16:13",
+   "text": "And the score was also a vector. And if you remember, the score was also",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 980,
+   "ts": "16:20",
+   "text": "something we used in order to go from noise to data.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 986,
+   "ts": "16:26",
+   "text": "So one natural question you may be asking yourself right now is, well, how does this vector field or velocity relate",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 996,
+   "ts": "16:36",
+   "text": "to the score? So I'm going to give you the following analogy.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1001,
+   "ts": "16:41",
+   "text": "So let's suppose you want to go from your initial distribution to your target distribution.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1008,
+   "ts": "16:48",
+   "text": "And let's suppose that you're thinking of this in terms of self-driving cars that are distributed,",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1015,
+   "ts": "16:55",
+   "text": "let's say, in a Gaussian fashion in the middle of the desert. And what you want to do is to position your self-driving cars",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1026,
+   "ts": "17:06",
+   "text": "in a certain way so that it follows, let's say, a target data distribution.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1032,
+   "ts": "17:12",
+   "text": "So the way you would think of the velocity would be instructions that you would",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1039,
+   "ts": "17:19",
+   "text": "give to your self-driving cars at a given location",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1044,
+   "ts": "17:24",
+   "text": "and at a given time t So if the vector field was not time",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1050,
+   "ts": "17:30",
+   "text": "dependent, you could even think of it as highways or routes with speed limits. But here, the vector field is actually",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1058,
+   "ts": "17:38",
+   "text": "time dependent, which means that at a given location x and at two",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1063,
+   "ts": "17:43",
+   "text": "different time steps, t1 and t2, that vector can actually be different.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1071,
+   "ts": "17:51",
+   "text": "And in that sense, just following with that self-driving car example,",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1077,
+   "ts": "17:57",
+   "text": "the score would be a bit like a compass that you could see in your car of where high density",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1086,
+   "ts": "18:06",
+   "text": "regions are. So I hope this is useful to just picture",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1092,
+   "ts": "18:12",
+   "text": "the difference between what a velocity is and what a score is. So these two are vectors, but they",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1098,
+   "ts": "18:18",
+   "text": "have different interpretations.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1104,
+   "ts": "18:24",
+   "text": "Any questions so far? We've barely started, so we're going to see a few things here.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1112,
+   "ts": "18:32",
+   "text": "But I just want to make sure that the notation so far are clear.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1118,
+   "ts": "18:38",
+   "text": "Yeah, all good? Cool. So we're going to see our first identity here.",
+   "chapter": "Vector field"
+  },
+  {
+   "t": 1126,
+   "ts": "18:46",
+   "text": "So we introduced the vector field, a.k.a. the velocity,",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1132,
+   "ts": "18:52",
+   "text": "because this is the way we're going to have our particles",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1138,
+   "ts": "18:58",
+   "text": "move from one place to another. And in particular, the definition",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1144,
+   "ts": "19:04",
+   "text": "we're giving to the velocity, a.k.a. the vector field, is given as follows.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1150,
+   "ts": "19:10",
+   "text": "So what we're going to say is that a change in position",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1155,
+   "ts": "19:15",
+   "text": "will be associated with the velocity at that location at that time t times dt.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1164,
+   "ts": "19:24",
+   "text": "So in other words, a given particle in a given location will be moving according to that velocity.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1173,
+   "ts": "19:33",
+   "text": "And one thing that I want to tell you",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1180,
+   "ts": "19:40",
+   "text": "is that the trajectory, which as a reminder, is the whole path that the particle is taking from time t",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1188,
+   "ts": "19:48",
+   "text": "equals 0 to time t equal to 1, that trajectory is actually",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1193,
+   "ts": "19:53",
+   "text": "going to be unique for a given initial condition",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1199,
+   "ts": "19:59",
+   "text": "if there is a special condition on the vector field, which is that if the vector field is Lipschitz continuous.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1207,
+   "ts": "20:07",
+   "text": "So the reason why I'm bringing this up is because it's going to be important.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1214,
+   "ts": "20:14",
+   "text": "And so who knows what Lipschitz continuity is? Have you ever heard of this term?",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1221,
+   "ts": "20:21",
+   "text": "Yeah? No? OK, so maybe I can just recap the mathematical definition",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1227,
+   "ts": "20:27",
+   "text": "and maybe how it means-- what it means. So Lipschitz continuity of a function f",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1235,
+   "ts": "20:35",
+   "text": "is when you have some constants, let's call",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1241,
+   "ts": "20:41",
+   "text": "it m such that for all x and y in your space of interest,",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1250,
+   "ts": "20:50",
+   "text": "you have your function f that satisfies this relationship.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1261,
+   "ts": "21:01",
+   "text": "So the norm of f of x minus f of y is less than or equal than m times the norm of x minus y.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1271,
+   "ts": "21:11",
+   "text": "So what this means is that f needs to be continuous, but also",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1277,
+   "ts": "21:17",
+   "text": "not in a very dramatic way.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1283,
+   "ts": "21:23",
+   "text": "So this is the mathematical definition of Lipschitz continuity. And what I'm saying here is if the vector field",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1290,
+   "ts": "21:30",
+   "text": "is Lipschitz continuous, then the trajectories x",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1297,
+   "ts": "21:37",
+   "text": "will be unique for a given initial condition.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1303,
+   "ts": "21:43",
+   "text": "And so I'm going to just give you an example of when trajectories are not unique.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1311,
+   "ts": "21:51",
+   "text": "So here we have our ODE which is here like so.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1324,
+   "ts": "22:04",
+   "text": "So I'm just going to give you an example of if we have a vector field that is not Lipschitz continuous, how we can have",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1333,
+   "ts": "22:13",
+   "text": "trajectories that start from the same point but that are actually different.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1338,
+   "ts": "22:18",
+   "text": "So here, the example is as follows. So let's suppose we have your vector",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1343,
+   "ts": "22:23",
+   "text": "field, which is given this, by, let's say, square root of x.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1350,
+   "ts": "22:30",
+   "text": "And you only consider, by the way, x positive or 0.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1356,
+   "ts": "22:36",
+   "text": "So if your vector field, by the way, is time independent and it's just a function of x by square root of x, then",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1367,
+   "ts": "22:47",
+   "text": "if you say you want your initial condition to be x0 is equal to 0, then xt equal to 0 is going to be a solution,",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1385,
+   "ts": "23:05",
+   "text": "but xt equals to t squared over 4",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1393,
+   "ts": "23:13",
+   "text": "is also going to be a solution. So here t squared over 4.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1398,
+   "ts": "23:18",
+   "text": "So the derivative is t over 2. And here's when you put this also in the square root,",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1406,
+   "ts": "23:26",
+   "text": "it's also t over 2. So all of that to say that your vector field needs",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1415,
+   "ts": "23:35",
+   "text": "to behave in a certain way if you want to guarantee that your trajectories are unique.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1421,
+   "ts": "23:41",
+   "text": "And this is Lipschitz continuity. And you're going to see why that matters.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1428,
+   "ts": "23:48",
+   "text": "Cool. So that's the first equation that's going to be important.",
+   "chapter": "Ordinary differential equation"
+  },
+  {
+   "t": 1434,
+   "ts": "23:54",
+   "text": "So the ODE here, which is dx over dt is equal to the velocity at location x and time t.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1443,
+   "ts": "24:03",
+   "text": "It's the first one. The second one that we're going to see is the following.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1450,
+   "ts": "24:10",
+   "text": "So I told you that what we want to do is transport our distribution from one place to another.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1461,
+   "ts": "24:21",
+   "text": "So when you transport something, one thing that you want to guarantee is that you're not",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1466,
+   "ts": "24:26",
+   "text": "going to lose or gain anything of what you're transporting.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1472,
+   "ts": "24:32",
+   "text": "You have what we call conservation of mass. And this idea is also something we want to put in writing.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1482,
+   "ts": "24:42",
+   "text": "And in particular, we're going to focus on the following case.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1488,
+   "ts": "24:48",
+   "text": "So let's assume you're in a region of space and you consider a very small area.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1495,
+   "ts": "24:55",
+   "text": "And here you have your data distribution that is around it.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1500,
+   "ts": "25:00",
+   "text": "So the equation that we want to put in writing is around making sure that the evolution of your density",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1511,
+   "ts": "25:11",
+   "text": "at time t is equal to the density that",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1517,
+   "ts": "25:17",
+   "text": "is coming minus the density that is going out or that is leaving.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1526,
+   "ts": "25:26",
+   "text": "Do you all agree with this idea? So the evolution of density as at time t",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1532,
+   "ts": "25:32",
+   "text": "is a function of how much density comes in minus how many comes out.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1541,
+   "ts": "25:41",
+   "text": "So the left-hand side is kind of easy. It's just a partial derivative of your probability path",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1549,
+   "ts": "25:49",
+   "text": "at that region with respect to time.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1554,
+   "ts": "25:54",
+   "text": "But then the right side, I don't about you, but very intuitively,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1560,
+   "ts": "26:00",
+   "text": "there's not like a supernatural operator that does that.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1567,
+   "ts": "26:07",
+   "text": "So what we're going to see now is how we can quantify the idea on the right side",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1574,
+   "ts": "26:14",
+   "text": "of the equal sign. But before we do that, I just want to take a pause.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1579,
+   "ts": "26:19",
+   "text": "Does this idea make sense, conservation of mass? By the way, have you seen it in another topic?",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1589,
+   "ts": "26:29",
+   "text": "Yeah? So in physics, you have the same thing, and it's actually called-- it has a name.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1595,
+   "ts": "26:35",
+   "text": "It's called the continuity equation. Anyways, so instead of just giving you the formula,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1603,
+   "ts": "26:43",
+   "text": "we're just going to intuitively get to it. And in particular, I want us to think about this right-hand side",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1612,
+   "ts": "26:52",
+   "text": "of this equation and think for a bit how we want to quantify the inflow minus outflow bit.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1622,
+   "ts": "27:02",
+   "text": "So let's suppose you have an operator that's",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1627,
+   "ts": "27:07",
+   "text": "called of the divergence. But right now, I'm not telling you anything",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1633,
+   "ts": "27:13",
+   "text": "about what that operator is. I'm just telling you that the operator is positive",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1640,
+   "ts": "27:20",
+   "text": "when things are coming out more than coming in.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1647,
+   "ts": "27:27",
+   "text": "And we're going to see what happens then. So here, when we're talking about coming in and coming out,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1657,
+   "ts": "27:37",
+   "text": "we're, of course, talking about vectors. So here we're assuming, for instance,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1665,
+   "ts": "27:45",
+   "text": "if there's more coming out than coming in that-- let's assume if we are in one dimensional space,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1673,
+   "ts": "27:53",
+   "text": "you have a vector that is such that at first it's",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1680,
+   "ts": "28:00",
+   "text": "small in magnitude, and then it's much bigger in magnitude.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1686,
+   "ts": "28:06",
+   "text": "So here, do you agree with me that whatever this vector is representing, there is more coming out than coming in?",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1694,
+   "ts": "28:14",
+   "text": "You all agree? OK, so that's one case where coming out can be more than coming in.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1700,
+   "ts": "28:20",
+   "text": "So let's see a second case. So second case is here. And then let's say your vector is coming out here and coming",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1708,
+   "ts": "28:28",
+   "text": "out there. Yeah?",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1713,
+   "ts": "28:33",
+   "text": "I'm sure you can have more cases than that. But in this 1D example, if you were to represent your vector,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1723,
+   "ts": "28:43",
+   "text": "let's say f, over the dimension x, here,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1732,
+   "ts": "28:52",
+   "text": "what is the magnitude of f doing? It is increasing.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1738,
+   "ts": "28:58",
+   "text": "OK, so here, we just see that partial derivative of x/x",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1744,
+   "ts": "29:04",
+   "text": "is increasing. How about here? So here it's negative. And then it becomes positive.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1750,
+   "ts": "29:10",
+   "text": "Also increasing, right?",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1756,
+   "ts": "29:16",
+   "text": "OK, so based on this very back-of-the-envelope intuition,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1764,
+   "ts": "29:24",
+   "text": "we see that when things are leaving, partial derivative of x over this dimension of f over this",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1774,
+   "ts": "29:34",
+   "text": "dimension x is positive, which seems to match the sign that we",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1780,
+   "ts": "29:40",
+   "text": "want from our divergence operation.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1785,
+   "ts": "29:45",
+   "text": "So now let's see the other case. So let's assume that we have now the case where we want",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1792,
+   "ts": "29:52",
+   "text": "our operator to be negative when there is, quote unquote, \"more coming than leaving.\"",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1800,
+   "ts": "30:00",
+   "text": "So here again, this example. So you have, let's say, a bigger vector here coming",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1808,
+   "ts": "30:08",
+   "text": "and then a smaller one leaving. And then let's say you have another case, which",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1815,
+   "ts": "30:15",
+   "text": "is given by this, which is just vectors pointing",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1820,
+   "ts": "30:20",
+   "text": "towards that area. So here you see that f is becoming more and more negative",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1830,
+   "ts": "30:30",
+   "text": "when you project it on x. So here you have partial derivative",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1836,
+   "ts": "30:36",
+   "text": "of f over x, which is negative. And here you see that it was first positive,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1844,
+   "ts": "30:44",
+   "text": "and then it becomes negative, which again, boils down to this.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1852,
+   "ts": "30:52",
+   "text": "So this is by no means a formal proof, but I hope I gave you some intuition that if you take",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1864,
+   "ts": "31:04",
+   "text": "the partial derivative of your function that is outputting",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1869,
+   "ts": "31:09",
+   "text": "a vector over its coordinates, at least in 1D,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1875,
+   "ts": "31:15",
+   "text": "it would give you this intuition that if it's positive, then it's more coming out, and when it's negative,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1881,
+   "ts": "31:21",
+   "text": "then there's more coming in. So based on this intuition, what I'm now telling",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1888,
+   "ts": "31:28",
+   "text": "you is that there is an operator that is indeed called the divergence that is a function of a vector, that",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1898,
+   "ts": "31:38",
+   "text": "is a function of x, which is also multidimensional.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1904,
+   "ts": "31:44",
+   "text": "And what it is doing is it is just the sum of the partial derivatives of x",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1912,
+   "ts": "31:52",
+   "text": "over each dimension. So the divergence is a scalar.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1920,
+   "ts": "32:00",
+   "text": "It's a number. And if it's positive, it just means that there are more things coming out. And if it's negative, it means there are more things coming in.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1930,
+   "ts": "32:10",
+   "text": "So based on that, we want to see how we can use this divergence",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1936,
+   "ts": "32:16",
+   "text": "operator back into our continuity equation example, where we want to quantify the fact that we want",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1948,
+   "ts": "32:28",
+   "text": "the net inflows, which is how much density",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1954,
+   "ts": "32:34",
+   "text": "is coming in versus out. So now a second question is something",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1960,
+   "ts": "32:40",
+   "text": "that we ask ourselves, which is OK, what should we use as f? What should f be?",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1967,
+   "ts": "32:47",
+   "text": "So we saw the vector field, which is a vector that could be a candidate.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1972,
+   "ts": "32:52",
+   "text": "So do you think the vector field could be a good candidate?",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1978,
+   "ts": "32:58",
+   "text": "So let's see with an example. So let's suppose you have two points in space,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1984,
+   "ts": "33:04",
+   "text": "let's say x1 and x2. And then you have their respective vector fields.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1990,
+   "ts": "33:10",
+   "text": "If you happen to have a higher density in one of the two points, then our intuition tells us",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 1998,
+   "ts": "33:18",
+   "text": "that you would want the point in the higher density region to transport more things than the one in the lower density",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2007,
+   "ts": "33:27",
+   "text": "region. So in that case, the vector field alone would actually not",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2014,
+   "ts": "33:34",
+   "text": "be a good candidate. Instead, and maybe you have guessed it, in order",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2021,
+   "ts": "33:41",
+   "text": "to quantify the movement of density, we, of course,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2026,
+   "ts": "33:46",
+   "text": "need to take into consideration the probability density. And so here the actual quantity that we will use",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2033,
+   "ts": "33:53",
+   "text": "is called the probability flux, and it is defined by dt, which is a scalar times",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2044,
+   "ts": "34:04",
+   "text": "ut, which is the vector field.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2050,
+   "ts": "34:10",
+   "text": "So going back to the equation that we wanted to put in writing, what we're saying",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2058,
+   "ts": "34:18",
+   "text": "is that the temporal evolution of the density at time t, which",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2064,
+   "ts": "34:24",
+   "text": "we said is simply the partial derivative of p with respect to t.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2070,
+   "ts": "34:30",
+   "text": "We're now saying that this is equal to minus the divergence",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2076,
+   "ts": "34:36",
+   "text": "of the probability flux. And this quantity, so minus divergence of dt ut of x.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2084,
+   "ts": "34:44",
+   "text": "It just means that we're interested in the net inflows",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2090,
+   "ts": "34:50",
+   "text": "of density within our small volume.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2097,
+   "ts": "34:57",
+   "text": "So all in all, that equation, which I'm going to write,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2103,
+   "ts": "35:03",
+   "text": "is nothing else than the continuity equation, which you may have seen in physics.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2110,
+   "ts": "35:10",
+   "text": "35:16 So I'm going to write it down. And of course, OK, this is here.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2131,
+   "ts": "35:31",
+   "text": "So what we're saying is that the evolution of density at a given",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2136,
+   "ts": "35:36",
+   "text": "location, the temporal evolution of the density at a given location, is given by how much density is coming in minus",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2146,
+   "ts": "35:46",
+   "text": "how much density is coming out. And this just conveys the facts that we're not",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2157,
+   "ts": "35:57",
+   "text": "creating new density out of thin air, we're just conserving it when time goes from t0 to 1.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2168,
+   "ts": "36:08",
+   "text": "And compared to the ODE that we saw before,",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2174,
+   "ts": "36:14",
+   "text": "you can think of this equation as being a macro perspective of how your probability path evolves.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2184,
+   "ts": "36:24",
+   "text": "And the ODE itself is actually centered on how one particle evolves, which",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2191,
+   "ts": "36:31",
+   "text": "is more a micro perspective, which we're going to see here. So a single sample, you take your sample x at time t.",
+   "chapter": "Continuity equation"
+  },
+  {
+   "t": 2200,
+   "ts": "36:40",
+   "text": "And what you're saying is that how fast that particle is going",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2205,
+   "ts": "36:45",
+   "text": "is actually given by the vector field at that location at that time.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2211,
+   "ts": "36:51",
+   "text": "So the distance dx is given by ut of x times dt.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2219,
+   "ts": "36:59",
+   "text": "So this is the micro perspective. But we also saw that this vector field that",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2226,
+   "ts": "37:06",
+   "text": "was coming into the picture in this micro perspective is also in the macro perspective.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2232,
+   "ts": "37:12",
+   "text": "And what we're saying is given that we're transporting the density and we're not losing it or gaining it,",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2239,
+   "ts": "37:19",
+   "text": "we also have this nice identity that we can use, which is also called the continuity equation.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2246,
+   "ts": "37:26",
+   "text": "And so there is expression that you will see a lot in papers.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2256,
+   "ts": "37:36",
+   "text": "I'm going to read it out loud. The vector field ut of x generates the probability path.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2264,
+   "ts": "37:44",
+   "text": "So when people say that, what they mean is that ut and dt satisfy the continuity equation.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2275,
+   "ts": "37:55",
+   "text": "So now you may wonder, well, why should we care? So just remember that our goal is",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2284,
+   "ts": "38:04",
+   "text": "to sample an observation from the initial distribution p0,",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2289,
+   "ts": "38:09",
+   "text": "and to map it to the target data distribution.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2295,
+   "ts": "38:15",
+   "text": "And the way we want to map it is we want that particle to go from one place",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2301,
+   "ts": "38:21",
+   "text": "to another using the vector field. And so what we want is to find a probability path that will",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2310,
+   "ts": "38:30",
+   "text": "allow us to go from p0 to p1. And in order to find the probability path,",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2318,
+   "ts": "38:38",
+   "text": "we also need to find the associated vector field that will allow us to actually do the mapping because that vector",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2326,
+   "ts": "38:46",
+   "text": "field is in the single sample perspective.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2334,
+   "ts": "38:54",
+   "text": "So that's the idea. We're going to see it in other words, in a little bit. But this is the intuition behind flow models.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2343,
+   "ts": "39:03",
+   "text": "Any questions on this? Everything is clear so far?",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2350,
+   "ts": "39:10",
+   "text": "Yep. So question is the solution of this equation",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2357,
+   "ts": "39:17",
+   "text": "would be the target. So on the left-hand side, if we know ut",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2365,
+   "ts": "39:25",
+   "text": "and if we know that ut is allowing pt to go from p0,",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2371,
+   "ts": "39:31",
+   "text": "something that we decide that is easy to sample to p1, what we care about, what we're saying",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2378,
+   "ts": "39:38",
+   "text": "is if we know such a ut, then on the left-hand side,",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2385,
+   "ts": "39:45",
+   "text": "if you sample x from p0, you have your initial condition.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2391,
+   "ts": "39:51",
+   "text": "And if you ut, what that means is you can solve this equation in order to find x1.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2400,
+   "ts": "40:00",
+   "text": "And x1, by definition, will be as if it was sample from p1.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2407,
+   "ts": "40:07",
+   "text": "So that's the idea. I know it was a lot.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2412,
+   "ts": "40:12",
+   "text": "I know it may not seem clear, but don't worry, we have a lot of examples down the line.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2419,
+   "ts": "40:19",
+   "text": "So let's move on. Oh, this is exactly my next slide actually. So here what we're saying is the relationship between these two",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2426,
+   "ts": "40:26",
+   "text": "perspectives, I'm going to just repeat what I said but in mathematical terms, is if we sample x0 from p0.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2437,
+   "ts": "40:37",
+   "text": "Given that our particle x is subject to velocity,",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2445,
+   "ts": "40:45",
+   "text": "then what that means is, if that velocity is actually generating the probability path from the initial to the target",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2454,
+   "ts": "40:54",
+   "text": "one, then what that means is that xt will be sampled from dt.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2462,
+   "ts": "41:02",
+   "text": "And in particular, t=1, x1 will be sampled from p1.",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2471,
+   "ts": "41:11",
+   "text": "OK, cool. So don't worry. We're going to go into more details on this. So the whole goal of flow models is to map points, is to map x0",
+   "chapter": "Micro and macro perspectives"
+  },
+  {
+   "t": 2485,
+   "ts": "41:25",
+   "text": "to x1. So what is our strategy here? We saw that the vector field was a central piece",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2494,
+   "ts": "41:34",
+   "text": "of this whole problem. So number one, step number one is for us to estimate this vector field via some model",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2506,
+   "ts": "41:46",
+   "text": "that we're going to note ut theta of x. So theta is the parameters that we're learning.",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2514,
+   "ts": "41:54",
+   "text": "So if we learn such a vector field, then what we're going to do in order to map x0 to x1",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2522,
+   "ts": "42:02",
+   "text": "is we're going to use the ODE and solve it numerically.",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2529,
+   "ts": "42:09",
+   "text": "So what does that mean? That means that we're going to sample x0,",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2534,
+   "ts": "42:14",
+   "text": "and we're just going to follow the vector field up until time equal to 1.",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2540,
+   "ts": "42:20",
+   "text": "So this integral here in practice is going to be just a numerical solver that maybe Euler,",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2547,
+   "ts": "42:27",
+   "text": "for instance. And it's going to be giving you x1, which is what you want,",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2553,
+   "ts": "42:33",
+   "text": "because at the end of the day, you want to be able to sample from your target data distribution.",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2560,
+   "ts": "42:40",
+   "text": "So starting from now, our full focus",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2565,
+   "ts": "42:45",
+   "text": "will be around finding the vector field ut theta of x.",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2572,
+   "ts": "42:52",
+   "text": "Because right now, I just told you what we care about. But I didn't tell you how we're going to do that.",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2577,
+   "ts": "42:57",
+   "text": "So now we're going to focus on that. So in the past, there has been many papers",
+   "chapter": "Flow models"
+  },
+  {
+   "t": 2586,
+   "ts": "43:06",
+   "text": "published on how you can estimate your vector field.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2592,
+   "ts": "43:12",
+   "text": "And there is one method that I'm going to mention here, which is not going to be the focus of this class",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2599,
+   "ts": "43:19",
+   "text": "because it is a method that was used a number of years ago. So eight years ago, I believe.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2606,
+   "ts": "43:26",
+   "text": "But it is not something that could be used in practice. So people are not using it so far. But I'm just telling you just for historical purposes.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2616,
+   "ts": "43:36",
+   "text": "So one way of learning the vector fields is by maximizing the likelihood that your model is seeing",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2627,
+   "ts": "43:47",
+   "text": "the data, the training set. So how can you do that? Well, if you take the continuity equation that we saw,",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2635,
+   "ts": "43:55",
+   "text": "so this one-- so if you take this equation, then what happens",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2643,
+   "ts": "44:03",
+   "text": "is if you do some math, you can actually pop up that log of dt of x, which",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2651,
+   "ts": "44:11",
+   "text": "is what you want to maximize. And you can have the following strategy.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2659,
+   "ts": "44:19",
+   "text": "So you want to determine log of p1 of x1.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2666,
+   "ts": "44:26",
+   "text": "So x1 is the data from the training set. So you want to compute the probability of your model",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2674,
+   "ts": "44:34",
+   "text": "seeing x1. The problem is you don't how to compute it.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2680,
+   "ts": "44:40",
+   "text": "So the way you're going to do this is you're first going to realize that you can compute the probability",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2689,
+   "ts": "44:49",
+   "text": "that the initial distribution is seeing x0, because typically,",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2694,
+   "ts": "44:54",
+   "text": "the initial distribution is an easy one, something that you can analytically compute, such as a Gaussian.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2700,
+   "ts": "45:00",
+   "text": "So you know how to compute log p0 of x0. And what you're going to do is you're",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2706,
+   "ts": "45:06",
+   "text": "going to link x1 and x0 by integrating the divergence of the vector fields, because you have--",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2716,
+   "ts": "45:16",
+   "text": "the formula above that is true. So if you know log p0 of x0 and if you know the vector field,",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2723,
+   "ts": "45:23",
+   "text": "then you can compute this quantity. And so what that paper was doing, which is called continuous normalizing flow,",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2731,
+   "ts": "45:31",
+   "text": "was that it was us trying to learn the parameters theta by maximizing the likelihood of your training sets",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2743,
+   "ts": "45:43",
+   "text": "happening under theta. And it was computing the likelihood using this formula.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2749,
+   "ts": "45:49",
+   "text": "So what is the problem? The problem is that at training time,",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2755,
+   "ts": "45:55",
+   "text": "you need to constantly solve this integral. So it's a numerical solver that works all the time.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2763,
+   "ts": "46:03",
+   "text": "So it's very expensive and very slow, which is why we have a snail emoji.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2769,
+   "ts": "46:09",
+   "text": "So it's just not practical. People just couldn't use that.",
+   "chapter": "Continuous normalizing flows"
+  },
+  {
+   "t": 2776,
+   "ts": "46:16",
+   "text": "And for that reason, I hope I did a good job of motivating the reason why",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2783,
+   "ts": "46:23",
+   "text": "we needed another approach. The approach we're going to see now is actually what is called flow matching, because we're",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2792,
+   "ts": "46:32",
+   "text": "going to see we're not doing maximum likelihood estimation. We're instead trying to directly learn the vector field.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2803,
+   "ts": "46:43",
+   "text": "So if you remember for score matching, you were directly trying to learn the score. So here we're directly trying to learn the vector field.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2813,
+   "ts": "46:53",
+   "text": "But the problem is that you don't know what it is.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2819,
+   "ts": "46:59",
+   "text": "So we're going to see how we can compute this loss",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2825,
+   "ts": "47:05",
+   "text": "and indeed optimize on theta in order to find our vector field.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2832,
+   "ts": "47:12",
+   "text": "So just remember that the problem that we have is we",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2838,
+   "ts": "47:18",
+   "text": "have an initial data distribution and a target data distribution. And what we care about is finding",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2846,
+   "ts": "47:26",
+   "text": "this ut of x, which will allow us to go from p0 to p1.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2852,
+   "ts": "47:32",
+   "text": "That is our goal. Well, p0 is easy, so it's a Gaussian typically.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2858,
+   "ts": "47:38",
+   "text": "But then p1 can be super complicated. So one idea we can have is what if we just",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2868,
+   "ts": "47:48",
+   "text": "remember that the target data distribution is just composed of points from your training data?",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2875,
+   "ts": "47:55",
+   "text": "So it's like individual points. So what if instead we simplify our problem",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 2883,
+   "ts": "48:03",
+   "text": "and we ask ourselves how we can transport the initial data distribution, not to the target one, but to a single point?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2894,
+   "ts": "48:14",
+   "text": "How about if we just move our whole data distribution from initial to a single point?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2901,
+   "ts": "48:21",
+   "text": "And here, I noted the single point with the distribution delta x1.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2908,
+   "ts": "48:28",
+   "text": "So delta x1 is the notation for a Dirac delta distribution.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2913,
+   "ts": "48:33",
+   "text": "So who has heard of the Dirac distribution? Yeah? So Dirac distribution is actually probably",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2920,
+   "ts": "48:40",
+   "text": "the simplest distribution out there because it's a deterministic distribution. It will always give you one quantity.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2927,
+   "ts": "48:47",
+   "text": "So here delta-- so I'm going to write it down.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2933,
+   "ts": "48:53",
+   "text": "So delta x1 of x is going to be 0 if x is different than x1.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2946,
+   "ts": "49:06",
+   "text": "And otherwise, it will be actually a very high number. So typically, people say, let's say infinity.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2953,
+   "ts": "49:13",
+   "text": "But of course, it's infinity, but the integral of this distribution, like the density needs to be 1.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2961,
+   "ts": "49:21",
+   "text": "So long story short is that we simplified our problem",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2967,
+   "ts": "49:27",
+   "text": "from initial data distribution to your target one.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2973,
+   "ts": "49:33",
+   "text": "So we changed from that formulation to initial data distribution to a single point.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2981,
+   "ts": "49:41",
+   "text": "So one idea could be for us to think of the following way",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2989,
+   "ts": "49:49",
+   "text": "of going from one to the other. So let's suppose you have a probability path that is super simple.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 2997,
+   "ts": "49:57",
+   "text": "It's just a Gaussian distribution that is being interpolated between 0 and x1.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3009,
+   "ts": "50:09",
+   "text": "So here what I'm saying is, how about we think of the way",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3016,
+   "ts": "50:16",
+   "text": "we want to go from 0 to the points by taking our normal distribution of mean 0",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3025,
+   "ts": "50:25",
+   "text": "and variance identity? And how about we just scale it down,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3031,
+   "ts": "50:31",
+   "text": "scale it down and then move it towards x1 until it becomes just that point?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3039,
+   "ts": "50:39",
+   "text": "So here pt-- so we say x given x1, because it's a conditional probability, it's like given we're arriving at x1",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3048,
+   "ts": "50:48",
+   "text": "at time t equal 1, it will be given by a mean of t x1",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3056,
+   "ts": "50:56",
+   "text": "and a variance of 1 minus t squared times identity.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3062,
+   "ts": "51:02",
+   "text": "So let me tell you why that is the case.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3075,
+   "ts": "51:15",
+   "text": "So what I'm saying here is that I'm proposing a way for us",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3083,
+   "ts": "51:23",
+   "text": "to go from the normal distribution that",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3089,
+   "ts": "51:29",
+   "text": "is this one of mean 0 and then variance the identity. So what I'm saying is in order to go from here to this point,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3098,
+   "ts": "51:38",
+   "text": "which is x1, what I'm telling you is we're going to have a path pt given x1, which",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3110,
+   "ts": "51:50",
+   "text": "is a normal distribution of-- as a function of t because it's probability path at time t,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3119,
+   "ts": "51:59",
+   "text": "t x1 and 1 minus t squared I. So when t equals 0, this is 0, this is identity.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3132,
+   "ts": "52:12",
+   "text": "So p0 is just the normal distribution of 0 and I. And p1 is--",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3141,
+   "ts": "52:21",
+   "text": "well, t=1 is just x1. And this one is a variance of 0.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3148,
+   "ts": "52:28",
+   "text": "So you can think of t just tending to 0. So p1 is just a Dirac distribution.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3157,
+   "ts": "52:37",
+   "text": "So this probability path that I'm telling you",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3163,
+   "ts": "52:43",
+   "text": "is something that is letting us go from our initial data",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3169,
+   "ts": "52:49",
+   "text": "distribution to this point. So it's a valid one. So why am I choosing this?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3175,
+   "ts": "52:55",
+   "text": "Well it can be shown that one vector field that",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3181,
+   "ts": "53:01",
+   "text": "is generating this probability path has the following expression. So ut of x given x1 is x1 minus x over 1 minus t.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3192,
+   "ts": "53:12",
+   "text": "So I'm just giving you the formula so you can derive it. So I'm looking at the time, we will not have time.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3199,
+   "ts": "53:19",
+   "text": "But the reason why I proposed the probability path, the conditional probability path is",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3205,
+   "ts": "53:25",
+   "text": "because it's much easier for us to compute a vector field,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3211,
+   "ts": "53:31",
+   "text": "and it's something that we can actually write. And it is this one.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3216,
+   "ts": "53:36",
+   "text": "And what I'm going to tell you is that this vector field is generating",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3223,
+   "ts": "53:43",
+   "text": "the conditional probability path. So in other words, the vector field",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3230,
+   "ts": "53:50",
+   "text": "will be such that if you sample from p0 of this conditional probability path,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3237,
+   "ts": "53:57",
+   "text": "and if you follow these conditional vector fields, what I am telling you is that you will end up",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3244,
+   "ts": "54:04",
+   "text": "at time equal t with xt following",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3250,
+   "ts": "54:10",
+   "text": "your conditional probability path. Well, that's a huge step forward, no?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3258,
+   "ts": "54:18",
+   "text": "So how do you prove that, by the way? So you just use the quantities, you use the vector field that",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3266,
+   "ts": "54:26",
+   "text": "is just this formula, and you use the conditional probability paths which you can analytically derive.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3272,
+   "ts": "54:32",
+   "text": "Because, if you remember the Gaussian distribution, we just know everything about it.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3277,
+   "ts": "54:37",
+   "text": "We also know the density formula. So if you take both formula and if you use the continuity",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3291,
+   "ts": "54:51",
+   "text": "equation, which is here, you can show that this expression is true.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3300,
+   "ts": "55:00",
+   "text": "And this is how you prove that. Now we're not going to do it because this is just some math.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3306,
+   "ts": "55:06",
+   "text": "But maybe one thing I will tell you is why that vector fields makes sense.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3314,
+   "ts": "55:14",
+   "text": "So we said that--",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3320,
+   "ts": "55:20",
+   "text": "we said that the conditional vector field, which",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3329,
+   "ts": "55:29",
+   "text": "is noted ut of x given x1, what we said was that this was equal to x1 minus x over 1 minus t.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3341,
+   "ts": "55:41",
+   "text": "Well, when t is approaching 1, and when your x is not near x1,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3351,
+   "ts": "55:51",
+   "text": "then what you're seeing is that this quantity goes crazy, goes very close to infinity.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3356,
+   "ts": "55:56",
+   "text": "It goes very, very high. Well, why does that make sense? It's because at time t equal 1, your distribution is literally",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3365,
+   "ts": "56:05",
+   "text": "a deterministic distribution that is x1. So you want all your particles to be exactly at x1.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3375,
+   "ts": "56:15",
+   "text": "So if you're not at x1, then you better hurry.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3381,
+   "ts": "56:21",
+   "text": "Your velocity will be very, very high. So that's one thing I want to say.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3387,
+   "ts": "56:27",
+   "text": "And one other thing I want to say is there is a very nice expression",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3392,
+   "ts": "56:32",
+   "text": "of the conditional vector fields if xt",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3400,
+   "ts": "56:40",
+   "text": "is drawn from that conditional probability path, which",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3406,
+   "ts": "56:46",
+   "text": "as a reminder, is a normal distribution of mean t x1",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3411,
+   "ts": "56:51",
+   "text": "and 1 minus t squared I. So if xt is drawn from such a conditional probability",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3418,
+   "ts": "56:58",
+   "text": "path, that means that you can express xt as follows.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3426,
+   "ts": "57:06",
+   "text": "So t x1 plus 1 minus t x0, with x0",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3432,
+   "ts": "57:12",
+   "text": "drawn from a normal distribution.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3437,
+   "ts": "57:17",
+   "text": "So what that means is ut of xt, given x1,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3449,
+   "ts": "57:29",
+   "text": "if I were to just replace xt in this formula, what I would",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3455,
+   "ts": "57:35",
+   "text": "obtain is x1 minus-- so x, I'm just going to directly replace just because I don't have space.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3463,
+   "ts": "57:43",
+   "text": "So t x1 plus 1 minus t x0 over 1 minus t.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3473,
+   "ts": "57:53",
+   "text": "So x1 minus t x1 is 1 minus t times x1 minus 1 minus t",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3486,
+   "ts": "58:06",
+   "text": "times x0 over 1 minus t. So what that means this is equal to x1 minus x0.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3499,
+   "ts": "58:19",
+   "text": "The conditional vector field for xt, which is drawn from a conditional probability path,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3508,
+   "ts": "58:28",
+   "text": "is nothing else than x1 minus x0, which is very nice.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3519,
+   "ts": "58:39",
+   "text": "So why is it very nice? Well, it's tractable and it's going to be useful for us.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3525,
+   "ts": "58:45",
+   "text": "OK, any questions?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3534,
+   "ts": "58:54",
+   "text": "Yeah? So the question is, how do we get to that equation?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3541,
+   "ts": "59:01",
+   "text": "So the question is, where does this equation come from?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3547,
+   "ts": "59:07",
+   "text": "So this one, the one above is just an equation that I'm just telling you, I'm just giving you.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3552,
+   "ts": "59:12",
+   "text": "And you can verify that it actually is generating the conditional probability path.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3558,
+   "ts": "59:18",
+   "text": "You can prove it, but we're not doing it. So given that this part is just me",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3565,
+   "ts": "59:25",
+   "text": "telling you that this expression can be even further simplified if the x that you're putting here",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3575,
+   "ts": "59:35",
+   "text": "is actually drawn from the conditional probability path. So as a reminder, the conditional probability path",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3582,
+   "ts": "59:42",
+   "text": "is given by a normal distribution of mean t x1",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3588,
+   "ts": "59:48",
+   "text": "and 1 minus t squared I. So if you were to draw from such a distribution.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3597,
+   "ts": "59:57",
+   "text": "It would be the same thing because you x1. It would be the same thing as sampling",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3604,
+   "ts": "1:00:04",
+   "text": "from just a standard normal Gaussian and writing xt as follows, because this is your variance,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3614,
+   "ts": "1:00:14",
+   "text": "this is the mean. So this is the mean plus the variance times",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3619,
+   "ts": "1:00:19",
+   "text": "something that is run from the normal distribution. And so what I'm telling you is if you",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3625,
+   "ts": "1:00:25",
+   "text": "were to plug in that expression in here,",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3630,
+   "ts": "1:00:30",
+   "text": "then a lot of simplifications occur. And you end up with a very simple expression",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3637,
+   "ts": "1:00:37",
+   "text": "of the conditional vector field at that point being equal to just x1 minus x0, where x0 is basically",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3647,
+   "ts": "1:00:47",
+   "text": "this component of xt. And follow up question is, well, why are you telling me this?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3655,
+   "ts": "1:00:55",
+   "text": "It's a very fair question. I'm going to tell you in 15 minutes.",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3662,
+   "ts": "1:01:02",
+   "text": "But does everyone agree with me so far?",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3667,
+   "ts": "1:01:07",
+   "text": "I'm going to take that as a yes. OK, so now that we looked at a very simple case of transporting",
+   "chapter": "Conditional probability path and vector field"
+  },
+  {
+   "t": 3678,
+   "ts": "1:01:18",
+   "text": "our data distribution from this initial one to a single point,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3683,
+   "ts": "1:01:23",
+   "text": "now our goal is going to figure out how we can map that back",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3689,
+   "ts": "1:01:29",
+   "text": "to our initial problem. So our initial problem is to map from the initial data",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3695,
+   "ts": "1:01:35",
+   "text": "distribution to the target data distribution. So an idea to obtain the target data distribution",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3706,
+   "ts": "1:01:46",
+   "text": "is to replicate this conditional path over all points of your target data distribution.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3717,
+   "ts": "1:01:57",
+   "text": "So if we do that, we consider, let's say, one point of your target data distribution,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3722,
+   "ts": "1:02:02",
+   "text": "we have this conditional probability path. We consider a second point.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3728,
+   "ts": "1:02:08",
+   "text": "And let's assume here that our target data distribution, our training set only has two points.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3734,
+   "ts": "1:02:14",
+   "text": "Then what that means is that at time t,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3741,
+   "ts": "1:02:21",
+   "text": "we can consider what we call a marginal probability path. So marginal because we marginalize across the x1's.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3749,
+   "ts": "1:02:29",
+   "text": "And we will end up with a mixture of Gaussians, where each Gaussian is interpolating",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3755,
+   "ts": "1:02:35",
+   "text": "between the normal one to the single point.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3761,
+   "ts": "1:02:41",
+   "text": "So let me tell you why I'm telling you all of this.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3769,
+   "ts": "1:02:49",
+   "text": "So just remember that what we care about",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3774,
+   "ts": "1:02:54",
+   "text": "is to map our initial distribution to the target one.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3781,
+   "ts": "1:03:01",
+   "text": "So there are many ways to go from one to the other. And what we say is that we can just",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3790,
+   "ts": "1:03:10",
+   "text": "propose this marginal probability path, which I'm",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3796,
+   "ts": "1:03:16",
+   "text": "going to explain in a second.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3802,
+   "ts": "1:03:22",
+   "text": "So what I'm telling you is let's fix x1.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3808,
+   "ts": "1:03:28",
+   "text": "And just consider the conditional probability path. So p of x given x1 which is what we saw.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3814,
+   "ts": "1:03:34",
+   "text": "Before Now let's consider all such conditional probability",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3822,
+   "ts": "1:03:42",
+   "text": "path across all the x1's that are composing our target data",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3827,
+   "ts": "1:03:47",
+   "text": "distribution. And let's consider the following expression,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3834,
+   "ts": "1:03:54",
+   "text": "which is a natural way of defining it.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3840,
+   "ts": "1:04:00",
+   "text": "So we notice that p0 of x--",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3846,
+   "ts": "1:04:06",
+   "text": "so p0 of x, given x1 is just the standard normal distribution, p0.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3852,
+   "ts": "1:04:12",
+   "text": "So this is indeed the initial data distribution.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3860,
+   "ts": "1:04:20",
+   "text": "So the standard Gaussian. And p1, what is p1?",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3869,
+   "ts": "1:04:29",
+   "text": "So we said that when t equals 1, p of x given x1 is the Dirac.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3881,
+   "ts": "1:04:41",
+   "text": "So when t equal 1, this one is equal to Dirac of x1 at x.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3888,
+   "ts": "1:04:48",
+   "text": "So this whole thing simplifies to P data of x.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3899,
+   "ts": "1:04:59",
+   "text": "So this marginal probability path",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3906,
+   "ts": "1:05:06",
+   "text": "is verifying p0, like t equals 0,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3912,
+   "ts": "1:05:12",
+   "text": "is equal to your initial data distribution. And p1 is your target data distribution.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3917,
+   "ts": "1:05:17",
+   "text": "So it is a valid path to go from 0 to 1.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3922,
+   "ts": "1:05:22",
+   "text": "So now our goal-- because just remember, what we want",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3928,
+   "ts": "1:05:28",
+   "text": "is to go from 0 to 1. And we want to learn the vector field that",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3934,
+   "ts": "1:05:34",
+   "text": "is getting us from 0 to 1. So the good thing here is we have a probability path that",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3940,
+   "ts": "1:05:40",
+   "text": "is getting us from 0 to 1. So now let's look at the vector field.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3946,
+   "ts": "1:05:46",
+   "text": "Let's see if there is a way for us to aggregate the conditional vector fields such",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3953,
+   "ts": "1:05:53",
+   "text": "that it is going to enable us to go from 0 to 1.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3959,
+   "ts": "1:05:59",
+   "text": "So here we consider the conditional vector field for each data point like conditional on each data point. So this one and this one.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3968,
+   "ts": "1:06:08",
+   "text": "And what we want is to also have a marginal vector field, something that is able to generate",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3974,
+   "ts": "1:06:14",
+   "text": "the marginal probability path. And what I'm going to tell you is",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3982,
+   "ts": "1:06:22",
+   "text": "that the way we want to aggregate the vector field",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3990,
+   "ts": "1:06:30",
+   "text": "is going to actually be quite intuitive. So I'm going to just write it down.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 3996,
+   "ts": "1:06:36",
+   "text": "So up until now, what we're doing is we're constructing things.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4002,
+   "ts": "1:06:42",
+   "text": "We're constructing things, and then we're verifying that it's actually something that is what we want.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4010,
+   "ts": "1:06:50",
+   "text": "So what I'm saying is we're going to aggregate the conditional vector fields by considering",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4017,
+   "ts": "1:06:57",
+   "text": "the following aggregation. So I'm going to take my conditional vector fields. I'm going to aggregate it as follows.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4023,
+   "ts": "1:07:03",
+   "text": "So I'm going to say it's equal to this.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4028,
+   "ts": "1:07:08",
+   "text": "So the conditional probability path times p data of x1",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4034,
+   "ts": "1:07:14",
+   "text": "over the marginal probability path which we have derived a short while ago.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4040,
+   "ts": "1:07:20",
+   "text": "And I'm going to say that this is my definition. This is my proposed definition of the marginal vector field.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4047,
+   "ts": "1:07:27",
+   "text": "So this expression may seem scary to you,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4052,
+   "ts": "1:07:32",
+   "text": "but if you remember Bayes' rule, this one--",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4059,
+   "ts": "1:07:39",
+   "text": "you recognize Bayes' rule here, a little bit? So it's as if-- so I'm going to put this in quotes.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4066,
+   "ts": "1:07:46",
+   "text": "So it's as if it was the probability of x1 being",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4075,
+   "ts": "1:07:55",
+   "text": "where you're headed given x, which is where you are.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4081,
+   "ts": "1:08:01",
+   "text": "So the way you're aggregating your conditional vector fields is OK, I'm at point x and I'm",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4091,
+   "ts": "1:08:11",
+   "text": "going to weight each conditional vector fields with a weight that",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4098,
+   "ts": "1:08:18",
+   "text": "is telling me the probability of this x1 being my destination",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4104,
+   "ts": "1:08:24",
+   "text": "given where I am. So you can think of this as the posterior mean.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4111,
+   "ts": "1:08:31",
+   "text": "And this coefficient can be interpreted as OK,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4118,
+   "ts": "1:08:38",
+   "text": "given where I am, how likely is it that this point is where I want to go?",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4125,
+   "ts": "1:08:45",
+   "text": "And now I'm going to tell you the biggest result.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4133,
+   "ts": "1:08:53",
+   "text": "These marginal vector field which we defined is actually generating the probability path,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4139,
+   "ts": "1:08:59",
+   "text": "the marginal probability path. So this is a big deal. So what that means is there is a vector field that is generating",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4149,
+   "ts": "1:09:09",
+   "text": "the probability path that is actually something that satisfies what we want, which is it's a path that goes",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4156,
+   "ts": "1:09:16",
+   "text": "from the initial to the target.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4162,
+   "ts": "1:09:22",
+   "text": "So I'm looking at the time. I'm not going to derive it, but I'm going to derive something else instead.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4169,
+   "ts": "1:09:29",
+   "text": "So in order for you to show that this vector field is generating",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4177,
+   "ts": "1:09:37",
+   "text": "the probability path is by just plugging these quantities",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4183,
+   "ts": "1:09:43",
+   "text": "in the continuity equation. So I'm not going to do it. I'm just going to tell you how you would do it.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4191,
+   "ts": "1:09:51",
+   "text": "So you just do that. So you take your marginal probability path. You derive it here, and just recognize",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4196,
+   "ts": "1:09:56",
+   "text": "that it is indeed the minus the divergence of the marginal probability path and the marginal vector field.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4204,
+   "ts": "1:10:04",
+   "text": "So what this is telling us is if we sample x0",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4210,
+   "ts": "1:10:10",
+   "text": "from p0, which is the initial one, then if we follow",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4217,
+   "ts": "1:10:17",
+   "text": "the marginal vector field, then xt is going to be following the probability path p of t.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4228,
+   "ts": "1:10:28",
+   "text": "This is huge because if you take x0 and you take it all the way to t equal 1 with the vector field,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4237,
+   "ts": "1:10:37",
+   "text": "then x1 will be actually following p1, which is what you care about.",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4244,
+   "ts": "1:10:44",
+   "text": "So this is huge. This can be proven mathematically. We're not going to do it with respect",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4250,
+   "ts": "1:10:50",
+   "text": "to how much time we have. And so this leads us to our initial problem,",
+   "chapter": "Marginal probability path and vector field"
+  },
+  {
+   "t": 4259,
+   "ts": "1:10:59",
+   "text": "which is us wanting to learn a vector field that will",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4265,
+   "ts": "1:11:05",
+   "text": "allow us to go from p0 to p1. So here, what I'm going to tell you",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4271,
+   "ts": "1:11:11",
+   "text": "is that optimizing for the flow matching loss",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4277,
+   "ts": "1:11:17",
+   "text": "that I told you at the very beginning is equivalent to you optimizing for what",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4284,
+   "ts": "1:11:24",
+   "text": "we call the conditional flow matching loss, which is given by here.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4290,
+   "ts": "1:11:30",
+   "text": "And I'm going to tell you more about this for the next five",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4295,
+   "ts": "1:11:35",
+   "text": "minutes. So let me take this.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4301,
+   "ts": "1:11:41",
+   "text": "So here, what we want is to have a tractable loss.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4309,
+   "ts": "1:11:49",
+   "text": "And if you look at the flow matching loss,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4315,
+   "ts": "1:11:55",
+   "text": "it is still a loss that is quite complex. So our goal is to really make our loss",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4322,
+   "ts": "1:12:02",
+   "text": "as tractable as possible. So as a result what we're saying is",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4331,
+   "ts": "1:12:11",
+   "text": "that the loss of flow matching, which is given by this, so it's the expectation",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4338,
+   "ts": "1:12:18",
+   "text": "of the squared distance of your learned vector field minus the marginal vector field",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4344,
+   "ts": "1:12:24",
+   "text": "that you constructed. So what we're saying is optimizing for the loss above",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4359,
+   "ts": "1:12:39",
+   "text": "is the same as optimizing for the conditional flow",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4364,
+   "ts": "1:12:44",
+   "text": "matching loss, which is this one.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4372,
+   "ts": "1:12:52",
+   "text": "So if we aggregate over time steps t and x",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4382,
+   "ts": "1:13:02",
+   "text": "drawn from the probability path dt of this expression, what I'm saying is that optimizing for this loss",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4389,
+   "ts": "1:13:09",
+   "text": "is the same as optimizing for the conditional flow matching loss, where the expectation is over t x1,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4400,
+   "ts": "1:13:20",
+   "text": "and then x belonging to the conditional probability path.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4407,
+   "ts": "1:13:27",
+   "text": "And back to your question. This whole expression that we had here",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4413,
+   "ts": "1:13:33",
+   "text": "was ut of xt given x1, which was x1 minus x0.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4422,
+   "ts": "1:13:42",
+   "text": "So this thing is super simple. It is just the thing that you want to learn minus x1 minus x0.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4437,
+   "ts": "1:13:57",
+   "text": "Super simple. OK, so now why is it equivalent to optimize",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4443,
+   "ts": "1:14:03",
+   "text": "on the flow matching and the conditional flow matching loss? That's another question. So if you remember, for score matching,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4450,
+   "ts": "1:14:10",
+   "text": "we had a very similar question. So I'm going to give you the same trick.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4457,
+   "ts": "1:14:17",
+   "text": "So let's assume you have distance squared of a minus",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4462,
+   "ts": "1:14:22",
+   "text": "B, which is basically what we have here.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4468,
+   "ts": "1:14:28",
+   "text": "And what you want is to optimize these losses with respect to the parameters of the model theta.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4475,
+   "ts": "1:14:35",
+   "text": "So everything that you care here is only terms",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4481,
+   "ts": "1:14:41",
+   "text": "that are a function of theta. So a minus b that norm squared is equal to a squared minus 2",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4492,
+   "ts": "1:14:52",
+   "text": "dot product of a and b plus b squared.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4501,
+   "ts": "1:15:01",
+   "text": "So ut theta x squared, this and this are the same.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4507,
+   "ts": "1:15:07",
+   "text": "Perfect. So how about this term. The b term is actually not dependent on theta.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4516,
+   "ts": "1:15:16",
+   "text": "So we actually don't care. So a is good.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4521,
+   "ts": "1:15:21",
+   "text": "It's the same. b is not a function of theta. We don't care.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4528,
+   "ts": "1:15:28",
+   "text": "The only thing that is different between these two is the dot product of a and b.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4534,
+   "ts": "1:15:34",
+   "text": "So this one and this one and this one and this one. So what we want to show is the expectation over t",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4544,
+   "ts": "1:15:44",
+   "text": "and x of this dot product is the same as the expectation",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4549,
+   "ts": "1:15:49",
+   "text": "over this. So t x1 and x over the conditional probability part of this one and this one.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4555,
+   "ts": "1:15:55",
+   "text": "We want to show that these two are the same. So I'm going to do this in two minutes.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4563,
+   "ts": "1:16:03",
+   "text": "1:16:10 OK.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4576,
+   "ts": "1:16:16",
+   "text": "So let's suppose-- so we're going to go from one side",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4586,
+   "ts": "1:16:26",
+   "text": "and end up with another. So what I'm going to do is start from the dot product",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4591,
+   "ts": "1:16:31",
+   "text": "of the conditional flow matching loss and end up with the one from the flow matching one.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4598,
+   "ts": "1:16:38",
+   "text": "So what I'm going to compute is the expectation. And here, I'm going to say t x1 and x",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4608,
+   "ts": "1:16:48",
+   "text": "of the dot product of ut theta of x and your conditional vector",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4618,
+   "ts": "1:16:58",
+   "text": "field. So ut of x given x1.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4625,
+   "ts": "1:17:05",
+   "text": "So what I'm telling you is by definition of the expectation-- so this is just a bunch of integrals.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4634,
+   "ts": "1:17:14",
+   "text": "So this is the integral over t over x1 and x of ut of theta",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4642,
+   "ts": "1:17:22",
+   "text": "of x dot product with the conditional vector field",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4647,
+   "ts": "1:17:27",
+   "text": "ut of x given x1. And this is over x1 and x so I'm going to say it's p data of x1.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4657,
+   "ts": "1:17:37",
+   "text": "And then the conditional probability path x given x1 dx1, dx, dt.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4668,
+   "ts": "1:17:48",
+   "text": "So far so good? So here what we notice is that if we",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4675,
+   "ts": "1:17:55",
+   "text": "put this quantity here, this quantity here,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4684,
+   "ts": "1:18:04",
+   "text": "and if I divide by dt of x and I do times dt of x, then what I'm",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4698,
+   "ts": "1:18:18",
+   "text": "going to recognize is the marginal vector field that we have constructed.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4706,
+   "ts": "1:18:26",
+   "text": "So this is going to be equal to the integral over t integral.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4713,
+   "ts": "1:18:33",
+   "text": "So this integral over x1 is also going to come here.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4720,
+   "ts": "1:18:40",
+   "text": "So integral over t, integral over x of ut theta of x.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4732,
+   "ts": "1:18:52",
+   "text": "And this ut of x, which is the marginal vector field,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4737,
+   "ts": "1:18:57",
+   "text": "times this marginal probability path dt of x, dx, dt.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4745,
+   "ts": "1:19:05",
+   "text": "And this is nothing else than the expectation over t",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4753,
+   "ts": "1:19:13",
+   "text": "and x, which is run from the marginal probability path of the dot product of ut theta of x",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4764,
+   "ts": "1:19:24",
+   "text": "and the marginal vector field, which is exactly what we want.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4772,
+   "ts": "1:19:32",
+   "text": "So what I'm showing you here is that the marginal vector field,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4777,
+   "ts": "1:19:37",
+   "text": "the way we constructed it, allows us to optimize on a loss, the conditional flow matching",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4784,
+   "ts": "1:19:44",
+   "text": "loss, which is much more tractable, and leads us to the same gradients with respect to theta.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4792,
+   "ts": "1:19:52",
+   "text": "And so long story short, we have this loss,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4801,
+   "ts": "1:20:01",
+   "text": "which is called the conditional flow matching loss, which is the expectation over t x1, which is run over the pdata,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4811,
+   "ts": "1:20:11",
+   "text": "and then x drawn over the conditional probability path of a quantity that is extremely simple.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4819,
+   "ts": "1:20:19",
+   "text": "So it's just the squared distance between the learned velocity, which is what you want to learn,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4827,
+   "ts": "1:20:27",
+   "text": "and the conditional vector field, which we saw was nothing else than just x1 minus x0.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4837,
+   "ts": "1:20:37",
+   "text": "So it's a very tractable loss, and it does exactly what you want.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4844,
+   "ts": "1:20:44",
+   "text": "Any questions? So it's a lot.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4853,
+   "ts": "1:20:53",
+   "text": "Are we all clear with this?",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4858,
+   "ts": "1:20:58",
+   "text": "OK, I'm going to say that it's OK if you feel like it's a lot. It is indeed a lot.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4864,
+   "ts": "1:21:04",
+   "text": "So I'm going to recap the strategy. So what we said at the very beginning",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4871,
+   "ts": "1:21:11",
+   "text": "was that we had two different views of how we want to go from one distribution",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4878,
+   "ts": "1:21:18",
+   "text": "to another distribution. What we said was that there was this quantity called the vector",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4885,
+   "ts": "1:21:25",
+   "text": "field, a.k.a. the velocity that was linked to how we could move",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4891,
+   "ts": "1:21:31",
+   "text": "our particles, so with the ODE dx over dt equal vector field",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4896,
+   "ts": "1:21:36",
+   "text": "that one, but also the continuity equation that linked the vector field with the probability path.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4905,
+   "ts": "1:21:45",
+   "text": "So what we want is to find the vector field that will allow us to go from p0 to p1.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4913,
+   "ts": "1:21:53",
+   "text": "So what you need to do is to find first a probability path that goes from p1 to-- sorry, from p0",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4920,
+   "ts": "1:22:00",
+   "text": "to p1. First you need to find that. And then you need to construct a vector field that indeed",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4929,
+   "ts": "1:22:09",
+   "text": "allows you to go from p0 to p1. So how do you do-- how do you do that?",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4935,
+   "ts": "1:22:15",
+   "text": "Well, you propose some quantities and you try to see if the continuity equation is indeed",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4944,
+   "ts": "1:22:24",
+   "text": "satisfied. So that's step number one.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4950,
+   "ts": "1:22:30",
+   "text": "Once you your vector field of interest, your goal now is to learn it.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4957,
+   "ts": "1:22:37",
+   "text": "Because if you learn it, then what you can do is to integrate the ODE.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4963,
+   "ts": "1:22:43",
+   "text": "Why do you want to integrate the ODE? It's because you want to go from x0 to x1.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4970,
+   "ts": "1:22:50",
+   "text": "Therefore, you need to learn your vector field. And here what we did is, in order to learn the vector field,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4981,
+   "ts": "1:23:01",
+   "text": "we first thought of a very simple case",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4987,
+   "ts": "1:23:07",
+   "text": "of us wanting to go from the initial to a single point via the conditional probability",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 4995,
+   "ts": "1:23:15",
+   "text": "path and the conditional vector field. So this is the simple case with the Dirac distribution",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5002,
+   "ts": "1:23:22",
+   "text": "being the target distribution. And then what we said was OK, given this very simple case that",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5010,
+   "ts": "1:23:30",
+   "text": "is super tractable, let's try to match our initial distribution",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5016,
+   "ts": "1:23:36",
+   "text": "with the actual target one of interest, which is the whole data distribution, not just a single point,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5022,
+   "ts": "1:23:42",
+   "text": "but the whole data distribution. And we proposed the marginal probability",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5030,
+   "ts": "1:23:50",
+   "text": "path which satisfies t equals 0 equals p0 and t equal 1.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5037,
+   "ts": "1:23:57",
+   "text": "It's equal to p data. So it was a valid probability path.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5042,
+   "ts": "1:24:02",
+   "text": "And we also saw that the constructed vector field was actually generating that proposed marginal probability",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5050,
+   "ts": "1:24:10",
+   "text": "path. It was generating it, why? Because it satisfies the continuity equation, which",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5059,
+   "ts": "1:24:19",
+   "text": "I said I don't have time to derive, but you just need to replace the quantities",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5065,
+   "ts": "1:24:25",
+   "text": "and see that the continuity equation is indeed satisfied.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5072,
+   "ts": "1:24:32",
+   "text": "So given that we were finally with the vector field, that was something that was adapted to our use case.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5082,
+   "ts": "1:24:42",
+   "text": "But now what we wanted to do was to learn it with the tractable loss.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5087,
+   "ts": "1:24:47",
+   "text": "So in this last part, what we did is show that the loss that we wanted to optimize",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5098,
+   "ts": "1:24:58",
+   "text": "was actually equivalent to another loss that was extremely tractable, which is the conditional flow matching",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5104,
+   "ts": "1:25:04",
+   "text": "loss. And the way we showed that was by showing",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5110,
+   "ts": "1:25:10",
+   "text": "that the gradient of this losses with respect to theta were equal, which is what I did here.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5115,
+   "ts": "1:25:15",
+   "text": "And then finally, we have our final loss function,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5122,
+   "ts": "1:25:22",
+   "text": "which is ut theta of x minus x1 minus x0 expectation of that.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5132,
+   "ts": "1:25:32",
+   "text": "So it's incredibly simple. So everything I told you is actually-- so a lot of it",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5139,
+   "ts": "1:25:39",
+   "text": "is coming from this paper that's called Flow Matching for Generative Modeling.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5145,
+   "ts": "1:25:45",
+   "text": "So I highly recommend reading it. It may not be the simplest to read,",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5151,
+   "ts": "1:25:51",
+   "text": "but I hope what I just told you actually will allow you to understand the formulas in there a bit better.",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5160,
+   "ts": "1:26:00",
+   "text": "But I didn't want to give it to Shervine before telling you a bit more about why we're calling",
+   "chapter": "Conditional flow matching"
+  },
+  {
+   "t": 5167,
+   "ts": "1:26:07",
+   "text": "this whole thing flow matching. Because core matching, it was called core matching because you tried to match the score.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5176,
+   "ts": "1:26:16",
+   "text": "But here, we're not matching the flow, we're matching the velocity. So one natural question is, why is it not",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5183,
+   "ts": "1:26:23",
+   "text": "called velocity matching? Why is it not called vector field matching? Why is it called flow matching?",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5189,
+   "ts": "1:26:29",
+   "text": "So these points are a bit more informal. It's just a personal take on why that is the case.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5196,
+   "ts": "1:26:36",
+   "text": "So one potential reason is, historically, these models which are flow models,",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5203,
+   "ts": "1:26:43",
+   "text": "meaning trying to map a point to another via this psi t of x",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5209,
+   "ts": "1:26:49",
+   "text": "minus 0, they had the term flow in their names, and in particular the method that I mentioned",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5218,
+   "ts": "1:26:58",
+   "text": "that try to learn the vector field with maximum likelihood",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5223,
+   "ts": "1:27:03",
+   "text": "estimation. That one was called continuous normalizing flows. So one reason is maybe branding, but actually, I",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5233,
+   "ts": "1:27:13",
+   "text": "want to get back to my earlier Lipschitz continuity comment.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5239,
+   "ts": "1:27:19",
+   "text": "It turns out that if the vector field that you learn here",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5245,
+   "ts": "1:27:25",
+   "text": "is Lipschitz continuous, then what happens",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5251,
+   "ts": "1:27:31",
+   "text": "is that your trajectories, they're all unique.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5256,
+   "ts": "1:27:36",
+   "text": "So you actually have a mapping between vector fields",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5261,
+   "ts": "1:27:41",
+   "text": "that you learn and the flow. So if you're matching the velocity,",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5268,
+   "ts": "1:27:48",
+   "text": "you're also matching the flow. Now you may be wondering, OK, how",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5274,
+   "ts": "1:27:54",
+   "text": "do that the learned vector field is indeed Lipschitz continuous?",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5280,
+   "ts": "1:28:00",
+   "text": "Well, we have not seen that yet. We're going to see that in lecture 5.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5287,
+   "ts": "1:28:07",
+   "text": "But the model that is behind this learned vector field is something",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5294,
+   "ts": "1:28:14",
+   "text": "that is composed of matrix multiplications and some smooth activation functions.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5301,
+   "ts": "1:28:21",
+   "text": "All of that is Lipschitz continuous.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5306,
+   "ts": "1:28:26",
+   "text": "So what you will learn is actually Lipschitz continuous vector field with respect to x, which is going",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5315,
+   "ts": "1:28:35",
+   "text": "to give you a one-to-one mapping between velocity and flow.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5321,
+   "ts": "1:28:41",
+   "text": "And we have two minutes. So bear with me.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5329,
+   "ts": "1:28:49",
+   "text": "In two minutes, I'm going to cover how we train and do inference. But it's going to be very easy.",
+   "chapter": "Why not velocity matching"
+  },
+  {
+   "t": 5336,
+   "ts": "1:28:56",
+   "text": "So let's see how we do training. So as I mentioned, the loss is extremely simple.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5344,
+   "ts": "1:29:04",
+   "text": "And so what we do is we sample the noise. So x0 from your standard Gaussian distribution,",
+   "chapter": "Training"
+  },
+  {
+   "t": 5352,
+   "ts": "1:29:12",
+   "text": "your clean image, so x1 from your training set, which is pdata, and you also sample your time step.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5361,
+   "ts": "1:29:21",
+   "text": "And what you do is you construct xt, your noise image. And what I'm telling you is thanks to the loss function",
+   "chapter": "Training"
+  },
+  {
+   "t": 5370,
+   "ts": "1:29:30",
+   "text": "that we derived, what we do is we use xt, the noise image and t",
+   "chapter": "Training"
+  },
+  {
+   "t": 5378,
+   "ts": "1:29:38",
+   "text": "to predict x1 minus x0, which is the conditional vector field via this model that is your vector field model.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5389,
+   "ts": "1:29:49",
+   "text": "And you're going to compute the loss and backpropagate. That's how you do training.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5395,
+   "ts": "1:29:55",
+   "text": "Now, how do you do inference? Well, inference, you just sample from an easy data distribution.",
+   "chapter": "Inference"
+  },
+  {
+   "t": 5402,
+   "ts": "1:30:02",
+   "text": "And here it's, again, standard, normal distribution. And what you're going to do is to numerically solve the ODE.",
+   "chapter": "Inference"
+  },
+  {
+   "t": 5412,
+   "ts": "1:30:12",
+   "text": "So what you do is you go time step to time step, and you use your learned vector fields,",
+   "chapter": "Inference"
+  },
+  {
+   "t": 5419,
+   "ts": "1:30:19",
+   "text": "and you end up with your final estimated image x1.",
+   "chapter": "Inference"
+  },
+  {
+   "t": 5426,
+   "ts": "1:30:26",
+   "text": "And that's how you do inference. And with that, I'm going to give it to Shervine.",
+   "chapter": "Inference"
+  },
+  {
+   "t": 5432,
+   "ts": "1:30:32",
+   "text": "Thank you, Afshine. So now we're going to see in a more visual manner",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5437,
+   "ts": "1:30:37",
+   "text": "the training process and discuss some edge cases and how to solve them in practice.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5444,
+   "ts": "1:30:44",
+   "text": "So you remember the training process that Afshine just mentioned. You sample x0 from the normal distribution,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5452,
+   "ts": "1:30:52",
+   "text": "you sample x1 from your training set. And what you do is that you draw a straight line between the two,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5459,
+   "ts": "1:30:59",
+   "text": "and you try to fit the velocity to this x1 minus x0.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5466,
+   "ts": "1:31:06",
+   "text": "Now I want you to imagine that we do that for a given pair.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5471,
+   "ts": "1:31:11",
+   "text": "And now for another pair. And suppose that these pairings intersect at a given point.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5479,
+   "ts": "1:31:19",
+   "text": "And let's suppose that this intersection is for a same t.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5485,
+   "ts": "1:31:25",
+   "text": "So in other words, we're trying to fit the loss at a same x,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5490,
+   "ts": "1:31:30",
+   "text": "at a same T on two different vectors. So who knows what the resulting learned velocity will be?",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5499,
+   "ts": "1:31:39",
+   "text": "So it cannot be two velocities right.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5505,
+   "ts": "1:31:45",
+   "text": "We cannot have two vectors at a single point. It has to be one.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5511,
+   "ts": "1:31:51",
+   "text": "So we have this MSE loss that will make it such",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5517,
+   "ts": "1:31:57",
+   "text": "that it will be an average of all the vectors that we tried to fit at that given point points x",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5523,
+   "ts": "1:32:03",
+   "text": "and at given point t and you see that as being a problem",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5530,
+   "ts": "1:32:10",
+   "text": "or, so what does that mean? So here in practice, let's say you're at inference time",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5538,
+   "ts": "1:32:18",
+   "text": "and you want to go from, let's say, x0 to x1. And let's say you have learned a vector fields of velocity that",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5547,
+   "ts": "1:32:27",
+   "text": "doesn't go to x1. That goes in an average direction.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5553,
+   "ts": "1:32:33",
+   "text": "Are you going to be able to go to x1? No, right?",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5561,
+   "ts": "1:32:41",
+   "text": "So the thing that will occur is that you're going to have something averaged that might repel",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5568,
+   "ts": "1:32:48",
+   "text": "the trajectories that you try to learn into different directions.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5574,
+   "ts": "1:32:54",
+   "text": "But be reassured, we showed that these learned vector fields was such that if you",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5581,
+   "ts": "1:33:01",
+   "text": "sample a point in the normal distribution and follow the learned vector field,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5586,
+   "ts": "1:33:06",
+   "text": "you land into a distribution land, that will be your distribution pdata.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5592,
+   "ts": "1:33:12",
+   "text": "So that part is fine. But still, you have this property",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5598,
+   "ts": "1:33:18",
+   "text": "that the learned trajectories are not going to be the same as the ones that you teach your model.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5605,
+   "ts": "1:33:25",
+   "text": "And that is a source of what I would call complexity, where you teach a model that doesn't follow",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5614,
+   "ts": "1:33:34",
+   "text": "what you said at test time. So that is inherently-- so your intuition could make you feel that this is not efficient.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5624,
+   "ts": "1:33:44",
+   "text": "And the second thing that I want to say is that you could have this phenomenon happening,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5631,
+   "ts": "1:33:51",
+   "text": "even though the points of intersection are not at the exact same T, because in practice, you're",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5639,
+   "ts": "1:33:59",
+   "text": "going to learn this vector field with a neural network. And neural network are going to be",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5646,
+   "ts": "1:34:06",
+   "text": "a class of functions that are going to be smoothing things in space. So you won't have a drastic change of velocity",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5655,
+   "ts": "1:34:15",
+   "text": "for neighboring t's. And so because one thing that you",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5662,
+   "ts": "1:34:22",
+   "text": "could have told me is, but Shervine, that is never going to happen. 01 is an interval with infinitely many numbers.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5670,
+   "ts": "1:34:30",
+   "text": "You're never going to draw the same t, and you would be right. And I'm just saying that it could be valid for neighboring",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5676,
+   "ts": "1:34:36",
+   "text": "t's. And more importantly, let's say you sample your point x0 out",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5687,
+   "ts": "1:34:47",
+   "text": "of your normal distribution. What is going to be your issue here? Afshine mentioned that you want to integrate",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5694,
+   "ts": "1:34:54",
+   "text": "the ODE at inference time. And we had seen last time that you want to find methods that optimize that number of NFEs",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5704,
+   "ts": "1:35:04",
+   "text": "in such a way that you can find your target sample in a minimum amount of steps.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5709,
+   "ts": "1:35:09",
+   "text": "And when you have a path that is getting curved, so you don't have these straight lines at inference time,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5716,
+   "ts": "1:35:16",
+   "text": "you're not going to be able to solve that in a single step. Because let's say you use Euler.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5722,
+   "ts": "1:35:22",
+   "text": "Euler is estimating the velocity at the beginning points. And if you try to do it in a single step,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5729,
+   "ts": "1:35:29",
+   "text": "it will end up somewhere else. It will follow a straight path, whereas the curve isn't",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5735,
+   "ts": "1:35:35",
+   "text": "going to be taken into account. And you're going to tell me, but Shervine, you",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5742,
+   "ts": "1:35:42",
+   "text": "have tricks in your pockets. Last time you talked about a DPM solver",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5747,
+   "ts": "1:35:47",
+   "text": "in a different setting that was able to reframe things in an exact way. Well, no.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5753,
+   "ts": "1:35:53",
+   "text": "This time, the ODE that we want to integrate has no linear components.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5758,
+   "ts": "1:35:58",
+   "text": "It's all non-linear because here we're directly learning that velocity field.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5764,
+   "ts": "1:36:04",
+   "text": "So no DPM solver here. You need to use traditional sampler techniques.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5771,
+   "ts": "1:36:11",
+   "text": "So not quite happy.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5777,
+   "ts": "1:36:17",
+   "text": "We're happy but not quite. So now I'm going to walk you through the intuition",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5783,
+   "ts": "1:36:23",
+   "text": "of a retraining or fine tuning procedure that is called reflow.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5790,
+   "ts": "1:36:30",
+   "text": "And so first I'm going to recap the training procedure that we have already.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5795,
+   "ts": "1:36:35",
+   "text": "So you sample a point x0, you sample a point x1, you draw a path and then you fit a velocity on it.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5803,
+   "ts": "1:36:43",
+   "text": "So it is called in that paper a one rectified flow model.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5809,
+   "ts": "1:36:49",
+   "text": "And you obtain trajectories that we saw we're going to be curved.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5815,
+   "ts": "1:36:55",
+   "text": "And one idea that we have here, one temptation,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5821,
+   "ts": "1:37:01",
+   "text": "is to locate these new pairings. So you started from point x0. You integrated the ODE.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5827,
+   "ts": "1:37:07",
+   "text": "You ended up at somewhere in the distribution of pdata.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5833,
+   "ts": "1:37:13",
+   "text": "You're tempted to use these new pairs as your new pairings, because they will be, by construction,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5842,
+   "ts": "1:37:22",
+   "text": "in such a way that the velocity field will carry the trajectory directly there.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5850,
+   "ts": "1:37:30",
+   "text": "So the reflow procedure says, OK, let's take these new pairs as those",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5856,
+   "ts": "1:37:36",
+   "text": "that we use to retrain the model. So this will be our new lines that we fit our new model.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5866,
+   "ts": "1:37:46",
+   "text": "And so this is the reflow step. And you do that process again and again",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5872,
+   "ts": "1:37:52",
+   "text": "until your lines becomes straighter. And once that is the case, at inference time,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5879,
+   "ts": "1:37:59",
+   "text": "you're able to use a limited amount of inference steps in order to get your sample in the pdata space.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5889,
+   "ts": "1:38:09",
+   "text": "So does this procedure make sense? Yep?",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5901,
+   "ts": "1:38:21",
+   "text": "So the comment is if you retrain, then the two points are going to be from the new distribution.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5908,
+   "ts": "1:38:28",
+   "text": "So the magic in all of this-- so first, you're going to keep that Gaussian distribution",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5913,
+   "ts": "1:38:33",
+   "text": "at the beginning. That will not change. And at the end, we're going to see that there are some properties that",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5920,
+   "ts": "1:38:40",
+   "text": "makes it such that the resulting points that you get still preserve the distribution p data.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5927,
+   "ts": "1:38:47",
+   "text": "So there is some theoretical justification that it does follow pdata.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5933,
+   "ts": "1:38:53",
+   "text": "But this is a great point. We're going to discuss that in more detail in two slides.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5941,
+   "ts": "1:39:01",
+   "text": "Any other questions or comments? OK, so you're right to be skeptical.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5948,
+   "ts": "1:39:08",
+   "text": "So this works because of two things. So first, actually, one slide.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5955,
+   "ts": "1:39:15",
+   "text": "So we need to show that this follows the distribution pdata.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5960,
+   "ts": "1:39:20",
+   "text": "So I'm not going to give you the whole proof, just the gist of it. So you start by defining this random variable that",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5969,
+   "ts": "1:39:29",
+   "text": "starts at x0. And you integrate the ODE to end up in the new space",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5976,
+   "ts": "1:39:36",
+   "text": "and define this velocity for the x random variable and the proof",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5986,
+   "ts": "1:39:46",
+   "text": "to show that the law that you get for the end distribution after a reflow procedure goes through,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 5993,
+   "ts": "1:39:53",
+   "text": "showing that these two probability flows respect",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6000,
+   "ts": "1:40:00",
+   "text": "the same continuity equation. And with some uniqueness theorem and the presence",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6008,
+   "ts": "1:40:08",
+   "text": "of initial conditions at the fact that dt equals 0 is still",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6014,
+   "ts": "1:40:14",
+   "text": "the Gaussian distribution, you can show that it's valid for all t and, in particular, t equals 1.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6022,
+   "ts": "1:40:22",
+   "text": "So yeah, just hand-waving the proof here. So it's theoretically the case.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6029,
+   "ts": "1:40:29",
+   "text": "But you are right to be skeptical, because once you integrate the ODE,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6035,
+   "ts": "1:40:35",
+   "text": "you have errors that come in from two sources. So the first error is the discretization error.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6042,
+   "ts": "1:40:42",
+   "text": "So as we said, we're sampling these new points. So maybe you have some errors in the way you do these steps.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6050,
+   "ts": "1:40:50",
+   "text": "So you don't necessarily end up in a theoretical location you should be at.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6055,
+   "ts": "1:40:55",
+   "text": "And the second point is that you're operating off of a learned vector field that is approximated",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6062,
+   "ts": "1:41:02",
+   "text": "by a neural network, and it is possible that you haven't learned it perfectly. I mean, of course it's sure that you",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6069,
+   "ts": "1:41:09",
+   "text": "haven't learned it perfectly. And the quality of your results will",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6076,
+   "ts": "1:41:16",
+   "text": "be a function of how well you learn that vector field and of your discretization errors.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6082,
+   "ts": "1:41:22",
+   "text": "And we're going to see very soon that this is one of the reasons why we don't perform this procedure too",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6090,
+   "ts": "1:41:30",
+   "text": "many times, because the degradation is going to be a trade off to balance here.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6098,
+   "ts": "1:41:38",
+   "text": "So this is the first point I wanted to justify. The second point I wanted to justify is we hand waved the fact that the flows like the trajectories",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6107,
+   "ts": "1:41:47",
+   "text": "were getting straighter, and there is a mathematical way of writing it down and proving it.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6115,
+   "ts": "1:41:55",
+   "text": "And this is also something that is being proven in case you're interested. And for the interest of time, I'm not going to be covering it,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6121,
+   "ts": "1:42:01",
+   "text": "but that s quantity quantifies straightness and compares",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6131,
+   "ts": "1:42:11",
+   "text": "the actual velocity with the theoretical one. And we show that it decays with a good speed.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6139,
+   "ts": "1:42:19",
+   "text": "And this is why we're saying it's getting straighter.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6144,
+   "ts": "1:42:24",
+   "text": "And exactly as we discussed, the reflow procedure is one that you wouldn't want to do too many times,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6150,
+   "ts": "1:42:30",
+   "text": "but usually, one procedure is already great. And the goal is for us to use a very simple sampling techniques,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6159,
+   "ts": "1:42:39",
+   "text": "such as Euler, optimally in just a few steps, finding the right solution.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6165,
+   "ts": "1:42:45",
+   "text": "And of course, it isn't a free lunch. It comes at a trade off. So you're trading off simplicity and potentially lower quality",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6176,
+   "ts": "1:42:56",
+   "text": "for faster inference time speeds.",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6181,
+   "ts": "1:43:01",
+   "text": "OK, great. So this past three lectures, including this one, we've come across these concepts of diffusion, score matching,",
+   "chapter": "Rectified flow"
+  },
+  {
+   "t": 6192,
+   "ts": "1:43:12",
+   "text": "and now flows, flow matching. And I want to spend five minutes together",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6197,
+   "ts": "1:43:17",
+   "text": "to tie all of these frameworks together in a way that will hopefully show links between them and the fact",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6205,
+   "ts": "1:43:25",
+   "text": "that we are solving the same category of problems but from different lenses.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6212,
+   "ts": "1:43:32",
+   "text": "And in order to do that, I'm going to look at each of the processes that we defined",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6218,
+   "ts": "1:43:38",
+   "text": "and then look at the difference with respect to each method. So the first one is the forward process.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6226,
+   "ts": "1:43:46",
+   "text": "So it's a long time ago. Already two weeks ago, we talked about DPM and all this class",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6232,
+   "ts": "1:43:52",
+   "text": "of discrete time, diffusion. And then we saw in score-based diffusion world that if you",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6240,
+   "ts": "1:44:00",
+   "text": "reframed these equations and converted it into continuous",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6247,
+   "ts": "1:44:07",
+   "text": "time, put some delta t to 0, you could get some SDE formulation that was equivalent to it, Where we saw at the DPM solver section",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6260,
+   "ts": "1:44:20",
+   "text": "that actually, in diffusion space, you could approximate-- I mean, you could always assume that f of x and t",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6268,
+   "ts": "1:44:28",
+   "text": "was linear in x. And this is why. So it's something that we haven't seen so far",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6273,
+   "ts": "1:44:33",
+   "text": "but I'm telling you that you have a nice closed form expression with respect to f and g of xt.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6281,
+   "ts": "1:44:41",
+   "text": "And now we saw today that you can write down xt as an interpolation between x0 and x1 in flow matching.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6291,
+   "ts": "1:44:51",
+   "text": "And now we're going to see that in all of these methods, you start from a clean sample.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6298,
+   "ts": "1:44:58",
+   "text": "So in a diffusion space, we start the clean sample from t",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6303,
+   "ts": "1:45:03",
+   "text": "equals 0. But in flow matching space, we saw that the notation was reversed.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6309,
+   "ts": "1:45:09",
+   "text": "Clean sample is t equals 1. And on the other side of the spectrum, you have noise, which was in diffusion world t equals big t.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6319,
+   "ts": "1:45:19",
+   "text": "And here it's t equals 0. So you're here drawing an interpolation between the two",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6326,
+   "ts": "1:45:26",
+   "text": "in each of these cases. Now when we look at the loss functions,",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6332,
+   "ts": "1:45:32",
+   "text": "we saw that the diffusion view of writing things down",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6338,
+   "ts": "1:45:38",
+   "text": "was focusing on noise.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6344,
+   "ts": "1:45:44",
+   "text": "The score matching view was linking scores, and you had a nice relationship between noise and score.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6351,
+   "ts": "1:45:51",
+   "text": "And in the flow matching world, you were directly fitting the velocity field such that you have the simplest",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6358,
+   "ts": "1:45:58",
+   "text": "ODE to integrate in the end. Now, when we look at the generation process,",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6364,
+   "ts": "1:46:04",
+   "text": "we saw in the diffusion world that you had all these steps to go through",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6371,
+   "ts": "1:46:11",
+   "text": "with some stochasticity, which you also had in the score-based diffusion world,",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6378,
+   "ts": "1:46:18",
+   "text": "and you had for the first two, a deterministic counterpart.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6383,
+   "ts": "1:46:23",
+   "text": "And you will notice that the flow matching one doesn't have such a balance because it's",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6388,
+   "ts": "1:46:28",
+   "text": "deterministic to start with. And I'm just showing you some relationships between all",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6396,
+   "ts": "1:46:36",
+   "text": "these methods, but actually, there is a whole theory linking these concepts in a very nice way.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6402,
+   "ts": "1:46:42",
+   "text": "And this is why I recommend if you're interested. So it's out of scope for this class.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6408,
+   "ts": "1:46:48",
+   "text": "And just if you're interested, to take a look at the paper called Stochastic Interpolants that writes down equations that",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6418,
+   "ts": "1:46:58",
+   "text": "links all of these together. And turns out that r of noise, score, and velocity,",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6426,
+   "ts": "1:47:06",
+   "text": "if you know two of them, you can deduce the third one. And that paper designs a problem space",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6433,
+   "ts": "1:47:13",
+   "text": "that is bigger than what each of these frameworks detailed. And all of these frameworks can live",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6440,
+   "ts": "1:47:20",
+   "text": "in the same unified framework. And with that, I hope you have a great weekend.",
+   "chapter": "Links with diffusion and score matching"
+  },
+  {
+   "t": 6448,
+   "ts": "1:47:28",
+   "text": "Stanford CME29",
+   "chapter": "Links with diffusion and score matching"
+  }
+ ],
+ "chapters": [
+  {
+   "name": "Introduction",
+   "t": 0
+  },
+  {
+   "name": "Recap of last episodes",
+   "t": 55
+  },
+  {
+   "name": "Problem formulation",
+   "t": 423
+  },
+  {
+   "name": "Trajectory",
+   "t": 655
+  },
+  {
+   "name": "Flow",
+   "t": 718
+  },
+  {
+   "name": "Probability path",
+   "t": 840
+  },
+  {
+   "name": "Vector field",
+   "t": 911
+  },
+  {
+   "name": "Ordinary differential equation",
+   "t": 1126
+  },
+  {
+   "name": "Continuity equation",
+   "t": 1434
+  },
+  {
+   "name": "Micro and macro perspectives",
+   "t": 2200
+  },
+  {
+   "name": "Flow models",
+   "t": 2485
+  },
+  {
+   "name": "Continuous normalizing flows",
+   "t": 2586
+  },
+  {
+   "name": "Flow matching",
+   "t": 2776
+  },
+  {
+   "name": "Conditional probability path and vector field",
+   "t": 2883
+  },
+  {
+   "name": "Marginal probability path and vector field",
+   "t": 3678
+  },
+  {
+   "name": "Conditional flow matching",
+   "t": 4259
+  },
+  {
+   "name": "Why not velocity matching",
+   "t": 5167
+  },
+  {
+   "name": "Training",
+   "t": 5336
+  },
+  {
+   "name": "Inference",
+   "t": 5395
+  },
+  {
+   "name": "Rectified flow",
+   "t": 5432
+  },
+  {
+   "name": "Links with diffusion and score matching",
+   "t": 6192
+  }
+ ]
+}

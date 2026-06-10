@@ -1,0 +1,5312 @@
+{
+ "lecture": 2,
+ "video_id": "_WaR2fjZpEQ",
+ "segments": [
+  {
+   "t": 0,
+   "ts": "0:00",
+   "text": "0:05 Hello, everyone, and welcome to lecture 2 of CME 296.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 12,
+   "ts": "0:12",
+   "text": "So today is a very exciting day because we'll be talking about a new generation paradigm, which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 18,
+   "ts": "0:18",
+   "text": "is going to be score matching. So if you remember last week, we saw a first generation paradigm",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 26,
+   "ts": "0:26",
+   "text": "which was diffusion with DDPM. So today we're going to see a new way of doing this",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 34,
+   "ts": "0:34",
+   "text": "and see how this relates to the way we were doing this with diffusion with DDPM.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 41,
+   "ts": "0:41",
+   "text": "So before we start, I'm just going to recap what we saw last week.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 47,
+   "ts": "0:47",
+   "text": "So if you remember, the first three lectures are all about understanding how we can generate new samples",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 58,
+   "ts": "0:58",
+   "text": "by trying to generate from a distribution pdata that we do not know that is potentially complicated.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 67,
+   "ts": "1:07",
+   "text": "So here we have nothing as input. So it's unconditioned generation.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 73,
+   "ts": "1:13",
+   "text": "And our goal is to learn a way to generate new images.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 79,
+   "ts": "1:19",
+   "text": "So what did we see last time? So our strategy was to take images",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 87,
+   "ts": "1:27",
+   "text": "from the training set that we called clean because they did not have any kind of noise.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 93,
+   "ts": "1:33",
+   "text": "And what we did is we defined a process q that",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 98,
+   "ts": "1:38",
+   "text": "added some noise progressively, such that at the end of the day,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 104,
+   "ts": "1:44",
+   "text": "we ended up with just pure noise or almost pure noise. And the goal of DDPM was to learn a reverse process that",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 115,
+   "ts": "1:55",
+   "text": "was able to predict the noise to remove from the noisy image.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 121,
+   "ts": "2:01",
+   "text": "So that was the strategy. You take an image. You gradually add some noise.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 126,
+   "ts": "2:06",
+   "text": "And what you do is you try to learn how given a noisy image",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 132,
+   "ts": "2:12",
+   "text": "and given the noise level, how you can remove the noise from that image.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 139,
+   "ts": "2:19",
+   "text": "So the way we went about doing this was through likelihood estimation.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 146,
+   "ts": "2:26",
+   "text": "So we had our model p theta that we're trying to learn. And what we were doing is trying to maximize",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 154,
+   "ts": "2:34",
+   "text": "the probability of our model seeing the data from a training set. But we saw that it was intractable.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 162,
+   "ts": "2:42",
+   "text": "So what we did is we derived a tractable lower bound",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 167,
+   "ts": "2:47",
+   "text": "that we could also maximize that could be a good proxy for our objective.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 172,
+   "ts": "2:52",
+   "text": "And we ended up with this ELBO formulation.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 178,
+   "ts": "2:58",
+   "text": "And what we did is we expanded the terms from the lower bound.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 185,
+   "ts": "3:05",
+   "text": "And what we saw was that there was some nice terms that came out of it. So there was, for instance, a KL divergence",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 192,
+   "ts": "3:12",
+   "text": "between exactly what we wanted to learn and the forward process that we defined that was something",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 200,
+   "ts": "3:20",
+   "text": "that we could express. And then the third step was to indeed show",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 208,
+   "ts": "3:28",
+   "text": "that this was tractable. And we leveraged the fact that we were actually",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 215,
+   "ts": "3:35",
+   "text": "defining our forward process with Gaussian noise and with Gaussian distributions.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 220,
+   "ts": "3:40",
+   "text": "And the good thing with Gaussian distributions is there's a lot of nice properties, which is things",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 225,
+   "ts": "3:45",
+   "text": "that we leverage here. And at the end of the day, we deduced a loss function",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 231,
+   "ts": "3:51",
+   "text": "that was actually very simple. It was a simple L2 regression loss on the noise",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 239,
+   "ts": "3:59",
+   "text": "that we wanted to remove. All good so far?",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 245,
+   "ts": "4:05",
+   "text": "So this was last time. And so this was the loss that we had. So we had the the noised image as an input along with the noise",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 255,
+   "ts": "4:15",
+   "text": "level. And we had our model that we wanted to train which is here,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 260,
+   "ts": "4:20",
+   "text": "the noise predictor-- epsilon theta. And what we wanted to do is to have",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 267,
+   "ts": "4:27",
+   "text": "that match as close as possible the actual noise that we use.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 273,
+   "ts": "4:33",
+   "text": "And as I mentioned, this way of doing things was just one way.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 278,
+   "ts": "4:38",
+   "text": "And what we're going to see today is another way of doing this, which is called score matching.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 287,
+   "ts": "4:47",
+   "text": "So I'm going to start with just taking another perspective of the problem that we have at stake.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 295,
+   "ts": "4:55",
+   "text": "So remember that we have some training sets that contains some images.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 302,
+   "ts": "5:02",
+   "text": "So these are for instance, the Teddy bear images that we have. And our goal is to sample a new image from that distribution.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 312,
+   "ts": "5:12",
+   "text": "So this set of images, they come from a complex data",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 318,
+   "ts": "5:18",
+   "text": "distribution, let's say, pdata that we do not. And our goal is to sample from it.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 330,
+   "ts": "5:30",
+   "text": "Now, a very common strategy that we will again reuse here",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 335,
+   "ts": "5:35",
+   "text": "is to sample from an easy distribution",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 340,
+   "ts": "5:40",
+   "text": "and then to recover the image that we want to sample towards the end.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 347,
+   "ts": "5:47",
+   "text": "So here this cross this represents maybe an observation",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 354,
+   "ts": "5:54",
+   "text": "that we can sample that is not part of pdata but part of a distribution that is easy to sample from.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 359,
+   "ts": "5:59",
+   "text": "So let's say Gaussian noise. So given that what we're wondering is,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 366,
+   "ts": "6:06",
+   "text": "is there a way to go from something that is easy to sample towards something that",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 374,
+   "ts": "6:14",
+   "text": "is hard to sample? Does that make sense?",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 380,
+   "ts": "6:20",
+   "text": "It's going to be a bit more clear. So let's imagine you have p of x, which is the probability",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 391,
+   "ts": "6:31",
+   "text": "density function that takes in x, the representation of images",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 396,
+   "ts": "6:36",
+   "text": "as input, and that tells you the probability density of it happening at x.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 404,
+   "ts": "6:44",
+   "text": "So this is what the figure is showing. So here darker colors mean higher values of p of x.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 414,
+   "ts": "6:54",
+   "text": "So if you were over here, what would",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 421,
+   "ts": "7:01",
+   "text": "be a way for you to come closer to regions",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 427,
+   "ts": "7:07",
+   "text": "higher values of p of x?",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 433,
+   "ts": "7:13",
+   "text": "So the answer is, let's take the gradient.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 438,
+   "ts": "7:18",
+   "text": "So just as a reminder, the gradient of a scalar function here that takes in as inputs",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 446,
+   "ts": "7:26",
+   "text": "x, which is multidimensional, and returns a scalar,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 451,
+   "ts": "7:31",
+   "text": "so the gradient of the function is the vector of components,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 458,
+   "ts": "7:38",
+   "text": "partial derivative of that function with respect to each dimension of the multidimensional space.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 467,
+   "ts": "7:47",
+   "text": "And what the gradient here represents is the direction where this p of x is higher value.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 478,
+   "ts": "7:58",
+   "text": "So here the idea is if we can have access to gradient of p of x, then from this starting",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 486,
+   "ts": "8:06",
+   "text": "point, we can maybe go towards regions higher density.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 492,
+   "ts": "8:12",
+   "text": "8:17 But there is a problem. The problem is that estimating the gradient of the probability",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 508,
+   "ts": "8:28",
+   "text": "density function is actually a very hard thing to do. And there are a few reasons for that.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 514,
+   "ts": "8:34",
+   "text": "So the first one is that probability density functions, by definition, they are normalized,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 522,
+   "ts": "8:42",
+   "text": "meaning that if you take the integral towards the whole space, the integral of p of x",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 529,
+   "ts": "8:49",
+   "text": "needs to be equal to 1. So you have this constant, that maybe we",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 535,
+   "ts": "8:55",
+   "text": "can note here z, that is something that is very hard, intractable for you to compute,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 540,
+   "ts": "9:00",
+   "text": "because you would need to sum across all possible values of your space. And space is multi-dimensional, and it's",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 547,
+   "ts": "9:07",
+   "text": "a lot of computation, not something that you can actually do. So this quantity is intractable.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 553,
+   "ts": "9:13",
+   "text": "So if p of x is intractable, then if you take the gradient,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 559,
+   "ts": "9:19",
+   "text": "it's also intractable. So that's the first reason. The second reason is different compared to the first one, which",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 570,
+   "ts": "9:30",
+   "text": "is due to the fact that the probability density function can",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 576,
+   "ts": "9:36",
+   "text": "take very low values in certain regions of space where there are very few data.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 581,
+   "ts": "9:41",
+   "text": "So let's suppose here-- let's say you have a point here, then the probability",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 586,
+   "ts": "9:46",
+   "text": "would be very small. And so this can cause some numerical stability issues.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 596,
+   "ts": "9:56",
+   "text": "So because of these reasons, maybe we can take a look at another candidate of a way for you",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 605,
+   "ts": "10:05",
+   "text": "to go from a certain point towards regions of high density of the space.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 612,
+   "ts": "10:12",
+   "text": "And that potential candidate can be the gradient of the log of the probability, as opposed to just the gradient",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 621,
+   "ts": "10:21",
+   "text": "of the probability. So why could that be-- why would that be a good candidate?",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 631,
+   "ts": "10:31",
+   "text": "Well, do you remember the first point I mentioned regarding the normalizing constant?",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 639,
+   "ts": "10:39",
+   "text": "Well, thanks to the properties of the logarithm function, if you take the logarithm of the numerator over the denominator,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 648,
+   "ts": "10:48",
+   "text": "it's just the logarithm of the numerator minus the logarithm of the denominator.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 653,
+   "ts": "10:53",
+   "text": "And given that the normalizing constant is constant with respect to x, the point in space,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 663,
+   "ts": "11:03",
+   "text": "the gradient of log of z is actually 0. So what that means is in order to compute the gradient of log",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 674,
+   "ts": "11:14",
+   "text": "of p, you don't have to figure out how you want to compute that intractable quantity.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 683,
+   "ts": "11:23",
+   "text": "So that's reason number 1. Reason number 2, I'm not sure if this was obvious to you,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 689,
+   "ts": "11:29",
+   "text": "but just to emphasize on this a bit more, the gradient of the log is actually",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 696,
+   "ts": "11:36",
+   "text": "pointing in the same direction as the gradient of p. And the reason for that is just a calculus reason.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 704,
+   "ts": "11:44",
+   "text": "So the gradient of log of p is equal to the gradient of p over p.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 710,
+   "ts": "11:50",
+   "text": "And so what that means is up to some normalization,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 718,
+   "ts": "11:58",
+   "text": "the gradient of the log of p is pointing towards the same direction of gradient of p.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 724,
+   "ts": "12:04",
+   "text": "Because p is a scalar. Just remember p is a scalar. So it's as if you were dividing your vector by the same quantity",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 733,
+   "ts": "12:13",
+   "text": "across all dimensions. First reason, it is tractable.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 741,
+   "ts": "12:21",
+   "text": "Second reason, it is pointing in the same direction as gradient of p.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 747,
+   "ts": "12:27",
+   "text": "And then the third reason is that it is just more numerically stable.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 753,
+   "ts": "12:33",
+   "text": "And the reason for that is when gradient of p",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 758,
+   "ts": "12:38",
+   "text": "is very, very small, then there are chances that p is also very small.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 764,
+   "ts": "12:44",
+   "text": "And so if you take the ratio, it is not as small.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 769,
+   "ts": "12:49",
+   "text": "So that's the third reason.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 774,
+   "ts": "12:54",
+   "text": "So for all of these reasons, a possible strategy for you",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 780,
+   "ts": "13:00",
+   "text": "to go from one point in space towards region higher densities with respect to the probability density function",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 790,
+   "ts": "13:10",
+   "text": "can be to follow the direction given by gradient of log",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 796,
+   "ts": "13:16",
+   "text": "of p, which we call the score.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 802,
+   "ts": "13:22",
+   "text": "So this is the reason why this lecture is called score matching. It is because we're interested in this quantity, which",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 809,
+   "ts": "13:29",
+   "text": "is the score, which is the gradient of the log of p. One note that I will add is just see that I said gradient",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 817,
+   "ts": "13:37",
+   "text": "of log of p with respect to x. So you may think it is redundant,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 823,
+   "ts": "13:43",
+   "text": "but it is actually because we want to distinguish it from another score, which is with respect",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 830,
+   "ts": "13:50",
+   "text": "to the parameters of a model that sometimes people use. And so I just want to clarify here",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 837,
+   "ts": "13:57",
+   "text": "that we take the gradient with respect to x, which is the position in the space.",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 843,
+   "ts": "14:03",
+   "text": "Sounds good?",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 848,
+   "ts": "14:08",
+   "text": "OK. Cool. So this is how our score would look like in space. So here if you're further away, typically the score,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 856,
+   "ts": "14:16",
+   "text": "the magnitude would be bigger because you have the gradient of p over p. And p is small, and it's smaller when you get closer",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 866,
+   "ts": "14:26",
+   "text": "to the distribution. So now a question that I have for you is,",
+   "chapter": "Motivation behind score matching"
+  },
+  {
+   "t": 872,
+   "ts": "14:32",
+   "text": "let's suppose we sample from this space, sample from a distribution that is easy to sample, which is somewhere",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 880,
+   "ts": "14:40",
+   "text": "in space. And if I were to tell you, if I were to ask you,",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 886,
+   "ts": "14:46",
+   "text": "how would you go from this point to higher density regions of the space using the score?",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 894,
+   "ts": "14:54",
+   "text": "How would you do it? [AUDIO OUT] Follow the score.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 899,
+   "ts": "14:59",
+   "text": "Yeah. So you could follow the score. So the reason why I'm asking you this question",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 905,
+   "ts": "15:05",
+   "text": "is because there is a catch. Because if you follow the score, it",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 910,
+   "ts": "15:10",
+   "text": "means that you're going towards higher density regions of the space.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 916,
+   "ts": "15:16",
+   "text": "But the problem is you may always go where the density is highest.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 923,
+   "ts": "15:23",
+   "text": "And so here when you look at this illustration, there are places where density is not the highest,",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 930,
+   "ts": "15:30",
+   "text": "but it is still a valid sample from the distribution. So actually what we want is not only",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 937,
+   "ts": "15:37",
+   "text": "go towards higher density places of the region, but also to have some diversity, to not always go",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 949,
+   "ts": "15:49",
+   "text": "at the same place. So that's the reason why. Let's assume we know the score.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 957,
+   "ts": "15:57",
+   "text": "We would use a sampling method that is very commonly used, and I'm going to call out now, which is called the Langevin",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 966,
+   "ts": "16:06",
+   "text": "sampling. And what that does is it not only allows",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 971,
+   "ts": "16:11",
+   "text": "you to go towards higher density regions of the space,",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 976,
+   "ts": "16:16",
+   "text": "but also have a stochastic term that allows you to go to explore a little bit the region.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 985,
+   "ts": "16:25",
+   "text": "So I displayed the formula here on the slide a little bit out of nowhere.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 990,
+   "ts": "16:30",
+   "text": "So we won't have time to derive it. But I just want to show you that there",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 995,
+   "ts": "16:35",
+   "text": "is a way for you to start from a starting point, and then use the score to end up with a sample",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1005,
+   "ts": "16:45",
+   "text": "from the probability distribution. And that method is called Langevin sampling.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1013,
+   "ts": "16:53",
+   "text": "So if you know about MCMC methods, so Markov Chain Monte Carlo, so Langevin sampling",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1020,
+   "ts": "17:00",
+   "text": "is just one such methods.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1025,
+   "ts": "17:05",
+   "text": "That sounds good? Yeah. [AUDIO OUT]",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1030,
+   "ts": "17:10",
+   "text": "Yep. [AUDIO OUT]",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1036,
+   "ts": "17:16",
+   "text": "17:26 Yeah, so the question is, are these coefficients coming out of nowhere? Are they're here for a reason?",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1052,
+   "ts": "17:32",
+   "text": "The answer is yes. They're here for a reason. And they can be derived using some equations.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1059,
+   "ts": "17:39",
+   "text": "So if you've heard Fokker-Planck equation is something that you can use to derive this. We won't have time to derive it, but there is a reason.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1067,
+   "ts": "17:47",
+   "text": "There is a reason for this. Yeah. [AUDIO OUT]",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1073,
+   "ts": "17:53",
+   "text": "Yes.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1079,
+   "ts": "17:59",
+   "text": "So the question is, is there a convergence concern because the score is getting lower",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1086,
+   "ts": "18:06",
+   "text": "and you always go from one to the other? Is that the question? So we will see that later on and see how",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1093,
+   "ts": "18:13",
+   "text": "that is actually not a concern. But yeah, great question. Yeah. [AUDIO OUT]",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1101,
+   "ts": "18:21",
+   "text": "18:28 So the question is, how do you choose alpha? And we're going to also see that later.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1114,
+   "ts": "18:34",
+   "text": "But it is something that you choose.",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1120,
+   "ts": "18:40",
+   "text": "Cool. Great questions. And with that, I for now assume that we",
+   "chapter": "Lanvegin sampling"
+  },
+  {
+   "t": 1127,
+   "ts": "18:47",
+   "text": "knew how to get the score. But the reality is we don't.",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1133,
+   "ts": "18:53",
+   "text": "So we're going to spend this first part just trying to see how we can estimate the score.",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1140,
+   "ts": "19:00",
+   "text": "And it is actually not an easy problem, and we're going to see why.",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1147,
+   "ts": "19:07",
+   "text": "So first of all, the task of estimating the score is widely known as score matching,",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1154,
+   "ts": "19:14",
+   "text": "because you're trying to match the score. So here the way you want to do it is similar with the noise L2",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1161,
+   "ts": "19:21",
+   "text": "regression. You also want to have some L2 regression, but this time on the score.",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1169,
+   "ts": "19:29",
+   "text": "But the main problem is you don't know what pdata is,",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1175,
+   "ts": "19:35",
+   "text": "and you also do not know the score of the data distribution.",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1180,
+   "ts": "19:40",
+   "text": "So looking at this loss function, there's actually no way for you to estimate s theta of x.",
+   "chapter": "Score estimation"
+  },
+  {
+   "t": 1190,
+   "ts": "19:50",
+   "text": "So that's the reason why there's been a few papers across the years, along the years, that",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1196,
+   "ts": "19:56",
+   "text": "have tried to estimate this score function without having",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1203,
+   "ts": "20:03",
+   "text": "the need to know the true score function. So I'm just going to enumerate a few methods that were out there.",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1213,
+   "ts": "20:13",
+   "text": "For instance, this one is back in 2005, there was a method called Implicit Score Matching that",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1219,
+   "ts": "20:19",
+   "text": "derived a loss that actually did not require you to have the knowledge of the true score",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1225,
+   "ts": "20:25",
+   "text": "function. And there is another method called Sliced Score Matching,",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1230,
+   "ts": "20:30",
+   "text": "which used the fact of projecting",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1235,
+   "ts": "20:35",
+   "text": "the score on different random vectors, random projections. So I put the papers at the bottom of the slide.",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1245,
+   "ts": "20:45",
+   "text": "We're not going to go into details just because these methods are not really",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1251,
+   "ts": "20:51",
+   "text": "commonly used like nowadays. But instead what we're going to do",
+   "chapter": "Implicit score matching, sliced score matching"
+  },
+  {
+   "t": 1257,
+   "ts": "20:57",
+   "text": "is to focus on the common method that is being used, which is called denoising score matching.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1265,
+   "ts": "21:05",
+   "text": "And it relies on the following observation.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1271,
+   "ts": "21:11",
+   "text": "So I told you that we do not have the knowledge of the score of the true distribution,",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1277,
+   "ts": "21:17",
+   "text": "because the true distribution is a complex distribution. But I also told you that Gaussian distributions",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1286,
+   "ts": "21:26",
+   "text": "have very nice properties. So one idea that we can have is let's",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1291,
+   "ts": "21:31",
+   "text": "try to see if we can compute the score of a Gaussian distribution.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1297,
+   "ts": "21:37",
+   "text": "So let's assume that we have a random variable x that is drawn from a normal distribution of mean mu",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1303,
+   "ts": "21:43",
+   "text": "and variance sigma squared. So here I'm taking an example in 1D just so that we're--",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1310,
+   "ts": "21:50",
+   "text": "so that it's easier. So the probability distribution function or probability density",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1317,
+   "ts": "21:57",
+   "text": "function is given by this formula, which is analytically explicit.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1325,
+   "ts": "22:05",
+   "text": "It is something that is given here. Well, it turns out that if you take",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1332,
+   "ts": "22:12",
+   "text": "the gradient of the log of p, then you end up with this very nice formulation of minus x",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1344,
+   "ts": "22:24",
+   "text": "minus mu over sigma squared.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1350,
+   "ts": "22:30",
+   "text": "Should we derive it, or is it, quote unquote, \"obvious\"?",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1356,
+   "ts": "22:36",
+   "text": "You want to derive it? No? OK. Maybe one thing I will do is to just tell you",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1366,
+   "ts": "22:46",
+   "text": "why this formula makes sense. So if you consider a Gaussian distribution,",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1377,
+   "ts": "22:57",
+   "text": "the probability density function would be something like this. You'll have high densities towards the mean.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1384,
+   "ts": "23:04",
+   "text": "And then you will have lower values of the densities as you go away.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1390,
+   "ts": "23:10",
+   "text": "So here what you're saying is if you take some x in space, what it is saying",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1399,
+   "ts": "23:19",
+   "text": "is the score at that point x is given by minus x",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1406,
+   "ts": "23:26",
+   "text": "minus mu over sigma squared. So what that means is, so minus x minus mu is mu minus x.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1415,
+   "ts": "23:35",
+   "text": "Oops. So it's supposed to be a straight line. So let's suppose it's a straight line. It's going to be somewhere like this.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1422,
+   "ts": "23:42",
+   "text": "Sigma squared is positive.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1429,
+   "ts": "23:49",
+   "text": "So it's going to be pointing towards the mean. And just remember that the score is",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1436,
+   "ts": "23:56",
+   "text": "a quantity that gives us the direction of higher densities",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1441,
+   "ts": "24:01",
+   "text": "in the space. So just to tell you that this formula makes sense.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1448,
+   "ts": "24:08",
+   "text": "So back to our original goal.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1456,
+   "ts": "24:16",
+   "text": "So what we want is to find a way to compute",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1462,
+   "ts": "24:22",
+   "text": "the score of a distribution. And we saw that computing the score of a Gaussian distribution",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1469,
+   "ts": "24:29",
+   "text": "is easy. So how about we take one point from our training",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1479,
+   "ts": "24:39",
+   "text": "set and we noise it. So let's suppose we're given x from our training set.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1489,
+   "ts": "24:49",
+   "text": "And let's suppose we add some Gaussian noise, and we scale it with sigma.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1495,
+   "ts": "24:55",
+   "text": "Then we have x tilde, which is equal to x plus sigma epsilon.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1502,
+   "ts": "25:02",
+   "text": "So x tilde follows a normal distribution of mean x and variance sigma squared I.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1512,
+   "ts": "25:12",
+   "text": "And using exactly these results, you get that the score of--",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1523,
+   "ts": "25:23",
+   "text": "so we're calling that q sigma of x tilde given x. So this quantity is actually something that is tractable.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1530,
+   "ts": "25:30",
+   "text": "25:35 So now the question is, how can we use that result",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1542,
+   "ts": "25:42",
+   "text": "in order to go back to our initial objective, which is to determine the score of the data distribution of interest?",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1551,
+   "ts": "25:51",
+   "text": "So just remember at the first starting point",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1558,
+   "ts": "25:58",
+   "text": "we want to estimate the score of pdata, which is like this.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1564,
+   "ts": "26:04",
+   "text": "Well, the key idea here is to take that data distribution",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1570,
+   "ts": "26:10",
+   "text": "and to noise it. So for that, we're going to introduce",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1578,
+   "ts": "26:18",
+   "text": "q sigma of x tilde, which is this quantity. And I'm going to explain what that quantity is.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1585,
+   "ts": "26:25",
+   "text": "So what I'm going to do is to just rewrite the expression",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1595,
+   "ts": "26:35",
+   "text": "on the blackboard. And maybe it's here. [AUDIO OUT]",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1602,
+   "ts": "26:42",
+   "text": "OK. Thank you. So you have q sigma of x tilde.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1612,
+   "ts": "26:52",
+   "text": "Whoops. So it is a function of this perturbation.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1623,
+   "ts": "27:03",
+   "text": "So it's called the perturbation kernel. So you take one data point from your data distribution.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1629,
+   "ts": "27:09",
+   "text": "And then you noise it. So this is the one. And what you're actually doing is",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1635,
+   "ts": "27:15",
+   "text": "you're repeating that procedure for all elements of your training set.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1643,
+   "ts": "27:23",
+   "text": "Which is why you're ending up with this distribution.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1652,
+   "ts": "27:32",
+   "text": "So this is an expression that takes in each point of your training set.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1659,
+   "ts": "27:39",
+   "text": "And that noises it. And you just repeat that process for all points of your training set.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1666,
+   "ts": "27:46",
+   "text": "And this you can interpret it as a joint probability distribution",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1674,
+   "ts": "27:54",
+   "text": "that you can also note q sigma of x tilde and x,",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1682,
+   "ts": "28:02",
+   "text": "which is a valid one. Because if you integrate over x tilde and x, you get one.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1690,
+   "ts": "28:10",
+   "text": "So I just want you to look at this formula",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1695,
+   "ts": "28:15",
+   "text": "and just not be scared about what that means. I think it's quite easy.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1701,
+   "ts": "28:21",
+   "text": "Another way of seeing this is in practice, what you have is only a few data points from your distribution.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1710,
+   "ts": "28:30",
+   "text": "So it's as if you were saying you take the finite set of data points that you have from your distribution, and what you do",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1718,
+   "ts": "28:38",
+   "text": "is you noise each of it. So it's as if you were obtaining a mixture of Gaussians.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1725,
+   "ts": "28:45",
+   "text": "It's as if you were obtaining-- you have your different points.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1731,
+   "ts": "28:51",
+   "text": "And what you do is you noise, you noise each point.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1739,
+   "ts": "28:59",
+   "text": "And so we're going to call q sigma of x tilde the noisy distribution.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1748,
+   "ts": "29:08",
+   "text": "Yeah? Cool. So as you can tell, q sigma is a function of sigma.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1758,
+   "ts": "29:18",
+   "text": "And sigma tells you how much noise you're adding to the distribution. So if you have, let's say, a small sigma, your distribution",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1767,
+   "ts": "29:27",
+   "text": "is just a little bit noisy. So it just spreads a little bit.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1772,
+   "ts": "29:32",
+   "text": "But then as you add more and more noise, it just spreads out and takes much more space.",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1783,
+   "ts": "29:43",
+   "text": "So how can you use these definitions in order for us to compute the true score?",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1792,
+   "ts": "29:52",
+   "text": "So we're going to see it now. So let's consider the score matching objective",
+   "chapter": "Score of a Gaussian distribution"
+  },
+  {
+   "t": 1801,
+   "ts": "30:01",
+   "text": "not on the original data distribution but on the noisy distribution.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1807,
+   "ts": "30:07",
+   "text": "So if we take q sigma of x tilde, we have the squared distance between the score",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1817,
+   "ts": "30:17",
+   "text": "of x tilde and the-- sorry, the predicted score and the true score of x tilde.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1825,
+   "ts": "30:25",
+   "text": "Well, there is a paper that showed that this is actually",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1831,
+   "ts": "30:31",
+   "text": "equivalent to optimizing for another loss function, which",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1837,
+   "ts": "30:37",
+   "text": "is this one, which is s theta of x tilde minus the score,",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1845,
+   "ts": "30:45",
+   "text": "but conditioned on each data points of your training set.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1850,
+   "ts": "30:50",
+   "text": "And so why is this good news? It is because that conditional score is something",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1857,
+   "ts": "30:57",
+   "text": "that we already saw. It is tractable, but we have a problem.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1868,
+   "ts": "31:08",
+   "text": "And the problem we're going to see later. Before we do that, I'm just trying to see if we have time to derive it.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1875,
+   "ts": "31:15",
+   "text": "So the derivation is in between being trivial and not trivial.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1881,
+   "ts": "31:21",
+   "text": "It's in the middle. I would say the proof is quite nice. It is not required for you to know for the exam.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1888,
+   "ts": "31:28",
+   "text": "So I think in the interest of time, I'm not going to do the full proof, but I'm going to show you how you can derive it just",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1896,
+   "ts": "31:36",
+   "text": "through the main step. So what we're saying is we have the original score matching",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1906,
+   "ts": "31:46",
+   "text": "function, which is the one at the top, which",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1915,
+   "ts": "31:55",
+   "text": "is the squared distance between the score of the noise observation minus the true score of q sigma.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1928,
+   "ts": "32:08",
+   "text": "32:14 What we're saying is optimizing for these loss function is the same as optimizing for this one.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1940,
+   "ts": "32:20",
+   "text": "So the expectation is over x over your training set",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1949,
+   "ts": "32:29",
+   "text": "and then x tilde, which is given x.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1954,
+   "ts": "32:34",
+   "text": "And so it's expectation of, again, the score of the noisy observation,",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1961,
+   "ts": "32:41",
+   "text": "but this one minus the true score",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1966,
+   "ts": "32:46",
+   "text": "of the conditional observation condition on x.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1975,
+   "ts": "32:55",
+   "text": "So what you want to show this is the same as optimizing for this, which is tractable.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1981,
+   "ts": "33:01",
+   "text": "So the trick here is to recognize the fact that you have a distance of two quantities, let's say, a",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 1990,
+   "ts": "33:10",
+   "text": "and b, which is something that you can expand as follows.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2002,
+   "ts": "33:22",
+   "text": "So the distance between a and b squared is a squared minus 2 dot product of a and b",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2010,
+   "ts": "33:30",
+   "text": "plus this square norm of b.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2019,
+   "ts": "33:39",
+   "text": "And what you see is-- so these two loss functions, you want",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2024,
+   "ts": "33:44",
+   "text": "to optimize them with respect to the parameters of the model, which is theta.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2031,
+   "ts": "33:51",
+   "text": "And so you first realize that the b term in both loss",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2036,
+   "ts": "33:56",
+   "text": "functions, they are not a function of theta.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2041,
+   "ts": "34:01",
+   "text": "So actually you don't care. So this one you ignore.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2048,
+   "ts": "34:08",
+   "text": "And then you look at just the first term, the a term. And you just realize that these terms are the same.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2056,
+   "ts": "34:16",
+   "text": "So this one you also don't care. The only thing that you care is showing",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2062,
+   "ts": "34:22",
+   "text": "that the expectation across x tilde of the dot product between the two is the same as the expectation",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2071,
+   "ts": "34:31",
+   "text": "of over x and x tilde of the dot product between these prediction",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2080,
+   "ts": "34:40",
+   "text": "model and this conditional score. You want to show that these two are equal.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2087,
+   "ts": "34:47",
+   "text": "And this is what the proof is showing. So if you're interested in the details,",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2095,
+   "ts": "34:55",
+   "text": "I would highly encourage you to take a look at the original paper, which is the denoising score matching",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2100,
+   "ts": "35:00",
+   "text": "paper in the appendix. So it's maybe a five or six-line derivation.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2106,
+   "ts": "35:06",
+   "text": "And what it does is it just leverages the definition of q sigma and then just does",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2113,
+   "ts": "35:13",
+   "text": "some nice term expansion and term identification.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2120,
+   "ts": "35:20",
+   "text": "So all I want to say is that this equivalence is not",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2127,
+   "ts": "35:27",
+   "text": "pure magic. It's just math, math. And what is great about it is that we're",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2133,
+   "ts": "35:33",
+   "text": "able to optimize the loss of the score matching for the noisy distribution using a tractable loss.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2143,
+   "ts": "35:43",
+   "text": "[AUDIO OUT]",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2153,
+   "ts": "35:53",
+   "text": "So the question is, the score of the noisy data is equal to the score of the conditional.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2159,
+   "ts": "35:59",
+   "text": "Well, not exactly, but what your model s theta of x tilde learns",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2166,
+   "ts": "36:06",
+   "text": "ends up being the same. And the reason for that is because here what you care about",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2174,
+   "ts": "36:14",
+   "text": "is the direction where you're optimizing your model. So you do gradient descent typically.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2179,
+   "ts": "36:19",
+   "text": "And what you care about is the gradient of that loss with respect to theta.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2186,
+   "ts": "36:26",
+   "text": "And so that's why we have this whole derivation to just show that the loss at the bottom",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2195,
+   "ts": "36:35",
+   "text": "is equal to the one at the top, plus some constant that is not a function of theta.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2202,
+   "ts": "36:42",
+   "text": "And for that reason, if you optimize the loss that is tractable from the bottom,",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2207,
+   "ts": "36:47",
+   "text": "it's the same as optimizing the loss from the top. [AUDIO OUT] They're not equal.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2213,
+   "ts": "36:53",
+   "text": "Yes, exactly. Yeah, yeah. Great question. Any other questions on this?",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2218,
+   "ts": "36:58",
+   "text": "Yeah. [AUDIO OUT]",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2243,
+   "ts": "37:23",
+   "text": "Yeah, yeah, yeah. Great question. So the question is, what is the intuition behind this being the same? So I think the intuition goes back",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2251,
+   "ts": "37:31",
+   "text": "to the way you define q sigma and the way taking the expectation works.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2257,
+   "ts": "37:37",
+   "text": "So here what you're saying is if you take a look at scores",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2269,
+   "ts": "37:49",
+   "text": "conditioned on points from the training sets, so if you take a look at this, and then if you somehow",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2278,
+   "ts": "37:58",
+   "text": "see all the different scores from all the different points conditioned on these points, then on average",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2286,
+   "ts": "38:06",
+   "text": "is going to be the same as if you were to actually take the score from the overall noisy",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2292,
+   "ts": "38:12",
+   "text": "distribution. That's the rough intuition.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2302,
+   "ts": "38:22",
+   "text": "Does that make sense? OK. OK, cool. I'm looking at the time.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2307,
+   "ts": "38:27",
+   "text": "So let's see. Yeah, so again, the proof is not something",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2314,
+   "ts": "38:34",
+   "text": "that we will expect in the exam. So feel free to just take a look at it if you're just curious.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2321,
+   "ts": "38:41",
+   "text": "But it's not required. So this is also called L of DSM, so Denoising Score Matching.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2335,
+   "ts": "38:55",
+   "text": "And again this loss is tractable because you know the score of q sigma of x tilde conditional",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2344,
+   "ts": "39:04",
+   "text": "on x, because this is a score of a Gaussian. So just recapping where we are, what we wanted to do",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2353,
+   "ts": "39:13",
+   "text": "is to estimate the score of the true distribution.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2359,
+   "ts": "39:19",
+   "text": "So what we said was, OK, it's actually not something we can do. Let's fall back on an easier setup.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2366,
+   "ts": "39:26",
+   "text": "And what we said was that the easier setup was that in the Gaussian case, you are able to analytically compute",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2374,
+   "ts": "39:34",
+   "text": "the true score. So what we did is we took the true data distribution,",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2382,
+   "ts": "39:42",
+   "text": "and we noised it. And what we showed was that optimizing",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2388,
+   "ts": "39:48",
+   "text": "for the loss that is not tractable is the same as optimizing for loss that is tractable.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2396,
+   "ts": "39:56",
+   "text": "So in other words, you are able to estimate the score",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2402,
+   "ts": "40:02",
+   "text": "of a noisy data distribution. But it is still not equal to pdata, because what you want",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2412,
+   "ts": "40:12",
+   "text": "is pdata. You don't want the noisy data distribution. So it's only something that is going",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2420,
+   "ts": "40:20",
+   "text": "in the direction of what we want, but it's not exactly what we want. So let's see what this q sigma looks like.",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2431,
+   "ts": "40:31",
+   "text": "So what we want, again, is to go from a starting point",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2436,
+   "ts": "40:36",
+   "text": "towards the data distribution. But here we do not have the score of the true data",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2442,
+   "ts": "40:42",
+   "text": "distribution. So how about if we take a noisy distribution",
+   "chapter": "Denoising score matching"
+  },
+  {
+   "t": 2449,
+   "ts": "40:49",
+   "text": "that we can compute where sigma is very, very small.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2455,
+   "ts": "40:55",
+   "text": "So when sigma is very, very small, q sigma is very close to pdata distribution, because we noise it just a little bit.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2464,
+   "ts": "41:04",
+   "text": "Well, the problem is that if we take q sigma with sigma",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2469,
+   "ts": "41:09",
+   "text": "that is very small, then we'll just have poor estimations of the score in low-density regions.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2478,
+   "ts": "41:18",
+   "text": "Do you see why?",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2485,
+   "ts": "41:25",
+   "text": "So I'm probably going to just explain this. So the good thing is it's already there. So I'm just going to fall back on the definition of the loss",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2497,
+   "ts": "41:37",
+   "text": "here.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2502,
+   "ts": "41:42",
+   "text": "So this is the loss that we're optimizing. So what that means is that we want",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2511,
+   "ts": "41:51",
+   "text": "to optimize on the loss that is around the distance between the predicted score and the score",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2521,
+   "ts": "42:01",
+   "text": "of the noisy distribution q, which is equal to this.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2537,
+   "ts": "42:17",
+   "text": "So you're weighting your loss function with respect",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2543,
+   "ts": "42:23",
+   "text": "to how likely your points x tilde are to appear.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2552,
+   "ts": "42:32",
+   "text": "So in other words, if x tilde is not likely to appear,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2560,
+   "ts": "42:40",
+   "text": "then the fact that it is off from the true value is not something that is going to be materially",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2567,
+   "ts": "42:47",
+   "text": "noticeable in the loss. So the model will not really be incentivized",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2574,
+   "ts": "42:54",
+   "text": "to make predictions accurate for x tilde",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2579,
+   "ts": "42:59",
+   "text": "that are not likely to appear. OK.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2585,
+   "ts": "43:05",
+   "text": "So does this part make sense? So what I'm saying here is we are",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2590,
+   "ts": "43:10",
+   "text": "able to estimate the score of this noisy data distribution,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2596,
+   "ts": "43:16",
+   "text": "but we're not able to estimate it accurately in places of the space that are not",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2604,
+   "ts": "43:24",
+   "text": "likely to appear under q sigma. That's what I'm saying.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2611,
+   "ts": "43:31",
+   "text": "And the problem with that is if you sample from a distribution that is",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2617,
+   "ts": "43:37",
+   "text": "easy to sample from, for instance, a Gaussian, well, most of the time you're in regions that are low density.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2627,
+   "ts": "43:47",
+   "text": "So if you use the score of a noisy distribution",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2633,
+   "ts": "43:53",
+   "text": "with a small noise, then you will not have estimations of that score that will be accurate in those low density regions.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2640,
+   "ts": "44:00",
+   "text": "So you will not be to accurately go towards the high-density regions.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2647,
+   "ts": "44:07",
+   "text": "So in other words, I'm going just",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2656,
+   "ts": "44:16",
+   "text": "to explain this a bit more on an illustration here.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2665,
+   "ts": "44:25",
+   "text": "So it's as if we were saying that we have our complicated",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2671,
+   "ts": "44:31",
+   "text": "data distribution here that we have maybe noise a little bit. So it's like this.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2678,
+   "ts": "44:38",
+   "text": "So this one is pdata, and this one is q sigma.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2685,
+   "ts": "44:45",
+   "text": "So what I'm saying here is we are able to compute the score of this q sigma,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2694,
+   "ts": "44:54",
+   "text": "but we're not able to estimate it accurately in spaces of low density, so for instance, here.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2701,
+   "ts": "45:01",
+   "text": "So what that means is if I sample an observation from an easy distribution that is in a low-density region,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2711,
+   "ts": "45:11",
+   "text": "then when I'm going to use the score to get closer to that region, those estimates",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2721,
+   "ts": "45:21",
+   "text": "they may be super off. So I won't be able to come towards where I want.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2730,
+   "ts": "45:30",
+   "text": "And that is the problem with a small amount of noise. So what do you do, well, you can tell me just increase the noise,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2739,
+   "ts": "45:39",
+   "text": "then. Because if you increase the noise, then if you add enough noise, like,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2748,
+   "ts": "45:48",
+   "text": "let's suppose q sigma with sigma big, then that point in space",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2762,
+   "ts": "46:02",
+   "text": "will be covered with a high enough density such that you can have more accurate estimations",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2769,
+   "ts": "46:09",
+   "text": "of the score of the noisy distribution. But the problem is that now q sigma is too different from your p data.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2778,
+   "ts": "46:18",
+   "text": "So in other terms, what you're learning is not exactly what you want. It's like something that's different.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2784,
+   "ts": "46:24",
+   "text": "So you have this trade-off. If you have too little noise, then it's good.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2792,
+   "ts": "46:32",
+   "text": "What you're trying to learn is very close to what you actually want to learn, which a the score of the true data distribution.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2798,
+   "ts": "46:38",
+   "text": "But the problem is you do not have good estimates in low-density regions.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2804,
+   "ts": "46:44",
+   "text": "But at the same time, if you have too high of a noise, well, the distribution now is too different from the true data",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2812,
+   "ts": "46:52",
+   "text": "distribution. But you now can have good estimations.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2819,
+   "ts": "46:59",
+   "text": "So it's a little bit like the bias variance trade-off in a sense.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2825,
+   "ts": "47:05",
+   "text": "You just don't have both at the same time in this case, which is making the situation complicated.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2833,
+   "ts": "47:13",
+   "text": "Yeah. [AUDIO OUT]",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2843,
+   "ts": "47:23",
+   "text": "So the question is, if we configure the Langevin sampling in a way that can work, then we can make this work?",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2851,
+   "ts": "47:31",
+   "text": "So the answer is yes. So it's the next part. And we're going to see how we can do that.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2859,
+   "ts": "47:39",
+   "text": "But yeah, that's a good intuition. [AUDIO OUT]",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2873,
+   "ts": "47:53",
+   "text": "So the question is, why is it poor of an estimation in low-density scores?",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2880,
+   "ts": "48:00",
+   "text": "This is true. It's correct, this one. Not this one actually, the tractable one is the true one.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2888,
+   "ts": "48:08",
+   "text": "But the only problem is that the tractability of your loss",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2893,
+   "ts": "48:13",
+   "text": "function is also a function of how you configured it",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2898,
+   "ts": "48:18",
+   "text": "in terms of the expectation. So the expectation here is over q sigma,",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2904,
+   "ts": "48:24",
+   "text": "meaning that if you have an x tilde, which is in low-density",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2911,
+   "ts": "48:31",
+   "text": "regions, then it's just not going to have a high weight loss, which is just not incentivizing your model",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2920,
+   "ts": "48:40",
+   "text": "to actually properly learn it. So in a sense, it's a loss-weighting problem.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2927,
+   "ts": "48:47",
+   "text": "[AUDIO OUT] So the predicted score will be inaccurate. Yes.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2933,
+   "ts": "48:53",
+   "text": "Yeah. [AUDIO OUT]",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2947,
+   "ts": "49:07",
+   "text": "Yeah. So the question is, how about the regularity conditions of the function?",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2954,
+   "ts": "49:14",
+   "text": "So here let's assume that this is not a problem. Here let's assume it's not a problem. But you're right that, for instance, for sigma very small",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2962,
+   "ts": "49:22",
+   "text": "you have indeed very spiky ones. This is the correct intuition. So yeah. [AUDIO OUT]",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2968,
+   "ts": "49:28",
+   "text": "Yes, exactly. So high noise smoothens it. Low noise produces some spikiness",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2975,
+   "ts": "49:35",
+   "text": "around those training data points.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2981,
+   "ts": "49:41",
+   "text": "OK, cool. I think this is probably the most challenging part of the lecture. So yeah, hope you got the intuition as to why that is a problem.",
+   "chapter": "Limitations of DSM"
+  },
+  {
+   "t": 2990,
+   "ts": "49:50",
+   "text": "So what are we going to do? And you had the right intuition in terms of making some tweaks to the Langevin sampling.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 2999,
+   "ts": "49:59",
+   "text": "So what we're going to do is now we're not going to learn the score of one distribution.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3007,
+   "ts": "50:07",
+   "text": "We're going to learn the score of several distributions of several noise levels.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3014,
+   "ts": "50:14",
+   "text": "So instead of predicting s theta of x, we're going to predict s theta of x where you're in space",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3022,
+   "ts": "50:22",
+   "text": "and sigma your noise level. And the idea here is to consider several distributions, one",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3035,
+   "ts": "50:35",
+   "text": "with a small amount of noise, then bigger, then bigger, then bigger. And the way you're going to use those different score estimates",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3045,
+   "ts": "50:45",
+   "text": "is at the very beginning-- so if I show you my beautiful charts here.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3054,
+   "ts": "50:54",
+   "text": "At the very beginning, what you care about is knowing roughly where to go,",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3061,
+   "ts": "51:01",
+   "text": "where to go in space, roughly. So here it's fine if you have the score of a distribution that",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3069,
+   "ts": "51:09",
+   "text": "is quite approximate from the true one, as long as you know roughly where you need to go.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3076,
+   "ts": "51:16",
+   "text": "So the idea is here, you will use the score of a distribution that has been very noisy.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3084,
+   "ts": "51:24",
+   "text": "And let's say you're going to go somewhere here.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3091,
+   "ts": "51:31",
+   "text": "And then at that point, you're going to use the score of a distribution",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3096,
+   "ts": "51:36",
+   "text": "with less noise, because maybe that distribution with less noise covers that region.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3104,
+   "ts": "51:44",
+   "text": "And now you know maybe a little bit better where the actual high-density regions of the true data",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3110,
+   "ts": "51:50",
+   "text": "distribution is. And you're going to go again with lower amount of noise",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3117,
+   "ts": "51:57",
+   "text": "again and again and again until coming here.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3122,
+   "ts": "52:02",
+   "text": "So that is the idea. You're not going to only rely on one kind of noisy distribution",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3128,
+   "ts": "52:08",
+   "text": "with a small amount of noise or one with a higher amount of noise. You're going to actually rely on all of them",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3135,
+   "ts": "52:15",
+   "text": "in a way that will make this problem easy for you. So at the very beginning, what you care about",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3142,
+   "ts": "52:22",
+   "text": "is roughly where to go. And then the more you get closer, you care more and more about the little details.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3152,
+   "ts": "52:32",
+   "text": "And these methods is something that you will recognize with the following name, so NCSN, Noise",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3160,
+   "ts": "52:40",
+   "text": "Conditional Score Network. So is this framework of learning scores of different noise",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3167,
+   "ts": "52:47",
+   "text": "levels. So I just want to reiterate what I drew on the blackboard.",
+   "chapter": "Noise conditional score networks"
+  },
+  {
+   "t": 3173,
+   "ts": "52:53",
+   "text": "So let's suppose you sample an observation from a distribution that is easy to sample from that is far from your actual data",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3181,
+   "ts": "53:01",
+   "text": "distribution. So what you do is you will actually rely on the predicted score from a noised data distribution that",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3191,
+   "ts": "53:11",
+   "text": "is very noisy. And you're going to go step by step",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3199,
+   "ts": "53:19",
+   "text": "by relying on scores from distribution that are less and less noise until coming to your last point, which",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3209,
+   "ts": "53:29",
+   "text": "is something that hopefully will be very, very close to the pdata distribution, which is going to be a noise data",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3216,
+   "ts": "53:36",
+   "text": "distribution with a very low sigma.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3221,
+   "ts": "53:41",
+   "text": "OK. So does that make sense?",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3227,
+   "ts": "53:47",
+   "text": "Yeah? OK. Cool",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3233,
+   "ts": "53:53",
+   "text": "So back to your intuition on the Langevin sampling.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3239,
+   "ts": "53:59",
+   "text": "So your intuition was 100% correct. This way of sampling things that I explained with varying noise",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3247,
+   "ts": "54:07",
+   "text": "levels is actually called annealed Langevin dynamics.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3253,
+   "ts": "54:13",
+   "text": "And it's this idea of starting with a high amount of noise and decreasing the noise progressively.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3263,
+   "ts": "54:23",
+   "text": "So you will also see that in the literature as ALD.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3268,
+   "ts": "54:28",
+   "text": "Yeah. [AUDIO OUT]",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3276,
+   "ts": "54:36",
+   "text": "Yeah. [AUDIO OUT]",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3288,
+   "ts": "54:48",
+   "text": "So the question is, what is exactly the trade-off here? So the idea is with a high amount of noise,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3295,
+   "ts": "54:55",
+   "text": "if you add a high enough amount of noise, then previous low-density regions will be covered",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3304,
+   "ts": "55:04",
+   "text": "by the noisy distribution. And if you add enough noise, like,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3310,
+   "ts": "55:10",
+   "text": "with a very high amount of sigma, then you will cover it. The only problem is--",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3315,
+   "ts": "55:15",
+   "text": "so you can learn the score of that very noisy distribution.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3320,
+   "ts": "55:20",
+   "text": "But the problem is that the true score of that noisy distribution is going to be far from the score of the data distribution.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3327,
+   "ts": "55:27",
+   "text": "So that is the trade-off. [AUDIO OUT]",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3337,
+   "ts": "55:37",
+   "text": "Right. So the direction that it will be pointing will be roughly where you want to go, but not exactly.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3345,
+   "ts": "55:45",
+   "text": "But the idea here is that the very beginning you don't really care. So for instance, if from here from Stanford,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3351,
+   "ts": "55:51",
+   "text": "I want to go to New York, I know roughly I want to go this way. And then I go this way.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3357,
+   "ts": "55:57",
+   "text": "And then the more I get closer, the more I want to refine exactly where New York is. Yeah.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3363,
+   "ts": "56:03",
+   "text": "OK, cool. There is something else I wanted to say.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3370,
+   "ts": "56:10",
+   "text": "OK. So there's something else I wanted to say,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3377,
+   "ts": "56:17",
+   "text": "which I think we'll cover a little bit later. But first, we're going to cover how",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3382,
+   "ts": "56:22",
+   "text": "we're going to sample new observations using this annealed Langevin dynamics.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3388,
+   "ts": "56:28",
+   "text": "So here what you would do is sample some noise from very noisy Gaussian",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3398,
+   "ts": "56:38",
+   "text": "with a high amount of noise. And what you're going to do is for every noise level,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3406,
+   "ts": "56:46",
+   "text": "you're going to run your Langevin sampling. And this is the formula that we saw at the very beginning, which",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3414,
+   "ts": "56:54",
+   "text": "is you add the point that you're at with the predicted score,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3419,
+   "ts": "56:59",
+   "text": "which is where you want to go, and then some amount of noise, which allows for a bit of diversity.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3428,
+   "ts": "57:08",
+   "text": "And once you do that for all noise levels until coming to a very small noise level,",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3435,
+   "ts": "57:15",
+   "text": "then you end up with the actual image.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3443,
+   "ts": "57:23",
+   "text": "So one thing that I want to say regarding the score, you can think of the score as being a compass.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3452,
+   "ts": "57:32",
+   "text": "Now, when you are in the forest and you want to see where the city is, just follow the direction of the compass.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3459,
+   "ts": "57:39",
+   "text": "It's the same idea here. So we're in the space, space of images.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3465,
+   "ts": "57:45",
+   "text": "A lot of these regions of space are images that are actually not real images.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3471,
+   "ts": "57:51",
+   "text": "But what you want is to go towards regions of high density with respect to your target data distribution.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3482,
+   "ts": "58:02",
+   "text": "So it's as if you were following a compass to come at your destination.",
+   "chapter": "Annealed Langevin dynamics"
+  },
+  {
+   "t": 3489,
+   "ts": "58:09",
+   "text": "OK, cool. So last time-- you had a question? [AUDIO OUT]",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3497,
+   "ts": "58:17",
+   "text": "58:22 Oh, yeah. So the question is data distribution can be any data distribution? Yes, yes.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3508,
+   "ts": "58:28",
+   "text": "OK. So now what I want to tell you is how what I'm telling you",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3518,
+   "ts": "58:38",
+   "text": "now here relates to what we saw last week. So if you remember, DDPM was all about taking a clean image",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3530,
+   "ts": "58:50",
+   "text": "and then noising it. So if you remember, we had these coefficients.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3536,
+   "ts": "58:56",
+   "text": "And for instance, in this case, the noised image was the square root of alpha t bar times your clean image",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3543,
+   "ts": "59:03",
+   "text": "plus square root of 1 minus alpha t bar times the noise.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3549,
+   "ts": "59:09",
+   "text": "What I told you here also involves noise.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3555,
+   "ts": "59:15",
+   "text": "So a natural question that you may ask is, how does the score relate to the noise prediction task",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3564,
+   "ts": "59:24",
+   "text": "that we saw last week? Well, the forward process of xt given x0,",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3574,
+   "ts": "59:34",
+   "text": "you just see that it is a normal distribution centered on the square root of alpha t bar times x0.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3582,
+   "ts": "59:42",
+   "text": "And you actually realize that the score of that distribution",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3589,
+   "ts": "59:49",
+   "text": "is equal to minus the noise that you added over some coefficient.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3597,
+   "ts": "59:57",
+   "text": "So in other words, these two quantities,",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3603,
+   "ts": "1:00:03",
+   "text": "so the score meaning where you should go to end up where the clean images are",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3609,
+   "ts": "1:00:09",
+   "text": "and the noise that you added, are actually two quantities that are linked.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3616,
+   "ts": "1:00:16",
+   "text": "And they are linked such that the score is equal to minus the noise that you added.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3621,
+   "ts": "1:00:21",
+   "text": "And that makes sense. So why does that make sense? So I'm just going to clean that part.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3632,
+   "ts": "1:00:32",
+   "text": "Whoops.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3638,
+   "ts": "1:00:38",
+   "text": "So why does that make sense? So here if you have your clean image",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3646,
+   "ts": "1:00:46",
+   "text": "and then if you noised, so it's as if you added",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3652,
+   "ts": "1:00:52",
+   "text": "some amount of something noise.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3658,
+   "ts": "1:00:58",
+   "text": "But then if you want to go back to high-density regions",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3664,
+   "ts": "1:01:04",
+   "text": "it's basically your score. So it makes sense that the two are in opposite directions.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3670,
+   "ts": "1:01:10",
+   "text": "So by the way, does that make sense that it is the formula? So maybe I can also derive it.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3677,
+   "ts": "1:01:17",
+   "text": "So remember that the score of a normal distribution",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3687,
+   "ts": "1:01:27",
+   "text": "is equal to minus x minus the mean over the variance.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3697,
+   "ts": "1:01:37",
+   "text": "So in this case, we have--",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3706,
+   "ts": "1:01:46",
+   "text": "so x, what is x? It's a noisy image. And the noisy image has the following formula.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3713,
+   "ts": "1:01:53",
+   "text": "So noisy image is the square root of alpha t bar times x0 plus square root",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3719,
+   "ts": "1:01:59",
+   "text": "of 1 minus alpha t bar times epsilon. You subtract the mean of the normal distribution,",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3727,
+   "ts": "1:02:07",
+   "text": "which is this square root of alpha t bar times x0.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3733,
+   "ts": "1:02:13",
+   "text": "So this gives you minus. And then this is square root of 1 minus alpha t bar epsilon",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3743,
+   "ts": "1:02:23",
+   "text": "over your variance, which is 1 minus alpha t bar.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3752,
+   "ts": "1:02:32",
+   "text": "Which is exactly what you have on the slides.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3761,
+   "ts": "1:02:41",
+   "text": "Does that make sense? OK. Cool. So this is just to give you a parallel between NCSN and DDPM.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3774,
+   "ts": "1:02:54",
+   "text": "So these two methods are just two different ways of noising your sample at the end of the day, because one",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3785,
+   "ts": "1:03:05",
+   "text": "is taking some weighted average between the clean sample",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3791,
+   "ts": "1:03:11",
+   "text": "x0 and the noise, and the other one is just adding noise with just sigma.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3796,
+   "ts": "1:03:16",
+   "text": "So that is the reason why this, so DDPM, you",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3801,
+   "ts": "1:03:21",
+   "text": "will see it be characterized as being variance preserving.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3807,
+   "ts": "1:03:27",
+   "text": "Because if you take the variance of xt is going to be roughly equal to 1.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3814,
+   "ts": "1:03:34",
+   "text": "And this is assuming that your x0 are normalized. They have a mean of 0 and variance of 1.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3820,
+   "ts": "1:03:40",
+   "text": "So if you take the variance of xt, it's roughly alpha t bar plus-- so square root of alpha t bar",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3828,
+   "ts": "1:03:48",
+   "text": "squared plus square root of 1 minus alpha t bar squared,",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3833,
+   "ts": "1:03:53",
+   "text": "which is equal to 1 roughly. And this formulation, the NCSN one",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3842,
+   "ts": "1:04:02",
+   "text": "is going to be mentioned as being variants exploding.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3848,
+   "ts": "1:04:08",
+   "text": "Oh, I have to go way back in the slides. This one is going to be variance exploding because you're going",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3856,
+   "ts": "1:04:16",
+   "text": "to add more and more noise. And the noise is going to just increase a lot. So it's not bounded by 1.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3863,
+   "ts": "1:04:23",
+   "text": "OK. Cool.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3869,
+   "ts": "1:04:29",
+   "text": "So, so far what we've seen is noising",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3875,
+   "ts": "1:04:35",
+   "text": "images using a discrete set of noise increments.",
+   "chapter": "Parallel between DDPM and score"
+  },
+  {
+   "t": 3882,
+   "ts": "1:04:42",
+   "text": "But one could argue that these discretization is arbitrary.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3890,
+   "ts": "1:04:50",
+   "text": "It is something that you need to decide before starting your training process.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3896,
+   "ts": "1:04:56",
+   "text": "So one idea is to actually consider continuous evolution",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3902,
+   "ts": "1:05:02",
+   "text": "instead of discrete one. So the reason why you would be interested in doing that",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3907,
+   "ts": "1:05:07",
+   "text": "is because we also have a field of math, which is in differential equations that",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3915,
+   "ts": "1:05:15",
+   "text": "have a bunch of very convenient toolkits to solve these kinds of equations.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3921,
+   "ts": "1:05:21",
+   "text": "So one idea is to actually start from what we saw in DDPM and NCSN and try to see how they would be",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3932,
+   "ts": "1:05:32",
+   "text": "like in the continuous world. So in order to do that, we first need",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3941,
+   "ts": "1:05:41",
+   "text": "to have an equivalent of noise increments. Because up until now, the way we added noise to clean images",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3951,
+   "ts": "1:05:51",
+   "text": "was via sampling from a Gaussian distribution. So it's like normal distribution of mean 0",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3958,
+   "ts": "1:05:58",
+   "text": "and covariance matrix, the identity, and then just adding noise like this.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3964,
+   "ts": "1:06:04",
+   "text": "But what you want is to have a continuous equivalent of having",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3971,
+   "ts": "1:06:11",
+   "text": "these noise increments. And this is where the Wiener process comes in.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3978,
+   "ts": "1:06:18",
+   "text": "So who has heard of the Wiener process before? Yeah.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3983,
+   "ts": "1:06:23",
+   "text": "No one? Maybe one. OK. So the Wiener process is a type of stochastic process.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3991,
+   "ts": "1:06:31",
+   "text": "So stochastic process is a family of random variables",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 3996,
+   "ts": "1:06:36",
+   "text": "that are indexed by some index t, let's say, the time.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4001,
+   "ts": "1:06:41",
+   "text": "And a Wiener process is a stochastic process that follows the following properties.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4009,
+   "ts": "1:06:49",
+   "text": "So we have W0 by definition that is equal to 0.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4015,
+   "ts": "1:06:55",
+   "text": "And the difference between Wt and Ws, which is an increment,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4023,
+   "ts": "1:07:03",
+   "text": "follows a normal distribution of mean 0 and variance t minus s times I. And these increments,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4034,
+   "ts": "1:07:14",
+   "text": "so these differences are actually independent from one another.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4040,
+   "ts": "1:07:20",
+   "text": "So you can think of the equivalent of a random walk. So you walk one here and then one",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4046,
+   "ts": "1:07:26",
+   "text": "there but in the continuous world.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4052,
+   "ts": "1:07:32",
+   "text": "So one thing that I want to say is that what is independent is the increments and not the value of the ability itself.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4063,
+   "ts": "1:07:43",
+   "text": "Because you can imagine that Wt will depend on Wt minus 1",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4069,
+   "ts": "1:07:49",
+   "text": "and so on. So what we're saying is that the increments are independent from one another.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4076,
+   "ts": "1:07:56",
+   "text": "So with that in mind, what we can do is to derive a continuous formulation of DDPM and NCSN.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4087,
+   "ts": "1:08:07",
+   "text": "So in the interest of time, what I'm going to do is to only derive the DDPM case.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4097,
+   "ts": "1:08:17",
+   "text": "So what we're saying is we're starting",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4105,
+   "ts": "1:08:25",
+   "text": "from the update formula that adds noise to a less noisy image.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4111,
+   "ts": "1:08:31",
+   "text": "And what we want is to obtain a continuous way of expressing that.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4117,
+   "ts": "1:08:37",
+   "text": "So I'm just going to rewrite what is on the slide. So xt is equal to square root of 1 minus beta of xt minus 1",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4128,
+   "ts": "1:08:48",
+   "text": "plus square root of beta times epsilon. So if you remember, beta is your noise schedule.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4135,
+   "ts": "1:08:55",
+   "text": "It's the amount of noise that you add at each time step.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4140,
+   "ts": "1:09:00",
+   "text": "And so what you want is to have an expression of a differential",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4150,
+   "ts": "1:09:10",
+   "text": "evolution in x as a function of everything else.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4156,
+   "ts": "1:09:16",
+   "text": "So what I'm going to do is subtract that quantity with xt minus 1 And then have t and t minus 1",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4166,
+   "ts": "1:09:26",
+   "text": "be very, very small so that I can consider this to be continuous. So what I'm going to do here is just some math.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4175,
+   "ts": "1:09:35",
+   "text": "So I'm taking xt and I'm subtracting xt minus 1.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4182,
+   "ts": "1:09:42",
+   "text": "So it's going to be square root of 1 minus beta minus 1,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4190,
+   "ts": "1:09:50",
+   "text": "xt minus 1 plus square root of beta t epsilon.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4201,
+   "ts": "1:10:01",
+   "text": "So beta t is the quantity of noise that you add between two discrete steps.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4207,
+   "ts": "1:10:07",
+   "text": "What I'm going to do is to define a quantity",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4213,
+   "ts": "1:10:13",
+   "text": "that I'm going to write beta parenthesis t, which is the rate of noise at time t times",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4224,
+   "ts": "1:10:24",
+   "text": "dt, an increment of time. So what this is saying is when we're",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4230,
+   "ts": "1:10:30",
+   "text": "going to have t10 to 0-- so this is going to 10 to 0,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4235,
+   "ts": "1:10:35",
+   "text": "but we're going to have some rates of noise that's going to be nonzero, that's going to be your schedule.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4243,
+   "ts": "1:10:43",
+   "text": "So if I pause that, so this becomes xt minus xt minus 1",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4256,
+   "ts": "1:10:56",
+   "text": "is equal to, so 1 minus beta t dt minus 1 xt minus 1",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4273,
+   "ts": "1:11:13",
+   "text": "plus square root--",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4278,
+   "ts": "1:11:18",
+   "text": "I'm going to also replace it here-- of beta t dt epsilon.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4284,
+   "ts": "1:11:24",
+   "text": "So far I've just plugged in the new beta t expression.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4292,
+   "ts": "1:11:32",
+   "text": "So what we're going to obtain now",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4302,
+   "ts": "1:11:42",
+   "text": "is actually something that's going to be quite nice.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4317,
+   "ts": "1:11:57",
+   "text": "So if we tend t to 0, so if we consider a continuous evolution,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4325,
+   "ts": "1:12:05",
+   "text": "xt minus xt minus 1 is also going to be a differential evolution.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4333,
+   "ts": "1:12:13",
+   "text": "So here, I'm going to rewrite xt minus xt minus 1 as just d of x.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4338,
+   "ts": "1:12:18",
+   "text": "So when dt tends to 0, you have Taylor expansion formulas that",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4350,
+   "ts": "1:12:30",
+   "text": "tells you that square root of 1 minus something that tends to 0, which is equal to 1 minus 1/2 of that something.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4361,
+   "ts": "1:12:41",
+   "text": "So this is just Taylor expansion. So here, I'm going to say it's roughly equal to 1 minus 1/2",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4372,
+   "ts": "1:12:52",
+   "text": "of beta t dt. xt minus 1 is roughly going to be x.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4379,
+   "ts": "1:12:59",
+   "text": "So this is 1 minus this minus 1, because you",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4387,
+   "ts": "1:13:07",
+   "text": "have the 1 here, times x plus--",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4393,
+   "ts": "1:13:13",
+   "text": "so you have square root of beta t.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4398,
+   "ts": "1:13:18",
+   "text": "But then the Wiener process that we defined is such that a small increment in the Wiener process",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4410,
+   "ts": "1:13:30",
+   "text": "is actually something that you can rewrite as being square root of dt times epsilon,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4416,
+   "ts": "1:13:36",
+   "text": "because it follows a normal distribution of variance dt times I.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4424,
+   "ts": "1:13:44",
+   "text": "So here, I'm going to recognize the square root of dt times e.",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4430,
+   "ts": "1:13:50",
+   "text": "That's right. Square root of dt times epsilon as being dW, which is equal--",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4437,
+   "ts": "1:13:57",
+   "text": "so it's as if it was equal to d of x is equal, so this is going to cancel out, 1/2 of beta x dt plus square",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4451,
+   "ts": "1:14:11",
+   "text": "root of B dW. And now you may be wondering, why",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4457,
+   "ts": "1:14:17",
+   "text": "am I writing all these equations? Why are we doing this? Well, you're going to see that when we rewrite this,",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4466,
+   "ts": "1:14:26",
+   "text": "for instance, for DDPM and then for NCSN, what we realize",
+   "chapter": "Continuous derivation"
+  },
+  {
+   "t": 4473,
+   "ts": "1:14:33",
+   "text": "is that we have an expression of dx equal to something times",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4479,
+   "ts": "1:14:39",
+   "text": "dt plus something times dW.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4485,
+   "ts": "1:14:45",
+   "text": "So these two terms have very specific names. So one is called the drift.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4492,
+   "ts": "1:14:52",
+   "text": "So this quantity is called the drift. So it's deterministic. And this one is called the diffusion,",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4499,
+   "ts": "1:14:59",
+   "text": "which is what is stochastic. And you actually have a nice intuition about it",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4506,
+   "ts": "1:15:06",
+   "text": "when it comes to how x varies in space.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4511,
+   "ts": "1:15:11",
+   "text": "So if you suppose x to start from here and you only have a drift term, what",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4519,
+   "ts": "1:15:19",
+   "text": "you're going to have is just deterministic evolution using",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4525,
+   "ts": "1:15:25",
+   "text": "f of x and t. So you're going to go from x to x plus dx using f of xt times dt.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4534,
+   "ts": "1:15:34",
+   "text": "And then you're going to repeat this process again and again in a deterministic fashion.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4540,
+   "ts": "1:15:40",
+   "text": "So this first term is deterministic. Now let's look at what the second term does.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4548,
+   "ts": "1:15:48",
+   "text": "So here you start from a point x, and you add some quantity that is a function of noise,",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4560,
+   "ts": "1:16:00",
+   "text": "Gaussian noise. So here it's going to be something that is noisy, so",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4565,
+   "ts": "1:16:05",
+   "text": "the stochastic part. Which means that if you take the whole expression,",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4573,
+   "ts": "1:16:13",
+   "text": "you're going to end up with something-- so one step from x to x plus dx is",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4582,
+   "ts": "1:16:22",
+   "text": "going to be including a deterministic step and a stochastic step.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4588,
+   "ts": "1:16:28",
+   "text": "And this is something that will follow the slides here.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4594,
+   "ts": "1:16:34",
+   "text": "So all I want to say is that DDPM and NCSN can actually",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4601,
+   "ts": "1:16:41",
+   "text": "be transcribed from their discrete formulations to a continuous one.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4607,
+   "ts": "1:16:47",
+   "text": "So when you see these formulas, just know that it is just us transcribing",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4612,
+   "ts": "1:16:52",
+   "text": "them to be continuous. And the reason why we want to do that is because this is going to be an SDE, so Stochastic",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4621,
+   "ts": "1:17:01",
+   "text": "Differential Equation, for which the field already",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4627,
+   "ts": "1:17:07",
+   "text": "has a lot of techniques to solve them. And I'm just going to tell you now",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4634,
+   "ts": "1:17:14",
+   "text": "about why the DDPM formula makes sense just",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4641,
+   "ts": "1:17:21",
+   "text": "from an intuitive perspective. So what we're saying is in a 2D space, so this is the origin.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4648,
+   "ts": "1:17:28",
+   "text": "This is 0. And then we have a vector x.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4654,
+   "ts": "1:17:34",
+   "text": "So what we're saying is that an increment in x is going to be negative with respect to where x is.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4663,
+   "ts": "1:17:43",
+   "text": "So it's going to be somewhere like this. And then we're going to have a little bit of noise added",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4670,
+   "ts": "1:17:50",
+   "text": "to it, so maybe like this.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4675,
+   "ts": "1:17:55",
+   "text": "So in other words the noising process, the forward process is bringing x closer to 0",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4686,
+   "ts": "1:18:06",
+   "text": "and adding some noise so that this converges to a variance of 1, which is what DDPM is about.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4696,
+   "ts": "1:18:16",
+   "text": "Because the DDPM you take a clean image, and then you noise it with convenience coefficients",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4706,
+   "ts": "1:18:26",
+   "text": "such that after t steps, it becomes a normal distribution of mean 0 and variance 1.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4715,
+   "ts": "1:18:35",
+   "text": "And this is exactly what you're also seeing by interpreting the terms of this equation.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4720,
+   "ts": "1:18:40",
+   "text": "Does that make sense? So I just want to tell you this to just tell you",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4727,
+   "ts": "1:18:47",
+   "text": "that these formulas are not just formulas. They have a meaning if you think about each term.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4734,
+   "ts": "1:18:54",
+   "text": "And here this expression of the continuous evolution of the forward process for DDPM actually makes intuitive sense",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4745,
+   "ts": "1:19:05",
+   "text": "when you're just writing things down. [AUDIO OUT]",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4752,
+   "ts": "1:19:12",
+   "text": "So question is, why is it useful? We're going to see it exactly now. So I'm going to tell you now what is useful.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4760,
+   "ts": "1:19:20",
+   "text": "So the reason why it's useful is 1, you're not going to have to necessarily define",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4769,
+   "ts": "1:19:29",
+   "text": "discretization steps between each noised images. So you're not going to say, OK, I",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4776,
+   "ts": "1:19:36",
+   "text": "need let's say t steps to do the whole noising process. So that's the number 1. And number 2 is there's a number of results",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4784,
+   "ts": "1:19:44",
+   "text": "in the field of stochastic differential equations, which is essentially what this is.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4790,
+   "ts": "1:19:50",
+   "text": "There's a number of results that will allow you to solve the reverse process.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4797,
+   "ts": "1:19:57",
+   "text": "Because what you want is to be able to denoise images.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4803,
+   "ts": "1:20:03",
+   "text": "So here what we're doing is we're just noising images. But what we care about is how to denoise images, which is the reverse process.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4811,
+   "ts": "1:20:11",
+   "text": "And the reason why it is convenient for us to think in the continuous world is",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4818,
+   "ts": "1:20:18",
+   "text": "for us to be able to leverage these results. And we're going to see these results in a few minutes.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4828,
+   "ts": "1:20:28",
+   "text": "OK, cool. So here I just want to say that this drift term f and the diffusion g is the following for DDPM,",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4837,
+   "ts": "1:20:37",
+   "text": "but it is this form for NCSN. And you see that there is no drift term,",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4844,
+   "ts": "1:20:44",
+   "text": "and it is mainly because we're only adding noise.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4849,
+   "ts": "1:20:49",
+   "text": "And the idea behind DDPM and score matching",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4857,
+   "ts": "1:20:57",
+   "text": "is actually something that was developed in parallel. So here what I want to say is just a historical evolution",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4865,
+   "ts": "1:21:05",
+   "text": "of how things happened and how we came up to that unified view of describing the forward process",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4873,
+   "ts": "1:21:13",
+   "text": "in order to solve the reverse process. So on the one side, the diffusion literature",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4879,
+   "ts": "1:21:19",
+   "text": "had this given branch with a 2015 paper just describing how you can derive a tractable loss in order",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4887,
+   "ts": "1:21:27",
+   "text": "to solve for this, the diffusion problem. And then you have the DDPM paper which came out in 2020 that successfully",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4894,
+   "ts": "1:21:34",
+   "text": "applied that for images. That was on the one side. And on the other side in to score matching world,",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4903,
+   "ts": "1:21:43",
+   "text": "you had this principle of using the score to go from a starting point to the distribution and the fact",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4911,
+   "ts": "1:21:51",
+   "text": "that it alleviated this intractable normalizing constant.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4917,
+   "ts": "1:21:57",
+   "text": "And then there was a paper that described how to do that in the case of a noise distribution.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4924,
+   "ts": "1:22:04",
+   "text": "And then the NCSN method is actually something that came out with a later paper.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4931,
+   "ts": "1:22:11",
+   "text": "And there is one paper that unified both of these paradigms, which is a paper called Score-Based",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4939,
+   "ts": "1:22:19",
+   "text": "Generative Modeling Through Stochastic Differential Equation, which is a paper I highly recommend reading.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4945,
+   "ts": "1:22:25",
+   "text": "It's actually written by folks from Stanford, so Yang Song and coauthors.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4954,
+   "ts": "1:22:34",
+   "text": "And it is from that moment that the community has seen these two",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4960,
+   "ts": "1:22:40",
+   "text": "paradigms as being unified. And this is the way we have seen this play out.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4970,
+   "ts": "1:22:50",
+   "text": "So now why did we do this in the first place? So our goal is to recover clean images.",
+   "chapter": "SDE formulation"
+  },
+  {
+   "t": 4981,
+   "ts": "1:23:01",
+   "text": "So we know how to noise them through this forward process that we now are able to express in continuous term.",
+   "chapter": "Training"
+  },
+  {
+   "t": 4989,
+   "ts": "1:23:09",
+   "text": "What we care about is to denoise into clean images.",
+   "chapter": "Training"
+  },
+  {
+   "t": 4995,
+   "ts": "1:23:15",
+   "text": "And so here what we're doing again predicting the score.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5003,
+   "ts": "1:23:23",
+   "text": "So this score formulation is just a regression on the conditional score which",
+   "chapter": "Training"
+  },
+  {
+   "t": 5010,
+   "ts": "1:23:30",
+   "text": "we saw was tractable, which is, as we saw,",
+   "chapter": "Training"
+  },
+  {
+   "t": 5015,
+   "ts": "1:23:35",
+   "text": "minus epsilon over some coefficients. And the way you would train such a model",
+   "chapter": "Training"
+  },
+  {
+   "t": 5023,
+   "ts": "1:23:43",
+   "text": "is following this loss function, which is an expectation over clean images that you noise.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5031,
+   "ts": "1:23:51",
+   "text": "And so what you do is you sample a clean image and then",
+   "chapter": "Training"
+  },
+  {
+   "t": 5036,
+   "ts": "1:23:56",
+   "text": "some noise and time step. And then what you do is you obtain your noised image.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5041,
+   "ts": "1:24:01",
+   "text": "And so here noised image is just a combination of the clean image and the noise with some alpha and sigma t,",
+   "chapter": "Training"
+  },
+  {
+   "t": 5049,
+   "ts": "1:24:09",
+   "text": "which can be chosen either in the DDPM way or another way.",
+   "chapter": "Training"
+  },
+  {
+   "t": 5054,
+   "ts": "1:24:14",
+   "text": "And what you do is you predict the score",
+   "chapter": "Training"
+  },
+  {
+   "t": 5060,
+   "ts": "1:24:20",
+   "text": "that you know is tractable using your noised image and your time",
+   "chapter": "Training"
+  },
+  {
+   "t": 5066,
+   "ts": "1:24:26",
+   "text": "step. But now you may be asking, well, why do",
+   "chapter": "Training"
+  },
+  {
+   "t": 5075,
+   "ts": "1:24:35",
+   "text": "you want to predict the score? Because we saw that for NCSN, we had the score",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5084,
+   "ts": "1:24:44",
+   "text": "that we used in order to sample new observations from the data distribution. But we saw in the case of DDPM that we actually",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5093,
+   "ts": "1:24:53",
+   "text": "predicted the noise to remove. So we had these two different formulations.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5100,
+   "ts": "1:25:00",
+   "text": "So now the question that you may ask is, why do you want to focus on the score here?",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5108,
+   "ts": "1:25:08",
+   "text": "And the answer to that is that the forward process that",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5114,
+   "ts": "1:25:14",
+   "text": "is described by the SDE can be reversed through a reverse SDE",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5122,
+   "ts": "1:25:22",
+   "text": "that involves the score.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5128,
+   "ts": "1:25:28",
+   "text": "So I'm just going to repeat exactly what I said. So the forward process, which is described by the SDE,",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5135,
+   "ts": "1:25:35",
+   "text": "is something that you can reverse through a reverse SDE which involves the score.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5143,
+   "ts": "1:25:43",
+   "text": "And the reason why the score is popping up here is due to some derivations that we're not going to go here,",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5150,
+   "ts": "1:25:50",
+   "text": "but this is just a result that comes from a paper from 1982.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5157,
+   "ts": "1:25:57",
+   "text": "So it's a result from the SDE world that were just leveraging here.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5164,
+   "ts": "1:26:04",
+   "text": "So that is one of the points why we're caring about the continuous formulation is because we want to be able to leverage",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5172,
+   "ts": "1:26:12",
+   "text": "results around these SDEs, and this is one of them.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5180,
+   "ts": "1:26:20",
+   "text": "And so now I want to walk you through what",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5185,
+   "ts": "1:26:25",
+   "text": "that reverse process equation is about. So I told you that the forward process was composed of a drift",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5196,
+   "ts": "1:26:36",
+   "text": "term and a diffusion term. So it was dx equal to f of x and t times",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5203,
+   "ts": "1:26:43",
+   "text": "dt, which is the drift, and then plus gt times dW, which is the stochastic term, the diffusion term.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5212,
+   "ts": "1:26:52",
+   "text": "And what we're saying is that in order to do the reverse process,",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5217,
+   "ts": "1:26:57",
+   "text": "we actually cannot just have the same equation. We need to add a correction in the drift that",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5228,
+   "ts": "1:27:08",
+   "text": "involves the score. And here is the intuition. The intuition is that in the forward process,",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5236,
+   "ts": "1:27:16",
+   "text": "we have added some stochasticity that made us deviate from where",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5244,
+   "ts": "1:27:24",
+   "text": "the actual data point was. So as a result of that, when we want",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5250,
+   "ts": "1:27:30",
+   "text": "to reverse that process, what we actually want to counteract this phenomenon",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5259,
+   "ts": "1:27:39",
+   "text": "is to go towards the regions of high density scaled",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5265,
+   "ts": "1:27:45",
+   "text": "by that diffusion factor. So what I'm telling you is that the reverse process",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5272,
+   "ts": "1:27:52",
+   "text": "SDE is obtained through some derivation. But the way you would interpret it",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5279,
+   "ts": "1:27:59",
+   "text": "is that the correction to the drift is due to the fact",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5284,
+   "ts": "1:28:04",
+   "text": "that you diffused in the forward process. And this made you be further from high-density regions.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5294,
+   "ts": "1:28:14",
+   "text": "So this is what the reverse process is like. So it's dx times the drift, which is the original drift minus the diffusion",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5302,
+   "ts": "1:28:22",
+   "text": "coefficient times the score times dt plus your diffusion",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5309,
+   "ts": "1:28:29",
+   "text": "term. And here we noted dW bar because the Wiener process",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5315,
+   "ts": "1:28:35",
+   "text": "from the reverse process is actually different compared to the one from the forward process, which is",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5323,
+   "ts": "1:28:43",
+   "text": "why we noted this with the bar. And we're just going to conclude with how you would do inference.",
+   "chapter": "Reverse SDE"
+  },
+  {
+   "t": 5331,
+   "ts": "1:28:51",
+   "text": "So to do inference, you just sample some noise. And then again what you do is you leverage the nice results",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5340,
+   "ts": "1:29:00",
+   "text": "from the fact that you are handling SDEs, Stochastic Differential Equations. So you, for instance, will use a solver called Euler-Maruyama",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5348,
+   "ts": "1:29:08",
+   "text": "that is able to numerically solve the reverse process. So here you can think of it as a numerical method that",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5358,
+   "ts": "1:29:18",
+   "text": "will let you go from your original ex back to the endpoint using the reverse process equation.",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5368,
+   "ts": "1:29:28",
+   "text": "And you will obtain your final image, which will hopefully",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5373,
+   "ts": "1:29:33",
+   "text": "be an image that is satisfying. And that's going to be your final image.",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5380,
+   "ts": "1:29:40",
+   "text": "Yeah. [AUDIO OUT] Yes, so this one-- yeah. [AUDIO OUT]",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5387,
+   "ts": "1:29:47",
+   "text": "Yeah. So here, you can think of this equation as being a discretization of the reverse SDE which is here.",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5397,
+   "ts": "1:29:57",
+   "text": "So this is exactly this SDE, but you're doing it step by step. [AUDIO OUT]",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5404,
+   "ts": "1:30:04",
+   "text": "So the question is, what is fx of t? What is g? So these are the coefficients that are here.",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5410,
+   "ts": "1:30:10",
+   "text": "So for instance, in this case, f of x and t is minus 1/2 of beta",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5415,
+   "ts": "1:30:15",
+   "text": "times x. And g is square root of b. [AUDIO OUT]",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5421,
+   "ts": "1:30:21",
+   "text": "It is the same. So the question is, this is for the forward. But this f and g are the same in the forward and backwards.",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5428,
+   "ts": "1:30:28",
+   "text": "Yep. And with that, I'm going to give it to Shervine.",
+   "chapter": "Inference with Euler-Maruyama"
+  },
+  {
+   "t": 5434,
+   "ts": "1:30:34",
+   "text": "Thank you, Afshine. So I'm going to come here and sing a very similar song",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5440,
+   "ts": "1:30:40",
+   "text": "as the one I sang last week when we transitioned from DDPM to DDIM.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5445,
+   "ts": "1:30:45",
+   "text": "So we're going to look at this reverse SDE equation and look at what is not optimal in practice",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5452,
+   "ts": "1:30:52",
+   "text": "and see what we can do about it. So as Afshine mentioned, you have this Brownian motion.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5459,
+   "ts": "1:30:59",
+   "text": "That is one term of that reverse is the equation. And what problem do we have with that?",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5467,
+   "ts": "1:31:07",
+   "text": "So as you saw in the transition from x and x plus dx,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5472,
+   "ts": "1:31:12",
+   "text": "you have all these spikes that happen due to the stochasticity.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5478,
+   "ts": "1:31:18",
+   "text": "And this process is the reason why we cannot take large steps when resolving it, because otherwise you would be",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5485,
+   "ts": "1:31:25",
+   "text": "approximating a movement that is something that you look at the microscopic level.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5492,
+   "ts": "1:31:32",
+   "text": "So you need a high number of steps in your solver to start with.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5497,
+   "ts": "1:31:37",
+   "text": "And also the second point is that when you look at your errors that you do",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5503,
+   "ts": "1:31:43",
+   "text": "when you solve these reverse SDE equation, you have now two sources. You have the first source that comes",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5510,
+   "ts": "1:31:50",
+   "text": "from the regular discretization step. And then you have the stochastic error that comes in,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5517,
+   "ts": "1:31:57",
+   "text": "and they accumulate. So just like last week, I'm going",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5524,
+   "ts": "1:32:04",
+   "text": "to paint the picture of what we would like to have and see if we can get there.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5530,
+   "ts": "1:32:10",
+   "text": "So what would be the right counterpart of an SDE in a nicer world?",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5537,
+   "ts": "1:32:17",
+   "text": "It would be an ODE. So the ODE does have this term on the left",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5542,
+   "ts": "1:32:22",
+   "text": "but doesn't have any stochasticity. And going through each point that I mentioned, you would be able to gauge how fast you",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5551,
+   "ts": "1:32:31",
+   "text": "go depending on the regularity on the function of the left. So you have some methods that can take adaptive steps.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5561,
+   "ts": "1:32:41",
+   "text": "And then the second point is that in terms of errors that you're committing, once you solve",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5567,
+   "ts": "1:32:47",
+   "text": "that equation, they are only focused on the discretization of the left part.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5572,
+   "ts": "1:32:52",
+   "text": "So you have less sources of error. And I'm going to sketch you a derivation for which only",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5582,
+   "ts": "1:33:02",
+   "text": "the high-level gist is what I want you to. So there are going to be some intermediary results",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5589,
+   "ts": "1:33:09",
+   "text": "that I'm just going to state. And some equations we don't need to know necessarily",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5595,
+   "ts": "1:33:15",
+   "text": "how they are derived. I'm just telling you that they are there. So let's start from the forward SDE.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5603,
+   "ts": "1:33:23",
+   "text": "As Afshine had mentioned it, you have this f of x and t term, the drift term, and the diffusion",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5611,
+   "ts": "1:33:31",
+   "text": "term. So it turns out that for equations that verify this equality, you can apply the Fokker-Planck",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5621,
+   "ts": "1:33:41",
+   "text": "equation, where you have this pt of x that comes up.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5626,
+   "ts": "1:33:46",
+   "text": "That is the probability of the flow. And you have two terms on the right that",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5632,
+   "ts": "1:33:52",
+   "text": "could be interpreted in physical terms by the term on the left that is a transport",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5639,
+   "ts": "1:33:59",
+   "text": "term and the one on the right that you see g squared on, which is the diffusion term.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5647,
+   "ts": "1:34:07",
+   "text": "So the derivation of such an equation is non-trivial and is out of scope here. I'm just going to state that we are going through that results.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5658,
+   "ts": "1:34:18",
+   "text": "And then by rearranging the terms and using an identity on pt, we can",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5671,
+   "ts": "1:34:31",
+   "text": "come to another equation that is called the continuity equation that I'm just going to tell you",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5678,
+   "ts": "1:34:38",
+   "text": "that it's going to be something that we see in more details at the beginning of next lecture.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5685,
+   "ts": "1:34:45",
+   "text": "But what's interesting about that continuity equation is that on the right side, there is a factor",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5694,
+   "ts": "1:34:54",
+   "text": "that is to be interpreted as a velocity. And the velocity is dx over dt.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5702,
+   "ts": "1:35:02",
+   "text": "So once you identify that factor, you can come up with an equation that this term that",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5709,
+   "ts": "1:35:09",
+   "text": "has been identified as the velocity needs to verify. And you come up with an equation that is indeed an ODE,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5718,
+   "ts": "1:35:18",
+   "text": "and we call it the PF-ODE. PF stands for Probability Flows.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5724,
+   "ts": "1:35:24",
+   "text": "And let's look at that equation for a bit.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5731,
+   "ts": "1:35:31",
+   "text": "So just like we mentioned a short time ago, f and g are modeling assumptions that",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5738,
+   "ts": "1:35:38",
+   "text": "are the ones that we had as assumptions once you derive this diffusion concept.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5748,
+   "ts": "1:35:48",
+   "text": "And what about the score? So the score is also something that we can know. Because once you have a model that can approximate this score,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5757,
+   "ts": "1:35:57",
+   "text": "you just have to put x as inputs, and you can get the score.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5763,
+   "ts": "1:36:03",
+   "text": "So what I want to say is that this whole term that popped up",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5768,
+   "ts": "1:36:08",
+   "text": "is all composed of components that we can know.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5776,
+   "ts": "1:36:16",
+   "text": "OK, great. And now I'm going to re-emphasize each side of that PF-ODE.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5784,
+   "ts": "1:36:24",
+   "text": "So it's an ODE we said because we don't have a stochastic term, and it's probability flow",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5791,
+   "ts": "1:36:31",
+   "text": "because it's an ODE that comes from verifying the continuity",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5796,
+   "ts": "1:36:36",
+   "text": "equation, that is, an equation that is focused on the probability flow.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5802,
+   "ts": "1:36:42",
+   "text": "And one interesting thing about that equation is that once you have an initial condition on PT,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5810,
+   "ts": "1:36:50",
+   "text": "you can fully characterize what P is.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5816,
+   "ts": "1:36:56",
+   "text": "But this is something that you cannot say about x. Because as you can see here, if you have v that is solution--",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5826,
+   "ts": "1:37:06",
+   "text": "that is part of this equation, then if you add-- if you do v plus v null, where v null verifies divergence",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5838,
+   "ts": "1:37:18",
+   "text": "of v null and pt equals 0, then v plus v null also can be plugged in here.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5845,
+   "ts": "1:37:25",
+   "text": "So all of that to say that the probability flow between the reverse SDE and here are preserved.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5853,
+   "ts": "1:37:33",
+   "text": "But the trajectories are not. OK. So I went through a lot so far.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5860,
+   "ts": "1:37:40",
+   "text": "Any questions? Yeah. [AUDIO OUT]",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5865,
+   "ts": "1:37:45",
+   "text": "1:37:59 Yeah, fair. So the question is, what's the interpretation here? So we did all these equations to conserve the probability flow,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5887,
+   "ts": "1:38:07",
+   "text": "and the trajectories are going to be different. And they are characterized with this modified",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5894,
+   "ts": "1:38:14",
+   "text": "term on the v side. So instead of having these--",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5901,
+   "ts": "1:38:21",
+   "text": "so you have this one half that came in, and that compensates for the stochasticity part",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5907,
+   "ts": "1:38:27",
+   "text": "that disappears. So you're going to still have trajectories that verify in aggregate the probability flow conditions,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5915,
+   "ts": "1:38:35",
+   "text": "but they are going to be different. And the interpretation is not average or anything specific.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5924,
+   "ts": "1:38:44",
+   "text": "I would say it's just that in aggregate, they verify the probability flow property at each time t and x.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5933,
+   "ts": "1:38:53",
+   "text": "[AUDIO OUT] Yeah. [AUDIO OUT]",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5939,
+   "ts": "1:38:59",
+   "text": "Yeah, yeah, yeah. So the question is, will they end up with the same properties",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5946,
+   "ts": "1:39:06",
+   "text": "that you have the distribution at the end? And the answer is yes, because PT is preserved.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5953,
+   "ts": "1:39:13",
+   "text": "OK. Awesome. And so I'm going to draw a comparison",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5961,
+   "ts": "1:39:21",
+   "text": "between solving that reverse SDE equation and using PF-ODE.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5966,
+   "ts": "1:39:26",
+   "text": "So exactly as we mentioned here, the term on the left,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5972,
+   "ts": "1:39:32",
+   "text": "like the drift term, is compensated for that lack of stochastic term.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5978,
+   "ts": "1:39:38",
+   "text": "And then the great point that you made is that we no longer have something that is stochastic.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5984,
+   "ts": "1:39:44",
+   "text": "But once you have an initial condition,",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5990,
+   "ts": "1:39:50",
+   "text": "you deterministically know where you're going. So that's one big difference that you",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 5996,
+   "ts": "1:39:56",
+   "text": "might remember from last time resembles something that you know. And as a result, since the only source of diversity",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6005,
+   "ts": "1:40:05",
+   "text": "is now your initial draw, you have less sampling diversity.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6011,
+   "ts": "1:40:11",
+   "text": "And interestingly, when you look at experiments, you have higher sample quality.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6018,
+   "ts": "1:40:18",
+   "text": "And that could be explained intuitively by the fact that you introduce noise at each time step",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6027,
+   "ts": "1:40:27",
+   "text": "enables you to explore regions of the space that you wouldn't have explored with a deterministic path.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6033,
+   "ts": "1:40:33",
+   "text": "And you may self-correct your trajectory, as opposed",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6038,
+   "ts": "1:40:38",
+   "text": "to resolving an ODE that is only conditioned on your initial points and all the errors",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6046,
+   "ts": "1:40:46",
+   "text": "that you accumulate by solving the ODE numerically. So you have a nice interpretation there.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6054,
+   "ts": "1:40:54",
+   "text": "And of course, now that we have an ODE where we can adapt step sizes, you can now",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6063,
+   "ts": "1:41:03",
+   "text": "resolve this faster, which is a nice property. And the fact that I told you that I'm",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6068,
+   "ts": "1:41:08",
+   "text": "drawing a very similar parallel between PF-ODE and the reverse SDE as the one I drew last week between DDIM",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6076,
+   "ts": "1:41:16",
+   "text": "and DDPM, we can see a lot of shared commonalities that I've put here for reference.",
+   "chapter": "PF-ODE"
+  },
+  {
+   "t": 6084,
+   "ts": "1:41:24",
+   "text": "And now let's look at how we can solve this equation in practice and if we can do even better than regular solvers.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6093,
+   "ts": "1:41:33",
+   "text": "In order to do that, I'm going to introduce a way to assess complexity that is widely used",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6099,
+   "ts": "1:41:39",
+   "text": "in these papers called NFE. So it's the number of function evaluations.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6105,
+   "ts": "1:41:45",
+   "text": "And what we want to do is for a sampler to get good quality results with a minimum amount of NFEs.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6113,
+   "ts": "1:41:53",
+   "text": "So it's a measure that makes intuitive sense in the sense that we want to minimize the number of forward passes",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6120,
+   "ts": "1:42:00",
+   "text": "that you perform on your model. And I'm going to introduce this notion of solving",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6129,
+   "ts": "1:42:09",
+   "text": "an ODE by the very simple method that some of you might know already, so Euler's method.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6136,
+   "ts": "1:42:16",
+   "text": "If you consider this ODE dx equals v of x and t dt,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6142,
+   "ts": "1:42:22",
+   "text": "you can, based on your initial point and the derivative at that point, approximate the next point.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6153,
+   "ts": "1:42:33",
+   "text": "But the issue with that is that there is quite a bit of errors. Even though it's just one NFE per step,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6159,
+   "ts": "1:42:39",
+   "text": "you end up with the results that might be imprecise. So people to account for that fact are using a fancier",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6168,
+   "ts": "1:42:48",
+   "text": "techniques, so Runge-Kutta 4 is one of them that--",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6174,
+   "ts": "1:42:54",
+   "text": "so I represent it here on this graph the intuition of it. So you look at midpoints, measure the derivative,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6183,
+   "ts": "1:43:03",
+   "text": "have some derivative measurement on the endpoint as well. And if you do some weighting out of all of this,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6190,
+   "ts": "1:43:10",
+   "text": "you obtain an update step that is of low error rate.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6196,
+   "ts": "1:43:16",
+   "text": "I think here it's O of delta t to the power of 5, which",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6202,
+   "ts": "1:43:22",
+   "text": "is nice. So you might tell me, OK, hey, Shervine, we have solved everything.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6207,
+   "ts": "1:43:27",
+   "text": "We have a nice sampling method. What could we do better?",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6213,
+   "ts": "1:43:33",
+   "text": "So actually let's look again at v of x and t. So I told you it's f of x and t minus this term on the right",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6224,
+   "ts": "1:43:44",
+   "text": "that is divided by 2. But if you look at all the equations that we use in the diffusion world,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6231,
+   "ts": "1:43:51",
+   "text": "you see that f and x and t can be rewritten as f of t times x.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6242,
+   "ts": "1:44:02",
+   "text": "So what does that tell you? So that tells you that this ODE is linear in x.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6250,
+   "ts": "1:44:10",
+   "text": "So it has a linear term. And what can you say about the term on the right?",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6258,
+   "ts": "1:44:18",
+   "text": "Is it linear or-- so you would have x as an input to where?",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6266,
+   "ts": "1:44:26",
+   "text": "What is the term on the right? The one in the rectangle. It's the score.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6273,
+   "ts": "1:44:33",
+   "text": "So the score is what we try to estimate as part of our reverse diffusion process.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6279,
+   "ts": "1:44:39",
+   "text": "And it's typically something that you would approximate with a neural network. And neural networks, are they linear?",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6286,
+   "ts": "1:44:46",
+   "text": "No, they're highly nonlinear. After the first layer and first activation function, it's no longer linear.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6293,
+   "ts": "1:44:53",
+   "text": "So you have a nonlinear term there. And one thing we could do is instead",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6301,
+   "ts": "1:45:01",
+   "text": "of trying to discretize this whole equation without leveraging the fact that part of it is linear,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6309,
+   "ts": "1:45:09",
+   "text": "we can use some math properties that says that with methods like the variations of constants",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6317,
+   "ts": "1:45:17",
+   "text": "that some of you might have heard of, you can derive an exact solution to part of it",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6323,
+   "ts": "1:45:23",
+   "text": "and focus the discretization process on the other part.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6328,
+   "ts": "1:45:28",
+   "text": "And that's what DPM solver is all about. And I'm going to spare you the details of the derivation.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6335,
+   "ts": "1:45:35",
+   "text": "It's quite long. I have attached the paper at the bottom in case you're interested. It's a bit involved.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6341,
+   "ts": "1:45:41",
+   "text": "You get an update formula that has this exact term on the left",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6348,
+   "ts": "1:45:48",
+   "text": "and then some integral on the right. And the integral on the right focuses On the nonlinear term",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6357,
+   "ts": "1:45:57",
+   "text": "that we saw. And one highlight that I'll mention here",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6362,
+   "ts": "1:46:02",
+   "text": "is that we are not solving this in the time space. There has been a change of variables,",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6367,
+   "ts": "1:46:07",
+   "text": "and this is what the lambda that you see in this equation stands for. And there is a one-to-one mapping",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6373,
+   "ts": "1:46:13",
+   "text": "between time steps and lambdas. Because lambda is strictly monotonic here.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6381,
+   "ts": "1:46:21",
+   "text": "So yeah, this is one interesting thing to note.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6387,
+   "ts": "1:46:27",
+   "text": "And the question now is, how do we discretize this equation?",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6393,
+   "ts": "1:46:33",
+   "text": "Because we have this integral now left. And we cannot integrate something that is approximated",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6401,
+   "ts": "1:46:41",
+   "text": "by a neural network over a continuous range. So what we do is that this is the part that",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6408,
+   "ts": "1:46:48",
+   "text": "is going to be discretized. And you have variants of DPM solver",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6414,
+   "ts": "1:46:54",
+   "text": "that discretize it at different levels of granularity. So the first one is DPM solver 1 that the paper",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6420,
+   "ts": "1:47:00",
+   "text": "shows gives an equation that is equivalent to DDIM actually.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6426,
+   "ts": "1:47:06",
+   "text": "And DPM solver 2 uses Taylor's expansion",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6431,
+   "ts": "1:47:11",
+   "text": "at higher levels up to any number k. And the number-- so the NFE for each is of I plus 1--",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6440,
+   "ts": "1:47:20",
+   "text": "is of I, sorry.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6448,
+   "ts": "1:47:28",
+   "text": "And so to recap what we did is that we started from the forward SDE, rearranged terms using properties",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6457,
+   "ts": "1:47:37",
+   "text": "that we knew of. Came up with a PF-ODE that verified the same probability flow.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6462,
+   "ts": "1:47:42",
+   "text": "And that enabled us to generate new samples. And then we leveraged the format of the PF-ODE",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6470,
+   "ts": "1:47:50",
+   "text": "to further optimize the way we would resolve it",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6476,
+   "ts": "1:47:56",
+   "text": "by focusing our NFEs on the discretization parts that really",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6481,
+   "ts": "1:48:01",
+   "text": "matters here. And here you see that DPM solver resolves the ODE",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6489,
+   "ts": "1:48:09",
+   "text": "with a much better trade-off between budget and quality. And the difference on the paper you",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6496,
+   "ts": "1:48:16",
+   "text": "can see it at low number of steps they're quite huge in terms of N metric.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6502,
+   "ts": "1:48:22",
+   "text": "And then just like DDIM, you don't need to retrain the network when you want to sample with this solver because the objective function",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6512,
+   "ts": "1:48:32",
+   "text": "is the same. And in practice, with only tens of NFEs, you can get good results.",
+   "chapter": "DPM-Solver"
+  },
+  {
+   "t": 6519,
+   "ts": "1:48:39",
+   "text": "And that was it. I hope you have a great weekend.",
+   "chapter": "DPM-Solver"
+  }
+ ],
+ "chapters": [
+  {
+   "name": "Introduction",
+   "t": 0
+  },
+  {
+   "name": "Motivation behind score matching",
+   "t": 273
+  },
+  {
+   "name": "Lanvegin sampling",
+   "t": 872
+  },
+  {
+   "name": "Score estimation",
+   "t": 1127
+  },
+  {
+   "name": "Implicit score matching, sliced score matching",
+   "t": 1190
+  },
+  {
+   "name": "Score of a Gaussian distribution",
+   "t": 1257
+  },
+  {
+   "name": "Denoising score matching",
+   "t": 1801
+  },
+  {
+   "name": "Limitations of DSM",
+   "t": 2449
+  },
+  {
+   "name": "Noise conditional score networks",
+   "t": 2990
+  },
+  {
+   "name": "Annealed Langevin dynamics",
+   "t": 3173
+  },
+  {
+   "name": "Parallel between DDPM and score",
+   "t": 3489
+  },
+  {
+   "name": "Continuous derivation",
+   "t": 3882
+  },
+  {
+   "name": "SDE formulation",
+   "t": 4473
+  },
+  {
+   "name": "Training",
+   "t": 4981
+  },
+  {
+   "name": "Reverse SDE",
+   "t": 5075
+  },
+  {
+   "name": "Inference with Euler-Maruyama",
+   "t": 5331
+  },
+  {
+   "name": "PF-ODE",
+   "t": 5434
+  },
+  {
+   "name": "DPM-Solver",
+   "t": 6084
+  },
+  {
+   "name": "Stanford CME296: Diffusion & Large Vision Models",
+   "pending": true
+  },
+  {
+   "name": "Stanford Online",
+   "pending": true
+  },
+  {
+   "name": "2 / 8",
+   "pending": true
+  }
+ ]
+}

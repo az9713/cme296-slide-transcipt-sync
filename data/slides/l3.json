@@ -1,0 +1,902 @@
+{
+ "lecture": 3,
+ "n_pages": 96,
+ "groups": [
+  {
+   "pages": [
+    1
+   ],
+   "id": 0,
+   "img": "p001.jpg",
+   "page_first": 1,
+   "page_last": 1,
+   "title": "CME 296: Di\ufb00usion &",
+   "text": "CME 296: Di\ufb00usion & Large Vision Models Afshine Amidi & Shervine Amidi Lecture 3"
+  },
+  {
+   "pages": [
+    2
+   ],
+   "id": 1,
+   "img": "p002.jpg",
+   "page_first": 2,
+   "page_last": 2,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lecture 1 (Di\ufb00usion with DDPM) \u2026 \u2026 Predict noise to remove via"
+  },
+  {
+   "pages": [
+    3
+   ],
+   "id": 2,
+   "img": "p003.jpg",
+   "page_first": 3,
+   "page_last": 3,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lecture 1 (Di\ufb00usion with DDPM) Lecture 2 (Score matching with DSM) \u2026 \u2026 Predict noise to remove via Predict score via"
+  },
+  {
+   "pages": [
+    4
+   ],
+   "id": 3,
+   "img": "p004.jpg",
+   "page_first": 4,
+   "page_last": 4,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lecture 1 (Di\ufb00usion with DDPM) Lecture 2 (Score matching with DSM) \u2026 \u2026 Noise to remove from noisy sample Score from noisy to clean"
+  },
+  {
+   "pages": [
+    5
+   ],
+   "id": 4,
+   "img": "p005.jpg",
+   "page_first": 5,
+   "page_last": 5,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Uni\ufb01ed view (SDE formulation) Drift Di\ufb00usion Forward Reverse"
+  },
+  {
+   "pages": [
+    6
+   ],
+   "id": 5,
+   "img": "p006.jpg",
+   "page_first": 6,
+   "page_last": 6,
+   "title": "Today's lecture",
+   "text": "Today's lecture A teddy bear reading a book Black box architecture Generation paradigm Today's lecture: Flow matching"
+  },
+  {
+   "pages": [
+    7
+   ],
+   "id": 6,
+   "img": "p007.jpg",
+   "page_first": 7,
+   "page_last": 7,
+   "title": "Motivation",
+   "text": "Motivation Flow matching Training Inference Recti\ufb01ed \ufb02ow Discussion Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    8
+   ],
+   "id": 7,
+   "img": "p008.jpg",
+   "page_first": 8,
+   "page_last": 8,
+   "title": "Problem formulation",
+   "text": "Problem formulation ?"
+  },
+  {
+   "pages": [
+    9,
+    10
+   ],
+   "id": 8,
+   "img": "p009.jpg",
+   "page_first": 9,
+   "page_last": 10,
+   "title": "Intuition behind \ufb02ows",
+   "text": "Intuition behind \ufb02ows Initial distribution Target distribution ? Idea. Transport probability mass from initial to target"
+  },
+  {
+   "pages": [
+    11
+   ],
+   "id": 9,
+   "img": "p011.jpg",
+   "page_first": 11,
+   "page_last": 11,
+   "title": "Notations",
+   "text": "Notations"
+  },
+  {
+   "pages": [
+    12,
+    13
+   ],
+   "id": 10,
+   "img": "p013.jpg",
+   "page_first": 12,
+   "page_last": 13,
+   "title": "\u26a0 Important note on conventions \u26a0",
+   "text": "\u26a0 Important note on conventions \u26a0 Di\ufb00usion, score matching, SDE formulation (lectures 1 and 2) clean noise ... ... ... Flow matching (this lecture!) ... ... ... Target data distribution Initial data distribution"
+  },
+  {
+   "pages": [
+    14
+   ],
+   "id": 11,
+   "img": "p014.jpg",
+   "page_first": 14,
+   "page_last": 14,
+   "title": "Trajectory",
+   "text": "Trajectory Trajectory : path taken by the observation for time"
+  },
+  {
+   "pages": [
+    15
+   ],
+   "id": 12,
+   "img": "p015.jpg",
+   "page_first": 15,
+   "page_last": 15,
+   "title": "Flow",
+   "text": "Flow Flow : collection of trajectories which start from di\ufb00erent"
+  },
+  {
+   "pages": [
+    16
+   ],
+   "id": 13,
+   "img": "p016.jpg",
+   "page_first": 16,
+   "page_last": 16,
+   "title": "Probability path",
+   "text": "Probability path Probability path : probability distribution of at time"
+  },
+  {
+   "pages": [
+    17
+   ],
+   "id": 14,
+   "img": "p017.jpg",
+   "page_first": 17,
+   "page_last": 17,
+   "title": "Vector \ufb01eld, also known as velocity",
+   "text": "Vector \ufb01eld, also known as velocity Vector \ufb01eld : where to move (direction, speed) at time and location"
+  },
+  {
+   "pages": [
+    18
+   ],
+   "id": 15,
+   "img": "p018.jpg",
+   "page_first": 18,
+   "page_last": 18,
+   "title": "Di\ufb00erences between velocity and score function",
+   "text": "Di\ufb00erences between velocity and score function \ud83d\udee3 Highway Velocity"
+  },
+  {
+   "pages": [
+    19
+   ],
+   "id": 16,
+   "img": "p019.jpg",
+   "page_first": 19,
+   "page_last": 19,
+   "title": "Di\ufb00erences between velocity and score function",
+   "text": "Di\ufb00erences between velocity and score function \ud83d\udee3 Highway \ud83e\udded Compass Velocity Score function"
+  },
+  {
+   "pages": [
+    20
+   ],
+   "id": 17,
+   "img": "p020.jpg",
+   "page_first": 20,
+   "page_last": 20,
+   "title": "Perspective of a single sample with ODE",
+   "text": "Perspective of a single sample with ODE Ordinary di\ufb00erential equation: Trajectory starting from is Lipschitz continuous is unique if velocity Vector \ufb01eld at location x and time t Change in sample position Change in time"
+  },
+  {
+   "pages": [
+    21
+   ],
+   "id": 18,
+   "img": "p021.jpg",
+   "page_first": 21,
+   "page_last": 21,
+   "title": "Perspective of a distribution via \"mass conservation\"",
+   "text": "Perspective of a distribution via \"mass conservation\" Temporal evolution of density at time t at a particular location \"In\ufb02ow\" of density ? \"out\ufb02ow\" of density at that particular location"
+  },
+  {
+   "pages": [
+    22
+   ],
+   "id": 19,
+   "img": "p022.jpg",
+   "page_first": 22,
+   "page_last": 22,
+   "title": "Intuition behind divergence in 1D",
+   "text": "Intuition behind divergence in 1D Leaving more than what is coming Leaving Coming more than what is leaving Coming Divergence Divergence"
+  },
+  {
+   "pages": [
+    23
+   ],
+   "id": 20,
+   "img": "p023.jpg",
+   "page_first": 23,
+   "page_last": 23,
+   "title": "Intuition behind divergence in 1D",
+   "text": "Intuition behind divergence in 1D Divergence Divergence"
+  },
+  {
+   "pages": [
+    24
+   ],
+   "id": 21,
+   "img": "p024.jpg",
+   "page_first": 24,
+   "page_last": 24,
+   "title": "Intuition behind divergence in 1D",
+   "text": "Intuition behind divergence in 1D Coming more than what is leaving Coming Divergence Divergence"
+  },
+  {
+   "pages": [
+    25,
+    26
+   ],
+   "id": 22,
+   "img": "p026.jpg",
+   "page_first": 25,
+   "page_last": 26,
+   "title": "Intuition behind divergence in 1D",
+   "text": "Intuition behind divergence in 1D Divergence Divergence Generalization for dimensions:"
+  },
+  {
+   "pages": [
+    27
+   ],
+   "id": 23,
+   "img": "p027.jpg",
+   "page_first": 27,
+   "page_last": 27,
+   "title": "Divergence: yes. But of what?",
+   "text": "Divergence: yes. But of what? Question. Which should we consider? Vector \ufb01eld Probability \ufb02ux \u274c \u2705 Suppose: We want: Probability density Velocity"
+  },
+  {
+   "pages": [
+    28
+   ],
+   "id": 24,
+   "img": "p028.jpg",
+   "page_first": 28,
+   "page_last": 28,
+   "title": "Perspective of a distribution with continuity equation",
+   "text": "Perspective of a distribution with continuity equation Temporal evolution of density at time t at a particular location \"In\ufb02ow\" of density \"out\ufb02ow\" of density at that particular location"
+  },
+  {
+   "pages": [
+    29,
+    30
+   ],
+   "id": 25,
+   "img": "p029.jpg",
+   "page_first": 29,
+   "page_last": 30,
+   "title": "Two perspectives involving the velocity",
+   "text": "Two perspectives involving the velocity Single sample Distribution \"generates\" the probability path Vector \ufb01eld"
+  },
+  {
+   "pages": [
+    31
+   ],
+   "id": 26,
+   "img": "p031.jpg",
+   "page_first": 31,
+   "page_last": 31,
+   "title": "Flow models",
+   "text": "Flow models Training. Estimate Inference. Sample from initial distribution and solve numerically the ODE using the learned vector \ufb01eld 1 2 for all time and all locations via Strategy. Goal. Map to"
+  },
+  {
+   "pages": [
+    32
+   ],
+   "id": 27,
+   "img": "p032.jpg",
+   "page_first": 32,
+   "page_last": 32,
+   "title": "Focus of the rest of this lecture",
+   "text": "Focus of the rest of this lecture Training. Estimate Inference. Sample from initial distribution and solve numerically the ODE using the learned vector \ufb01eld 2 for all time and all locations via Strategy. Goal. Map to 1"
+  },
+  {
+   "pages": [
+    33
+   ],
+   "id": 28,
+   "img": "p033.jpg",
+   "page_first": 33,
+   "page_last": 33,
+   "title": "Earlier attempts to learn the velocity",
+   "text": "Earlier attempts to learn the velocity Idea. Transform continuity equation to: Neural Ordinary Di\ufb00erential Equations, Chen et al., 2018. Then, simulate ODE at training time to maximize likelihood: Training is slow and expensive! Goal. Learn vector \ufb01eld Limitation. via maximum likelihood \ud83d\udc0c"
+  },
+  {
+   "pages": [
+    34
+   ],
+   "id": 29,
+   "img": "p034.jpg",
+   "page_first": 34,
+   "page_last": 34,
+   "title": "Motivation",
+   "text": "Motivation Flow matching Training Inference Recti\ufb01ed \ufb02ow Discussion Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    35
+   ],
+   "id": 30,
+   "img": "p035.jpg",
+   "page_first": 35,
+   "page_last": 35,
+   "title": "Flow matching",
+   "text": "Flow matching FM = Flow Matching Goal. Estimate the vector \ufb01eld with"
+  },
+  {
+   "pages": [
+    36
+   ],
+   "id": 31,
+   "img": "p036.jpg",
+   "page_first": 36,
+   "page_last": 36,
+   "title": "Flow matching",
+   "text": "Flow matching FM = Flow Matching We don't have access to it Goal. Estimate the vector \ufb01eld with"
+  },
+  {
+   "pages": [
+    37
+   ],
+   "id": 32,
+   "img": "p037.jpg",
+   "page_first": 37,
+   "page_last": 37,
+   "title": "Back to the de\ufb01nition of a vector \ufb01eld",
+   "text": "Back to the de\ufb01nition of a vector \ufb01eld"
+  },
+  {
+   "pages": [
+    38
+   ],
+   "id": 33,
+   "img": "p038.jpg",
+   "page_first": 38,
+   "page_last": 38,
+   "title": "Vector \ufb01eld is unknown to us",
+   "text": "Vector \ufb01eld is unknown to us"
+  },
+  {
+   "pages": [
+    39,
+    40
+   ],
+   "id": 34,
+   "img": "p039.jpg",
+   "page_first": 39,
+   "page_last": 40,
+   "title": "Let's fall back to an easier setup",
+   "text": "Let's fall back to an easier setup"
+  },
+  {
+   "pages": [
+    41
+   ],
+   "id": 35,
+   "img": "p041.jpg",
+   "page_first": 41,
+   "page_last": 41,
+   "title": "How to go from initial to Dirac distribution?",
+   "text": "How to go from initial to Dirac distribution? ?"
+  },
+  {
+   "pages": [
+    42
+   ],
+   "id": 36,
+   "img": "p042.jpg",
+   "page_first": 42,
+   "page_last": 42,
+   "title": "Proposed conditional probability path",
+   "text": "Proposed conditional probability path Conditional Gaussian probability path"
+  },
+  {
+   "pages": [
+    43
+   ],
+   "id": 37,
+   "img": "p043.jpg",
+   "page_first": 43,
+   "page_last": 43,
+   "title": "Conditional vector \ufb01eld",
+   "text": "Conditional vector \ufb01eld Conditional vector \ufb01eld"
+  },
+  {
+   "pages": [
+    44,
+    45
+   ],
+   "id": 38,
+   "img": "p045.jpg",
+   "page_first": 44,
+   "page_last": 45,
+   "title": "Generation of conditional probability path",
+   "text": "Generation of conditional probability path Conditional vector \ufb01eld GENERATES Conditional probability path Derivation: Use continuity equation Consequence. If and then:"
+  },
+  {
+   "pages": [
+    46,
+    47,
+    48
+   ],
+   "id": 39,
+   "img": "p048.jpg",
+   "page_first": 46,
+   "page_last": 48,
+   "title": "Marginal probability path",
+   "text": "Marginal probability path Marginal probability path is an aggregation of the Note: Illustration shows marginal if training set has 2 data points for readability purposes."
+  },
+  {
+   "pages": [
+    49
+   ],
+   "id": 40,
+   "img": "p049.jpg",
+   "page_first": 49,
+   "page_last": 49,
+   "title": "Marginal probability path",
+   "text": "Marginal probability path Marginal probability path : This de\ufb01nition leads to: Marginal probability path for Marginal probability path for Initial probability distribution Target probability distribution"
+  },
+  {
+   "pages": [
+    50,
+    51,
+    52
+   ],
+   "id": 41,
+   "img": "p052.jpg",
+   "page_first": 50,
+   "page_last": 52,
+   "title": "Marginal vector \ufb01eld",
+   "text": "Marginal vector \ufb01eld Marginal vector \ufb01eld is an aggregation of the Note: Illustration shows marginal if training set has 2 data points for readability purposes."
+  },
+  {
+   "pages": [
+    53
+   ],
+   "id": 42,
+   "img": "p053.jpg",
+   "page_first": 53,
+   "page_last": 53,
+   "title": "Marginal vector \ufb01eld",
+   "text": "Marginal vector \ufb01eld Marginal vector \ufb01eld : Posterior mean Interpretation of the weight. Given where you are, where should you go?"
+  },
+  {
+   "pages": [
+    54,
+    55
+   ],
+   "id": 43,
+   "img": "p055.jpg",
+   "page_first": 54,
+   "page_last": 55,
+   "title": "Generation of probability path",
+   "text": "Generation of probability path Marginal vector \ufb01eld GENERATES Marginal probability path Derivation: Use marginal de\ufb01nition with continuity equation Consequence. If and then:"
+  },
+  {
+   "pages": [
+    56
+   ],
+   "id": 44,
+   "img": "p056.jpg",
+   "page_first": 56,
+   "page_last": 56,
+   "title": "Deriving conditional \ufb02ow matching",
+   "text": "Deriving conditional \ufb02ow matching De\ufb01nition of \ufb02ow matching for This is equivalent to optimizing the following loss: tractable! Derivation: Expand squared norm and use de\ufb01nition of marginal Full derivation in Flow Matching for Generative Modeling, Lipman et al., 2022."
+  },
+  {
+   "pages": [
+    57
+   ],
+   "id": 45,
+   "img": "p057.jpg",
+   "page_first": 57,
+   "page_last": 57,
+   "title": "Conditional \ufb02ow matching",
+   "text": "Conditional \ufb02ow matching CFM = Conditional Flow Matching We now have a tractable loss! Flow Matching for Generative Modeling, Lipman et al., 2022."
+  },
+  {
+   "pages": [
+    58
+   ],
+   "id": 46,
+   "img": "p058.jpg",
+   "page_first": 58,
+   "page_last": 58,
+   "title": "Recap",
+   "text": "Recap Derive target vector \ufb01eld for a simple case 1 Strategy. Dirac"
+  },
+  {
+   "pages": [
+    59
+   ],
+   "id": 47,
+   "img": "p059.jpg",
+   "page_first": 59,
+   "page_last": 59,
+   "title": "Recap",
+   "text": "Recap Derive target vector \ufb01eld for a simple case Construct target vector \ufb01eld for our case 1 2 Strategy. Dirac Continuity equation"
+  },
+  {
+   "pages": [
+    60
+   ],
+   "id": 48,
+   "img": "p060.jpg",
+   "page_first": 60,
+   "page_last": 60,
+   "title": "Recap",
+   "text": "Recap Derive target vector \ufb01eld for a simple case Construct target vector \ufb01eld for our case 1 2 3 Show loss function is tractable Strategy. Dirac Continuity equation Gradient of FM and CFM are equal"
+  },
+  {
+   "pages": [
+    61
+   ],
+   "id": 49,
+   "img": "p061.jpg",
+   "page_first": 61,
+   "page_last": 61,
+   "title": "Recap",
+   "text": "Recap Derive target vector \ufb01eld for a simple case Construct target vector \ufb01eld for our case 1 2 3 Show loss function is tractable 4 Deduce \ufb01nal loss function Strategy. Dirac Continuity equation Gradient of FM and CFM are equal Incredibly simple loss!"
+  },
+  {
+   "pages": [
+    62
+   ],
+   "id": 50,
+   "img": "p062.jpg",
+   "page_first": 62,
+   "page_last": 62,
+   "title": "Recommended read: Flow Matching paper",
+   "text": "Recommended read: Flow Matching paper Flow Matching for Generative Modeling, Lipman et al., 2022."
+  },
+  {
+   "pages": [
+    63
+   ],
+   "id": 51,
+   "img": "p063.jpg",
+   "page_first": 63,
+   "page_last": 63,
+   "title": "Wait, why \"Flow Matching\"",
+   "text": "Wait, why \"Flow Matching\" \u25cf 1:1 mapping thanks to Lipschitz continuity of vector \ufb01eld! Vector \ufb01eld Flow \u25cf Historical reasons (normalizing \ufb02ows, continuous normalizing \ufb02ows)"
+  },
+  {
+   "pages": [
+    64
+   ],
+   "id": 52,
+   "img": "p064.jpg",
+   "page_first": 64,
+   "page_last": 64,
+   "title": "Motivation",
+   "text": "Motivation Flow matching Training Inference Recti\ufb01ed \ufb02ow Discussion Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    65
+   ],
+   "id": 53,
+   "img": "p065.jpg",
+   "page_first": 65,
+   "page_last": 65,
+   "title": "Training procedure",
+   "text": "Training procedure 1. Sample: time step noise noised image clean image"
+  },
+  {
+   "pages": [
+    66
+   ],
+   "id": 54,
+   "img": "p066.jpg",
+   "page_first": 66,
+   "page_last": 66,
+   "title": "Training procedure",
+   "text": "Training procedure 1. Sample: 2. Use via and to predict time step noise noised image clean image"
+  },
+  {
+   "pages": [
+    67
+   ],
+   "id": 55,
+   "img": "p067.jpg",
+   "page_first": 67,
+   "page_last": 67,
+   "title": "Training procedure",
+   "text": "Training procedure 3. Compute loss and backpropagate through 1. Sample: 2. Use via and to predict time step noise noised image clean image"
+  },
+  {
+   "pages": [
+    68
+   ],
+   "id": 56,
+   "img": "p068.jpg",
+   "page_first": 68,
+   "page_last": 68,
+   "title": "Motivation",
+   "text": "Motivation Flow matching Training Inference Recti\ufb01ed \ufb02ow Discussion Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    69
+   ],
+   "id": 57,
+   "img": "p069.jpg",
+   "page_first": 69,
+   "page_last": 69,
+   "title": "Inference",
+   "text": "Inference 1. Sample: noise"
+  },
+  {
+   "pages": [
+    70
+   ],
+   "id": 58,
+   "img": "p070.jpg",
+   "page_first": 70,
+   "page_last": 70,
+   "title": "Inference",
+   "text": "Inference 1. Sample: 2. Use Euler to numerically solve the ODE: noise"
+  },
+  {
+   "pages": [
+    71
+   ],
+   "id": 59,
+   "img": "p071.jpg",
+   "page_first": 71,
+   "page_last": 71,
+   "title": "Inference",
+   "text": "Inference 1. Sample: 2. Use Euler to numerically solve the ODE: 3. Obtain \ufb01nal image noise"
+  },
+  {
+   "pages": [
+    72
+   ],
+   "id": 60,
+   "img": "p072.jpg",
+   "page_first": 72,
+   "page_last": 72,
+   "title": "Motivation",
+   "text": "Motivation Flow matching Training Inference Recti\ufb01ed \ufb02ow Discussion Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    73,
+    74,
+    75,
+    76
+   ],
+   "id": 61,
+   "img": "p073.jpg",
+   "page_first": 73,
+   "page_last": 76,
+   "title": "Recap of \ufb02ow matching training",
+   "text": "Recap of \ufb02ow matching training"
+  },
+  {
+   "pages": [
+    77,
+    78
+   ],
+   "id": 62,
+   "img": "p078.jpg",
+   "page_first": 77,
+   "page_last": 78,
+   "title": "Are we happy?",
+   "text": "Are we happy? Learning complexity. \u25cf Crossing paths lead to di\ufb00erent learned rewiring \u25cf Problem even when paths are not strictly crossing Ine\ufb03ciency at inference. \u25cf Paths are not straight: needs more steps for approximation \u25cf No magic solver to save the day non-linear"
+  },
+  {
+   "pages": [
+    79
+   ],
+   "id": 63,
+   "img": "p079.jpg",
+   "page_first": 79,
+   "page_last": 79,
+   "title": "Are we happy?",
+   "text": "Are we happy? Learning complexity. \u25cf Crossing paths lead to di\ufb00erent learned rewiring \u25cf Problem even when paths are not strictly crossing Ine\ufb03ciency at inference. \u25cf Paths are not straight: needs more steps for approximation \u25cf No magic solver to save the day Not quite!"
+  },
+  {
+   "pages": [
+    80
+   ],
+   "id": 64,
+   "img": "p080.jpg",
+   "page_first": 80,
+   "page_last": 80,
+   "title": "Step 0. Train initial model: \u201c1-recti\ufb01ed \ufb02ow\u201d",
+   "text": "Step 0. Train initial model: \u201c1-recti\ufb01ed \ufb02ow\u201d Re\ufb02ow procedure Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    81
+   ],
+   "id": 65,
+   "img": "p081.jpg",
+   "page_first": 81,
+   "page_last": 81,
+   "title": "Step 1. Create paired data out of \u201c1-recti\ufb01ed \ufb02ow\u201d model",
+   "text": "Step 1. Create paired data out of \u201c1-recti\ufb01ed \ufb02ow\u201d model Re\ufb02ow procedure Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    82
+   ],
+   "id": 66,
+   "img": "p082.jpg",
+   "page_first": 82,
+   "page_last": 82,
+   "title": "Step 2. Train on paired data: \u201c2-recti\ufb01ed \ufb02ow\u201d",
+   "text": "Step 2. Train on paired data: \u201c2-recti\ufb01ed \ufb02ow\u201d Re\ufb02ow procedure Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    83
+   ],
+   "id": 67,
+   "img": "p083.jpg",
+   "page_first": 83,
+   "page_last": 83,
+   "title": "Further steps. Repeat steps 2-3 as desired",
+   "text": "Further steps. Repeat steps 2-3 as desired Re\ufb02ow procedure ... Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    84
+   ],
+   "id": 68,
+   "img": "p084.jpg",
+   "page_first": 84,
+   "page_last": 84,
+   "title": "Why does it work?",
+   "text": "Why does it work? Property. Resulting mapping still follows target distribution Proof. De\ufb01ne Derivation: uniqueness theorem with initial conditions Derivation: chain rule + law of total expectation Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    85
+   ],
+   "id": 69,
+   "img": "p085.jpg",
+   "page_first": 85,
+   "page_last": 85,
+   "title": "Why does it work?",
+   "text": "Why does it work? Property. Paths are provably straighter at each re\ufb02ow. Proof. De\ufb01ne straightness Derivation: telescoping argument Derivation: variance decomposition mechanism Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    86
+   ],
+   "id": 70,
+   "img": "p086.jpg",
+   "page_first": 86,
+   "page_last": 86,
+   "title": "Discussion",
+   "text": "Discussion \u25cf Re\ufb02ow procedure done 1 or 2 times in practice, otherwise, too many errors \u25cf We can a\ufb00ord using simpler techniques at inference time, e.g. Euler \u25cf Quality/speed trade-o\ufb00 Flow Straight and Fast: Learning to Generate and Transfer Data with Recti\ufb01ed Flow, Liu et al., 2022."
+  },
+  {
+   "pages": [
+    87
+   ],
+   "id": 71,
+   "img": "p087.jpg",
+   "page_first": 87,
+   "page_last": 87,
+   "title": "Motivation",
+   "text": "Motivation Flow matching Training Inference Recti\ufb01ed \ufb02ow Discussion Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    88
+   ],
+   "id": 72,
+   "img": "p088.jpg",
+   "page_first": 88,
+   "page_last": 88,
+   "title": "Discrete-time di\ufb00usion.",
+   "text": "Discrete-time di\ufb00usion. Score-based di\ufb00usion. Flow matching. Paradigms seen so far ?"
+  },
+  {
+   "pages": [
+    89,
+    90
+   ],
+   "id": 73,
+   "img": "p090.jpg",
+   "page_first": 89,
+   "page_last": 90,
+   "title": "Forward process",
+   "text": "Forward process Discrete-time di\ufb00usion. Score-based di\ufb00usion. Flow matching. clean sample clean sample clean sample"
+  },
+  {
+   "pages": [
+    91
+   ],
+   "id": 74,
+   "img": "p091.jpg",
+   "page_first": 91,
+   "page_last": 91,
+   "title": "Forward process",
+   "text": "Forward process Discrete-time di\ufb00usion. Score-based di\ufb00usion. Flow matching. noise noise noise"
+  },
+  {
+   "pages": [
+    92
+   ],
+   "id": 75,
+   "img": "p092.jpg",
+   "page_first": 92,
+   "page_last": 92,
+   "title": "What\u2019s learned",
+   "text": "What\u2019s learned Discrete-time di\ufb00usion. Score-based di\ufb00usion. Flow matching. noise score velocity"
+  },
+  {
+   "pages": [
+    93
+   ],
+   "id": 76,
+   "img": "p093.jpg",
+   "page_first": 93,
+   "page_last": 93,
+   "title": "Generation process",
+   "text": "Generation process Discrete-time di\ufb00usion. Score-based di\ufb00usion. Flow matching."
+  },
+  {
+   "pages": [
+    94
+   ],
+   "id": 77,
+   "img": "p094.jpg",
+   "page_first": 94,
+   "page_last": 94,
+   "title": "Deterministic counterpart",
+   "text": "Deterministic counterpart Discrete-time di\ufb00usion. Score-based di\ufb00usion. Flow matching. DDIM PF-ODE Already deterministic!"
+  },
+  {
+   "pages": [
+    95
+   ],
+   "id": 78,
+   "img": "p095.jpg",
+   "page_first": 95,
+   "page_last": 95,
+   "title": "Stochastic interpolants",
+   "text": "Stochastic interpolants Stochastic Interpolants: A Unifying Framework for Flows and Di\ufb00usions, Albergo et al., 2023."
+  },
+  {
+   "pages": [
+    96
+   ],
+   "id": 79,
+   "img": "p096.jpg",
+   "page_first": 96,
+   "page_last": 96,
+   "title": "Thank you for your attention!",
+   "text": "Thank you for your attention!"
+  }
+ ]
+}

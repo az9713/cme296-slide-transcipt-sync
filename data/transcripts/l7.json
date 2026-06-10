@@ -1,0 +1,5094 @@
+{
+ "lecture": 7,
+ "video_id": "iNaRBp4T57Q",
+ "segments": [
+  {
+   "t": 0,
+   "ts": "0:00",
+   "text": "0:05 Hello, everyone, and welcome to lecture 7 of CME 286.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 12,
+   "ts": "0:12",
+   "text": "So today is a very exciting day because we'll be talking about how to evaluate the quality of the output",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 19,
+   "ts": "0:19",
+   "text": "of the text-to-image generation models that we've been seeing so far. And in particular, if you think about it, in order",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 28,
+   "ts": "0:28",
+   "text": "for you to know what to improve, you first need to know how good your output is.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 35,
+   "ts": "0:35",
+   "text": "So that's why this lecture is going to be quite important. But before we start, as usual, we're",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 42,
+   "ts": "0:42",
+   "text": "going to recap what we saw last time. So if you remember, last time we focused",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 49,
+   "ts": "0:49",
+   "text": "on the training lifecycle of text-to-image generation models.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 54,
+   "ts": "0:54",
+   "text": "And we first started by focusing on the loss that we're using for training, and in particular, we",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 62,
+   "ts": "1:02",
+   "text": "looked at the time step t that up until then",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 68,
+   "ts": "1:08",
+   "text": "we assume to be drawn from a uniform distribution. And we saw that it was actually not fair to treat all time",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 77,
+   "ts": "1:17",
+   "text": "steps equally. And we saw that there was a distribution that was quite nice in this case, which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 85,
+   "ts": "1:25",
+   "text": "was the logit normal distribution, which emphasized on the middle steps, which are harder",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 91,
+   "ts": "1:31",
+   "text": "to learn compared to the earlier and the later steps. And this is mainly because early on, you have basically",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 100,
+   "ts": "1:40",
+   "text": "no information on which for you to base your prediction, so you just predict the mean of where all the observations are.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 108,
+   "ts": "1:48",
+   "text": "And then towards the end, you have almost denoised your whole image, but in the middle,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 115,
+   "ts": "1:55",
+   "text": "you're figuring out where to go and how you want to take those big decisions.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 122,
+   "ts": "2:02",
+   "text": "So we not only saw this, but we also saw that for a given noise level, if you have a higher",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 130,
+   "ts": "2:10",
+   "text": "resolution image, then you perceived noise is going to be less than a lower resolution image, which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 139,
+   "ts": "2:19",
+   "text": "is the reason why you need to do what we call a timeout step shift.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 145,
+   "ts": "2:25",
+   "text": "And we saw this formula, which hopefully is not that haunting right now, which is something that",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 150,
+   "ts": "2:30",
+   "text": "is derived by our uncertainty of what the underlying pixel value is.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 159,
+   "ts": "2:39",
+   "text": "And then what we did was go through the whole training life",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 164,
+   "ts": "2:44",
+   "text": "cycle of text-to-image generation models, and we started with pre-training,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 169,
+   "ts": "2:49",
+   "text": "where our goal was to teach our model how to generate images. So we saw curriculum learning, where",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 178,
+   "ts": "2:58",
+   "text": "the goal was to teach our model first, how to do the easy things before doing the harder things.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 184,
+   "ts": "3:04",
+   "text": "And then what we did was also look at how we can handle different resolutions.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 192,
+   "ts": "3:12",
+   "text": "And we saw that given that we have a DIT-based model, it's only a matter of having a longer",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 199,
+   "ts": "3:19",
+   "text": "input at the end of the day. Then we looked at post-training approaches",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 206,
+   "ts": "3:26",
+   "text": "aimed at getting you to generate more beautiful images.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 212,
+   "ts": "3:32",
+   "text": "And here, we saw two main strategies on the supervised side, which was continued training, focusing",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 221,
+   "ts": "3:41",
+   "text": "on acquiring more knowledge, which is more relevant to the domain you want to use your model.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 227,
+   "ts": "3:47",
+   "text": "And then supervised fine tuning, which is aimed at just improving the aesthetics of the images",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 234,
+   "ts": "3:54",
+   "text": "that you produce. And we also saw some preference tuning methods,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 240,
+   "ts": "4:00",
+   "text": "which were aimed at capturing negative user signals because up",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 246,
+   "ts": "4:06",
+   "text": "until then, we only taught our model what to do, but not what to not do.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 254,
+   "ts": "4:14",
+   "text": "So this is the goal of techniques that are derived from JRPO, DPO, and so on.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 261,
+   "ts": "4:21",
+   "text": "And after that, we saw how we could personalize our text to image generation model.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 268,
+   "ts": "4:28",
+   "text": "And we looked at DreamBooth, which is one such method, which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 274,
+   "ts": "4:34",
+   "text": "aims at relying on a rare token and training",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 280,
+   "ts": "4:40",
+   "text": "your model on the specific object or person that you want to capture, and then",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 286,
+   "ts": "4:46",
+   "text": "use that tuned model at inference time to be able to leverage what you have learned at training time.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 295,
+   "ts": "4:55",
+   "text": "And then finally, we saw a range of distillation methods, which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 302,
+   "ts": "5:02",
+   "text": "were aimed at shortening the number of steps that",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 309,
+   "ts": "5:09",
+   "text": "were needed at inference time, so we saw progressive distillation. We saw distribution matching distillation, and here we are.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 322,
+   "ts": "5:22",
+   "text": "Today, we're going to focus on evaluation, which as I mentioned, is going to be",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 327,
+   "ts": "5:27",
+   "text": "about assessing how good of a quality",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 332,
+   "ts": "5:32",
+   "text": "the output generated image is. So as you can maybe think, judging",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 342,
+   "ts": "5:42",
+   "text": "of the quality of an image can be quite subjective, so I want us to start with a motivating example.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 354,
+   "ts": "5:54",
+   "text": "And I would like to ask you, based on an input prompt that I'm going to read, which hopefully,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 360,
+   "ts": "6:00",
+   "text": "is familiar by now, whether you think that image is a good image or not.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 366,
+   "ts": "6:06",
+   "text": "So the input prompt is a teddy bear reading a book. And here is the generated image.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 374,
+   "ts": "6:14",
+   "text": "So the question is, do you think that this generated image is a good, or bad output?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 385,
+   "ts": "6:25",
+   "text": "So who says good? Who says bad?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 391,
+   "ts": "6:31",
+   "text": "We agree it's an output that is not very pleasing to see,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 396,
+   "ts": "6:36",
+   "text": "and the main reason here is well, the aesthetics are not great. You look at the image, it doesn't look great.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 406,
+   "ts": "6:46",
+   "text": "OK, so how about this one? Do you think that this image is a good image?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 416,
+   "ts": "6:56",
+   "text": "Who says it's a good image? Bad image? Yeah, so why is it a bad image?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 425,
+   "ts": "7:05",
+   "text": "Yeah, so it's indeed not representing the prompt. I agree with you, so it's something",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 431,
+   "ts": "7:11",
+   "text": "that we call prompt adherence, where we want the output to follow what we have it as input.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 437,
+   "ts": "7:17",
+   "text": "And so here, although this image is great to look at,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 443,
+   "ts": "7:23",
+   "text": "well, it's not about a teddy bear reading a book.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 448,
+   "ts": "7:28",
+   "text": "Last one. Is this image a good image or not?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 455,
+   "ts": "7:35",
+   "text": "So who says good image? Bad image?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 462,
+   "ts": "7:42",
+   "text": "So why is it a bad image?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 468,
+   "ts": "7:48",
+   "text": "So you have a very refined taste, which is great.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 473,
+   "ts": "7:53",
+   "text": "So let's suppose that this images is good enough for us because here, first it's following the prompt,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 481,
+   "ts": "8:01",
+   "text": "so it's a teddy bear reading a book. And then second, let's say it's more aesthetically pleasing",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 488,
+   "ts": "8:08",
+   "text": "compared to the other ones. So from this small scale exercise,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 496,
+   "ts": "8:16",
+   "text": "what I wanted to point out was that when we look at the outputs of a text-to-image generation model,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 505,
+   "ts": "8:25",
+   "text": "we typically look at things with respect to two main buckets.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 511,
+   "ts": "8:31",
+   "text": "Not exhaustive, but two main buckets. The first one is, if you take this picture on its own,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 519,
+   "ts": "8:39",
+   "text": "does this look like a good picture? An aesthetically pleasing picture?",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 525,
+   "ts": "8:45",
+   "text": "So here, you think about whether what is in there is physically plausible. So for instance, if the book that your teddy bear is reading",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 533,
+   "ts": "8:53",
+   "text": "is on the table and not floating, if it's realistic, if a perceptual quality is there.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 541,
+   "ts": "9:01",
+   "text": "And then the second big bucket is whether the produced output is indeed following your inputs.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 551,
+   "ts": "9:11",
+   "text": "So here, it's called prompt adherence. And what we want to see is whether the objects, the people,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 561,
+   "ts": "9:21",
+   "text": "the locations are indeed present in the image,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 566,
+   "ts": "9:26",
+   "text": "and we want the image to be of a given style. And if, for instance, I say, it's",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 572,
+   "ts": "9:32",
+   "text": "reading a book about the CME 296 class, I want CME 296 to be on the book, so all of that",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 580,
+   "ts": "9:40",
+   "text": "would be within that bucket. But I mentioned that these two categories are not exhaustive.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 587,
+   "ts": "9:47",
+   "text": "Of course, you have a bunch of other criteria that you can think of, so I'll just name a few.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 595,
+   "ts": "9:55",
+   "text": "So the first one is safety, so you want to make sure you're not depicting things that are",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 601,
+   "ts": "10:01",
+   "text": "interpreted in a unsafe way. You want to make sure that if you generate something",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 610,
+   "ts": "10:10",
+   "text": "based on a prompt, you're not always generating the same thing, so you want something",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 615,
+   "ts": "10:15",
+   "text": "that is a bit diverse. You don't want to memorize the things that you",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 622,
+   "ts": "10:22",
+   "text": "have seen as inputs, and so here, it's",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 627,
+   "ts": "10:27",
+   "text": "trying to have some generalization capabilities for your model.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 633,
+   "ts": "10:33",
+   "text": "And then you have a bunch of other dimensions, so here, for instance, the bias. You don't want your model to always output",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 640,
+   "ts": "10:40",
+   "text": "the same outputs, which could be, again, misinterpreted.",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 647,
+   "ts": "10:47",
+   "text": "So for all these reasons, what I propose is that this image evaluation problem,",
+   "chapter": "Motivation"
+  },
+  {
+   "t": 657,
+   "ts": "10:57",
+   "text": "we can think of it as us trying to think if the image that we're",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 663,
+   "ts": "11:03",
+   "text": "getting as output is mainly good along these two",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 669,
+   "ts": "11:09",
+   "text": "dimensions, which are aesthetics and prompt adherence. So let's assume that these are our two main categories that we",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 678,
+   "ts": "11:18",
+   "text": "care about. And with that, I would like to start",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 683,
+   "ts": "11:23",
+   "text": "with a very simple and natural way of evaluating your output,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 689,
+   "ts": "11:29",
+   "text": "which is to leverage humans. So here, the idea is you have your model, you",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 699,
+   "ts": "11:39",
+   "text": "have some input prompt that is having your model generate an image, and what you're saying is OK,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 708,
+   "ts": "11:48",
+   "text": "given this prompt, given this image, how would you rate this image?",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 715,
+   "ts": "11:55",
+   "text": "So here, one possible option is to have a scale from 1 to 5,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 722,
+   "ts": "12:02",
+   "text": "where 1 is very bad and 5 is very good. And the idea is to figure out where your image falls into.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 733,
+   "ts": "12:13",
+   "text": "So in this case, let's assume it's very good. Then what you would do is in order",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 742,
+   "ts": "12:22",
+   "text": "to measure the performance of your model across a data set,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 747,
+   "ts": "12:27",
+   "text": "you would take the average of the ratings, so you would do sum of the ratings,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 753,
+   "ts": "12:33",
+   "text": "over the number of ratings, which you can call average rating.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 759,
+   "ts": "12:39",
+   "text": "So the good thing with this score is it is nuanced, because you have a way",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 767,
+   "ts": "12:47",
+   "text": "to distinguish a very good image versus a good image, but not a great image and so on.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 774,
+   "ts": "12:54",
+   "text": "But the main drawback there is, given that you're letting more degrees of freedom",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 782,
+   "ts": "13:02",
+   "text": "for humans to decide on which rating that is, it can introduce",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 787,
+   "ts": "13:07",
+   "text": "some noise in the ratings that you're getting, because humans",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 793,
+   "ts": "13:13",
+   "text": "may think that an image is a 5, but someone else can think it's a 4.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 799,
+   "ts": "13:19",
+   "text": "Someone else can think it's a three. So everyone has their own way of interpreting the scale,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 806,
+   "ts": "13:26",
+   "text": "and so this can introduce some noise in the ratings.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 811,
+   "ts": "13:31",
+   "text": "And also, if you think about it for a lot of problems, it's actually very hard as a person",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 819,
+   "ts": "13:39",
+   "text": "to say if something is a 4 versus a 5. It's just a hard problem.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 825,
+   "ts": "13:45",
+   "text": "And so for that reason, a second method of digging into this issue is instead of having a 1 to 5",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 836,
+   "ts": "13:56",
+   "text": "scale, to reduce this problem into a binary problem, which",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 841,
+   "ts": "14:01",
+   "text": "is much easier for humans to handle, because here, you are given an image, and you just need to say whether it's good or bad.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 850,
+   "ts": "14:10",
+   "text": "So here, we assume that the answer is good.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 856,
+   "ts": "14:16",
+   "text": "And so the score that we can think of in this setting is, again, taking the sum of the ratings,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 862,
+   "ts": "14:22",
+   "text": "over the number of ratings. And here, it would be the pass rate.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 868,
+   "ts": "14:28",
+   "text": "So how many of your images are what is the proportion of your images that is actually passing the bar?",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 876,
+   "ts": "14:36",
+   "text": "So the good thing here is, it is an easier task for humans to work on, so the ratings",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 886,
+   "ts": "14:46",
+   "text": "are less noisy in that sense. But one problem is humans, although it's on a binary scale,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 896,
+   "ts": "14:56",
+   "text": "they have a hard time evaluating things on an absolute scale.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 903,
+   "ts": "15:03",
+   "text": "So it's easier for you to, let's say, compare two things, as opposed to saying",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 909,
+   "ts": "15:09",
+   "text": "whether that something is passing the bar or not because you need to have some reference.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 916,
+   "ts": "15:16",
+   "text": "So for that reason, I want to propose a third method of going about doing this, which is trying to rate",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 926,
+   "ts": "15:26",
+   "text": "those images by comparing them to some other images.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 932,
+   "ts": "15:32",
+   "text": "So here, it's the pairwise comparison setting. And the setup would be you have your input prompts,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 941,
+   "ts": "15:41",
+   "text": "and what you do is you generate two images. And your task is to say which one of these images",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 950,
+   "ts": "15:50",
+   "text": "is better than the other one? So do you agree with me that this task is easier",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 956,
+   "ts": "15:56",
+   "text": "than the absolute scale task?",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 963,
+   "ts": "16:03",
+   "text": "So in this case, you agree that the left one is a better image than the right one?",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 969,
+   "ts": "16:09",
+   "text": "So I'm glad you said no for the other one, because this illustrates the point that on an absolute scale,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 976,
+   "ts": "16:16",
+   "text": "people have different expectations. So they may think that the left one may not be above the bar,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 983,
+   "ts": "16:23",
+   "text": "but when you compare these two images, it is just obvious that the left one is better than the right one.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 990,
+   "ts": "16:30",
+   "text": "And so in that sense, the ratings that you're getting are going to be even less noisy compared to the absolute scale,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 998,
+   "ts": "16:38",
+   "text": "binary one. So how about the metric?",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1005,
+   "ts": "16:45",
+   "text": "So very naively, a very natural way would be to just, for a given model, count the number of wins,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1017,
+   "ts": "16:57",
+   "text": "and divide it by the number of times it was compared to something else.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1024,
+   "ts": "17:04",
+   "text": "So this one is the win rate. Do you think that's a good metric?",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1031,
+   "ts": "17:11",
+   "text": "So here, what we're doing is for each model,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1039,
+   "ts": "17:19",
+   "text": "we're generating outputs, and we're comparing these outputs to, let's say, outputs of another model.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1045,
+   "ts": "17:25",
+   "text": "What we're saying is, in order to quantify the performance of that first model, the model a,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1053,
+   "ts": "17:33",
+   "text": "what we're doing is, we're counting the number of times images produced by this model won",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1060,
+   "ts": "17:40",
+   "text": "over the opponent, and we divide that by the number of comparisons.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1067,
+   "ts": "17:47",
+   "text": "So the question is, do you think that is a good way of doing things? So the answer is, so for one reference OK, but for many",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1080,
+   "ts": "18:00",
+   "text": "not sure. Well, you have the right intuition here. So what I want to say here is winning",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1088,
+   "ts": "18:08",
+   "text": "against a model that is known to be excellent is much harder than winning against a model that",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1095,
+   "ts": "18:15",
+   "text": "is known to be bad. So our intuition here is your win proportion",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1105,
+   "ts": "18:25",
+   "text": "should not be the only factor here. You should also consider who you are comparing yourself with,",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1112,
+   "ts": "18:32",
+   "text": "and it's exactly what you mentioned. And I'm not sure if you're tracking",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1117,
+   "ts": "18:37",
+   "text": "the performance of text-to-image generation models, but typically, you have something like this. You have a leaderboard, where you have models that are ranked.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1128,
+   "ts": "18:48",
+   "text": "And one challenge with this setting is that models they come, but also they can go.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1137,
+   "ts": "18:57",
+   "text": "So when a model comes, let's suppose you want to have a win rate that is",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1142,
+   "ts": "19:02",
+   "text": "reflective of the performance of that model, you will need to have the same model be",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1151,
+   "ts": "19:11",
+   "text": "evaluated against all models of that list.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1157,
+   "ts": "19:17",
+   "text": "And you want all models of that list to be also evaluated against all other models of that list",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1165,
+   "ts": "19:25",
+   "text": "every time the list gets updated, so this is a lot of evaluations.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1172,
+   "ts": "19:32",
+   "text": "So you don't want to always have to evaluate everyone against everyone every time something gets",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1178,
+   "ts": "19:38",
+   "text": "updated on the list to make things apple to apple.",
+   "chapter": "Human ratings"
+  },
+  {
+   "t": 1183,
+   "ts": "19:43",
+   "text": "So for that reason, well, something that we can think of is to adjust that win rate metric",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1193,
+   "ts": "19:53",
+   "text": "by taking into consideration how strong your opponent is",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1199,
+   "ts": "19:59",
+   "text": "within the metric. So how do we want to do that?",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1204,
+   "ts": "20:04",
+   "text": "Well, before we go into exactly how we do that, I just want to illustrate the point",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1210,
+   "ts": "20:10",
+   "text": "I mentioned. So here, let's imagine we have our model, let's say model A, that we want to evaluate against other models.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1219,
+   "ts": "20:19",
+   "text": "Well, if our model wins against a bad model,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1225,
+   "ts": "20:25",
+   "text": "your reaction is OK, and so what? You already that it's better than that very basic model,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1232,
+   "ts": "20:32",
+   "text": "so there's nothing to be surprised about. But if the human says your model is winning",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1239,
+   "ts": "20:39",
+   "text": "against another model that is much, much stronger, then your reaction will be different.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1245,
+   "ts": "20:45",
+   "text": "So the idea is to capture that within the metric,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1251,
+   "ts": "20:51",
+   "text": "so let's see how we want to do that. So first of all, let's assume that we have a metric per model",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1261,
+   "ts": "21:01",
+   "text": "that we note R. R as in rating. And let's assume that our model, model A starts with a rating",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1269,
+   "ts": "21:09",
+   "text": "of, let's say, 1,000. And we're a newcomer, and in that leaderboard,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1275,
+   "ts": "21:15",
+   "text": "it just happens that there is a model, let's suppose it's a bad model, that has a worse rating, which",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1283,
+   "ts": "21:23",
+   "text": "is 600, let's say. So let's have our model A be compared against that bad model.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1294,
+   "ts": "21:34",
+   "text": "How would we want to update the score? So one idea could be to compute the score",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1304,
+   "ts": "21:44",
+   "text": "that we think would happen, if those models that perform",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1310,
+   "ts": "21:50",
+   "text": "like they did in the past. So let's compute the expected score, and for that, let's just use this formula, which",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1320,
+   "ts": "22:00",
+   "text": "gives us the expected score. And so here the formula would be 1 over 1 plus 10 to the power of the rating of the model",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1328,
+   "ts": "22:08",
+   "text": "that you're competing against, minus your rating,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1333,
+   "ts": "22:13",
+   "text": "over some arbitrary constants. And let's assume that constant is 400.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1340,
+   "ts": "22:20",
+   "text": "Then this quantity would be your expected winning chance.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1347,
+   "ts": "22:27",
+   "text": "And so here, it's 0.9, so 90% chance of winning.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1352,
+   "ts": "22:32",
+   "text": "So now that you have your baseline, what you want to do is compute your actual score.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1360,
+   "ts": "22:40",
+   "text": "So actually, compare the two models. So here, the outcome can be one of three things,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1367,
+   "ts": "22:47",
+   "text": "so you can either lose, be tied, or win over the bad model.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1376,
+   "ts": "22:56",
+   "text": "And the idea is to use these two quantities, so the expected score and the actual score",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1383,
+   "ts": "23:03",
+   "text": "to compute your element of surprise, how much you went above, or how much you went below.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1391,
+   "ts": "23:11",
+   "text": "And here, it would be delta equal to the actual score that you obtained, minus the score",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1398,
+   "ts": "23:18",
+   "text": "that you think you would have obtained on average.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1404,
+   "ts": "23:24",
+   "text": "And here, in this case, if model A wins, it would be plus 0.1.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1412,
+   "ts": "23:32",
+   "text": "If it loses, then it's minus 0.9, and if there's a tie it's also a minus, minus 0.4.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1422,
+   "ts": "23:42",
+   "text": "So here, by the way, the numbers they just come from this formula that we just plug the ratings into that",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1429,
+   "ts": "23:49",
+   "text": "and then we compute delta. So the good thing with this observation",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1434,
+   "ts": "23:54",
+   "text": "is we see that if we have our model win against the bad model,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1441,
+   "ts": "24:01",
+   "text": "well, there is not a lot of gains, which is aligned with our intuition.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1448,
+   "ts": "24:08",
+   "text": "And if the model loses, then it means it's really, really bad, so there is a big downward contribution.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1456,
+   "ts": "24:16",
+   "text": "And even if there is a tie, we know that if we're tied with a very bad model, then that's also a bad contribution for our rating,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1466,
+   "ts": "24:26",
+   "text": "so the first step would be to just update our rating by adding",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1472,
+   "ts": "24:32",
+   "text": "k times delta. So that would be the recipe.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1478,
+   "ts": "24:38",
+   "text": "And so the image that I showed you a few slides ago",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1484,
+   "ts": "24:44",
+   "text": "was actually this slide, where I masked the middle columns. So this is how the leaderboards do it.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1493,
+   "ts": "24:53",
+   "text": "In practice, they compute the score. So maybe you may have heard this score. It's called the Elo rating, and it",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1500,
+   "ts": "25:00",
+   "text": "allows you to track the performance of a model by computing the score as a function of how",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1511,
+   "ts": "25:11",
+   "text": "strong your opponent is. And this allows you to avoid having everyone be evaluated",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1518,
+   "ts": "25:18",
+   "text": "against everyone every time there is a change in who's in the leaderboard.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1525,
+   "ts": "25:25",
+   "text": "And by the way, Elo is actually the name of the person who came up with the method. It's not an acronym.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1531,
+   "ts": "25:31",
+   "text": "So that's good to note. But what are the problems with this approach?",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1539,
+   "ts": "25:39",
+   "text": "Well, every time we want to evaluate our model, if we had to always involve humans,",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1547,
+   "ts": "25:47",
+   "text": "well, it will be a very expensive task. So that's the first limitation. Also, humans, there's only 24 hours in a day.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1557,
+   "ts": "25:57",
+   "text": "It's a slow method. It can also be subjective, so the example",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1563,
+   "ts": "26:03",
+   "text": "that we had in the very beginning is one example of that. Another example can be try to tell me",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1569,
+   "ts": "26:09",
+   "text": "if this image is well lit. There are several notions of something being well lit.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1576,
+   "ts": "26:16",
+   "text": "So again, it's a subjective task, so answers can differ. And, of course, humans are not perfect either.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1585,
+   "ts": "26:25",
+   "text": "Depending on the time of the day, you may have external circumstances that may also influence on the quality of your ratings.",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1593,
+   "ts": "26:33",
+   "text": "So all of that is I hope, a motivation for us to look at automated metrics that would allow us to quantify",
+   "chapter": "Elo rating system"
+  },
+  {
+   "t": 1604,
+   "ts": "26:44",
+   "text": "how good the outputs are. And we're going to start with what",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1610,
+   "ts": "26:50",
+   "text": "we call reference-free metrics, and I'm going to tell you in a second what reference-free means.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1617,
+   "ts": "26:57",
+   "text": "So as I mentioned, we're in the text to image generation case.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1624,
+   "ts": "27:04",
+   "text": "We have a text as input and we have a model that produces an image.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1631,
+   "ts": "27:11",
+   "text": "So one thing that I want to tell you is there are they're just multiple ways you can produce",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1637,
+   "ts": "27:17",
+   "text": "an image for a same prompt like these ones.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1642,
+   "ts": "27:22",
+   "text": "And for that reason, having a single image as reference",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1653,
+   "ts": "27:33",
+   "text": "is a little bit unfair because you would always try to compare against that same reference.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1660,
+   "ts": "27:40",
+   "text": "That is not the only way you can do things, and so for that reasons, the metrics that we're going to see",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1668,
+   "ts": "27:48",
+   "text": "are called reference-free, as in they're not using a single output reference image as reference.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1675,
+   "ts": "27:55",
+   "text": "They're not doing that. So that's the reference-free.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1681,
+   "ts": "28:01",
+   "text": "And so let's go back to our problem. And so here, we have an input, which is a text prompt,",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1689,
+   "ts": "28:09",
+   "text": "and then we have an image as output. And I told you we could consider our problem",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1696,
+   "ts": "28:16",
+   "text": "as being us trying to quantify how good the image is",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1702,
+   "ts": "28:22",
+   "text": "with respect to aesthetics and with respect to prompt adherence. Well, here, let's start with aesthetics.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1711,
+   "ts": "28:31",
+   "text": "And let's take our generated image, which is on the right and our real image that is on the left.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1719,
+   "ts": "28:39",
+   "text": "So as I mentioned, it is not fair for us to compare our generated image with a single reference.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1727,
+   "ts": "28:47",
+   "text": "So one idea can be to actually take many generated images",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1733,
+   "ts": "28:53",
+   "text": "and many real images. And instead of comparing your single generated image",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1740,
+   "ts": "29:00",
+   "text": "to the single real image, one idea could be to look at the distribution of both",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1751,
+   "ts": "29:11",
+   "text": "and see how the two compares. So let's do that.",
+   "chapter": "Reference-free metrics"
+  },
+  {
+   "t": 1756,
+   "ts": "29:16",
+   "text": "Well, how would you do it? Well, in the class, we've seen that we have methods to represent images in what we call a latent space,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1766,
+   "ts": "29:26",
+   "text": "or some space. So here, one idea could be to take our, let's say, real images",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1775,
+   "ts": "29:35",
+   "text": "and have them be inputs into some encoder such",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1781,
+   "ts": "29:41",
+   "text": "that they can be represented in space. So we can do that with the sets of real images.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1789,
+   "ts": "29:49",
+   "text": "And in parallel, we can also take our generated images, and also let them through that pre-trained encoder",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1798,
+   "ts": "29:58",
+   "text": "so that they can also be represented in that same space. So the idea that we can have here",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1806,
+   "ts": "30:06",
+   "text": "is to try to compare how these two resulting",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1811,
+   "ts": "30:11",
+   "text": "distributions in this space, how these two compare.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1817,
+   "ts": "30:17",
+   "text": "So in order to characterize each distribution, you can have the mean, mu, and the covariance matrix",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1823,
+   "ts": "30:23",
+   "text": "sigma that can just tell you about how your distribution is shaped.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1829,
+   "ts": "30:29",
+   "text": "And what you want to do is to compare the two. So you want to compare where they are located,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1834,
+   "ts": "30:34",
+   "text": "so here, you can use the mean, and how they are shaped,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1840,
+   "ts": "30:40",
+   "text": "you can use the covariance sigma. So the covariance matrix is a quantity",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1845,
+   "ts": "30:45",
+   "text": "that tells you how spread out your distribution is, and also what are the directions of that spread.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1855,
+   "ts": "30:55",
+   "text": "So by the way, why would you also want to quantify the spread?",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1862,
+   "ts": "31:02",
+   "text": "Well, you also want your generated images to be diverse,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1868,
+   "ts": "31:08",
+   "text": "and so here, the spread will be around quantifying how diverse your generated images are.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1876,
+   "ts": "31:16",
+   "text": "And so, as I mentioned, what we want is to quantify the distance between these two distributions.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1885,
+   "ts": "31:25",
+   "text": "And so we can come up with some formula, which",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1890,
+   "ts": "31:30",
+   "text": "I'm putting it on the slide. And we're going to go through each component, where",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1896,
+   "ts": "31:36",
+   "text": "the first term is around quantifying the difference in where these distributions are located,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1902,
+   "ts": "31:42",
+   "text": "so comparing the means of each distribution,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1908,
+   "ts": "31:48",
+   "text": "and also comparing the shape of each of these distributions.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1913,
+   "ts": "31:53",
+   "text": "So here, so Tr stands for trace, so it's an operation on a matrix.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1921,
+   "ts": "32:01",
+   "text": "And maybe it's the first time you're seeing this formula, your first reaction may be, well,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1927,
+   "ts": "32:07",
+   "text": "where do you have this formula? What does it represent? So the truth is this metric, which is called the Fr\u00e9chet",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1935,
+   "ts": "32:15",
+   "text": "Inception Distance, is a metric that is derived from a distance that is called the Wasserstein",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1943,
+   "ts": "32:23",
+   "text": "distance that aims at quantifying how much effort you would have to do to go from one distribution to another one.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1955,
+   "ts": "32:35",
+   "text": "And it just turns out that if you assume that the distribution of real images",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1964,
+   "ts": "32:44",
+   "text": "and the distribution of generated images, they are each Gaussian.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1970,
+   "ts": "32:50",
+   "text": "If you assume that, then it just happens that this Wasserstein distance, which",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1978,
+   "ts": "32:58",
+   "text": "is something that typically does not have a closed form solution, is something that you can express in a closed form.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1986,
+   "ts": "33:06",
+   "text": "So that's where the formula comes from. But in terms of interpreting each term,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 1992,
+   "ts": "33:12",
+   "text": "you can think of the first term as being the difference in terms of location, and the second one is how the shapes differ.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2001,
+   "ts": "33:21",
+   "text": "Cool. So it's a distance, so what you want is those distances",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2008,
+   "ts": "33:28",
+   "text": "to be as small as possible. So the lower your FID, the better it is.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2015,
+   "ts": "33:35",
+   "text": "So the question is, can you use VLM to do that? So we're going to see that later in this lecture.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2021,
+   "ts": "33:41",
+   "text": "So the question is, can you say a little bit",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2029,
+   "ts": "33:49",
+   "text": "about how to interpret these terms and how this relates to these [INAUDIBLE] Gaussians? So we're not going to go into that,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2036,
+   "ts": "33:56",
+   "text": "but the underlying idea behind this metric",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2042,
+   "ts": "34:02",
+   "text": "is to quantify how much effort you would have to transport",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2049,
+   "ts": "34:09",
+   "text": "one distribution to another. And this is, you can think of it as some formula that has this interpretation.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2056,
+   "ts": "34:16",
+   "text": "And what I was saying was, if you assume that the shape, or that your real image distribution,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2065,
+   "ts": "34:25",
+   "text": "and if you assume that your generated image distribution, if you assume that each of them is Gaussian,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2071,
+   "ts": "34:31",
+   "text": "then what we're saying is that the quantity that I mentioned can actually be computed with a rather nice formula that",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2080,
+   "ts": "34:40",
+   "text": "is closed form. So this goes into the broader theme of Gaussian distributions,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2086,
+   "ts": "34:46",
+   "text": "just simplifying a lot of things, and this is one of those instances.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2092,
+   "ts": "34:52",
+   "text": "So the question is the real here is the data? Yes, so you would take a set of real images, so non-generated",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2100,
+   "ts": "35:00",
+   "text": "images, and you would compute their representation",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2105,
+   "ts": "35:05",
+   "text": "using the pre-trained encoder. And you would use those representations to represent those real images.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2114,
+   "ts": "35:14",
+   "text": "So the question is, can I use it in pixel space? So here's the thing. This metric is there for you to compare how well your model is",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2123,
+   "ts": "35:23",
+   "text": "doing compared to other models out there, so you need to have some space that is the same as what",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2132,
+   "ts": "35:32",
+   "text": "the other ones have mentioned. And so here this metric is called Fr\u00e9chet Inception",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2137,
+   "ts": "35:37",
+   "text": "Distance because actually the pre-trained encoder is the Inception network.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2144,
+   "ts": "35:44",
+   "text": "And so what you want is, if you want to compare yourself with someone else, you necessarily",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2151,
+   "ts": "35:51",
+   "text": "need to take the same representation to make things comparable.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2157,
+   "ts": "35:57",
+   "text": "So the question is if your diffusion model is pixel space, is this still applicable? Yes, so what you would do is you have your real images that you",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2166,
+   "ts": "36:06",
+   "text": "go through a pre-trained model. Your Pixel space diffusion, no problem. You do your diffusion in pixel space and at the end,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2173,
+   "ts": "36:13",
+   "text": "you get those generated images and you input them into that Inception model.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2179,
+   "ts": "36:19",
+   "text": "And then you have your representation. Oh, yeah.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2184,
+   "ts": "36:24",
+   "text": "Good question. So the question is, are these conditioned on a particular prompt? So it's a great question.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2190,
+   "ts": "36:30",
+   "text": "Well, you touch a great point, which is that you want your model to perform well",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2199,
+   "ts": "36:39",
+   "text": "on what you care about. So, for instance, you may care about generating",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2204,
+   "ts": "36:44",
+   "text": "faces, let's say, or generating some nature, some indoor scenes.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2212,
+   "ts": "36:52",
+   "text": "So depending on what your task is, you may want to compare your generated images with respect",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2221,
+   "ts": "37:01",
+   "text": "to a set of real images that are representative of the thing that you care about.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2227,
+   "ts": "37:07",
+   "text": "So you have a number of data sets like ImageNet is one that's quite--",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2234,
+   "ts": "37:14",
+   "text": "it's a classic one. And then you have, I believe, MS COCO, and so on.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2240,
+   "ts": "37:20",
+   "text": "And so you can think of the images that you generate as being conditioned",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2246,
+   "ts": "37:26",
+   "text": "by a set of prompts that are going to match what is there, so it can be either captions, or class",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2253,
+   "ts": "37:33",
+   "text": "conditions. So you have something that allows you to compare yourself",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2258,
+   "ts": "37:38",
+   "text": "to that distribution. And typically, you would use a data set that is aligned with your task of interest,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2266,
+   "ts": "37:46",
+   "text": "and that data set would contain the thing that you would use as inputs.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2271,
+   "ts": "37:51",
+   "text": "Great question. Great question. So the question is, in practice, how large",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2278,
+   "ts": "37:58",
+   "text": "is the set of real images that you take? So typically, 50k.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2283,
+   "ts": "38:03",
+   "text": "And actually, speaking of that, we've seen in lecture 5, I'm not sure if you remember, we had DIT,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2293,
+   "ts": "38:13",
+   "text": "which measured its performance on that FID 50k scale.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2299,
+   "ts": "38:19",
+   "text": "So 50k here means that we have a set of 50,000 real images.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2305,
+   "ts": "38:25",
+   "text": "So here, what you would do is generate 50,000 generated images",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2311,
+   "ts": "38:31",
+   "text": "and compare that distribution with the set of 50,000 real images.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2316,
+   "ts": "38:36",
+   "text": "But I've also seen 30,000. Typically, in the order of tens of thousands.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2322,
+   "ts": "38:42",
+   "text": "So the question is, is it fair to use variance and mean",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2329,
+   "ts": "38:49",
+   "text": "to characterize the whole distribution? Is that roughly your-- oh yeah. So the question is, is it fair to assume",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2337,
+   "ts": "38:57",
+   "text": "that the shape and the distance is representative of quality? So it's a great question.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2343,
+   "ts": "39:03",
+   "text": "Actually, one funny thing is, if you look at social media,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2348,
+   "ts": "39:08",
+   "text": "I would say, every week, you would see a new paper coming up with a new metric.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2353,
+   "ts": "39:13",
+   "text": "So this metric is by far not a perfect metric, and the community voices that out, for sure.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2363,
+   "ts": "39:23",
+   "text": "So yeah, I agree with you. It is not necessarily indicative of the quality that you want to reach, but it's a good enough proxy,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2370,
+   "ts": "39:30",
+   "text": "or, at least, that's what the community thinks. And I would say, so it's a personal take.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2376,
+   "ts": "39:36",
+   "text": "One of the reasons why it's been hard to change the metric that people use is because when you want to publish a paper,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2385,
+   "ts": "39:45",
+   "text": "typically you want to show that your method is good, so you want to compare yourself to some previous method.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2392,
+   "ts": "39:52",
+   "text": "And its people have just been using FID. So that's why it's really hard to change from that.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2400,
+   "ts": "40:00",
+   "text": "But I agree with your point, which it is not necessarily reflective of the quality of your images,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2406,
+   "ts": "40:06",
+   "text": "which is why in papers, you would also see a bunch cherry picked or not cherry picked images that",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2414,
+   "ts": "40:14",
+   "text": "are shown in the paper just to show how good the model is.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2421,
+   "ts": "40:21",
+   "text": "Cool. Great. So I'm looking at the time. I will move ahead, and just say that if there's",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2433,
+   "ts": "40:33",
+   "text": "a big gap in the location, you can think of it as maybe the quality or the style being different.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2440,
+   "ts": "40:40",
+   "text": "And when it comes to the shape being different, for instance, the generated images",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2447,
+   "ts": "40:47",
+   "text": "is in a very constrained region, maybe your model is not generating diverse sets.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2455,
+   "ts": "40:55",
+   "text": "So these are the points to watch out for. And in terms of the sample size, so as we mentioned,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2462,
+   "ts": "41:02",
+   "text": "the typical reference is FID-50k of a given data set.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2468,
+   "ts": "41:08",
+   "text": "And, of course, so we're looking at FID, which is part of this section of reference-free metrics,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2476,
+   "ts": "41:16",
+   "text": "and here we're using a reference distribution. So I know that it may sound confusing,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2483,
+   "ts": "41:23",
+   "text": "but I just want you to know that reference-free, the title of this section, refers to us not comparing one generated output with one",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2494,
+   "ts": "41:34",
+   "text": "real image. It is more about comparing the distribution.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2500,
+   "ts": "41:40",
+   "text": "And then the last thing is, one of the main complaints of people is that the distribution of real images and the distribution of",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2510,
+   "ts": "41:50",
+   "text": "generated images, they are typically not Gaussian, so this formula is typically not 100% valid.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2521,
+   "ts": "42:01",
+   "text": "So the question is this formula only for Gaussians? So the formula is actually derived",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2526,
+   "ts": "42:06",
+   "text": "from this other quantity that's called the Wasserstein distance. And so this formula is specifically",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2534,
+   "ts": "42:14",
+   "text": "when you compare two distributions that are Gaussians. And so that's another limitation,",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2541,
+   "ts": "42:21",
+   "text": "and a point that you will see in papers when they're OK, FID is not that great of a metric.",
+   "chapter": "Fr\u00e9chet inception distance (FID)"
+  },
+  {
+   "t": 2550,
+   "ts": "42:30",
+   "text": "Cool, so this is the aesthetics. So FID is the metric that most people use, for better or worse,",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2558,
+   "ts": "42:38",
+   "text": "to quantify how good of a quality your generated images are.",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2563,
+   "ts": "42:43",
+   "text": "And second, as previously mentioned, we're going to look at prompt adherence.",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2568,
+   "ts": "42:48",
+   "text": "How can we, or how can we quantify that the output image that we're getting",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2575,
+   "ts": "42:55",
+   "text": "is aligned with the input? And so for this, actually, you may",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2582,
+   "ts": "43:02",
+   "text": "have in mind a method we saw in lecture 4 CLIP, which",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2590,
+   "ts": "43:10",
+   "text": "stands for Contrastive Language-Image Pre-training, which aimed at comparing the text and an image",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2599,
+   "ts": "43:19",
+   "text": "by encoding each separately through their respective encoders and training the resulting system using",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2609,
+   "ts": "43:29",
+   "text": "a contrastive loss that incentivizes elements that are",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2615,
+   "ts": "43:35",
+   "text": "similar to have a higher score, and elements that are not similar to have a lower score.",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2622,
+   "ts": "43:42",
+   "text": "So you could very well use that model,",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2627,
+   "ts": "43:47",
+   "text": "where you would put the input text that you use to generate the image along with the generated image.",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2634,
+   "ts": "43:54",
+   "text": "And there is a model out there that's called the CLIP score. That is actually exactly that CLIP model,",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2639,
+   "ts": "43:59",
+   "text": "that allows you to get an actual score in terms of how aligned",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2646,
+   "ts": "44:06",
+   "text": "your text and your image are. That's called the CLIP score.",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2652,
+   "ts": "44:12",
+   "text": "And speaking of taking into consideration both the prompt",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2659,
+   "ts": "44:19",
+   "text": "and the image, you can also think of doing so",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2664,
+   "ts": "44:24",
+   "text": "using a CLIP like model. Not in order to predict how aligned the two are, but maybe",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2673,
+   "ts": "44:33",
+   "text": "to align, or maybe to predict how good the image is to the input text.",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2680,
+   "ts": "44:40",
+   "text": "So you could very well take such a model and train it on a data set that is around human preferences,",
+   "chapter": "CLIPScore"
+  },
+  {
+   "t": 2691,
+   "ts": "44:51",
+   "text": "and that's what people did. So this is the PickScore. So what they did was they took a CLIP model",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2698,
+   "ts": "44:58",
+   "text": "and they trained it on preference data, where you had image and text and the label was the preference.",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2707,
+   "ts": "45:07",
+   "text": "And here, you can get a PickScore, which is a holistic score that combines",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2714,
+   "ts": "45:14",
+   "text": "both the aesthetics and the prompt adherence, along with some other things to tell you",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2721,
+   "ts": "45:21",
+   "text": "about the overall satisfaction of the human with respect",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2726,
+   "ts": "45:26",
+   "text": "to the generated output. So this is the last metric I wanted to talk to you about.",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2735,
+   "ts": "45:35",
+   "text": "Now, I want us to take a step back.",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2740,
+   "ts": "45:40",
+   "text": "When we talk about evaluation, we may think about the image",
+   "chapter": "PickScore"
+  },
+  {
+   "t": 2747,
+   "ts": "45:47",
+   "text": "generation model, but as we saw, it's not actually the only model we're interested in.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2754,
+   "ts": "45:54",
+   "text": "We've also seen other pieces that do matter.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2760,
+   "ts": "46:00",
+   "text": "For instance, the VAE, which is tasked with reconstructing the input.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2768,
+   "ts": "46:08",
+   "text": "And in this setting, well, your label is much, much clearer",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2775,
+   "ts": "46:15",
+   "text": "because what you want to do, your proxy task is to reconstruct the original input.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2783,
+   "ts": "46:23",
+   "text": "And so in that sense, you do have a reference to base yourself on, so you could very well,",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2790,
+   "ts": "46:30",
+   "text": "in this setting, want to compare what you output with what you want it to output.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2798,
+   "ts": "46:38",
+   "text": "And this is the reason why in this section, we're going to go through such metrics, which we're calling",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2805,
+   "ts": "46:45",
+   "text": "reference-based as opposed to reference-free, because reference-based metrics have something",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2813,
+   "ts": "46:53",
+   "text": "that you can use to compare your generated image against.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2820,
+   "ts": "47:00",
+   "text": "So I mentioned the VAE, but you have actually other use cases as well. So we've not really gone into details about text image",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2833,
+   "ts": "47:13",
+   "text": "to image tasks, so image editing tasks, but you may also want to compare how your edited image is",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2842,
+   "ts": "47:22",
+   "text": "with respect to the input image, to make sure you're controlling for things that you don't want to edit, and so on.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2848,
+   "ts": "47:28",
+   "text": "So this is not just something that is valid for VAEs, but for other use cases as well.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2855,
+   "ts": "47:35",
+   "text": "Cool, so just getting a bit more rigorous about our notations.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2861,
+   "ts": "47:41",
+   "text": "So the input is noted x. The outputs, which is an attempt at reconstructing the input",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2869,
+   "ts": "47:49",
+   "text": "is called, or is noted x hat.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2875,
+   "ts": "47:55",
+   "text": "And what you want is to have a quantified metric to compare the two that hopefully,",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2883,
+   "ts": "48:03",
+   "text": "will align with the quality of your reconstruction.",
+   "chapter": "Reference-based metrics"
+  },
+  {
+   "t": 2888,
+   "ts": "48:08",
+   "text": "So the first metric that you may think about, I mean, the formula looks scary, but it's just",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2894,
+   "ts": "48:14",
+   "text": "about comparing pixels-- just pixel-wise distance.",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2900,
+   "ts": "48:20",
+   "text": "And you may also that distance under the name MSE, which stands for Mean Squared Error.",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2908,
+   "ts": "48:28",
+   "text": "And so this metric, what it does is it takes these two images",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2915,
+   "ts": "48:35",
+   "text": "and it just computes the pixel-wise distance of a given",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2921,
+   "ts": "48:41",
+   "text": "pixel in the reference image and the pixel in your generated image.",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2926,
+   "ts": "48:46",
+   "text": "And it does that for all pixels. And one big drawback is it is very sensitive to exactly",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2936,
+   "ts": "48:56",
+   "text": "the alignment between these two images, and so if you have generated a perfect reconstruction,",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2944,
+   "ts": "49:04",
+   "text": "but that is slightly shifted a few pixels, let's say to the right, then your MSC",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2950,
+   "ts": "49:10",
+   "text": "will be actually terrible. So that's one drawback. The second drawback is if we tell you about an MSC,",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2960,
+   "ts": "49:20",
+   "text": "let's say it's 10, I don't know. Well, you don't what to do with that number",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2965,
+   "ts": "49:25",
+   "text": "because it depends how you encode your pixels. So sometimes it is between 0 and 1.",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2971,
+   "ts": "49:31",
+   "text": "Sometimes it is between 0 and 255. The scale varies, which is the reason why",
+   "chapter": "Mean squared error (MSE)"
+  },
+  {
+   "t": 2980,
+   "ts": "49:40",
+   "text": "you have another metric that is still pixel-wise that is called the Peak Signal-to-Noise Ratio, PSNR,",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 2989,
+   "ts": "49:49",
+   "text": "which normalizes MSE with respect to the maximum value that it can take.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 2996,
+   "ts": "49:56",
+   "text": "So this allows you to, at least, get a reference, or put things into context.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3003,
+   "ts": "50:03",
+   "text": "So it not only does that, it also wraps the thing into a logarithm.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3010,
+   "ts": "50:10",
+   "text": "And I just want to pause here for a second with an analogy that to me makes a lot of sense, and I hope it will make sense",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3017,
+   "ts": "50:17",
+   "text": "to you as well. So if we're in a room, where there is absolutely no light,",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3027,
+   "ts": "50:27",
+   "text": "and if I just turn on one light bulb, to you,",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3033,
+   "ts": "50:33",
+   "text": "the difference between the complete darkness and one light bulb is a lot.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3040,
+   "ts": "50:40",
+   "text": "But if in this room we have all these light bulbs already on,",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3045,
+   "ts": "50:45",
+   "text": "and if I turn on yet another light bulb, the perceptual difference between having that extra light",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3054,
+   "ts": "50:54",
+   "text": "bulb in this setting and the one light bulb that is turned on versus darkness is very different.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3064,
+   "ts": "51:04",
+   "text": "So this is what this log tries to do, so if--",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3069,
+   "ts": "51:09",
+   "text": "you almost don't have any errors. It's very, very small value.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3075,
+   "ts": "51:15",
+   "text": "And you have just a little bit more error. From your perspective, it will be more something",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3083,
+   "ts": "51:23",
+   "text": "that you would want to notice in terms of the variation, as opposed to if you have an image that is quite wrong,",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3089,
+   "ts": "51:29",
+   "text": "that is yet again, a little bit more wrong with the same delta.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3095,
+   "ts": "51:35",
+   "text": "So this is what the logarithm tries to do. Well, it's great, but it is still",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3101,
+   "ts": "51:41",
+   "text": "subject to this pixel position, so it is sensitive to any shifting.",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3109,
+   "ts": "51:49",
+   "text": "And this is the reason why these are not the only metrics that people use. And in particular, there is one metric",
+   "chapter": "Peak signal-to-noise ratio (PSNR)"
+  },
+  {
+   "t": 3118,
+   "ts": "51:58",
+   "text": "that you may see in papers that looks at how",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3123,
+   "ts": "52:03",
+   "text": "these images are structured. So let me tell you a little bit about what I mean here.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3129,
+   "ts": "52:09",
+   "text": "So here, let's imagine we take the original input and then",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3136,
+   "ts": "52:16",
+   "text": "the generated output, which is trying to be that input. So what we're trying to do is to see is, let's say,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3144,
+   "ts": "52:24",
+   "text": "we take a given patch that is in the same location",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3150,
+   "ts": "52:30",
+   "text": "in both images. What we're trying to do is whether the two have",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3156,
+   "ts": "52:36",
+   "text": "the same overall structure. And what I mean by that is, do the colors have",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3164,
+   "ts": "52:44",
+   "text": "the same intensity? Does it have the same brightness? The second one can be, does it have the same contrast?",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3172,
+   "ts": "52:52",
+   "text": "And so here we can think of the variance in pixel values within that patch.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3179,
+   "ts": "52:59",
+   "text": "And the third one is, do pixels vary in the same fashion in the first patch and in the second patch?",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3188,
+   "ts": "53:08",
+   "text": "So these are the three dimensions we care about. And for each of them, the first one",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3195,
+   "ts": "53:15",
+   "text": "would be around computing the mean of the pixels in the patch",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3200,
+   "ts": "53:20",
+   "text": "in order to quantify the brightness, or the color intensity of the patch.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3207,
+   "ts": "53:27",
+   "text": "The second one, the contrast would be around quantifying how much these pixels vary,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3212,
+   "ts": "53:32",
+   "text": "so you can very well take the variance of those pixels. And then the third one is regarding the structure,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3220,
+   "ts": "53:40",
+   "text": "and here, you can very well take the covariance between these two",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3229,
+   "ts": "53:49",
+   "text": "patches. And what you will get when you compare the two is a similarity",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3238,
+   "ts": "53:58",
+   "text": "quantity that here in the luminance case, takes in the mean of the first patch",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3245,
+   "ts": "54:05",
+   "text": "and the mean of the second patch, and tries to make a number out of them.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3251,
+   "ts": "54:11",
+   "text": "So is it the first time you're seeing this formula? Yeah?",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3257,
+   "ts": "54:17",
+   "text": "I don't want it for this to be looking scary.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3262,
+   "ts": "54:22",
+   "text": "So if you're looking at the formula, what you see",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3268,
+   "ts": "54:28",
+   "text": "is there are two quantities, so let's note them A and B,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3274,
+   "ts": "54:34",
+   "text": "in this case. And you have something 2AB over A squared plus B squared.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3284,
+   "ts": "54:44",
+   "text": "So you also have a constant that is just for stability purposes, just in case both of them are 0.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3292,
+   "ts": "54:52",
+   "text": "But in this case, you can assume that A and B are greater than 0.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3301,
+   "ts": "55:01",
+   "text": "So what can you say about this quantity? So from high school, you may remember that you have this very",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3311,
+   "ts": "55:11",
+   "text": "general identity, which is as follows, so A minus B squared, which is a squared minus 2AB plus B squared.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3321,
+   "ts": "55:21",
+   "text": "Well, here you can rewrite this as A squared plus B squared,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3332,
+   "ts": "55:32",
+   "text": "minus A minus B squared, over A squared plus B squared.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3340,
+   "ts": "55:40",
+   "text": "So I'm going to replace in place.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3349,
+   "ts": "55:49",
+   "text": "And so here what I'm going to say is that this is equal to 1.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3355,
+   "ts": "55:55",
+   "text": "I need to say here this is equal to 1 minus this quantity.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3363,
+   "ts": "56:03",
+   "text": "And here, this is positive, so this is bounded by 1.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3371,
+   "ts": "56:11",
+   "text": "And A is positive, B is positive. This quantity is positive. This is bounded by 0.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3379,
+   "ts": "56:19",
+   "text": "So this is a coefficient that is between 0 and 1. This is what I'm trying to say.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3384,
+   "ts": "56:24",
+   "text": "So here, if A and B are similar, so if A is equal to B,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3392,
+   "ts": "56:32",
+   "text": "this is equal to 0. It's equal to 1. So what I'm trying to say is this metric",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3401,
+   "ts": "56:41",
+   "text": "is a similarity metric that you may read on the papers.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3408,
+   "ts": "56:48",
+   "text": "It's called the Dice coefficient. And the reason why it's a good metric",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3414,
+   "ts": "56:54",
+   "text": "is because it gives you the similarity of two quantities",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3419,
+   "ts": "56:59",
+   "text": "by considering also the values that they're at. So I'm going to illustrate it with an example.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3429,
+   "ts": "57:09",
+   "text": "So this quantity, so if let's say, A is equal to 10",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3435,
+   "ts": "57:15",
+   "text": "and B is equal to 20, then let's say that quantity that I'm going to let's say d.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3445,
+   "ts": "57:25",
+   "text": "d for Dice coefficient. So that d will be equal to 0.8, if you compute it.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3454,
+   "ts": "57:34",
+   "text": "But if A is equal to 100 and B is equal to, let's say, 110, then d is going to be much closer to 1.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3466,
+   "ts": "57:46",
+   "text": "And B maybe something somewhere around 0.995. So I computed this before the lecture, so don't worry.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3473,
+   "ts": "57:53",
+   "text": "I'm not hallucinating things. But here, what I want to say is that this idea",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3483,
+   "ts": "58:03",
+   "text": "of considering the level that you're at and considering the relative difference with respect",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3491,
+   "ts": "58:11",
+   "text": "to where you're at, which we saw with the logarithm and with the light bulb story, is also something",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3498,
+   "ts": "58:18",
+   "text": "that is captured here. So even though A and B are 10 apart, here,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3508,
+   "ts": "58:28",
+   "text": "they are less similar than here.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3514,
+   "ts": "58:34",
+   "text": "So all of that to say that I hope that when you look at this formula, it doesn't",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3522,
+   "ts": "58:42",
+   "text": "look as something that came out of the blue. So in this formula on the slide, we're",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3530,
+   "ts": "58:50",
+   "text": "using this way of computing similarity using the mean of the pixels, which gives you",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3537,
+   "ts": "58:57",
+   "text": "the luminance similarity. You can do the same for contrast, so here you use the variance and the standard deviation.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3546,
+   "ts": "59:06",
+   "text": "And you also have one for the structure. Well, this one is a little bit different. You're actually using the Pearson correlation,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3556,
+   "ts": "59:16",
+   "text": "which gives you a quantity that is between minus 1 and 1.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3561,
+   "ts": "59:21",
+   "text": "So let's assume you've done that for luminance, for contrast, for structure. And just for simplicity, let's note them L, C,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3569,
+   "ts": "59:29",
+   "text": "and S. What we're doing is we're just multiplying everything.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3576,
+   "ts": "59:36",
+   "text": "So if things are similar, they're equal to 1. If things are not similar, then L is more equal to 0,",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3584,
+   "ts": "59:44",
+   "text": "C is tending to 0, and S, the correlation, is tending to minus 1.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3593,
+   "ts": "59:53",
+   "text": "And so this is exactly what we mentioned. And as a result, you are getting this formula, which",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3600,
+   "ts": "1:00:00",
+   "text": "you may have seen in textbooks. It looks really scary when you just look at this formula",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3606,
+   "ts": "1:00:06",
+   "text": "firsthand, but with this way of looking at things, I hope it will not look scary anymore.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3615,
+   "ts": "1:00:15",
+   "text": "And so if you do that operation for all patches, and the resulting metric that you obtain",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3622,
+   "ts": "1:00:22",
+   "text": "is the average of those scores across your patches.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3628,
+   "ts": "1:00:28",
+   "text": "And you get a metric that is called the SSIM, so the Structural SIMilarity, which is a score between minus 1",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3637,
+   "ts": "1:00:37",
+   "text": "and 1, where the closer you are to 1, the more similar",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3644,
+   "ts": "1:00:44",
+   "text": "the images should be from a structural perspective.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3651,
+   "ts": "1:00:51",
+   "text": "But you may tell me, well, it's on patches. What if your shift is beyond the patch? And I would say, yeah, you're completely right.",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3658,
+   "ts": "1:00:58",
+   "text": "This metric, although being less pixel-dependent than the MSC and the PSNR is still",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3666,
+   "ts": "1:01:06",
+   "text": "sensitive to that pixel shift, which is the reason why there is a final metric I want",
+   "chapter": "Structural similarity (SSIM)"
+  },
+  {
+   "t": 3672,
+   "ts": "1:01:12",
+   "text": "to talk to you about, which we actually have already seen in lecture, I believe, 4, which is the LPIPS,",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3683,
+   "ts": "1:01:23",
+   "text": "the Learned Perceptual Image Patch Similarity. And that one is actually quite simple.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3691,
+   "ts": "1:01:31",
+   "text": "Instead of comparing your x with your x hat in the pixel space,",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3697,
+   "ts": "1:01:37",
+   "text": "what you do is you take each quantity,",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3702,
+   "ts": "1:01:42",
+   "text": "and you let them through a pre-trained encoder. And you compute the representation",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3709,
+   "ts": "1:01:49",
+   "text": "that this encoder has, which tells you more about how perceptually similar they are,",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3716,
+   "ts": "1:01:56",
+   "text": "as opposed to exactly how aligned they are from a pixel perspective.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3723,
+   "ts": "1:02:03",
+   "text": "And so here, you have this distance between phi Lx and phi Lx hat.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3729,
+   "ts": "1:02:09",
+   "text": "So the L represents the layer of that pre-trained encoder.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3735,
+   "ts": "1:02:15",
+   "text": "And you also have a coefficient w, which is actually a coefficient that",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3741,
+   "ts": "1:02:21",
+   "text": "was determined such that the resulting metric aligns",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3747,
+   "ts": "1:02:27",
+   "text": "with human perception. So I believe, these were tunes because there",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3753,
+   "ts": "1:02:33",
+   "text": "was a data set of images. And the idea was to tune this metric",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3760,
+   "ts": "1:02:40",
+   "text": "so that it's as aligned as possible with the human perception levels.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3766,
+   "ts": "1:02:46",
+   "text": "And that metric is actually quite commonly used, and so you may see it quite often.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3773,
+   "ts": "1:02:53",
+   "text": "The only problem to call out, only top of mind, is that it's not super interpretable in terms",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3780,
+   "ts": "1:03:00",
+   "text": "of what is going wrong. So if your metric is not doing great,",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3788,
+   "ts": "1:03:08",
+   "text": "you need to see what's going on. And that was it.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3795,
+   "ts": "1:03:15",
+   "text": "Any questions before-- yep. So the question is for this last one, which pre-trained model is",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3801,
+   "ts": "1:03:21",
+   "text": "there to use? So I believe it is VGG. So there's AlexNet as well.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3809,
+   "ts": "1:03:29",
+   "text": "The reason why we have some preset encoders is because the coefficients Wl are dependent on the encoder",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3817,
+   "ts": "1:03:37",
+   "text": "that you use. So you can use the libraries and mention",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3824,
+   "ts": "1:03:44",
+   "text": "which encoder you want to leverage, but typically, it's either VGG or AlexNet.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3830,
+   "ts": "1:03:50",
+   "text": "So the question is, what does the formula mean? So within the distance, what you have is two terms.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3838,
+   "ts": "1:03:58",
+   "text": "One is the difference between the feature map of x and feature map of x hat.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3846,
+   "ts": "1:04:06",
+   "text": "And you multiply that elementwise with the coefficient Wl.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3855,
+   "ts": "1:04:15",
+   "text": "Does that make sense? Perfect. So the question is this was for two images.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3862,
+   "ts": "1:04:22",
+   "text": "How do you apply it to the batch? So just as a reminder, we're looking",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3868,
+   "ts": "1:04:28",
+   "text": "at cases where we care about how good of a job",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3873,
+   "ts": "1:04:33",
+   "text": "we did about reconstructing an input. So what you care about is how far off you are.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3882,
+   "ts": "1:04:42",
+   "text": "And so this metric tells you how far off you are in trying to reconstruct an input,",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3888,
+   "ts": "1:04:48",
+   "text": "and so if you want to aggregate, you can use the traditional aggregations like mean and so on.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3895,
+   "ts": "1:04:55",
+   "text": "Cool.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3900,
+   "ts": "1:05:00",
+   "text": "Great. With that, I'll give it to Shervin. Thank you, Afshin.",
+   "chapter": "Perceptual similarity (LPIPS)"
+  },
+  {
+   "t": 3906,
+   "ts": "1:05:06",
+   "text": "So exactly as we saw, all of these metrics, they're very mathematical, and what we want",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3913,
+   "ts": "1:05:13",
+   "text": "is have a way to interpret them from an intuition standpoint.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3918,
+   "ts": "1:05:18",
+   "text": "So we saw that all these metrics, they were operating at different levels",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3926,
+   "ts": "1:05:26",
+   "text": "and there are many of them. So what I'm going to do is invite you to do a little detour",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3932,
+   "ts": "1:05:32",
+   "text": "and visit a class of models that we call multi-modal LLMs, because they have the nice property",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3939,
+   "ts": "1:05:39",
+   "text": "of being able to convert text and image data in a text.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3945,
+   "ts": "1:05:45",
+   "text": "But before we do that, let's do a little summary of the kinds of models we've seen so far in the class.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3952,
+   "ts": "1:05:52",
+   "text": "So we saw the transformer at some point that we know transforms bits of text",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3958,
+   "ts": "1:05:58",
+   "text": "to text, so this is not something that we can use out of the box. We saw DIT, where based on latent noise and potentially",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3968,
+   "ts": "1:06:08",
+   "text": "a condition, you could generate an image. So here, it's a generation of images.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3973,
+   "ts": "1:06:13",
+   "text": "This is also a model that we cannot reuse as is. And same for MMDIT, where the input was",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3982,
+   "ts": "1:06:22",
+   "text": "guided by potentially texts, not just a condition. And here, we're in this sibling problem",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3990,
+   "ts": "1:06:30",
+   "text": "of dealing with both modalities, except that we want image and text at the input in order",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 3996,
+   "ts": "1:06:36",
+   "text": "to find a way to judge them and get text as output.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4003,
+   "ts": "1:06:43",
+   "text": "So this is typically the setup that we're interested in, so we have a model.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4009,
+   "ts": "1:06:49",
+   "text": "We have a picture, let's say, here a teddy bear, and we ask a question that would guide the evaluation.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4017,
+   "ts": "1:06:57",
+   "text": "So let's say, how cute is this teddy bear? And you would want such an evaluation model to give you the answer.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4024,
+   "ts": "1:07:04",
+   "text": "So before starting all of this, I just want to make the problem a bit more concrete.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4031,
+   "ts": "1:07:11",
+   "text": "What do we have at hand? So when we talk about images and when we talk about text, what we can do is convert them to tokens.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4039,
+   "ts": "1:07:19",
+   "text": "And at the end of the day, tokens, they're just embeddings, so we're",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4046,
+   "ts": "1:07:26",
+   "text": "facing the problem of trying to find an architecture that can accept these embeddings and turn them",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4052,
+   "ts": "1:07:32",
+   "text": "into interpretable text. So one thing that comes to mind-- so if you recall",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4060,
+   "ts": "1:07:40",
+   "text": "the architecture of the transformer, let's say you have a text-based model.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4066,
+   "ts": "1:07:46",
+   "text": "One natural choice could be to leverage that cross-attention layer that could",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4074,
+   "ts": "1:07:54",
+   "text": "enable you to make text tokens, attend to anything you want.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4080,
+   "ts": "1:08:00",
+   "text": "And that anything you want, the keys and values of cross-attention could very well be images.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4088,
+   "ts": "1:08:08",
+   "text": "So this is one possible direction, where you use text tokens as input of your decoder,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4097,
+   "ts": "1:08:17",
+   "text": "and then you keep this cross attention mechanism in order to make it interact with encoded images.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4105,
+   "ts": "1:08:25",
+   "text": "So this is something that people have done because it's a very natural thing to do,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4111,
+   "ts": "1:08:31",
+   "text": "and it's also quite efficient computationally because you leverage a fixed context length only composed of texts,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4120,
+   "ts": "1:08:40",
+   "text": "and then you make it interact with images. So there is one example here that we can",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4126,
+   "ts": "1:08:46",
+   "text": "cite of a model that did so. So Flamingo by Google, where images",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4133,
+   "ts": "1:08:53",
+   "text": "are given as keys and values, and you have some placeholder",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4138,
+   "ts": "1:08:58",
+   "text": "token that gates when it's fine to attend to these images.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4145,
+   "ts": "1:09:05",
+   "text": "So this is one possibility. But one caveat of this mindset is that you cannot directly",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4154,
+   "ts": "1:09:14",
+   "text": "leverage the latest advances in large language models because as you know, these are decoder only models,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4163,
+   "ts": "1:09:23",
+   "text": "and they have gotten rid of that cross-attention altogether,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4168,
+   "ts": "1:09:28",
+   "text": "so you cannot use all these latest models that have been tuned and work great out of the box.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4175,
+   "ts": "1:09:35",
+   "text": "You need to re-engineer that cross-attention layer in there.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4180,
+   "ts": "1:09:40",
+   "text": "So this is why you see a second branch of dealing with multi-modal input, which",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4188,
+   "ts": "1:09:48",
+   "text": "is to directly feed this image and text tokens as input.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4194,
+   "ts": "1:09:54",
+   "text": "And one example of such model is a LLaVA.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4201,
+   "ts": "1:10:01",
+   "text": "So here, you use an encoder to find the right embedding",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4207,
+   "ts": "1:10:07",
+   "text": "for those tokens for image patches like a VAT model, and then you give it to that decoder-only structure.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4217,
+   "ts": "1:10:17",
+   "text": "Great. And these days, exactly for the reason",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4223,
+   "ts": "1:10:23",
+   "text": "that I mentioned like quality, but also the fact of reusing wins, this latter technique",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4231,
+   "ts": "1:10:31",
+   "text": "is what people use in practice. So all the latest MLLM that you might see",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4236,
+   "ts": "1:10:36",
+   "text": "are based oftentimes on putting both images",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4241,
+   "ts": "1:10:41",
+   "text": "and text as input of the decoder, not doing cross attention.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4247,
+   "ts": "1:10:47",
+   "text": "And they have some capabilities that I'm mentioning here.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4252,
+   "ts": "1:10:52",
+   "text": "We're not going to go into details about them, but I want you to be aware of them",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4259,
+   "ts": "1:10:59",
+   "text": "because we're going to actively use them at the time we want to use these models for judging.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4265,
+   "ts": "1:11:05",
+   "text": "So one is a working with all kinds of images.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4271,
+   "ts": "1:11:11",
+   "text": "So there's a question here. So the question is, what do you mean by reuse existing wins?",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4277,
+   "ts": "1:11:17",
+   "text": "So it's an engineering question. You could definitely reuse something already trained",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4286,
+   "ts": "1:11:26",
+   "text": "like have weights frozen and start from there. This is one possibility. I was more thinking about an architectural standpoint, where",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4295,
+   "ts": "1:11:35",
+   "text": "you have a design that is proven to work. This is just another modality with a same input",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4303,
+   "ts": "1:11:43",
+   "text": "that you can just recycle, but then on how you actually come up with such a model, it's more of an engineering problem.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4311,
+   "ts": "1:11:51",
+   "text": "So I don't give a specific opinion on it, but I do think you could definitely",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4316,
+   "ts": "1:11:56",
+   "text": "initialize weights and reuse it in the strict sense of the term.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4322,
+   "ts": "1:12:02",
+   "text": "So we want these models to be working",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4329,
+   "ts": "1:12:09",
+   "text": "across all kinds of inputs. And in particular, one property that you want your generative models is to generate text",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4338,
+   "ts": "1:12:18",
+   "text": "as part of your images. So let's say if you want to generate the image of a sign,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4344,
+   "ts": "1:12:24",
+   "text": "you want the text to be readable, so you would want models that do judge",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4350,
+   "ts": "1:12:30",
+   "text": "this kind of generated images to be aware of characters.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4355,
+   "ts": "1:12:35",
+   "text": "So this is why I mentioned OCR. And then also one other thing which I think was mentioned here",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4363,
+   "ts": "1:12:43",
+   "text": "is we do not want to have a black box that just gives us a number. We want to have some rationale behind what grades that we give,",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4374,
+   "ts": "1:12:54",
+   "text": "so this is why leveraging reasoning abilities of such models is going to be something that we want to use.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4381,
+   "ts": "1:13:01",
+   "text": "Great.",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4387,
+   "ts": "1:13:07",
+   "text": "So now, I want us to look at traditional metrics and then find some of the key concerns we had",
+   "chapter": "Multimodal LLMs"
+  },
+  {
+   "t": 4396,
+   "ts": "1:13:16",
+   "text": "and see what could be ways to mitigate them. So one thing that we were concerned",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4404,
+   "ts": "1:13:24",
+   "text": "with with traditional metrics was that you get a number,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4409,
+   "ts": "1:13:29",
+   "text": "but at the end of the day, you don't what to do with it. Let's say you have a prompt that gave a given image",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4417,
+   "ts": "1:13:37",
+   "text": "and you have a certain CLIP score. Now what do you do with it? So this is something that you could fix by taking the prompt",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4428,
+   "ts": "1:13:48",
+   "text": "and trying to reason about what properties",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4434,
+   "ts": "1:13:54",
+   "text": "in the generated image could make it such that the image would match the prompt?",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4442,
+   "ts": "1:14:02",
+   "text": "And this is something that you could do by decomposing what you care about into atomic properties.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4450,
+   "ts": "1:14:10",
+   "text": "This is what the TIFA paper does, so Text-to-Image Faithfulness Evaluation,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4457,
+   "ts": "1:14:17",
+   "text": "where they use few shot learning to show examples of what",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4463,
+   "ts": "1:14:23",
+   "text": "interesting decompositions of what you care about in an image might look like. And they apply it to a given prompt",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4470,
+   "ts": "1:14:30",
+   "text": "to generate a set of questions, and these questions are very simple.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4475,
+   "ts": "1:14:35",
+   "text": "They're just yes or no, or things where the answer is obviously right or wrong.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4483,
+   "ts": "1:14:43",
+   "text": "So that way you decompose the judging",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4488,
+   "ts": "1:14:48",
+   "text": "into dimensions that are quite quantitative.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4494,
+   "ts": "1:14:54",
+   "text": "And what you do is that you take MLLM model to assess each of these dimensions independently.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4502,
+   "ts": "1:15:02",
+   "text": "So for example here, this teddy bear reading a book. Is it a teddy bear? So yes.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4508,
+   "ts": "1:15:08",
+   "text": "Is it cute? Yes. Is there a book? Yes. And is the Teddy bear reading the book? Yes as well.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4514,
+   "ts": "1:15:14",
+   "text": "So such a metric would give you a score that matches the fact that all of these criteria were met.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4523,
+   "ts": "1:15:23",
+   "text": "And it's quite interesting because",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4529,
+   "ts": "1:15:29",
+   "text": "in the case of CLIP score, even though you have an image that semantically matches your input prompt,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4536,
+   "ts": "1:15:36",
+   "text": "you're not exactly sure what that remaining delta is about. And with the method that decomposes these concerns,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4542,
+   "ts": "1:15:42",
+   "text": "you could pinpoint what goes wrong.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4548,
+   "ts": "1:15:48",
+   "text": "So it's quite simple, and you could debug",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4553,
+   "ts": "1:15:53",
+   "text": "where the issue comes from. But on the other hand, this method of generating dimensions that you care about per image",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4560,
+   "ts": "1:16:00",
+   "text": "is quite bespoke because you're here. At every prompt that you input your data set,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4568,
+   "ts": "1:16:08",
+   "text": "you need to have a grading rubric that",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4574,
+   "ts": "1:16:14",
+   "text": "is specific to that prompt. So the fact of generating that rubric in the first place is going to be expensive, and it might be error prone.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4583,
+   "ts": "1:16:23",
+   "text": "And something else is that you have all of these questions that examine multiple sides of that prompt,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4591,
+   "ts": "1:16:31",
+   "text": "but the weighing of each of these claims might not match the importance of what each",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4600,
+   "ts": "1:16:40",
+   "text": "claim to your point of view. So, for example, here, if you don't have a book at all,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4608,
+   "ts": "1:16:48",
+   "text": "then you might have one or two that goes away. And you would have maybe half of the metric that--",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4617,
+   "ts": "1:16:57",
+   "text": "the metric would be about half of the max score, but it necessarily might not be what you want,",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4623,
+   "ts": "1:17:03",
+   "text": "so you might want a way to generate a rubric that",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4630,
+   "ts": "1:17:10",
+   "text": "is more robust to that.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4638,
+   "ts": "1:17:18",
+   "text": "I'm going to take a pause for a few seconds and see if that makes sense.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4647,
+   "ts": "1:17:27",
+   "text": "OK, awesome. So I'm going to state another complaint.",
+   "chapter": "Faithfulness evaluation (TIFA)"
+  },
+  {
+   "t": 4654,
+   "ts": "1:17:34",
+   "text": "So here we saw CLIP score. And one great thing about CLIP score",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4660,
+   "ts": "1:17:40",
+   "text": "is that it can try to convey whether the semantic meaning of a generated image was preserved.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4668,
+   "ts": "1:17:48",
+   "text": "But one thing that we observe is that semantically encoding",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4673,
+   "ts": "1:17:53",
+   "text": "the meaning of a prompt within a vector, and then doing some dot products with respect to the embedding",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4679,
+   "ts": "1:17:59",
+   "text": "of the image, might not carry all the semantic subtleties",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4684,
+   "ts": "1:18:04",
+   "text": "that prompt variations might convey. So here, one thing that we observe in practice",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4690,
+   "ts": "1:18:10",
+   "text": "is that in the cute bear reading a book example, if you exchange",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4696,
+   "ts": "1:18:16",
+   "text": "book and teddy bear from a semantic perspective",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4702,
+   "ts": "1:18:22",
+   "text": "like to your intuition, it changes things quite a bit. You would have a totally another image in mind.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4709,
+   "ts": "1:18:29",
+   "text": "But from a CLIP score standpoint, it turns out that the score doesn't change that much.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4715,
+   "ts": "1:18:35",
+   "text": "So you could explain this by the fact that you're projecting all of the image",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4723,
+   "ts": "1:18:43",
+   "text": "and all of the content of the prompt into vectors, and these are not very richly conveying all these subtleties.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4733,
+   "ts": "1:18:53",
+   "text": "But also one other explanation could reside in the way that CLIP is trained, because you are incentivized",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4743,
+   "ts": "1:19:03",
+   "text": "to match images and prompts in a way that matches those that",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4749,
+   "ts": "1:19:09",
+   "text": "correspond with respect to text image captions but you have this concept of in batch negatives",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4755,
+   "ts": "1:19:15",
+   "text": "that we saw at the time, where we introduced CLIP, where you try to make the distance between images",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4762,
+   "ts": "1:19:22",
+   "text": "and prompts that have nothing to do with that image further apart, so you don't really",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4770,
+   "ts": "1:19:30",
+   "text": "have an incentive to learn these subtleties. And these are the two main reasons why CLIP score is not",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4779,
+   "ts": "1:19:39",
+   "text": "that great. But you might tell me OK. Hey, Shervin, CLIP was generated with the embedding",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4787,
+   "ts": "1:19:47",
+   "text": "of the entire sentence because, as we remember, you would encode the meaning of a given sentence with a decoder,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4798,
+   "ts": "1:19:58",
+   "text": "and then extract the last embedding, which contains the embedding of the whole sentence.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4803,
+   "ts": "1:20:03",
+   "text": "So one thing we can do is have the same property",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4812,
+   "ts": "1:20:12",
+   "text": "with the trick, where you input both the image and the sentence in the same embedding, and then extract the probability",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4821,
+   "ts": "1:20:21",
+   "text": "of whether both image and sentence are supposed to match",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4827,
+   "ts": "1:20:27",
+   "text": "or not. So this is something that is called VQA score, where the template is very simple.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4833,
+   "ts": "1:20:33",
+   "text": "So you always follow this same structure where you put the image.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4838,
+   "ts": "1:20:38",
+   "text": "And then you ask yourself, does this figure show and the content of your prompt?",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4844,
+   "ts": "1:20:44",
+   "text": "And then what you do is that you look at your probability distribution of your next token, and you",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4852,
+   "ts": "1:20:52",
+   "text": "look at the one that corresponds to the token yes. And you say that that probability",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4859,
+   "ts": "1:20:59",
+   "text": "is going to be your score, which means that if the sentence is",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4865,
+   "ts": "1:21:05",
+   "text": "semantically similar or matching to the image, you're going to have a high probability and lower otherwise.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4875,
+   "ts": "1:21:15",
+   "text": "So by doing so, you can alleviate this issue",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4881,
+   "ts": "1:21:21",
+   "text": "that we had seen at the CLIP score level, where you were comparing vectors in a coarse fashion,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4887,
+   "ts": "1:21:27",
+   "text": "and now you're directly reusing the structure of the decoded output in order to embed both modalities",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4895,
+   "ts": "1:21:35",
+   "text": "in a way that makes sense.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4901,
+   "ts": "1:21:41",
+   "text": "So the question, can a regular LLM do it? So very pedantically, no, because you have image modality in there.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4907,
+   "ts": "1:21:47",
+   "text": "But let's say the question is for MLLM. Can a standard MLLM do it? So we advocate that yes, because it is trained yet",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4919,
+   "ts": "1:21:59",
+   "text": "to understand broader concepts, so its a zero shot task.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4926,
+   "ts": "1:22:06",
+   "text": "So yeah. So that's a great point. It emphasizes one benefit of this technique. You do not need to train anything in a bespoke manner.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4932,
+   "ts": "1:22:12",
+   "text": "You just take an off the shelf MLLM that does know how to understand things.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4941,
+   "ts": "1:22:21",
+   "text": "OK great.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4948,
+   "ts": "1:22:28",
+   "text": "But one drawback that you might notice is that this technique relies on you having access",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4956,
+   "ts": "1:22:36",
+   "text": "to the probability distribution of the next token. And if you take all the latest and best models",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4964,
+   "ts": "1:22:44",
+   "text": "out there that might be closed source, they do not disclose the probability distribution",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4969,
+   "ts": "1:22:49",
+   "text": "of the next token. If you are in the field of distillation, you know it's a very sensitive topic because you can learn a lot of things from it,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4976,
+   "ts": "1:22:56",
+   "text": "so this is not something that you have access to. And something else that is wasteful",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4983,
+   "ts": "1:23:03",
+   "text": "is every time you ask such questions, you need to do a dedicated MLLM call,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4990,
+   "ts": "1:23:10",
+   "text": "and these are quite expensive. So from a user standpoint, you could say, OK fine,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 4995,
+   "ts": "1:23:15",
+   "text": "I have a provider, I will do all of them in parallel and wait for the max of all of them",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5001,
+   "ts": "1:23:21",
+   "text": "to finish to have my result, which is not that bad oftentimes, but it's quite costly as it scales with the number of decomposed dimensions.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5011,
+   "ts": "1:23:31",
+   "text": "And everything that I've mentioned here is focusing on the prompts of your data set.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5018,
+   "ts": "1:23:38",
+   "text": "So you're inferring your conditions and dimensions above the prompt of the data set.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5024,
+   "ts": "1:23:44",
+   "text": "There seems like a better way to do it. You're still stuck in these ancient worlds,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5031,
+   "ts": "1:23:51",
+   "text": "where you try to engineer everything, even metrics. You try to engineer them in order to make sense of them",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5038,
+   "ts": "1:23:58",
+   "text": "afterwards. But one shift of paradigm that seems attractive here",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5045,
+   "ts": "1:24:05",
+   "text": "is instead of being prompt-centric, be concept-centric of what you consider to be good,",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5054,
+   "ts": "1:24:14",
+   "text": "and then describe that good in a generic way. And then leverage all of the reasoning capabilities",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5062,
+   "ts": "1:24:22",
+   "text": "of these MLLM models to do that reasoning on your behalf",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5068,
+   "ts": "1:24:28",
+   "text": "and come up with the final score. So does everyone agree that this strategy sounds attractive?",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5075,
+   "ts": "1:24:35",
+   "text": "Great.",
+   "chapter": "Visual question answering score (VQA)"
+  },
+  {
+   "t": 5081,
+   "ts": "1:24:41",
+   "text": "And this brings us to a paper that",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5086,
+   "ts": "1:24:46",
+   "text": "popularized this mindset called VIEScore, so Visual Instruction-guided Explainable Score, where",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5094,
+   "ts": "1:24:54",
+   "text": "you give your prompt, you give your generated image, and then you describe a rubric.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5102,
+   "ts": "1:25:02",
+   "text": "And Afshin, if you remember at the beginning of the lecture, he mentioned two axes, where we broadly had an interest in.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5111,
+   "ts": "1:25:11",
+   "text": "So one is semantic consistency, and the other one is perceptual quality. And these efforts formalizes how we could write rubrics",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5122,
+   "ts": "1:25:22",
+   "text": "and grades for both of them. So you would have such a rubric, and then ask an MLLM about it.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5129,
+   "ts": "1:25:29",
+   "text": "And then since this task is about judging, you call such a model MLLM-as-a-Judge.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5136,
+   "ts": "1:25:36",
+   "text": "And the good thing about these models is that they are interpretable, and you",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5141,
+   "ts": "1:25:41",
+   "text": "can ask them to output some reasoning before prompting them",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5147,
+   "ts": "1:25:47",
+   "text": "for a given score, which is what this paper does. And with our two dimensions that we care about, so",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5158,
+   "ts": "1:25:58",
+   "text": "semantic consistency and perceptual quality, respectively denoting whether the image follows the prompt",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5167,
+   "ts": "1:26:07",
+   "text": "and whether the image looks good. So you could have two different generations and you might smile",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5172,
+   "ts": "1:26:12",
+   "text": "at the second one because it's not very realistic, which is why you might-- so it's technically still reading",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5180,
+   "ts": "1:26:20",
+   "text": "the book on the right-hand side, but on the natural aspects,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5186,
+   "ts": "1:26:26",
+   "text": "this is where an MLLM-as-a-Judge might come in and just keep us",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5192,
+   "ts": "1:26:32",
+   "text": "in check. Great. And just formalizing the fact of asking about an MLLM-as-a-Judge",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5201,
+   "ts": "1:26:41",
+   "text": "opinion regarding grading a given dimension. So typically, what you would have",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5207,
+   "ts": "1:26:47",
+   "text": "is that you first give your input and then you handcraft a set of guidelines with respect",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5214,
+   "ts": "1:26:54",
+   "text": "to each of the dimensions of interest. And then you ask your MLLM-as-a-Judge to output its",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5222,
+   "ts": "1:27:02",
+   "text": "decision in some given format. One that is popular is JSON, because you can then",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5229,
+   "ts": "1:27:09",
+   "text": "parse scores and rationales and anything else that you care about in a structured way",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5235,
+   "ts": "1:27:15",
+   "text": "by just accessing fields. And one question that comes to mind",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5242,
+   "ts": "1:27:22",
+   "text": "is how to ensure that the rationales and the scores actually do make sense.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5250,
+   "ts": "1:27:30",
+   "text": "So here comes the most interesting part of the lecture, which is once you have a problem, where you",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5257,
+   "ts": "1:27:37",
+   "text": "have a judge that you want to use to grade your images, how are you going to make them aligned with what you as a human",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5266,
+   "ts": "1:27:46",
+   "text": "find good? So this is the first stage, where you would take in a true setting.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5275,
+   "ts": "1:27:55",
+   "text": "You would take your prompts, you would take your generated images, and you would typically ask humans to grade them alongside the rubrics",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5284,
+   "ts": "1:28:04",
+   "text": "of interest. So let's say, you have perceptual quality and semantic consistency, you would first get a sense of what is good versus",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5292,
+   "ts": "1:28:12",
+   "text": "bad from a human standpoint. And the second step would be to handcraft rubrics that",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5301,
+   "ts": "1:28:21",
+   "text": "would match human intuition. So these days, handcraft it's a bit of a strong word",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5311,
+   "ts": "1:28:31",
+   "text": "because you wouldn't actually handcraft this. You would ask a model to handcraft instructions",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5319,
+   "ts": "1:28:39",
+   "text": "that would be such that the resulting ratings would match human intuition.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5326,
+   "ts": "1:28:46",
+   "text": "And once you have that, then you can further judge other prompts image pairs with that trained judge.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5337,
+   "ts": "1:28:57",
+   "text": "So this is a three stage way of solving this problem. So first, just asking your intuition",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5345,
+   "ts": "1:29:05",
+   "text": "about what is good, then tuning the MLLMs rubrics about it,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5351,
+   "ts": "1:29:11",
+   "text": "and then third one would be directly asking the MLLM about new images.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5357,
+   "ts": "1:29:17",
+   "text": "And so you might have multiple settings,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5366,
+   "ts": "1:29:26",
+   "text": "where you would ask for advice. So you have a pointwise setting, where",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5372,
+   "ts": "1:29:32",
+   "text": "you have a given image, a given prompt, and you want to know if the result is good.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5377,
+   "ts": "1:29:37",
+   "text": "You have the pairwise setting that Afshin also mentioned,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5383,
+   "ts": "1:29:43",
+   "text": "and you have another one where you have a prompt, you have a list of images, and you want the model to rank them.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5393,
+   "ts": "1:29:53",
+   "text": "So going one by one. In practice, pointwise is great when",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5398,
+   "ts": "1:29:58",
+   "text": "you want to do one-sided evaluation of your images. So just to have a rough idea, but also to debug what goes well",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5407,
+   "ts": "1:30:07",
+   "text": "versus doesn't go well, because as you remember, you have this rationale side of the MLLM-as-a-Judge output that",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5414,
+   "ts": "1:30:14",
+   "text": "can guide you towards understanding loss modes",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5420,
+   "ts": "1:30:20",
+   "text": "of your model. So it can either lead to you iterating on the image",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5426,
+   "ts": "1:30:26",
+   "text": "generation model, or coming back to the calibration of the judge itself, because it might not correspond to the intuition",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5433,
+   "ts": "1:30:33",
+   "text": "that you have in mind, so it's great for doing both of them. Another setting is the pairwise one,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5440,
+   "ts": "1:30:40",
+   "text": "which is great when you want to compare models with each other. So typically, if you have a new iteration of the model",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5449,
+   "ts": "1:30:49",
+   "text": "and you want to know if it's fine to replace it altogether, you would use this kind of mode.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5456,
+   "ts": "1:30:56",
+   "text": "And then regarding ranking, even though that's something that's studied in papers,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5461,
+   "ts": "1:31:01",
+   "text": "it's typically not used in practice because the ordering might be too sensitive,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5469,
+   "ts": "1:31:09",
+   "text": "and so you have a lot of variants. And oftentimes, the ranking of several outputs",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5475,
+   "ts": "1:31:15",
+   "text": "might not be something that you want to do as a one shot task, so it might not have as broad applications as the two",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5485,
+   "ts": "1:31:25",
+   "text": "other ones. So I just want to spend a few minutes to talk about best",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5492,
+   "ts": "1:31:32",
+   "text": "practices overall when you deal with MLLM-as-a-Judge. So here, we saw with VIEScore that you could decompose",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5501,
+   "ts": "1:31:41",
+   "text": "what you care about into two dimensions, but in real life, you might have use cases, where you have a task-specific rubric",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5512,
+   "ts": "1:31:52",
+   "text": "that is not general, but that might be specific to what you care about. So you would typically decompose and isolate",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5519,
+   "ts": "1:31:59",
+   "text": "that as a separate metric and make the judging be done on all these sets of criteria,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5527,
+   "ts": "1:32:07",
+   "text": "including that other one that would be designed to be atomic and isolating what you care about.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5535,
+   "ts": "1:32:15",
+   "text": "So another thing is that empirically, you typically want",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5541,
+   "ts": "1:32:21",
+   "text": "your model to output the rationale before outputting a score, because in the LLM space,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5548,
+   "ts": "1:32:28",
+   "text": "you have all this research around concepts surrounding chains of thoughts and how it improves the performance.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5558,
+   "ts": "1:32:38",
+   "text": "And the intuition for it is that even as a human, when you want to form an opinion on something,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5566,
+   "ts": "1:32:46",
+   "text": "it's always good to enumerate facts about it. Just say out loud what you have in mind",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5574,
+   "ts": "1:32:54",
+   "text": "when you do a piece of judgment before actually doing the judgment.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5580,
+   "ts": "1:33:00",
+   "text": "So this is a good practice. Something else is that with LLMs, you",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5585,
+   "ts": "1:33:05",
+   "text": "have this temperature parameter that controls how creative",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5592,
+   "ts": "1:33:12",
+   "text": "and how deterministic versus stochastic your output gets. And typically, when you use chatbots,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5600,
+   "ts": "1:33:20",
+   "text": "these are not set to zero. So outputs are typically non-deterministic because quality is typically better when",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5609,
+   "ts": "1:33:29",
+   "text": "it's non-deterministic for a range of tasks, but for very precise tasks like judgments,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5617,
+   "ts": "1:33:37",
+   "text": "where when you are grounded on the input that you're given and the rubrics that you're given,",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5624,
+   "ts": "1:33:44",
+   "text": "this is typically a use case where it's fine to make it set",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5629,
+   "ts": "1:33:49",
+   "text": "to zero, and also because you want determinism across your MLLM-as-a-Judge runs.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5636,
+   "ts": "1:33:56",
+   "text": "Something else is that you might see position bias, if you are in a pairwise setting, so it's",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5643,
+   "ts": "1:34:03",
+   "text": "good to swap the ordering of the two samples that you want to compare.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5648,
+   "ts": "1:34:08",
+   "text": "And the last point is something that we mentioned just before. We want to make sure it's aligned with human judgment",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5655,
+   "ts": "1:34:15",
+   "text": "before actually going ahead and then trusting it blindly.",
+   "chapter": "MLLM-as-a-Judge"
+  },
+  {
+   "t": 5661,
+   "ts": "1:34:21",
+   "text": "So I want to spend the last 5 minutes talking about the main benchmarks that cover",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5668,
+   "ts": "1:34:28",
+   "text": "some of the characteristics that we care about on image generation. So on benchmarks, I will go through points",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5681,
+   "ts": "1:34:41",
+   "text": "that cover overall areas that we care about. So one is, let's say you have a prompt.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5688,
+   "ts": "1:34:48",
+   "text": "You want to make sure that whatever is generated contains the objects and some high level",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5694,
+   "ts": "1:34:54",
+   "text": "attributes that you mentioned in your prompt. So this is where GenEval, it's one possible benchmark,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5702,
+   "ts": "1:35:02",
+   "text": "comes to mind, where you have a six tasks of increasing",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5708,
+   "ts": "1:35:08",
+   "text": "difficulty that talks about objects like counting of objects, colors of objects,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5715,
+   "ts": "1:35:15",
+   "text": "and relative position, as well as attribution of colors.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5721,
+   "ts": "1:35:21",
+   "text": "So the judges here are object detection models",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5728,
+   "ts": "1:35:28",
+   "text": "that will come in and then detect whether the right objects or the right colors were generated,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5734,
+   "ts": "1:35:34",
+   "text": "so this is one example. So you have a photo of a purple backpack and a white umbrella,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5740,
+   "ts": "1:35:40",
+   "text": "and you want to make sure that both objects and colors are correctly attributed.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5749,
+   "ts": "1:35:49",
+   "text": "And something else that you care about that might touch on something that you mentioned.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5755,
+   "ts": "1:35:55",
+   "text": "So when you deal with dense prompts, so typically, prompts that are very detailed,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5761,
+   "ts": "1:36:01",
+   "text": "you want to make sure that all of the details are correctly rendered. And this is why these DPG bench benchmark",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5770,
+   "ts": "1:36:10",
+   "text": "has a mechanism that looks a bit like what we saw in TIFA, where",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5777,
+   "ts": "1:36:17",
+   "text": "you have this big chunk of text that you decompose into a set of atomic yes or no questions.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5786,
+   "ts": "1:36:26",
+   "text": "And the interesting thing about this paper is that it groups all of these claims into a graph",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5793,
+   "ts": "1:36:33",
+   "text": "that is logical. So here, you have a big chunk of text and it decomposes into questions that",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5800,
+   "ts": "1:36:40",
+   "text": "are centered on attributes, relationships, and spatial location.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5809,
+   "ts": "1:36:49",
+   "text": "And let's say you want to judge about a given attribute, so here, that's long bunch of texts",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5818,
+   "ts": "1:36:58",
+   "text": "mentions like an empty space, where an invisible man has this and that.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5824,
+   "ts": "1:37:04",
+   "text": "So first, you need the empty space to exist. And this benchmark looks at it in a coarse to fine mindset.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5833,
+   "ts": "1:37:13",
+   "text": "So if the prerequisite doesn't exist, then you don't even bother looking at the other conditions,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5840,
+   "ts": "1:37:20",
+   "text": "so this is what makes this benchmark interestingly efficient.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5845,
+   "ts": "1:37:25",
+   "text": "And conversely, if one precondition exists, then you move on to the next pieces of the graph.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5854,
+   "ts": "1:37:34",
+   "text": "So this is another area. So something else that we had mentioned regarding capabilities",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5861,
+   "ts": "1:37:41",
+   "text": "that we were interested in was OCR as a capability. And on the image generation side,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5866,
+   "ts": "1:37:46",
+   "text": "you might want to generate images that have walls of text in there,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5872,
+   "ts": "1:37:52",
+   "text": "and you want to know how well they are rendered. So there is a long text bench that",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5879,
+   "ts": "1:37:59",
+   "text": "could be mentioned, where you have scenarios, where displaying text might be seen",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5887,
+   "ts": "1:38:07",
+   "text": "as interesting from an image generation perspective. And the paper uses a VLM, typically an OCR judge,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5898,
+   "ts": "1:38:18",
+   "text": "that will try to render the text in the generated image, and it will match to the reference text that was",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5906,
+   "ts": "1:38:26",
+   "text": "used as a generation prompt. And if both match, then we say that the text",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5912,
+   "ts": "1:38:32",
+   "text": "was correctly generated, so it's one other interesting application.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5918,
+   "ts": "1:38:38",
+   "text": "And then the last one I will mention is on another image generation mode",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5923,
+   "ts": "1:38:43",
+   "text": "that is of interest, typically, when you want to generate an image. So if you want to operate on top of a given image.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5932,
+   "ts": "1:38:52",
+   "text": "So here, Grounded Edits Bench.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5938,
+   "ts": "1:38:58",
+   "text": "So I put a question mark because it's not explicitly spelled out in the paper, but the abbreviation meaning,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5947,
+   "ts": "1:39:07",
+   "text": "but the grounding part is on the input image that is given. So you ask a task about it, for example,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5955,
+   "ts": "1:39:15",
+   "text": "replacing some background, changing colors, and so on. So you have 11 such tasks, and you use a MLLM-as-a-Judge model",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5967,
+   "ts": "1:39:27",
+   "text": "that operates on both perceptual quality and semantic consistency to judge the output.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5973,
+   "ts": "1:39:33",
+   "text": "So here's a figure from their paper on what it looks like.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5980,
+   "ts": "1:39:40",
+   "text": "And I just want to say one last word about all of this. Sometimes you might be overwhelmed",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5986,
+   "ts": "1:39:46",
+   "text": "with all these metrics. So we saw at the beginning of the lecture, a bunch of quantitative ones.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5991,
+   "ts": "1:39:51",
+   "text": "We saw MLLM-as-a-Judge ones that are still imperfect because they",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 5997,
+   "ts": "1:39:57",
+   "text": "depend on how well you tune it, so there is no absolute way of knowing how something performs.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6003,
+   "ts": "1:40:03",
+   "text": "And you might be prone to only relying on a few sample images",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6010,
+   "ts": "1:40:10",
+   "text": "as a way to who have an opinion about a given image model,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6016,
+   "ts": "1:40:16",
+   "text": "but I want to say that so let's do the following thought experiment. If you consider not the procedure",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6025,
+   "ts": "1:40:25",
+   "text": "of picking the next image that is generated by your model, but the best of three, versus the least well of three,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6034,
+   "ts": "1:40:34",
+   "text": "then you see the corresponding distributions are quite different. So from the same image generation model,",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6043,
+   "ts": "1:40:43",
+   "text": "you could handcraft different distributions just by the way you go about sampling what",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6049,
+   "ts": "1:40:49",
+   "text": "you want to display to someone. So yeah, I just want to put a caveat on when you see images doesn't tell the whole story either.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6058,
+   "ts": "1:40:58",
+   "text": "And with that, thank you very much for coming here, despite the long weekend.",
+   "chapter": "Benchmarks"
+  },
+  {
+   "t": 6063,
+   "ts": "1:41:03",
+   "text": "I hope you have a great one. [APPLAUSE]",
+   "chapter": "Benchmarks"
+  }
+ ],
+ "chapters": [
+  {
+   "name": "Introduction",
+   "t": 0
+  },
+  {
+   "name": "Motivation",
+   "t": 322
+  },
+  {
+   "name": "Human ratings",
+   "t": 657
+  },
+  {
+   "name": "Elo rating system",
+   "t": 1183
+  },
+  {
+   "name": "Reference-free metrics",
+   "t": 1604
+  },
+  {
+   "name": "Fr\u00e9chet inception distance (FID)",
+   "t": 1756
+  },
+  {
+   "name": "CLIPScore",
+   "t": 2550
+  },
+  {
+   "name": "PickScore",
+   "t": 2691
+  },
+  {
+   "name": "Reference-based metrics",
+   "t": 2747
+  },
+  {
+   "name": "Mean squared error (MSE)",
+   "t": 2888
+  },
+  {
+   "name": "Peak signal-to-noise ratio (PSNR)",
+   "t": 2980
+  },
+  {
+   "name": "Structural similarity (SSIM)",
+   "t": 3118
+  },
+  {
+   "name": "Perceptual similarity (LPIPS)",
+   "t": 3672
+  },
+  {
+   "name": "Multimodal LLMs",
+   "t": 3906
+  },
+  {
+   "name": "Faithfulness evaluation (TIFA)",
+   "t": 4396
+  },
+  {
+   "name": "Visual question answering score (VQA)",
+   "t": 4654
+  },
+  {
+   "name": "MLLM-as-a-Judge",
+   "t": 5081
+  },
+  {
+   "name": "Benchmarks",
+   "t": 5661
+  },
+  {
+   "name": "Stanford CME29",
+   "pending": true
+  }
+ ]
+}

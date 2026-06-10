@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 5: Image generation architectures — CME 296: Diffusion &amp; Large Vision Models</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<p class="course"><a href="index.html">CME 296: Diffusion &amp; Large Vision Models</a></p>
+<h1>Lecture 5: Image generation architectures</h1>
+<p class="meta">May 8th, 2026 &middot;
+<a href="https://cme296.stanford.edu/slides/spring26-cme296-lecture5.pdf" target="_blank" rel="noopener">Slides (PDF)</a> &middot;
+<a href="https://www.youtube.com/watch?v=HpFdSlMeXzQ" target="_blank" rel="noopener">Video on YouTube</a></p>
+<nav class="lnav"><a href="lecture4.html">&larr; Lecture 4</a><a href="index.html">All lectures</a><a href="lecture6.html">Lecture 6 &rarr;</a></nav>
+</div>
+</header>
+<details class="toc wrap"><summary>Chapters</summary><p><a href="#ch-Introduction">Introduction</a> &middot; <a href="#ch-Objective">Objective</a> &middot; <a href="#ch-Convolutions,-filters">Convolutions, filters</a> &middot; <a href="#ch-Receptive-field">Receptive field</a> &middot; <a href="#ch-Pooling">Pooling</a> &middot; <a href="#ch-U-Net">U-Net</a> &middot; <a href="#ch-Timestep-representation">Timestep representation</a> &middot; <a href="#ch-Class-label-representation">Class label representation</a> &middot; <a href="#ch-Timeline-of-U-Net-models">Timeline of U-Net models</a> &middot; <a href="#ch-Diffusion-Transformer-(DiT)">Diffusion Transformer (DiT)</a> &middot; <a href="#ch-Adaptive-layer-normalization-(adaLN)">Adaptive layer normalization (adaLN)</a> &middot; <a href="#ch-DiT-end-to-end-example">DiT end-to-end example</a> &middot; <a href="#ch-Multimodal-DiT-(MM-DiT)">Multimodal DiT (MM-DiT)</a> &middot; <a href="#ch-Qwen-Image,-Z-Image,-FLUX.1">Qwen-Image, Z-Image, FLUX.1</a> &middot; <a href="#ch-Timeline-of-DiT-models">Timeline of DiT models</a> &middot; <a href="#ch-Absolute-position-embeddings">Absolute position embeddings</a> &middot; <a href="#ch-Rotary-position-embeddings-(RoPE)">Rotary position embeddings (RoPE)</a> &middot; <a href="#ch-2D-RoPE-variants">2D RoPE variants</a></p></details>
+<main class="wrap">
+<div class="chapter" id="ch-Introduction"><span>Introduction</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=0s" target="_blank" rel="noopener">0:00</a></div><section class="row" id="s0">
+<figure>
+<a href="slides/l5/p001.jpg" target="_blank">
+<img src="slides/l5/p001.jpg" alt="Slide p. 1: CME 296: Diﬀusion &amp;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 1 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=0s" target="_blank" rel="noopener" title="Watch on YouTube from 0:00">&#9658; 0:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=0s" target="_blank" rel="noopener">0:00</a> 0:05 Hello, everyone, and welcome to lecture 5 of CME 296. So we are officially entering the second half of this class.</p>
+</div>
+</section><section class="row" id="s1">
+<figure>
+<a href="slides/l5/p002.jpg" target="_blank">
+<img src="slides/l5/p002.jpg" alt="Slide p. 2: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 2 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=18s" target="_blank" rel="noopener" title="Watch on YouTube from 0:18">&#9658; 0:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=18s" target="_blank" rel="noopener">0:18</a> So we did a lot of hard work during the first half. We derived a tractable loss to learn how to generate images. So if you remember, the first three lectures was us looking from different perspectives</p>
+</div>
+</section><section class="row" id="s2">
+<figure>
+<a href="slides/l5/p003.jpg" target="_blank">
+<img src="slides/l5/p003.jpg" alt="Slide p. 3: Recap of last episodes…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 3 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=34s" target="_blank" rel="noopener" title="Watch on YouTube from 0:34">&#9658; 0:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=34s" target="_blank" rel="noopener">0:34</a> to derive that loss. And then something else we did, which was, again, hard work, was figuring out in which space those images were living-- so how to represent images. And so this second half is going to be more practical. And this lecture is specifically going to be about the architectures behind the image-generation models.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=61s" target="_blank" rel="noopener">1:01</a> So before we start, as usual, we&#x27;re going to recap what we did the last times. So as I mentioned, the first three lectures were around deriving a tractable training loss to learn how to generate images. So what we want is to be able to generate images like the one that is on the slides. And we saw that a common denominator is us</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=89s" target="_blank" rel="noopener">1:29</a> starting from those. So we saw three perspectives. The first one was diffusion with DDPM. So we saw that we were corrupting a clean image. And then we were learning how to reconstruct it by predicting the noise that we had to remove. And so we ended up with a loss that was actually quite nice-- L2 loss on the noise. Then in lecture 2, we saw another perspective, which was,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=122s" target="_blank" rel="noopener">2:02</a> let&#x27;s figure out the regions of high density of the data distribution of interest. And what we did was derive a loss that is based on the score. The score here is the gradient of the logarithm of the probability distribution. And then the last one was lecture 3, where we actually said, OK, this problem can actually</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=147s" target="_blank" rel="noopener">2:27</a> be framed as a transport problem, where we want to go from an initial distribution, which is the noise, to the target one. And here we derive the loss based on the velocity, a.k.a, vector field, which is again, very nice. It can be expressed as an L2 regression loss. And in between, we have this denoising process that is similar in these three paradigms but done differently.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=178s" target="_blank" rel="noopener">2:58</a> And then in lecture 4 we said, OK, up until that point, we just assumed that we were able to represent images, the XTs, and we said, OK, actually, let&#x27;s figure out a good way to represent them in a way that makes sense. And what we said was that we wanted them to be represented in a space that was not</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=204s" target="_blank" rel="noopener">3:24</a> too high in dimensionality. So there was a space called latent space, in which we want our images to be represented. And we want the representations to be meaningful. So what does meaningful mean? It means having some structure to the space, because what we want is our model to have an easy time learning this generation process.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=232s" target="_blank" rel="noopener">3:52</a> And we focused on the VAE, Variational Autoencoder, which was structuring the latent space by having some constraints on how the distribution was behaving over the latent space.</p>
+</div>
+</section><section class="row" id="s3">
+<figure>
+<a href="slides/l5/p004.jpg" target="_blank">
+<img src="slides/l5/p004.jpg" alt="Slide p. 4: Today&#x27;s lecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 4 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=250s" target="_blank" rel="noopener" title="Watch on YouTube from 4:10">&#9658; 4:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=250s" target="_blank" rel="noopener">4:10</a> So we saw this KL divergence term in the loss. But then we said, OK, actually the images were becoming blurry.</p>
+</div>
+</section><section class="row" id="s4">
+<figure>
+<a href="slides/l5/p005.jpg" target="_blank">
+<img src="slides/l5/p005.jpg" alt="Slide p. 5: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 5 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=258s" target="_blank" rel="noopener" title="Watch on YouTube from 4:18">&#9658; 4:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=258s" target="_blank" rel="noopener">4:18</a> So then we looked at a number of strategies to combat the blurriness.</p>
+</div>
+</section><section class="row" id="s5">
+<figure>
+<a href="slides/l5/p006.jpg" target="_blank">
+<img src="slides/l5/p006.jpg" alt="Slide p. 6: Problem statement" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 6 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=263s" target="_blank" rel="noopener" title="Watch on YouTube from 4:23">&#9658; 4:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=263s" target="_blank" rel="noopener">4:23</a> So we saw the adversarial loss. We saw perceptual loss and so on.</p>
+</div>
+</section><section class="row" id="s6">
+<figure>
+<a href="slides/l5/p007.jpg" target="_blank">
+<img src="slides/l5/p007.jpg" alt="Slide p. 7: Objective of this lecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 7 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=269s" target="_blank" rel="noopener" title="Watch on YouTube from 4:29">&#9658; 4:29</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=269s" target="_blank" rel="noopener">4:29</a> So we&#x27;re happy. Now we know how to represent those images. And we saw also that if we were to condition our generation process with the condition, we also had a method called classifier free guidance that allowed us to generate images by emphasizing more on the prompts. And we did that by predicting twice the,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=301s" target="_blank" rel="noopener">5:01</a> let&#x27;s say, noise to remove or velocity or score. And with a guidance factor, emphasize the generation process more towards the prompt. So here this can be represented on the image. And this is where we stopped. And then, of course, we had the midterm.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=324s" target="_blank" rel="noopener">5:24</a> And today, what we&#x27;re going to do is to focus on the architecture behind the image-generation</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=333s" target="_blank" rel="noopener">5:33</a> model, which until now we considered as being a black box. So I want to give a disclaimer. There are many different architectures. Our goal is not going to just have a catalog of every single one of them. But what I hope this lecture will provide is at least an intuition as to why certain components are</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=359s" target="_blank" rel="noopener">5:59</a> always being reused. So if you walk away with just an understanding of why things are the way they are, then I think it&#x27;s going to be a good thing for us. So let&#x27;s first start by what we want. So what we want, if you remember, diffusion, score matching, flow matching,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=386s" target="_blank" rel="noopener">6:26</a> they had a few things as inputs. So first, they had x t-- the noisy image or the noisy latent that you&#x27;re trying to denoise. You also had some indication of the noise level that&#x27;s given by time step, t. And you also have a condition. Let&#x27;s call it C, which it can be a text prompt.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=416s" target="_blank" rel="noopener">6:56</a> For instance, if you want to generate an image of a teddy bear reading a book, that can be your condition. So these three elements are your inputs that goes through your generation model. And as an output, you want to predict, let&#x27;s say, the velocity that will allow you to then iteratively move towards your desired predicted image. And the goal of this whole lecture</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=450s" target="_blank" rel="noopener">7:30</a> is to focus on that generation model. So that&#x27;s the model that we&#x27;re talking about. But before we go into that, I just want to give a few slides notes. So the first one is the condition. So I mentioned it can be a piece of text. In that case, such models are called text to image models, T</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=473s" target="_blank" rel="noopener">7:53</a> to I. But you can also have a text and an image as input-- so an image editing problem, in which case the model will be called a TI to I model, Text Image to Image Model. So here make this teddy bear dance along with the image of the teddy bear. And then another thing is, of course, the outputs.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=501s" target="_blank" rel="noopener">8:21</a> I mentioned there are several ways to parameterize your generation. You can either predict the velocity or, of course, the noise or the score. All of this is roughly the same thing. But just for the sake of consistency, we&#x27;re just going to say that we&#x27;re going to predict the velocity just because nowadays most models do that. So with that in mind, what do we want our model to be?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=535s" target="_blank" rel="noopener">8:55</a> So first we want our model to be able to understand the global structure of the image that it wants to generate. So that&#x27;s one. But we also wanted to understand the nuances of the local details so that it can also generate crisp images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=558s" target="_blank" rel="noopener">9:18</a> And of course, we want a model that not only is able to have x t and t as input, but can also condition that based on external signals. And so here it can be input text or input image. And we want, of course, that model to be scalable because of course, nowadays, we&#x27;re generating images of very high resolution, and we&#x27;re also generating videos, which we have not</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=584s" target="_blank" rel="noopener">9:44</a> seen so far, but you can think of this as being also applicable there. So these are our wish lists.</p>
+</div>
+</section><div class="chapter" id="ch-Objective"><span>Objective</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=597s" target="_blank" rel="noopener">9:57</a></div><section class="row" id="s7">
+<figure>
+<a href="slides/l5/p008.jpg" target="_blank">
+<img src="slides/l5/p008.jpg" alt="Slide p. 8: Side notes" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 8 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=597s" target="_blank" rel="noopener" title="Watch on YouTube from 9:57">&#9658; 9:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=597s" target="_blank" rel="noopener">9:57</a> And let&#x27;s start with the first model by first thinking about how humans look at an image.</p>
+</div>
+</section><div class="chapter" id="ch-Convolutions,-filters"><span>Convolutions, filters</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=608s" target="_blank" rel="noopener">10:08</a></div><section class="row" id="s8">
+<figure>
+<a href="slides/l5/p009.jpg" target="_blank">
+<img src="slides/l5/p009.jpg" alt="Slide p. 9: Side notes" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 9 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=608s" target="_blank" rel="noopener" title="Watch on YouTube from 10:08">&#9658; 10:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=608s" target="_blank" rel="noopener">10:08</a> So you see this teddy bear image. So you have an eye on the right side of the slide.</p>
+</div>
+</section><section class="row" id="s9">
+<figure>
+<a href="slides/l5/p010.jpg" target="_blank">
+<img src="slides/l5/p010.jpg" alt="Slide p. 10: Side notes" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 10 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=614s" target="_blank" rel="noopener" title="Watch on YouTube from 10:14">&#9658; 10:14</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=614s" target="_blank" rel="noopener">10:14</a> So when you look at this image, what you&#x27;re doing is focusing on a specific part of the image</p>
+</div>
+</section><section class="row" id="s10">
+<figure>
+<a href="slides/l5/p011.jpg" target="_blank">
+<img src="slides/l5/p011.jpg" alt="Slide p. 11: Side notes" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 11 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=622s" target="_blank" rel="noopener" title="Watch on YouTube from 10:22">&#9658; 10:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=622s" target="_blank" rel="noopener">10:22</a> and skimming through that image, scanning that image.</p>
+</div>
+</section><section class="row" id="s11">
+<figure>
+<a href="slides/l5/p012.jpg" target="_blank">
+<img src="slides/l5/p012.jpg" alt="Slide p. 12: Goal" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 12 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=627s" target="_blank" rel="noopener" title="Watch on YouTube from 10:27">&#9658; 10:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=627s" target="_blank" rel="noopener">10:27</a> That&#x27;s what we do as humans. So one natural way of thinking about how to build such a model</p>
+</div>
+</section><section class="row" id="s12">
+<figure>
+<a href="slides/l5/p013.jpg" target="_blank">
+<img src="slides/l5/p013.jpg" alt="Slide p. 13: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 13 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=627s" target="_blank" rel="noopener">&#8776; 10:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s13">
+<figure>
+<a href="slides/l5/p017.jpg" target="_blank">
+<img src="slides/l5/p017.jpg" alt="Slide pp. 14–17: Intuition behind convolution-based models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 14–17 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=639s" target="_blank" rel="noopener" title="Watch on YouTube from 10:39">&#9658; 10:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=639s" target="_blank" rel="noopener">10:39</a> is to have this bias. I will call it bias, and I will justify it why I say it that way. We want to have our model be biased towards looking at the image in the way we humans look at it. I&#x27;m going to call that bias, inductive bias. Who has heard of inductive bias by the way?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=666s" target="_blank" rel="noopener">11:06</a> Yeah, a few people. So we say that the model has an inductive bias when we build it in such a way that it behaves in some way that we think it should behave.</p>
+</div>
+</section><section class="row" id="s14">
+<figure>
+<a href="slides/l5/p018.jpg" target="_blank">
+<img src="slides/l5/p018.jpg" alt="Slide p. 18: Convolution operation with ﬁlters" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 18 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=681s" target="_blank" rel="noopener" title="Watch on YouTube from 11:21">&#9658; 11:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=681s" target="_blank" rel="noopener">11:21</a> So in other words, here we&#x27;re going to say, OK, we want our model to take some image as input, and scan it a little bit like humans do. And that&#x27;s the reason why I&#x27;m going to introduce an operation that maybe you&#x27;re already familiar with, which is called the convolution operation, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=705s" target="_blank" rel="noopener">11:45</a> takes some inputs, let&#x27;s say an input image, and then uses a filter to perform convolution operation across that input in order to generate or in order to produce an output. So just on the terminology side, the output is usually called feature map or activation map.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=735s" target="_blank" rel="noopener">12:15</a> And here this convolution process typically leads to your output exhibiting things like edges, corners, texture, from your inputs. So it&#x27;s going to extract features, visual features.</p>
+</div>
+</section><section class="row" id="s15">
+<figure>
+<a href="slides/l5/p020.jpg" target="_blank">
+<img src="slides/l5/p020.jpg" alt="Slide pp. 19–20: Convolution operation with ﬁlters" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 19–20 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=755s" target="_blank" rel="noopener" title="Watch on YouTube from 12:35">&#9658; 12:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=755s" target="_blank" rel="noopener">12:35</a> So another thing that I will note is on this slide, you may think the convolution is done in a 2D manner, but let&#x27;s remember that images are represented in height, width, but also depth, because you have the three values that represent a pixel. And so the filter is as deep--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=782s" target="_blank" rel="noopener">13:02</a> if you want to think of it that way-- as the input. And so the convolution is really across the depth axis as well. So in particular, those filters, they&#x27;re 3D. They have a dimension of F times F times C, which is the same C as the number of channels from the input. And we typically have K such filters. And then the number of steps by which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=815s" target="_blank" rel="noopener">13:35</a> we move the filter is called the stride.</p>
+</div>
+</section><section class="row" id="s16">
+<figure>
+<a href="slides/l5/p022.jpg" target="_blank">
+<img src="slides/l5/p022.jpg" alt="Slide pp. 21–22: Receptive ﬁeld" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 21–22 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=821s" target="_blank" rel="noopener" title="Watch on YouTube from 13:41">&#9658; 13:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=821s" target="_blank" rel="noopener">13:41</a> So that&#x27;s also a terminology you should have in mind. So based on that, let&#x27;s remember the conditions we had. We want our image to understand global structure. We want to preserve local details. We want external signals. And we want it to be scalable. Well, with that, at least we have seemingly a tractable way of doing this computation. So let&#x27;s say that number 4 is good.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=850s" target="_blank" rel="noopener">14:10</a> Local details, I think that&#x27;s also something that is valid here, because you are able to capture patterns within a certain range of, let&#x27;s say, pixels. So that one is also good. But how about the global structure? You want your output-- so here you want your output to have seen the whole input to be able to be aware of it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=884s" target="_blank" rel="noopener">14:44</a> So there is this concept of a receptive field, which is defined by the area that an activation element is able to see. So here, let&#x27;s suppose we have an input that has a series of convolutions. So what we&#x27;re saying is if we take just one</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=907s" target="_blank" rel="noopener">15:07</a> element from the output, we want to know how many elements from the input it has seen. So this is the receptive field. So there is some formulas there that I don&#x27;t want us to just remember, but I just want to call out that the area that an element can see is a function of the filter dimension and the strides.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=937s" target="_blank" rel="noopener">15:37</a> And if you want the output to have seen all the input, you can imagine that you need a lot of convolutions, because here in this slide, if you do, let&#x27;s say, just one convolution, then the area is just, let&#x27;s say, five. So you do two convolutions actually.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=965s" target="_blank" rel="noopener">16:05</a> But images, they are typically 500 by 500, 1,000 by 1,000. So you need a lot of such convolutions, which may not be as tractable. So one idea that we can have is to have down-sampling operations that would allow us was to have a bigger receptive field early on so that we can have a global understanding of the structure,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=997s" target="_blank" rel="noopener">16:37</a> and then we can have some up-sampling operations to then</p>
+</div>
+</section><div class="chapter" id="ch-Receptive-field"><span>Receptive field</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1003s" target="_blank" rel="noopener">16:43</a></div><section class="row" id="s17">
+<figure>
+<a href="slides/l5/p023.jpg" target="_blank">
+<img src="slides/l5/p023.jpg" alt="Slide p. 23: Downsampling with pooling operation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 23 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1003s" target="_blank" rel="noopener" title="Watch on YouTube from 16:43">&#9658; 16:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1003s" target="_blank" rel="noopener">16:43</a> end up with the same dimensions as the input. That&#x27;s just an idea I&#x27;m throwing out, because let&#x27;s remember that our model needs to have the inputs X-- so the noisy image as input. And it needs to return something that is as the same dimension as the input as well. So you cannot just reduce the dimension and just call it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1030s" target="_blank" rel="noopener">17:10</a> a day. You cannot do that. So for that reason, we&#x27;re going to see</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1036s" target="_blank" rel="noopener">17:16</a> a series of operations that are going to help us in building such a model. So here let&#x27;s see a very common down-sampling operation. So who has heard of pooling here? Pooling? Great. So pooling, as you know, is you take, let&#x27;s say a given square, and what you do is you just down-sample it by either taking the max value or just the average value.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1065s" target="_blank" rel="noopener">17:45</a> So there is no learnable parameters there. And speaking of learnable parameters, I may have been a bit too fast there, but here the filters that are used for convolutional operation, they, of course, are learnable. And you have F times F times C parameters per filter plus some bias term, if you assume that there is bias, times K. Not that I want to go to formulas,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1097s" target="_blank" rel="noopener">18:17</a> but just giving you a sense of what is learned and what is not learned. So pooling, you don&#x27;t learn anything-- just the pooling operation. So this is just down-sampling operations.</p>
+</div>
+</section><div class="chapter" id="ch-Pooling"><span>Pooling</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1111s" target="_blank" rel="noopener">18:31</a></div><section class="row" id="s18">
+<figure>
+<a href="slides/l5/p024.jpg" target="_blank">
+<img src="slides/l5/p024.jpg" alt="Slide p. 24: Upsampling with transpose convolution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 24 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1111s" target="_blank" rel="noopener" title="Watch on YouTube from 18:31">&#9658; 18:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1111s" target="_blank" rel="noopener">18:31</a> But I mentioned we want to also be able to up-sample. And there is an operation called the transpose convolution that we&#x27;re not going to go into too much detail, but I just want to call out that there is an up-sampling operation, that is the transpose convolution that uses filters to broadcast elements from the input towards the output--</p>
+</div>
+</section><section class="row" id="s19">
+<figure>
+<a href="slides/l5/p025.jpg" target="_blank">
+<img src="slides/l5/p025.jpg" alt="Slide p. 25: Proposal of a convolution-based architecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 25 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1142s" target="_blank" rel="noopener" title="Watch on YouTube from 19:02">&#9658; 19:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1142s" target="_blank" rel="noopener">19:02</a> so just up-samples it. So given that, I hope it&#x27;s not coming out of the blue, that&#x27;s</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1156s" target="_blank" rel="noopener">19:16</a> a model that down-samples the input and then up-samples it could be a natural choice of such a model, because here what you&#x27;re doing is during the down-sampling step, you&#x27;re able to have receptive fields of your output that sees most of the inputs, which is the global structure understanding part. And then you have the up-sampling part-- so the one on the right--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1187s" target="_blank" rel="noopener">19:47</a> that just increases your output once again back to the dimension that it was just in order for you to have a shape that&#x27;s abides by what you want.</p>
+</div>
+</section><div class="chapter" id="ch-U-Net"><span>U-Net</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1202s" target="_blank" rel="noopener">20:02</a></div><section class="row" id="s20">
+<figure>
+<a href="slides/l5/p026.jpg" target="_blank">
+<img src="slides/l5/p026.jpg" alt="Slide p. 26: U-Net: convolution-based architecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 26 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1202s" target="_blank" rel="noopener" title="Watch on YouTube from 20:02">&#9658; 20:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1202s" target="_blank" rel="noopener">20:02</a> And here you can also have direct connections from one to the other to just transport some local details that you may have computed. So such a model is called U-Net--</p>
+</div>
+</section><section class="row" id="s21">
+<figure>
+<a href="slides/l5/p027.jpg" target="_blank">
+<img src="slides/l5/p027.jpg" alt="Slide p. 27: U-Net: downsampling phase" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 27 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1224s" target="_blank" rel="noopener" title="Watch on YouTube from 20:24">&#9658; 20:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1224s" target="_blank" rel="noopener">20:24</a> well, because it&#x27;s a shape like a U when you do the illustration.</p>
+</div>
+</section><section class="row" id="s22">
+<figure>
+<a href="slides/l5/p028.jpg" target="_blank">
+<img src="slides/l5/p028.jpg" alt="Slide p. 28: U-Net: upsampling phase" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 28 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1229s" target="_blank" rel="noopener" title="Watch on YouTube from 20:29">&#9658; 20:29</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1229s" target="_blank" rel="noopener">20:29</a> And so I mentioned a little bit of the intuition. But we&#x27;re going to go step by step. So the first step is the down-sampling step. So it has a combination of convolutions and pooling that are able to down-sample the dimension of the feature map.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1254s" target="_blank" rel="noopener">20:54</a> And as we saw, it just allows your output to have seen more and more of the input. And when I say that, what I mean is if you take a single pixel, a single activation value, it has seen more and more of the input-- a bigger area of the input. So in that sense, what I&#x27;m saying is, it is able to understand the global structure of the inputs.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1281s" target="_blank" rel="noopener">21:21</a> Is everyone clear on that statement? Cool. So this is similar to an encoder. And then you have the second step, which is the up-sampling part. So you have here a feature map at the very beginning of the up-sampling step, which is very small. And what you want is to up-sample that feature map back to the dimension of the input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1311s" target="_blank" rel="noopener">21:51</a> So here you&#x27;re using a mix of transpose convolution also called up convolution and convolutions. And you can think of this more as a decoder. So it just leverages the understanding, the global structure understanding that is compressed in the representation at the very bottom, which is called the bottleneck. And it just gets it back to the same dimension as the input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1342s" target="_blank" rel="noopener">22:22</a> But at that step, you may tell me, well, sure, you can have a global understanding of the structure, but you may lose the details. And that&#x27;s where these connections come into play. So during the down-sampling step, what you want is to leverage the patterns that you&#x27;re computing in the up-sampling step. So what you&#x27;re doing is you&#x27;re taking at each level</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1376s" target="_blank" rel="noopener">22:56</a> a part of the feature map, and you&#x27;re just simply copying-- so cropping and copying. So that just allows local details to flow from what you have computed in the down-sampling step to the up-sampling step. Is that part clear? So the question is, what are you copying?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1403s" target="_blank" rel="noopener">23:23</a> What are you cropping? So great question. So what you&#x27;re doing here is the feature map that you&#x27;re computing in the down-sampling step, you&#x27;re just literally taking that-- literally doing that-- and then the feature map that is part of the up-sampling step, you&#x27;re just concatenating those features</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1428s" target="_blank" rel="noopener">23:48</a> to the features that are in the up-sampling step. So in other words, in the up-sampling procedure, you may have a feature map that you&#x27;re computing that is let&#x27;s say of size O times O times C. So what you&#x27;re saying here is you&#x27;re concatenating something that is also of size O times O times C, where maybe the C can be different, but you&#x27;re just concatenating the two.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1461s" target="_blank" rel="noopener">24:21</a> So of course, you have some variations of how this is done, but this is what this illustration represents. So the question is, why are you not looking at the down-sampled features? Because we have already lost the details already. So if you see on the slide, we&#x27;re actually copying and cropping the features that are before we&#x27;re at that very down-sampled outputs.</p>
+</div>
+</section><section class="row" id="s23">
+<figure>
+<a href="slides/l5/p029.jpg" target="_blank">
+<img src="slides/l5/p029.jpg" alt="Slide p. 29: Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 29 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1489s" target="_blank" rel="noopener" title="Watch on YouTube from 24:49">&#9658; 24:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1489s" target="_blank" rel="noopener">24:49</a> Because as you go down, you lose more and more details, but then you&#x27;re gaining global understanding of the inputs. And so that&#x27;s why you want your connections to go from the very top to the other way and so on. Yeah. So the question is, how we&#x27;re training this model. So we&#x27;re training it jointly. So we&#x27;re not going to go into details there, but let&#x27;s just assume you can train the whole thing by just</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1517s" target="_blank" rel="noopener">25:17</a> considering it as just a model. So the question is, can the model output exactly what the input image? So that is not what you want because-- so I think you&#x27;re maybe remembering the autoencoder that we saw last time. So the goal of the autoencoder is to learn a representation of the inputs and compress it into in a latent space so that you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1545s" target="_blank" rel="noopener">25:45</a> can sample from the latent space and then reconstruct it. And the problem here is you have the connections that come from the thing that you&#x27;re not supposed to have. So you can think of this model as taking a noisy latent</p>
+</div>
+</section><section class="row" id="s24">
+<figure>
+<a href="slides/l5/p030.jpg" target="_blank">
+<img src="slides/l5/p030.jpg" alt="Slide p. 30: Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 30 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1561s" target="_blank" rel="noopener" title="Watch on YouTube from 26:01">&#9658; 26:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1561s" target="_blank" rel="noopener">26:01</a> as input. But your goal is to not reconstruct that output, it&#x27;s actually to predict the thing that will allow you to denoise it. So in that sense, there are some similarities with an autoencoder, but it&#x27;s very different. Yep. So the question is, does the output of the model have to be equal to the dimensions of the input?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1586s" target="_blank" rel="noopener">26:26</a> Yes. Because so the question is, why? Well if you take your input latent x t, so if you remember back in lecture 3, which was like two or three weeks ago, we had the iterative step, which was, sorry xt plus dt is equal to xt plus the velocity times dt. So if you just look at that equation, you just see that the dimensions need to match.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1621s" target="_blank" rel="noopener">27:01</a> Another way to think about it is in the diffusion with the DPM formulation. What you want is to find the noise to remove, and that noise needs to match your input image. Exactly, exactly. OK, perfect. I have a lot of content. So we&#x27;ll try to move a little bit faster,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1647s" target="_blank" rel="noopener">27:27</a> but I try to also do some pauses here and there to make sure we&#x27;re still together now. So you have that model. But now you may wonder, well, how can you add external conditions? How can you inform your model that you&#x27;re at time step t? How can you inform your model that you want to condition it with respect to some condition?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1670s" target="_blank" rel="noopener">27:50</a> Well, that&#x27;s a great question. And so to answer that question, you first</p>
+</div>
+</section><div class="chapter" id="ch-Timestep-representation"><span>Timestep representation</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1676s" target="_blank" rel="noopener">27:56</a></div><section class="row" id="s25">
+<figure>
+<a href="slides/l5/p031.jpg" target="_blank">
+<img src="slides/l5/p031.jpg" alt="Slide p. 31: Representation of timestep" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 31 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1676s" target="_blank" rel="noopener" title="Watch on YouTube from 27:56">&#9658; 27:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1676s" target="_blank" rel="noopener">27:56</a> need to think about how you want to represent your time step t and your condition C. Well, let&#x27;s start with the time step. Here the goal is to represent the time step in a D dimensional space. And before I tell you how we do it, I just want you to look at your watch. Well, as humans, we construct time</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1708s" target="_blank" rel="noopener">28:28</a> as a function of different dimensions-- hours, minutes, seconds, days, and so on and so forth. And you can think of each of these dimensions as being part of a vector if you think about it. And one thing that&#x27;s quite interesting about these dimensions is that they run at different frequencies. So for instance, an hour is kind of slow to pass.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1739s" target="_blank" rel="noopener">28:59</a> So I hope, by the way, this lecture is fun so you&#x27;re not feeling like an hour is low, but hour is slow. Minute is faster. Seconds are even faster. So you have a difference in frequencies, a difference in frequencies, which hopefully motivates</p>
+</div>
+</section><section class="row" id="s26">
+<figure>
+<a href="slides/l5/p032.jpg" target="_blank">
+<img src="slides/l5/p032.jpg" alt="Slide p. 32: Representation of timestep" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 32 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1757s" target="_blank" rel="noopener" title="Watch on YouTube from 29:17">&#9658; 29:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1757s" target="_blank" rel="noopener">29:17</a> the fact that what we want is to represent these time steps as vectors of quantities that are also sinusoidal-- so things that have some frequency to it-- where some dimensions are, let&#x27;s say, slower than others. So is that motivating example intuitive enough for this</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1786s" target="_blank" rel="noopener">29:46</a> to be making sense? So in other words, let me tell you what that illustration represents. If you take a single row, then what you have is an illustration of the values of each dimension. So what that means is, for instance, at the very bottom, or let&#x27;s start at the very top, let&#x27;s say.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1811s" target="_blank" rel="noopener">30:11</a> You have values that alternate between let&#x27;s say 1 and 0 in this example. And then as you move down, you see that some dimensions they vary faster than others. And this is exactly matching the intuition I mentioned. So that is for the time step. Now the condition.</p>
+</div>
+</section><div class="chapter" id="ch-Class-label-representation"><span>Class label representation</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1834s" target="_blank" rel="noopener">30:34</a></div><section class="row" id="s27">
+<figure>
+<a href="slides/l5/p033.jpg" target="_blank">
+<img src="slides/l5/p033.jpg" alt="Slide p. 33: Representation of class label" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 33 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1834s" target="_blank" rel="noopener" title="Watch on YouTube from 30:34">&#9658; 30:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1834s" target="_blank" rel="noopener">30:34</a> So I mentioned a condition can be a piece of text. Well, you have a number of ways to represent that text. We&#x27;ve seen some methods in the past lecture in terms of how to represent text and image. But here, I&#x27;ll just mention just a few categories of methods. So there&#x27;s one where you have very basic predefined class. And what you&#x27;re doing is you&#x27;re just learning the vector representation of that class.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1865s" target="_blank" rel="noopener">31:05</a> Or you can go more granular and divide your input text into tokens and then have representation</p>
+</div>
+</section><section class="row" id="s28">
+<figure>
+<a href="slides/l5/p034.jpg" target="_blank">
+<img src="slides/l5/p034.jpg" alt="Slide p. 34: Representation of class label" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 34 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1872s" target="_blank" rel="noopener" title="Watch on YouTube from 31:12">&#9658; 31:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1872s" target="_blank" rel="noopener">31:12</a> for each of these tokens. So for both these categories of methods, you have a bunch of such methods. But one very common method these days is just to get a pre-trained LLM, and just grab the embeddings, which we will not go into details here but what people do nowadays. And then for the first method, we can simply take a VIT-based model</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1899s" target="_blank" rel="noopener">31:39</a> and just take the representation of the CLS token, which I believe we briefly saw in the last lecture. All of that to say that we have ways to represent the condition. Cool. So let&#x27;s suppose we have a representation of the time step. We have a representation of the condition. Now, how do you inject it in your model? Well, here again, you have a number of methods.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1931s" target="_blank" rel="noopener">32:11</a> There is no consensus. One is injecting that to the feature map. So here what I mean is you take your vector t, you take your vector c, let&#x27;s say you add them, and then you make sure that the dimension of your vector is, let&#x27;s say, c the number of channels. And then what you do is you add it to your feature map, which if you remember is of depth c.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1961s" target="_blank" rel="noopener">32:41</a> So that can be one way. Another way is to modulate that feature. And that part we will see that in about 20 minutes. So just wait for that. And then the third one is you do some cross attention operation there, which we&#x27;re going to see as well, maybe in 40 minutes. So all of that to say that there are a number of ways</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1990s" target="_blank" rel="noopener">33:10</a> to inject TNC, and there is not like a standard way that people do it. So this is just a way for me to tell you there are several methods. So in terms of timeline, we&#x27;re in 2026.</p>
+</div>
+</section><section class="row" id="s29">
+<figure>
+<a href="slides/l5/p037.jpg" target="_blank">
+<img src="slides/l5/p037.jpg" alt="Slide pp. 35–37: Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 35–37 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=1998s" target="_blank" rel="noopener">&#8776; 33:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Timeline-of-U-Net-models"><span>Timeline of U-Net models</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2007s" target="_blank" rel="noopener">33:27</a></div><section class="row" id="s30">
+<figure>
+<a href="slides/l5/p038.jpg" target="_blank">
+<img src="slides/l5/p038.jpg" alt="Slide p. 38: Timeline of U-Net-based models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 38 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2007s" target="_blank" rel="noopener" title="Watch on YouTube from 33:27">&#9658; 33:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2007s" target="_blank" rel="noopener">33:27</a> So just giving you a sense of when these models were published when these were used. So in 2015, the U-Net paper came out in the context of image segmentation for, I believe, medical images. But it is something that has not been widely in use in the image generation field up until the early 2020s. So for instance, you have the DDPM paper,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2037s" target="_blank" rel="noopener">33:57</a> which if you remember, we focused on during lecture one that actually used U-Net as an architecture. And then another thing that&#x27;s quite noteworthy is latent diffusion model, which was a paper that introduced or that popularized the fact of generating images in the latent space, also used some form of the U-Net.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2065s" target="_blank" rel="noopener">34:25</a> And then we also had a U-Net that was quite scaled in a very big way in Stable Diffusion, Excel, which was published in 2023. So if you look at that timeline and if you look at my explanations, you may think, well, that&#x27;s great.</p>
+</div>
+</section><section class="row" id="s31">
+<figure>
+<a href="slides/l5/p039.jpg" target="_blank">
+<img src="slides/l5/p039.jpg" alt="Slide p. 39: Timeline of U-Net-based models" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 39 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2087s" target="_blank" rel="noopener" title="Watch on YouTube from 34:47">&#9658; 34:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2087s" target="_blank" rel="noopener">34:47</a> We have everything. Let&#x27;s stop here. We have our model. Well, not so fast, because in 2017 and in 2020, there are papers that were landmark papers that really revolutionize, for instance, transformer revolutionized the NLP field? And one question you may wonder is, well, they&#x27;re</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2114s" target="_blank" rel="noopener">35:14</a> performing so well there. What about here? What about us? And that&#x27;s what the vision transformer did in the image understanding space, which took a backbone of the transformer and applied it in the image-understanding case and saw great results. And so now you may wonder, OK, but can we do the same</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2141s" target="_blank" rel="noopener">35:41</a> for image-generation? And that&#x27;s what we&#x27;re going to see now.</p>
+</div>
+</section><div class="chapter" id="ch-Diffusion-Transformer-(DiT)"><span>Diffusion Transformer (DiT)</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2148s" target="_blank" rel="noopener">35:48</a></div><section class="row" id="s32">
+<figure>
+<a href="slides/l5/p040.jpg" target="_blank">
+<img src="slides/l5/p040.jpg" alt="Slide p. 40: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 40 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2148s" target="_blank" rel="noopener" title="Watch on YouTube from 35:48">&#9658; 35:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2148s" target="_blank" rel="noopener">35:48</a> But before we do that, I told you I will try to not give you things out of the blue.</p>
+</div>
+</section><section class="row" id="s33">
+<figure>
+<a href="slides/l5/p041.jpg" target="_blank">
+<img src="slides/l5/p041.jpg" alt="Slide p. 41: Motivating example" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 41 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2154s" target="_blank" rel="noopener" title="Watch on YouTube from 35:54">&#9658; 35:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2154s" target="_blank" rel="noopener">35:54</a> I&#x27;ll try to build some intuition. And here, one thing I want to try to tell you is, why would such a model be beneficial for us? Because we have the global structure understanding. We have the local details preserving. We have everything. Why would we need that? Well, imagine if you want to generate an image of a teddy bear next to a mirror.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2182s" target="_blank" rel="noopener">36:22</a> Well, what happens is in your image, what you need is for the low level texture to be very similar in one part of the image and in a very different part of that same image. So the problem with the U-Net is you have convolutions that are localized to in the neighborhood in the vicinity of pixels.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2213s" target="_blank" rel="noopener">36:53</a> But as you go further from that pixel, you have a bunch of information that gets mixed in whatever you compute. So you don&#x27;t have almost pixel to pixel or patches of pixel to patches of pixel interaction. So you&#x27;re not able to cleanly capture or to cleanly have an understanding of a local detail in one part of the image and local detail in another part of the image.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2244s" target="_blank" rel="noopener">37:24</a> And so this is a kind of example that the U-Net may actually fail. And so for that reason, the transformer is actually a great model for that because--</p>
+</div>
+</section><section class="row" id="s34">
+<figure>
+<a href="slides/l5/p042.jpg" target="_blank">
+<img src="slides/l5/p042.jpg" alt="Slide pp. 42–44: Attention mechanism" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 42–44 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2258s" target="_blank" rel="noopener" title="Watch on YouTube from 37:38">&#9658; 37:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2258s" target="_blank" rel="noopener">37:38</a> yeah, exactly. So the transformer is based on the concept of attention, which was initially introduced for texts. I&#x27;m going to briefly mention it here, but the idea for text was you want to compute representations of your words as a function of all other words. So what you want is to have direct links from one word</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2288s" target="_blank" rel="noopener">38:08</a> to another word, regardless of the distance. So what you have is a concept of queries, keys, and values. So what you&#x27;re wondering is, if you have a query, if you have a text, you want to know how relevant or how similar all the other pieces of text, a.k.a tokens are. So you want to see how the query relates two keys.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2320s" target="_blank" rel="noopener">38:40</a> And then once you how relevant they are, so you take some separation of the two-- so let&#x27;s say dot product that&#x27;s normalized in a good way. And then you can take the associated value. So that&#x27;s the attention mechanism or the self-attention mechanism that is aimed at removing the inductive bias. And here we can actually use that same mechanism for images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2347s" target="_blank" rel="noopener">39:07</a> So you can think that you take pieces of your image and you&#x27;re doing the same thing. So you say, OK, a given a set piece of image, what are the other pieces of the same image that are relevant to that one? So it&#x27;s the same mechanism.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2373s" target="_blank" rel="noopener">39:33</a> So what I told you also happens to be very nicely represented</p>
+</div>
+</section><section class="row" id="s35">
+<figure>
+<a href="slides/l5/p045.jpg" target="_blank">
+<img src="slides/l5/p045.jpg" alt="Slide p. 45: Transformer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 45 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2379s" target="_blank" rel="noopener" title="Watch on YouTube from 39:39">&#9658; 39:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2379s" target="_blank" rel="noopener">39:39</a> mathematically-- so very tractable computationally with the hardware that we have today. So you may have seen the formula softmax of Q times K transpose over some normalization normalizing constant times V. So that is the self-attention operation just in matrix form. And on the right side of the slide, you have just the transformer architecture</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2404s" target="_blank" rel="noopener">40:04</a> as it was initially introduced in the context of I believe it was translation-- so for instance,</p>
+</div>
+</section><section class="row" id="s36">
+<figure>
+<a href="slides/l5/p046.jpg" target="_blank">
+<img src="slides/l5/p046.jpg" alt="Slide p. 46: Transformer for vision understanding…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 46 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2411s" target="_blank" rel="noopener" title="Watch on YouTube from 40:11">&#9658; 40:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2411s" target="_blank" rel="noopener">40:11</a> English to French translation. So you had two parts-- one on the left side, which is called the encoder, which computes rich embeddings of your input, and the right side is the decoder that allows you to do translation one at a time, by allowing each of your output to interact to output that you decoded so far, to interact with the whole input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2439s" target="_blank" rel="noopener">40:39</a> So four images. We&#x27;re not translating anything, we&#x27;re just processing pieces of images. So we&#x27;re only going to borrow the encoder part of the transformer-- so the left part. And that&#x27;s what we saw the vision transformer did. So it took just the encoder part of the transformer, and it took an image as an input,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2471s" target="_blank" rel="noopener">41:11</a> and it did something very special to that image as a pre-processing step. So what it did was cut it into patches, and then consider these patches as tokens in the same way it is done for words, and then process them again with the self-attention mechanism, allowing each patch of image to interact with all other ones</p>
+</div>
+</section><section class="row" id="s37">
+<figure>
+<a href="slides/l5/p047.jpg" target="_blank">
+<img src="slides/l5/p047.jpg" alt="Slide p. 47: …and Transformer for vision generation!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 47 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2499s" target="_blank" rel="noopener" title="Watch on YouTube from 41:39">&#9658; 41:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2499s" target="_blank" rel="noopener">41:39</a> to just figure out which ones are actually relevant. So this was the DiT. And let me introduce you to the vision generation equivalent, the diffusion transformer, which it was introduced in 2022, which is also relying on the self-attention mechanism. And we&#x27;re going to see exactly how. But the idea is very similar.</p>
+</div>
+</section><section class="row" id="s38">
+<figure>
+<a href="slides/l5/p048.jpg" target="_blank">
+<img src="slides/l5/p048.jpg" alt="Slide p. 48: DiT: tokenization of the input via patches" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 48 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2530s" target="_blank" rel="noopener" title="Watch on YouTube from 42:10">&#9658; 42:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2530s" target="_blank" rel="noopener">42:10</a> You take a noisy latent as input, and what you do is-- so remember the wish list that we had. We want to understand global structure. We want to preserve local details and so on and so forth. So here what we&#x27;re saying is we&#x27;re just allowing all patches to interact with one another. Does that make sense so far?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2559s" target="_blank" rel="noopener">42:39</a> It&#x27;s not out of the blue that I brought up this model. No. All good? Perfect. So let&#x27;s go step by step into what each component means here. So you have on the illustration, a patchy file operation, that takes in your noised latent and that divides it into patches.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2587s" target="_blank" rel="noopener">43:07</a> So you have let&#x27;s say, I times I times C tensor that you divide into P times P times C patches. And those patches you just want to consider them as tokens. And you end up with an input length of I over P squared. So the smaller your patches, the higher</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2613s" target="_blank" rel="noopener">43:33</a> or the longer your sequence, which also matches your intuition.</p>
+</div>
+</section><section class="row" id="s39">
+<figure>
+<a href="slides/l5/p049.jpg" target="_blank">
+<img src="slides/l5/p049.jpg" alt="Slide p. 49: DiT: embedding of conditions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 49 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2622s" target="_blank" rel="noopener" title="Watch on YouTube from 43:42">&#9658; 43:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2622s" target="_blank" rel="noopener">43:42</a> So in that sense, you can also tell from this step that there is a trade off between how granular you want to be and how much computation you want to compute. So that&#x27;s for that. And then the second step is to actually inject your conditions-- so the external signals, the time step, and then the input text, let&#x27;s say. So here what we do is we take our timestep embedding, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2653s" target="_blank" rel="noopener">44:13</a> as we saw can be a series of sinusoidal functions that you have in a vector, and then your condition that can be just an embedding. So I believe in the DiT paper, they just consider the embedding of the whole text-- so just one vector for the whole text. So let&#x27;s suppose you have these two quantities.</p>
+</div>
+</section><section class="row" id="s40">
+<figure>
+<a href="slides/l5/p050.jpg" target="_blank">
+<img src="slides/l5/p050.jpg" alt="Slide p. 50: DiT: injecting conditions with adaptive layer norm" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 50 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2678s" target="_blank" rel="noopener" title="Watch on YouTube from 44:38">&#9658; 44:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2678s" target="_blank" rel="noopener">44:38</a> Now the question is, how do you inject that into your model? So the paper went through different methods. But there was one that stood out. So what we&#x27;re going to do is for me to just tell you what methods they tried out and then focus on the one that performed the best. So the first method was called adaptive layer norm,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2706s" target="_blank" rel="noopener">45:06</a> which consisted of taking the external signals</p>
+</div>
+</section><section class="row" id="s41">
+<figure>
+<a href="slides/l5/p051.jpg" target="_blank">
+<img src="slides/l5/p051.jpg" alt="Slide p. 51: DiT: injecting conditions with cross-attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 51 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2711s" target="_blank" rel="noopener" title="Watch on YouTube from 45:11">&#9658; 45:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2711s" target="_blank" rel="noopener">45:11</a> and then modulating the tokens. So do you remember when I told you modulating in the U-Net? So that&#x27;s the same modulating modulation I&#x27;m talking about. So that&#x27;s the first method. The second method is to say, OK, you have your external signals. What you can do is to have an extra step in your transformer block, where what you do is letting the tokens representing</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2742s" target="_blank" rel="noopener">45:42</a> the image latents interact with the time step interacts with the label embedding via cross-attention. So here you can think of it as you have queries which are your noise latents. And you&#x27;re wondering which ones of your conditions are relevant for your noise patch.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2769s" target="_blank" rel="noopener">46:09</a> And then you do a query times key, let&#x27;s say a dot product of those, and then you multiply by value. So you express your noise latents</p>
+</div>
+</section><section class="row" id="s42">
+<figure>
+<a href="slides/l5/p052.jpg" target="_blank">
+<img src="slides/l5/p052.jpg" alt="Slide p. 52: DiT: injecting conditions with in-context conditioning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 52 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2781s" target="_blank" rel="noopener" title="Watch on YouTube from 46:21">&#9658; 46:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2781s" target="_blank" rel="noopener">46:21</a> as a function of your conditions. So this can be a second option.</p>
+</div>
+</section><section class="row" id="s43">
+<figure>
+<a href="slides/l5/p053.jpg" target="_blank">
+<img src="slides/l5/p053.jpg" alt="Slide pp. 53–54: DiT: comparison of diﬀerent condition injections" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 53–54 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2787s" target="_blank" rel="noopener" title="Watch on YouTube from 46:27">&#9658; 46:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2787s" target="_blank" rel="noopener">46:27</a> And the third option is to just say, OK, actually we&#x27;re going to take these vectors,</p>
+</div>
+</section><section class="row" id="s44">
+<figure>
+<a href="slides/l5/p055.jpg" target="_blank">
+<img src="slides/l5/p055.jpg" alt="Slide p. 55: Intuition behind adaptive layer norm" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 55 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2794s" target="_blank" rel="noopener" title="Watch on YouTube from 46:34">&#9658; 46:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2794s" target="_blank" rel="noopener">46:34</a> and we&#x27;re just going to concatenate that in the input sequence. Very easy. Well, it turns out that after they did all these experiments, they saw that the adaptive layer norm was the most performant. I&#x27;m going to give you a preview of what we&#x27;re going to see in lecture 7, which is how to quantify how good an image is. So there is a metric called the Fréchet Inception Distance,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2825s" target="_blank" rel="noopener">47:05</a> the FID, which is the one that is represented here where the lower that metric, the better it is. And what you see here is when you use adaptive layer norm, you get the bottom curve that allows you to get better quality image quality compared to the other ones as a function of how far you are in the training process.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2855s" target="_blank" rel="noopener">47:35</a> So if you saw, there&#x27;s actually two versions of the adaptive layer norm. There is adaptive layer norm, and there&#x27;s adaptive layer norm 0. I&#x27;m going to tell you what that 0 is about. But let&#x27;s focus on adaptive layer norm. So I could very well just give you the formula and tell you that it is adaptive layer norm. But I think it&#x27;s very convenient to just build</p>
+</div>
+</section><section class="row" id="s45">
+<figure>
+<a href="slides/l5/p056.jpg" target="_blank">
+<img src="slides/l5/p056.jpg" alt="Slide p. 56: Intuition behind adaptive layer norm" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 56 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2883s" target="_blank" rel="noopener" title="Watch on YouTube from 48:03">&#9658; 48:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2883s" target="_blank" rel="noopener">48:03</a> an intuition as to why it may make sense. So I&#x27;m going to use an example for that.</p>
+</div>
+</section><section class="row" id="s46">
+<figure>
+<a href="slides/l5/p057.jpg" target="_blank">
+<img src="slides/l5/p057.jpg" alt="Slide p. 57: Intuition behind adaptive layer norm" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 57 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2883s" target="_blank" rel="noopener">&#8776; 48:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s47">
+<figure>
+<a href="slides/l5/p058.jpg" target="_blank">
+<img src="slides/l5/p058.jpg" alt="Slide p. 58: Intuition behind adaptive layer norm" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 58 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2883s" target="_blank" rel="noopener">&#8776; 48:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Adaptive-layer-normalization-(adaLN)"><span>Adaptive layer normalization (adaLN)</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2893s" target="_blank" rel="noopener">48:13</a></div><section class="row" id="s48">
+<figure>
+<a href="slides/l5/p060.jpg" target="_blank">
+<img src="slides/l5/p060.jpg" alt="Slide pp. 59–60: Adaptive layer normalization" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 59–60 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2893s" target="_blank" rel="noopener" title="Watch on YouTube from 48:13">&#9658; 48:13</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2893s" target="_blank" rel="noopener">48:13</a> So I mentioned each patch can be represented by a vector.</p>
+</div>
+</section><section class="row" id="s49">
+<figure>
+<a href="slides/l5/p069.jpg" target="_blank">
+<img src="slides/l5/p069.jpg" alt="Slide pp. 61–69: Adaptive layer normalization" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 61–69 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2900s" target="_blank" rel="noopener" title="Watch on YouTube from 48:20">&#9658; 48:20</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2900s" target="_blank" rel="noopener">48:20</a> Let&#x27;s assume that we can interpret this vector</p>
+</div>
+</section><section class="row" id="s50">
+<figure>
+<a href="slides/l5/p070.jpg" target="_blank">
+<img src="slides/l5/p070.jpg" alt="Slide p. 70: Adaptive layer normalization" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 70 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2907s" target="_blank" rel="noopener" title="Watch on YouTube from 48:27">&#9658; 48:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2907s" target="_blank" rel="noopener">48:27</a> and say that let&#x27;s say a dimension is responsible for something and another one for something else, which may not be true. But for the sake of this example, let&#x27;s suppose it is true. So remember, we are in the latent space, and we can have some semantic interpretation of the dimensions. So there is some truth to what I&#x27;m saying. But let&#x27;s suppose you have a vector where let&#x27;s say the 10th</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2933s" target="_blank" rel="noopener">48:53</a> dimension represents the intensity of, let&#x27;s say, the brown color. Let&#x27;s say dimension 24 is how round the shape is. Dimension 59 is how fluffy the local details are and then dimension 130, which is how white the color is. So let&#x27;s suppose you have such dimensions. And now let&#x27;s suppose you want to generate</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2963s" target="_blank" rel="noopener">49:23</a> an image with the condition, a brown fluffy teddy bear. So you want to generate that image. And as you remember, generating an image is not one shot. Typically you do that iteratively where you take a noisy latent as inputs. And then you have the condition. You have how noisy that image is, and you try to have something as output that will allow</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=2988s" target="_blank" rel="noopener">49:48</a> you to denoise your image. And let&#x27;s suppose that we&#x27;re at a stage where there is a lot of noise. So, the noise can be represented on a scale that&#x27;s here we&#x27;re going to assume is between 0 and 1, where 0 is super noisy. 1 is clean. And let&#x27;s assume that time here is 0.1-- so a lot of noise.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3014s" target="_blank" rel="noopener">50:14</a> So here what you would want is to focus on-- so at that stage of the generation, you want to focus on surfacing the global structure of the image because it&#x27;s still super noisy. You&#x27;re just trying to sketch what the final image is. So here you want some brownness in the image. You want some round shapes that may represent</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3040s" target="_blank" rel="noopener">50:40</a> your teddy bear and so on. So you want these features to surface. So our intuition tells us that you want these dimensions to have a higher intensity. In contrast to that, you don&#x27;t want to have local details just yet because it&#x27;s very noisy. So that&#x27;s not the time. And then you don&#x27;t want any white color because your teddy bear is brown. It&#x27;s not white.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3068s" target="_blank" rel="noopener">51:08</a> Now let&#x27;s suppose you have the same condition as inputs, but now you&#x27;re at a more advanced stage in your generation process. Now t equals 0.9, which corresponds to almost no noise in your input image. So here you may wonder, OK, so now the input is already quite figured out in terms of global structure. Now I need to focus on the details.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3098s" target="_blank" rel="noopener">51:38</a> So you want the, let&#x27;s say fluffy details, to have a higher intensity. And you don&#x27;t want the round shape to be that intense because it&#x27;s already there. And the brown color is same. It&#x27;s already there and then white color again. You don&#x27;t want it. So what I just told you is how we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3123s" target="_blank" rel="noopener">52:03</a> would like different dimensions of the patch embedding to have their intensity modulated as a function of the condition, which is, for instance, the input text and the noise level in which you are. So in that sense, what you want is for your patch embedding</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3153s" target="_blank" rel="noopener">52:33</a> to exhibit higher intensities in the dimensions you care and lower intensity in the dimensions you don&#x27;t care. So in that sense, what I propose is how about we modulate these tokens? How about we modulate these vectors? So here what we would do is to take the condition to take the time step as input and to obtain some vectors.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3185s" target="_blank" rel="noopener">53:05</a> So let&#x27;s call them alpha, gamma, and beta. So let&#x27;s assume we obtain these vectors that are a function of the condition and the noise level. And what we want to do is to modulate the embedding of the patch. So how would we do that? Well, you take your vector.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3209s" target="_blank" rel="noopener">53:29</a> You do some normalization just because it&#x27;s not part of the modulation procedure, but it&#x27;s just good because it just improves your training stability. So let&#x27;s suppose you normalize your vector. And you do an element-wise multiplication with 1 plus gamma. So if gamma is equal to the vector 0, the element-wise multiplication of this and one</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3239s" target="_blank" rel="noopener">53:59</a> is completely [INAUDIBLE] and nothing changes. But if gamma is a vector that tells you that, OK, a given dimension should be higher and another dimension should be lower, then it will scale your x. And by the way, I said 1, but it&#x27;s the vector 1. So you can think of it as a vector matching the dimension</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3268s" target="_blank" rel="noopener">54:28</a> of gamma of just filled with 1. So in that sense, you can think of gamma as being a scale coefficient, a scale vector because it scales x. Then you can add beta, which is a bias, and perform some operation, and have an element-wise multiplication of this whole quantity</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3298s" target="_blank" rel="noopener">54:58</a> with alpha. And alpha will be your gate. Because what you do is you take your x. You flow the same x. And what you do is you make some operation with that x, and you scale it. You shift it, and you gate it with alpha. And alpha is there to tell you how much of that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3325s" target="_blank" rel="noopener">55:25</a> change is going to flow in your embedding. So in that sense, I&#x27;m just going to, again, stress that these stars are element-wise multiplications. And alpha, gamma, and beta have very specific roles. So alpha really gate keeps this whole quantity from being injected. Gamma is responsible for scaling the quantity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3354s" target="_blank" rel="noopener">55:54</a> And then beta is there to shift it because it&#x27;s a plus with that quantity. And do you remember I told you I&#x27;m going to say what adaptive layer norm 0 is? Do you remember in the chart? Well, adaptive layer norm 0 is adaptive layer norm where when you start training, you initialize your gates to 0, such that there is no modification.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3389s" target="_blank" rel="noopener">56:29</a> So by the way you, you set alpha and gamma and beta to 0, I believe in most implementations, but alpha being to 0 already guarantees that at the very beginning of training, you-- yeah. So the question is unconditional. Yes. So at the very beginning, you don&#x27;t have any impact from the condition on your embedding. So far so good?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3418s" target="_blank" rel="noopener">56:58</a> So we will have a detailed example after that. So I hope it will be also clearer there. But that is the high level intuition behind why adaptive LayerNorm is useful. It is there to highlight dimensions that are important for the task at hand. And so here what we do is-- so just recapping what we said.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3448s" target="_blank" rel="noopener">57:28</a> We take our condition. So it&#x27;s the time step. It&#x27;s the class label-- so t and c. We add them together, and then we use just a multi-layer perceptron, which is just a linear projection, some activation, and another linear projection, to obtain this gate, scale, and shift alpha, gamma and beta, that are then used to modulate the patch embeddings.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3478s" target="_blank" rel="noopener">57:58</a> So the question is, is t corresponding to the diffusion time step? Yes. So it&#x27;s how noisy you are in your generation process. So one example is in the very, very beginning. If let&#x27;s say, your input is super noisy, then t is going to be very close to 0, for instance. But you will represent that by your vector that is composed of sinusoidal functions. Yeah, that&#x27;s right. So the question is, is this a reverse process?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3507s" target="_blank" rel="noopener">58:27</a> Well, actually even during training, you would just inject the t that corresponds to the noise level of your image. So we&#x27;re going to see exactly an example of this. So I&#x27;ll actually answer your question in great detail in a second. Perfect. Well, with that, what I propose is we wrap up this,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3531s" target="_blank" rel="noopener">58:51</a> and I walk you through an end to end example of what that looks like. So your patch embeddings, you run them through your diffusion transformer blocks. There can be several of them. And at the very end, you obtain encoded tokens-- so patch-embedding tokens that are aware of one another because they went through all these operations. And remember what we want is to have an output that is of the same shape as the input.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3563s" target="_blank" rel="noopener">59:23</a> And so here the step is to reshape that output in the shape that matters to you. Well, the authors of DiT applied this to the DDP end use case, and they actually assumed that they were not just predicting the mean but also the covariance matrix. So that&#x27;s not very common by the way. So you would more predict the mean but not both.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3593s" target="_blank" rel="noopener">59:53</a> But I&#x27;m saying this because that just explains why there are two outputs. But in our case, we would just have one output-- in our case, the velocity, which should be in the same shape as the input. And what the authors saw was that if you take the DiT</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3618s" target="_blank" rel="noopener">1:00:18</a> architecture and if you scale it in terms of number of parameters, then you get better and better results. And they scaled it in terms of number of parameters, but they also scaled it in terms of how granular the patches were, because the patches they have dimension p times p times c. And if you take big patches, then you have a much coarser</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3650s" target="_blank" rel="noopener">1:00:50</a> view than let&#x27;s say, a small patch, small p. The problem with the number of parameters is it does not convey that dimension. So you can have the same number of parameters but vary p, which is why the authors also use FLOPs. So who has heard of FLOPs before? Floating Point Operations is just</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3676s" target="_blank" rel="noopener">1:01:16</a> a measure of how many operations you&#x27;re doing in your forward pass. And that actually includes patch size, because if you remember, your input has a length of I over P squared. So if you have a smaller p, you have a bigger sequence, which is reflected in your flops measure. And in particular, so that&#x27;s pretty interesting.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3702s" target="_blank" rel="noopener">1:01:42</a> So you should not only scale one and not the other. So they see that if they scale the transformer size, they get better results but not great. Now, if they only scale the patch size, they get better results but not great. But if they scale both the transformer size and the patch size, then they get amazing results.</p>
+</div>
+</section><section class="row" id="s51">
+<figure>
+<a href="slides/l5/p071.jpg" target="_blank">
+<img src="slides/l5/p071.jpg" alt="Slide p. 71: Adaptive layer normalization" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 71 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3731s" target="_blank" rel="noopener" title="Watch on YouTube from 1:02:11">&#9658; 1:02:11</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3731s" target="_blank" rel="noopener">1:02:11</a> That&#x27;s what you see in the figure on the right and also the chart that tells you this as a function of FID, which as I mentioned, is a metric we will see in two lectures, where the lower the value, the better it is.</p>
+</div>
+</section><section class="row" id="s52">
+<figure>
+<a href="slides/l5/p072.jpg" target="_blank">
+<img src="slides/l5/p072.jpg" alt="Slide p. 72: ●" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 72 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3743s" target="_blank" rel="noopener">&#8776; 1:02:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s53">
+<figure>
+<a href="slides/l5/p073.jpg" target="_blank">
+<img src="slides/l5/p073.jpg" alt="Slide p. 73: DiT: reformatting the output" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 73 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3743s" target="_blank" rel="noopener">&#8776; 1:02:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s54">
+<figure>
+<a href="slides/l5/p074.jpg" target="_blank">
+<img src="slides/l5/p074.jpg" alt="Slide p. 74: Scaling up DiT…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 74 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3743s" target="_blank" rel="noopener">&#8776; 1:02:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s55">
+<figure>
+<a href="slides/l5/p075.jpg" target="_blank">
+<img src="slides/l5/p075.jpg" alt="Slide p. 75: Scaling up DiT… improves results!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 75 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3743s" target="_blank" rel="noopener">&#8776; 1:02:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s56">
+<figure>
+<a href="slides/l5/p076.jpg" target="_blank">
+<img src="slides/l5/p076.jpg" alt="Slide p. 76: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 76 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3743s" target="_blank" rel="noopener">&#8776; 1:02:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s57">
+<figure>
+<a href="slides/l5/p077.jpg" target="_blank">
+<img src="slides/l5/p077.jpg" alt="Slide p. 77: Let&#x27;s go through an end-to-end example together!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 77 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3749s" target="_blank" rel="noopener" title="Watch on YouTube from 1:02:29">&#9658; 1:02:29</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3749s" target="_blank" rel="noopener">1:02:29</a> And that was the DiT. Given that the DiT is a pretty important architecture, what</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3757s" target="_blank" rel="noopener">1:02:37</a> we will do is take our time to go through an end to end example of exactly how that works. So our goal is to take an input-- so here, the input text, generate an image of a teddy bear that is reading, and what we want as an output is the image itself</p>
+</div>
+</section><div class="chapter" id="ch-DiT-end-to-end-example"><span>DiT end-to-end example</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3778s" target="_blank" rel="noopener">1:02:58</a></div><section class="row" id="s58">
+<figure>
+<a href="slides/l5/p078.jpg" target="_blank">
+<img src="slides/l5/p078.jpg" alt="Slide p. 78: Sample a noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 78 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3778s" target="_blank" rel="noopener" title="Watch on YouTube from 1:02:58">&#9658; 1:02:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3778s" target="_blank" rel="noopener">1:02:58</a> or the generated image, I should say. So in lecture 4, we saw that we have a lot of incentive to do all of this in the latent space, because it&#x27;s more tractable computationally, and it&#x27;s just easier for a model. So what we&#x27;ll do is we&#x27;ll take a look at the latent space learned by a VAE that is at our disposal. And you see you have two distributions. You have on the bottom left, the initial distribution, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3809s" target="_blank" rel="noopener">1:03:29</a> is very easy to sample from, and the target distribution, which is the one that you want to sample from. So what you do is you sample from your easy distribution, typically your Gaussian distribution in your latent space. Let&#x27;s call it z 0. And you obtain this thing--</p>
+</div>
+</section><section class="row" id="s59">
+<figure>
+<a href="slides/l5/p079.jpg" target="_blank">
+<img src="slides/l5/p079.jpg" alt="Slide p. 79: Patchify noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 79 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3828s" target="_blank" rel="noopener" title="Watch on YouTube from 1:03:48">&#9658; 1:03:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3828s" target="_blank" rel="noopener">1:03:48</a> dimension I times I times C. What you do is you take that image, and you divide it into patches. So each element has a dimension of p times p times c. So if you do some counting, you will see that I squared over p squared patches. And this is the length of your sequence.</p>
+</div>
+</section><section class="row" id="s60">
+<figure>
+<a href="slides/l5/p080.jpg" target="_blank">
+<img src="slides/l5/p080.jpg" alt="Slide p. 80: Patchify noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 80 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3857s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:17">&#9658; 1:04:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3857s" target="_blank" rel="noopener">1:04:17</a> So you take each patch, and you want to represent them with a vector. So you just perform a linear projection. And you obtain a vector of, let&#x27;s say, dimension D. Great for the patches.</p>
+</div>
+</section><section class="row" id="s61">
+<figure>
+<a href="slides/l5/p081.jpg" target="_blank">
+<img src="slides/l5/p081.jpg" alt="Slide p. 81: Embed conditions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 81 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3872s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:32">&#9658; 1:04:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3872s" target="_blank" rel="noopener">1:04:32</a> Now let&#x27;s take care of the conditions. So you have the timestamp embedding, and then you have the label embedding corresponding to let&#x27;s say the teddy bear. And what you do is super simple. You just add them. Add them together. And you obtain your condition embedding. So far so good? So here we are with our patchified input,</p>
+</div>
+</section><section class="row" id="s62">
+<figure>
+<a href="slides/l5/p084.jpg" target="_blank">
+<img src="slides/l5/p084.jpg" alt="Slide pp. 82–84: Attention layers with noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 82–84 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3899s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:59">&#9658; 1:04:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3899s" target="_blank" rel="noopener">1:04:59</a> where each element is represented with an embedding.</p>
+</div>
+</section><section class="row" id="s63">
+<figure>
+<a href="slides/l5/p085.jpg" target="_blank">
+<img src="slides/l5/p085.jpg" alt="Slide p. 85: Attention layers with noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 85 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3905s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:05">&#9658; 1:05:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3905s" target="_blank" rel="noopener">1:05:05</a> There&#x27;s something I have not told you about. And it&#x27;s actually something that Shervine will cover in great detail in hopefully 20 minutes.</p>
+</div>
+</section><section class="row" id="s64">
+<figure>
+<a href="slides/l5/p088.jpg" target="_blank">
+<img src="slides/l5/p088.jpg" alt="Slide pp. 86–89: Attention layers with noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 86–89 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3915s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:15">&#9658; 1:05:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3915s" target="_blank" rel="noopener">1:05:15</a> When you perform this self-attention operations, the great thing is you let everyone interact with everyone,</p>
+</div>
+</section><section class="row" id="s65">
+<figure>
+<a href="slides/l5/p091.jpg" target="_blank">
+<img src="slides/l5/p091.jpg" alt="Slide pp. 90–91: Attention layers with noisy latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 90–91 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3923s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:23">&#9658; 1:05:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3923s" target="_blank" rel="noopener">1:05:23</a> but then you lose the concept of how far different elements are</p>
+</div>
+</section><section class="row" id="s66">
+<figure>
+<a href="slides/l5/p093.jpg" target="_blank">
+<img src="slides/l5/p093.jpg" alt="Slide pp. 92–93: Process condition embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 92–93 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3928s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:28">&#9658; 1:05:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3928s" target="_blank" rel="noopener">1:05:28</a> just because you have direct links, which is why you need to specify in which position each input is. You need to have a way to do that. And here a very naive approach is to just add some embedding that represents the position.</p>
+</div>
+</section><section class="row" id="s67">
+<figure>
+<a href="slides/l5/p094.jpg" target="_blank">
+<img src="slides/l5/p094.jpg" alt="Slide p. 94: Obtain gate from conditions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 94 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3947s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:47">&#9658; 1:05:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3947s" target="_blank" rel="noopener">1:05:47</a> This is not the norm nowadays. Shervine will go deeper in there, but let&#x27;s assume here that we add a position embedding</p>
+</div>
+</section><section class="row" id="s68">
+<figure>
+<a href="slides/l5/p095.jpg" target="_blank">
+<img src="slides/l5/p095.jpg" alt="Slide p. 95: Obtain scale from conditions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 95 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3955s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:55">&#9658; 1:05:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3955s" target="_blank" rel="noopener">1:05:55</a> to the patch embedding. And here we obtain a position-aware patch embedding. And we do the same for all the patches in our input. And nowadays, GPUs they love matrices. So we just put everything in a matrix format. So here we concatenate everything. And we also have our conditioned embedding vector. Well, let&#x27;s start with that.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3984s" target="_blank" rel="noopener">1:06:24</a> So I mentioned that the diffusion transformer, so one method of injecting the conditions is to modulate the patch embeddings with the conditions.</p>
+</div>
+</section><section class="row" id="s69">
+<figure>
+<a href="slides/l5/p096.jpg" target="_blank">
+<img src="slides/l5/p096.jpg" alt="Slide p. 96: Obtain shift from conditions" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 96 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3996s" target="_blank" rel="noopener" title="Watch on YouTube from 1:06:36">&#9658; 1:06:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=3996s" target="_blank" rel="noopener">1:06:36</a> So a first step here is to obtain the gate, the scale, and the shift coefficients corresponding to that condition. So let&#x27;s do that here.</p>
+</div>
+</section><section class="row" id="s70">
+<figure>
+<a href="slides/l5/p097.jpg" target="_blank">
+<img src="slides/l5/p097.jpg" alt="Slide p. 97: Obtain quantities from condition" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 97 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4007s" target="_blank" rel="noopener" title="Watch on YouTube from 1:06:47">&#9658; 1:06:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4007s" target="_blank" rel="noopener">1:06:47</a> We input this embedding through an MLP layer, which is a projection and an activation function to introduce nonlinearities, and then another projection. And we obtain six quantities-- two for gate, two for scale, two for shifts. So why two? Because we will have two operations in the diffusion transformer block. One is the self-attention operation. The other one is the feed-forward neural network.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4037s" target="_blank" rel="noopener">1:07:17</a> And we want these quantities to be respectively to go to their own operation. So let&#x27;s go back to our position where patch-embedding matrix.</p>
+</div>
+</section><section class="row" id="s71">
+<figure>
+<a href="slides/l5/p098.jpg" target="_blank">
+<img src="slides/l5/p098.jpg" alt="Slide p. 98: Process patch embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 98 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4053s" target="_blank" rel="noopener" title="Watch on YouTube from 1:07:33">&#9658; 1:07:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4053s" target="_blank" rel="noopener">1:07:33</a> We input that into our block. So what we do is we perform a layer normalization operation.</p>
+</div>
+</section><section class="row" id="s72">
+<figure>
+<a href="slides/l5/p099.jpg" target="_blank">
+<img src="slides/l5/p099.jpg" alt="Slide p. 99: Process patch embeddings through attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 99 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4053s" target="_blank" rel="noopener">&#8776; 1:07:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s73">
+<figure>
+<a href="slides/l5/p100.jpg" target="_blank">
+<img src="slides/l5/p100.jpg" alt="Slide p. 100: Process patch embeddings through attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 100 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4060s" target="_blank" rel="noopener" title="Watch on YouTube from 1:07:40">&#9658; 1:07:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4060s" target="_blank" rel="noopener">1:07:40</a> And right after that, we use gamma 1 and beta 1 to scale and shift them.</p>
+</div>
+</section><section class="row" id="s74">
+<figure>
+<a href="slides/l5/p101.jpg" target="_blank">
+<img src="slides/l5/p101.jpg" alt="Slide p. 101: Process patch embeddings through attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 101 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4068s" target="_blank" rel="noopener" title="Watch on YouTube from 1:07:48">&#9658; 1:07:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4068s" target="_blank" rel="noopener">1:07:48</a> We input them to the self-attention layer, and then we get the result with alpha 1,</p>
+</div>
+</section><section class="row" id="s75">
+<figure>
+<a href="slides/l5/p102.jpg" target="_blank">
+<img src="slides/l5/p102.jpg" alt="Slide p. 102: Process patch embeddings through attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 102 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4077s" target="_blank" rel="noopener" title="Watch on YouTube from 1:07:57">&#9658; 1:07:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4077s" target="_blank" rel="noopener">1:07:57</a> which we add to the input.</p>
+</div>
+</section><section class="row" id="s76">
+<figure>
+<a href="slides/l5/p103.jpg" target="_blank">
+<img src="slides/l5/p103.jpg" alt="Slide p. 103: Process patch embeddings through attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 103 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4083s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:03">&#9658; 1:08:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4083s" target="_blank" rel="noopener">1:08:03</a> So this is becoming very complicated on the slide. So I&#x27;m just going to represent this operation with just self-attention and then alpha</p>
+</div>
+</section><section class="row" id="s77">
+<figure>
+<a href="slides/l5/p104.jpg" target="_blank">
+<img src="slides/l5/p104.jpg" alt="Slide pp. 104–105: Process patch embeddings through attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 104–105 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4090s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:10">&#9658; 1:08:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4090s" target="_blank" rel="noopener">1:08:10</a> 1, gamma 1, and beta 1. And as you remember, this is what happens. So you take your input, and then you do the attention operation with the scaled and shifted inputs.</p>
+</div>
+</section><section class="row" id="s78">
+<figure>
+<a href="slides/l5/p106.jpg" target="_blank">
+<img src="slides/l5/p106.jpg" alt="Slide pp. 106–107: Process patch embeddings through FFNN" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 106–107 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4107s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:27">&#9658; 1:08:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4107s" target="_blank" rel="noopener">1:08:27</a> And you get it by alpha 1, where the star operation here is just the element-wise operation.</p>
+</div>
+</section><section class="row" id="s79">
+<figure>
+<a href="slides/l5/p108.jpg" target="_blank">
+<img src="slides/l5/p108.jpg" alt="Slide p. 108: Obtain output from DiT block" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 108 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4114s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:34">&#9658; 1:08:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4114s" target="_blank" rel="noopener">1:08:34</a> You do the same thing for the feed forward neural network, along with the alpha 2, gamma 2, beta 2 coefficients. And you obtain an output matrix that takes into consideration all other patch embeddings. So it&#x27;s something that went through this self-attention computation.</p>
+</div>
+</section><section class="row" id="s80">
+<figure>
+<a href="slides/l5/p110.jpg" target="_blank">
+<img src="slides/l5/p110.jpg" alt="Slide pp. 109–110: Project and reshape to desired quantity" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 109–110 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4141s" target="_blank" rel="noopener" title="Watch on YouTube from 1:09:01">&#9658; 1:09:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4141s" target="_blank" rel="noopener">1:09:01</a> So that&#x27;s why I&#x27;m saying it&#x27;s contextualized</p>
+</div>
+</section><section class="row" id="s81">
+<figure>
+<a href="slides/l5/p111.jpg" target="_blank">
+<img src="slides/l5/p111.jpg" alt="Slide p. 111: Recap of prediction" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 111 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4146s" target="_blank" rel="noopener" title="Watch on YouTube from 1:09:06">&#9658; 1:09:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4146s" target="_blank" rel="noopener">1:09:06</a> because it&#x27;s in the context of the other patch embeddings. But now what you want is to have a prediction that matches the input shape. So what you do is you perform some normalization, some linear operation reshaping in order to have your prediction, which is the predicted velocity of your input z at time t with condition c.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4177s" target="_blank" rel="noopener">1:09:37</a> In the very beginning, z is z, 0, t is 0, c is, well, just your class label. Just I want an image of a teddy bear that is reading a book. So you have this. So just recapping exactly what I said. So we have the latent z, 0. We have the time step t equals 0. We have the class label all fed into this diffusion transformer.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4205s" target="_blank" rel="noopener">1:10:05</a> And at the end of it, we get the predicted velocity at z,</p>
+</div>
+</section><section class="row" id="s82">
+<figure>
+<a href="slides/l5/p112.jpg" target="_blank">
+<img src="slides/l5/p112.jpg" alt="Slide pp. 112–114: Deduce resulting latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 112–114 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4205s" target="_blank" rel="noopener">&#8776; 1:10:05</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s83">
+<figure>
+<a href="slides/l5/p115.jpg" target="_blank">
+<img src="slides/l5/p115.jpg" alt="Slide p. 115: Perform iteration over latents" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 115 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4210s" target="_blank" rel="noopener" title="Watch on YouTube from 1:10:10">&#9658; 1:10:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4210s" target="_blank" rel="noopener">1:10:10</a> 0 time t equals 0 and class label C. And that&#x27;s great. But we&#x27;re not done here. We&#x27;re only done here for the iteration that allows us to go to step 0 plus delta t. And we perform-- so the formula that I wrote is just a reference to the formula that we derived in the flow-matching case where you&#x27;re just numerically solving.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4242s" target="_blank" rel="noopener">1:10:42</a> So here&#x27;s an Euler solver that just allows you to go from initial to target by just following the vector field. So that&#x27;s exactly what you&#x27;re doing. So you obtain this z 0 plus delta t that you can also have represented like this on the left in your latent space. So that&#x27;s great. So now let&#x27;s do one more. You&#x27;re at time step t i.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4273s" target="_blank" rel="noopener">1:11:13</a> So you input your latent z t i, along with the time step t i and the condition c that is not-- or the class label c that is not changing-- so your input text. So you put that in the diffusion transformer. Again, you get a predicted velocity for that latent z</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4295s" target="_blank" rel="noopener">1:11:35</a> t i for that time step t i and for the class label c. And you go through the same thing.</p>
+</div>
+</section><section class="row" id="s84">
+<figure>
+<a href="slides/l5/p116.jpg" target="_blank">
+<img src="slides/l5/p116.jpg" alt="Slide pp. 116–118: Perform iteration over latents" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 116–118 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4301s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:41">&#9658; 1:11:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4301s" target="_blank" rel="noopener">1:11:41</a> So you have the prediction. And you obtain z t i plus 1 by, again,</p>
+</div>
+</section><section class="row" id="s85">
+<figure>
+<a href="slides/l5/p119.jpg" target="_blank">
+<img src="slides/l5/p119.jpg" alt="Slide p. 119: Obtain ﬁnal latent" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 119 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4308s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:48">&#9658; 1:11:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4308s" target="_blank" rel="noopener">1:11:48</a> following the Euler method. So here on the left side, you have the next step. You continue again and again and again and again and again up</p>
+</div>
+</section><section class="row" id="s86">
+<figure>
+<a href="slides/l5/p120.jpg" target="_blank">
+<img src="slides/l5/p120.jpg" alt="Slide p. 120: Decode latent back into pixel space" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 120 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4321s" target="_blank" rel="noopener" title="Watch on YouTube from 1:12:01">&#9658; 1:12:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4321s" target="_blank" rel="noopener">1:12:01</a> until z 1. So now you&#x27;re at t equal 1. You have z 1. That&#x27;s great. Well, what do you have? Well, no. It&#x27;s not noise. It&#x27;s just it&#x27;s the latent space. So from a human perspective, you don&#x27;t know what that is. So that&#x27;s why I represent it with the noise image. But it is actually your final latent. And so the last step is to take the final latent Z1</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4354s" target="_blank" rel="noopener">1:12:34</a> and pass it through your VA decoder, because you want to go back to the pixel space, because we humans, we understand pixels. We don&#x27;t understand the latent, or at least not yet. And we get the pixel space image, which is the image of your teddy bear reading a book. And that&#x27;s great. And you will tell me, Afshine, that&#x27;s great. We solved it.</p>
+</div>
+</section><div class="chapter" id="ch-Multimodal-DiT-(MM-DiT)"><span>Multimodal DiT (MM-DiT)</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4381s" target="_blank" rel="noopener">1:13:01</a></div><section class="row" id="s87">
+<figure>
+<a href="slides/l5/p121.jpg" target="_blank">
+<img src="slides/l5/p121.jpg" alt="Slide p. 121: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 121 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4381s" target="_blank" rel="noopener" title="Watch on YouTube from 1:13:01">&#9658; 1:13:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4381s" target="_blank" rel="noopener">1:13:01</a> Well, the truth is, these days people are actually using a variation of the diffusion transformer for a number of reasons that we&#x27;re going to see now. And again, I just want to repeat one thing I said earlier, which is there is a number, infinite number of architectures out there, infinite number of variations, combinations.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4410s" target="_blank" rel="noopener">1:13:30</a> My hope is to just motivate why some elements that we&#x27;re</p>
+</div>
+</section><section class="row" id="s88">
+<figure>
+<a href="slides/l5/p122.jpg" target="_blank">
+<img src="slides/l5/p122.jpg" alt="Slide pp. 122–123: Intuition: back to the example we had" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 122–123 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4416s" target="_blank" rel="noopener" title="Watch on YouTube from 1:13:36">&#9658; 1:13:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4416s" target="_blank" rel="noopener">1:13:36</a> going to see are being reused actively these days, but they&#x27;re by no means exhaustive. So let&#x27;s go back to the example that we had with respect to us wanting to modulate patch embeddings. So do you remember the example we used where we said we want a brown fluffy teddy bear</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4443s" target="_blank" rel="noopener">1:14:03</a> and we had all these dimensions? And we said, let&#x27;s say at t equals 0.1, we wanted brown color and round shape to be highlighted but not the other ones. Do you remember that?</p>
+</div>
+</section><section class="row" id="s89">
+<figure>
+<a href="slides/l5/p124.jpg" target="_blank">
+<img src="slides/l5/p124.jpg" alt="Slide p. 124: Intuition: more subtle text prompt" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 124 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4456s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:16">&#9658; 1:14:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4456s" target="_blank" rel="noopener">1:14:16</a> So let&#x27;s suppose now I&#x27;m changing the class label or the condition, the text input, to brown fluffy teddy bear surrounded by white walls. So imagine I do that. Then the white color dimension, you</p>
+</div>
+</section><section class="row" id="s90">
+<figure>
+<a href="slides/l5/p125.jpg" target="_blank">
+<img src="slides/l5/p125.jpg" alt="Slide pp. 125–126: Intuition: more subtle text prompt" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 125–126 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4475s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:35">&#9658; 1:14:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4475s" target="_blank" rel="noopener">1:14:35</a> would want to also have it emphasized because you have white in your input. But remember that this modulation is happening for all tokens, regardless of where they are. So in other words, what we&#x27;re saying is if you want to predict the velocity to denoise an image, you&#x27;re going to modulate all patch embeddings in the same way.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4508s" target="_blank" rel="noopener">1:15:08</a> But here what you want is for places where you have a Teddy bear to have Brown that&#x27;s increased but not the white color and for places where there is the white wall to have white increase but not brown. Well, you cannot do that with the DiT, and that&#x27;s a big limitation, which is the reason why we want</p>
+</div>
+</section><section class="row" id="s91">
+<figure>
+<a href="slides/l5/p127.jpg" target="_blank">
+<img src="slides/l5/p127.jpg" alt="Slide p. 127: Mitigate lack of nuance of previous approach" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 127 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4533s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:33">&#9658; 1:15:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4533s" target="_blank" rel="noopener">1:15:33</a> to change a little bit our approach. So that&#x27;s great. We&#x27;re having the self-attention mechanism there. It&#x27;s amazing. The only thing we want to do is to change the way we&#x27;re injecting conditions. So modulating with respect to the time step, I think we can all agree that makes sense</p>
+</div>
+</section><section class="row" id="s92">
+<figure>
+<a href="slides/l5/p128.jpg" target="_blank">
+<img src="slides/l5/p128.jpg" alt="Slide pp. 128–129: Mitigate lack of nuance of previous approach" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 128–129 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4555s" target="_blank" rel="noopener" title="Watch on YouTube from 1:15:55">&#9658; 1:15:55</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4555s" target="_blank" rel="noopener">1:15:55</a> because all tokens of your input, they&#x27;re all at the same time step. So it&#x27;s very fair to have the same treatment. But we need to do something else when it comes to injecting the text input from the user. We don&#x27;t want to apply the same treatment to all tokens. So out there, there are two main classes of methods that allows us to introduce some nuance</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4594s" target="_blank" rel="noopener">1:16:34</a> to the way we do that. And while there is no standard classification out there,</p>
+</div>
+</section><section class="row" id="s93">
+<figure>
+<a href="slides/l5/p130.jpg" target="_blank">
+<img src="slides/l5/p130.jpg" alt="Slide p. 130: Intuition behind joint attention" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 130 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4601s" target="_blank" rel="noopener" title="Watch on YouTube from 1:16:41">&#9658; 1:16:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4601s" target="_blank" rel="noopener">1:16:41</a> I&#x27;m just telling you there is two main classes of methods that seem to emerge-- one that involves cross-attention and one that involves joint attention. So before we go further, I just want to explicit a little bit more what these two correspond to. So cross-attention is the idea of having something as input-- so your queries, your patch embeddings-- and wondering how relevant your keys and values, which here is</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4637s" target="_blank" rel="noopener">1:17:17</a> your text, is to your queries. So in other words, I&#x27;m going to use an analogy, and I hope it&#x27;s something that will be intuitive to you as well. So let&#x27;s suppose you have a painter that paints the final image and then let&#x27;s say a poet that writes the instruction in a very eloquent way.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4667s" target="_blank" rel="noopener">1:17:47</a> So it&#x27;s the same thing as saying, if we were to say that the painter, the one who determines what changes to bring to the image, is actually looking at a piece of text that is brought by the writer, and just based on that determines what to change on the image. So it pays attention to the input text for a given patch. It says, OK, what is the piece of text</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4697s" target="_blank" rel="noopener">1:18:17</a> that is relevant to that? And then based on that it says, OK, I need to change this, change that. So that is cross-attention. So now what is joint attention? Joint attention is saying, you are considering your image patch embeddings as inputs, but you&#x27;re also considering your text embeddings as input as well. And what you&#x27;re saying is that both these modalities</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4728s" target="_blank" rel="noopener">1:18:48</a> are being attended, if you want, through the self-attention layer. So continuing the analogy, so let&#x27;s say, sorry, I&#x27;m a painter. And let&#x27;s say Shervine is a poet. So instead of Shervine writing to me exactly what needs to be drawn, now, both Shervine and I are in the same room, and we&#x27;re talking about how things should be placed with respect to the text.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4755s" target="_blank" rel="noopener">1:19:15</a> And let&#x27;s suppose if I paint something and then, I don&#x27;t know, I need to write Stanford top right and then my drawing is in such a way that there is not that much space, then we can talk amongst one another to say, OK, actually, I want Stanford to be written in maybe smaller fonts so we can change what we are each saying as a constraint</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4782s" target="_blank" rel="noopener">1:19:42</a> and doing as an image, as a function of one another. So in other words, cross-attention is considering text more as being a given. So it&#x27;s OK. So you have a patch embedding. Look at which piece of text is relevant for you, and just do something. And joint attention is saying, OK,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4807s" target="_blank" rel="noopener">1:20:07</a> let&#x27;s consider both, and try to find a representation of each, such that we can get to our final destination in the best way possible. So I hope this makes sense. All of that to say that nowadays most people do joint attention-related methods, and in particular, I&#x27;m going to introduce a term in one second.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4838s" target="_blank" rel="noopener">1:20:38</a> But before I do that, it&#x27;s exactly what I mentioned here-- the joint attention. We&#x27;re considering the patch embeddings and the text embeddings all jointly that goes through this attention layer and so on.</p>
+</div>
+</section><section class="row" id="s94">
+<figure>
+<a href="slides/l5/p131.jpg" target="_blank">
+<img src="slides/l5/p131.jpg" alt="Slide p. 131: MultiModal-Diﬀusion Transformer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 131 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4853s" target="_blank" rel="noopener" title="Watch on YouTube from 1:20:53">&#9658; 1:20:53</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4853s" target="_blank" rel="noopener">1:20:53</a> And the name of such an architecture was coined as being an MM-DiT. So I don&#x27;t exactly know how you would pronounce it, but I just go by MM-DiT-- so Multi-Modal Diffusion Transformer. And this term was coined in a paper that&#x27;s actually not that long ago-- so Stable Diffusion 3. That was published two years ago-- so in 2024. And this relies on a joint attention</p>
+</div>
+</section><section class="row" id="s95">
+<figure>
+<a href="slides/l5/p132.jpg" target="_blank">
+<img src="slides/l5/p132.jpg" alt="Slide p. 132: MultiModal-Diﬀusion Transformer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 132 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4883s" target="_blank" rel="noopener" title="Watch on YouTube from 1:21:23">&#9658; 1:21:23</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4883s" target="_blank" rel="noopener">1:21:23</a> of different modalities. Now, there is another dimension that some papers play around with, which is whether you want to consider each modality separately or jointly. And in particular, you know in the diffusion transformer architecture, you have this feed-forward neural network</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4909s" target="_blank" rel="noopener">1:21:49</a> where you project. You do some activation function, and you project again where you learn different ways to just represent the same thing. And if you were to consider all modalities as going</p>
+</div>
+</section><section class="row" id="s96">
+<figure>
+<a href="slides/l5/p133.jpg" target="_blank">
+<img src="slides/l5/p133.jpg" alt="Slide p. 133: MultiModal-Diﬀusion Transformer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 133 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4926s" target="_blank" rel="noopener" title="Watch on YouTube from 1:22:06">&#9658; 1:22:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4926s" target="_blank" rel="noopener">1:22:06</a> through the same thing-- so just continuing the analogy of the writer and the poet, it would be as if you were saying that both the poet and the-- sorry, both the poet and the painter, they use the same tools. So you learn the same projections. But if you were to consider each modality on their own,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4953s" target="_blank" rel="noopener">1:22:33</a> if you were to consider specific projection, depending on which modality you&#x27;re on, you&#x27;re actually learning tools that are tailored to the task of whoever&#x27;s doing it. So the painter will have a great brush that is tailored to whatever they&#x27;re doing, and the poet will have exactly whatever is tailored to their needs. Maybe I&#x27;m pushing it too far with this analogy, but all of that to say that we have two different classes</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=4981s" target="_blank" rel="noopener">1:23:01</a> of MM-DiT. One is single stream. So everything is treated equally. And the second one is double stream. Each modality has its own stream. And you even have papers that mixes the two. So I call them hybrids here. So they contain both single stream and double stream layers. And the next few slides are just about calling out such models.</p>
+</div>
+</section><section class="row" id="s97">
+<figure>
+<a href="slides/l5/p134.jpg" target="_blank">
+<img src="slides/l5/p134.jpg" alt="Slide p. 134: &quot;Double-stream&quot; DiT variant: SD3, Qwen-Image" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 134 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5009s" target="_blank" rel="noopener" title="Watch on YouTube from 1:23:29">&#9658; 1:23:29</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5009s" target="_blank" rel="noopener">1:23:29</a> So the state of the art models that you would see nowadays, they actually are relying on this architecture.</p>
+</div>
+</section><div class="chapter" id="ch-Qwen-Image,-Z-Image,-FLUX.1"><span>Qwen-Image, Z-Image, FLUX.1</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5017s" target="_blank" rel="noopener">1:23:37</a></div><section class="row" id="s98">
+<figure>
+<a href="slides/l5/p135.jpg" target="_blank">
+<img src="slides/l5/p135.jpg" alt="Slide p. 135: &quot;Single-stream&quot; DiT variant: Z-Image" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 135 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5017s" target="_blank" rel="noopener" title="Watch on YouTube from 1:23:37">&#9658; 1:23:37</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5017s" target="_blank" rel="noopener">1:23:37</a> So I&#x27;m going to just mention a double stream MM-DiT. So this one is an image for those of you who have heard of it. Then you have Z-image, as an example of a single stream-- so here treating everything as one. And then for those of you who have heard of it,</p>
+</div>
+</section><section class="row" id="s99">
+<figure>
+<a href="slides/l5/p136.jpg" target="_blank">
+<img src="slides/l5/p136.jpg" alt="Slide p. 136: Hybrid approach: FLUX.1 Kontext" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 136 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5036s" target="_blank" rel="noopener" title="Watch on YouTube from 1:23:56">&#9658; 1:23:56</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5036s" target="_blank" rel="noopener">1:23:56</a> flux one contexts is actually doing a bit of both. So I put all the links in the slides. So we don&#x27;t have time to talk about each of these papers. But if you&#x27;re interested, you can just go there and just look at the papers to see how they design it.</p>
+</div>
+</section><section class="row" id="s100">
+<figure>
+<a href="slides/l5/p137.jpg" target="_blank">
+<img src="slides/l5/p137.jpg" alt="Slide p. 137: Timeline" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 137 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5057s" target="_blank" rel="noopener" title="Watch on YouTube from 1:24:17">&#9658; 1:24:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5057s" target="_blank" rel="noopener">1:24:17</a> It is not in the scope of the finals, so don&#x27;t worry if you don&#x27;t go there. It&#x27;s not required. But if you&#x27;re interested, I think it&#x27;s a good source. And just continuing the timeline.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5070s" target="_blank" rel="noopener">1:24:30</a> So nowadays, image-generation models are full of MM-DiT-based models. And in particular, if you think about when the diffusion transformer was published, which was in 2022, Stable Diffusion 3, which was the first one to coin MM-DiT was released in 2024. And then the models I mentioned were released in 2025.</p>
+</div>
+</section><section class="row" id="s101">
+<figure>
+<a href="slides/l5/p138.jpg" target="_blank">
+<img src="slides/l5/p138.jpg" alt="Slide p. 138: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 138 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5092s" target="_blank" rel="noopener">&#8776; 1:24:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Timeline-of-DiT-models"><span>Timeline of DiT models</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5097s" target="_blank" rel="noopener">1:24:57</a></div><section class="row" id="s102">
+<figure>
+<a href="slides/l5/p139.jpg" target="_blank">
+<img src="slides/l5/p139.jpg" alt="Slide p. 139: Need for position information" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 139 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5097s" target="_blank" rel="noopener" title="Watch on YouTube from 1:24:57">&#9658; 1:24:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5097s" target="_blank" rel="noopener">1:24:57</a> And again, the ones that are being published in 2026, they seem to follow the same trend. All of that to say that I think these are relevant</p>
+</div>
+</section><section class="row" id="s103">
+<figure>
+<a href="slides/l5/p140.jpg" target="_blank">
+<img src="slides/l5/p140.jpg" alt="Slide p. 140: Need for position information" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 140 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5107s" target="_blank" rel="noopener" title="Watch on YouTube from 1:25:07">&#9658; 1:25:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5107s" target="_blank" rel="noopener">1:25:07</a> architectures that I think are good to have in mind. I&#x27;m looking at the time.</p>
+</div>
+</section><section class="row" id="s104">
+<figure>
+<a href="slides/l5/p141.jpg" target="_blank">
+<img src="slides/l5/p141.jpg" alt="Slide p. 141: Need for position information" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 141 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5107s" target="_blank" rel="noopener">&#8776; 1:25:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s105">
+<figure>
+<a href="slides/l5/p142.jpg" target="_blank">
+<img src="slides/l5/p142.jpg" alt="Slide p. 142: Absolute positional embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 142 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5112s" target="_blank" rel="noopener" title="Watch on YouTube from 1:25:12">&#9658; 1:25:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5112s" target="_blank" rel="noopener">1:25:12</a> I&#x27;m slightly over time, but any questions on that?</p>
+</div>
+</section><section class="row" id="s106">
+<figure>
+<a href="slides/l5/p143.jpg" target="_blank">
+<img src="slides/l5/p143.jpg" alt="Slide p. 143: Absolute positional embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 143 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener" title="Watch on YouTube from 1:25:21">&#9658; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">1:25:21</a> We&#x27;re all good? Perfect. So with that, I&#x27;m going to give it to Shervine.</p>
+</div>
+</section><section class="row" id="s107">
+<figure>
+<a href="slides/l5/p144.jpg" target="_blank">
+<img src="slides/l5/p144.jpg" alt="Slide p. 144: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 144 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s108">
+<figure>
+<a href="slides/l5/p145.jpg" target="_blank">
+<img src="slides/l5/p145.jpg" alt="Slide p. 145: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 145 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s109">
+<figure>
+<a href="slides/l5/p146.jpg" target="_blank">
+<img src="slides/l5/p146.jpg" alt="Slide p. 146: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 146 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s110">
+<figure>
+<a href="slides/l5/p147.jpg" target="_blank">
+<img src="slides/l5/p147.jpg" alt="Slide p. 147: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 147 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s111">
+<figure>
+<a href="slides/l5/p148.jpg" target="_blank">
+<img src="slides/l5/p148.jpg" alt="Slide p. 148: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 148 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s112">
+<figure>
+<a href="slides/l5/p149.jpg" target="_blank">
+<img src="slides/l5/p149.jpg" alt="Slide p. 149: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 149 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s113">
+<figure>
+<a href="slides/l5/p150.jpg" target="_blank">
+<img src="slides/l5/p150.jpg" alt="Slide p. 150: Hardcoded position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 150 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s114">
+<figure>
+<a href="slides/l5/p152.jpg" target="_blank">
+<img src="slides/l5/p152.jpg" alt="Slide pp. 151–152: Discussion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 151–152 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5121s" target="_blank" rel="noopener">&#8776; 1:25:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Absolute-position-embeddings"><span>Absolute position embeddings</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5126s" target="_blank" rel="noopener">1:25:26</a></div><section class="row" id="s115">
+<figure>
+<a href="slides/l5/p153.jpg" target="_blank">
+<img src="slides/l5/p153.jpg" alt="Slide p. 153: Absolute position embeddings" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 153 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5126s" target="_blank" rel="noopener" title="Watch on YouTube from 1:25:26">&#9658; 1:25:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5126s" target="_blank" rel="noopener">1:25:26</a> Thank you, Afshine. So with all these models, we have seen that one constant is that we need to represent the position of the input. So the next section here is called optimization. But we&#x27;re not going to look at optimizations of everything-- just the optimization of the position. So in order to make things simple, I&#x27;m going to start in the 1D case.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5153s" target="_blank" rel="noopener">1:25:53</a> And then we&#x27;re going to see how we can adapt this concept of positions in the 2D one. So as you recall, the original transformer was based on text tokens. So in this case, where you have the sentence, a teddy bear is reading, what you would want is when you do comparisons between your tokens in the attention layer, that the token teddy bear or the representation of it is seen as being close to tokens</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5186s" target="_blank" rel="noopener">1:26:26</a> around it or itself and far from others that are far from it. That&#x27;s the goal. So let&#x27;s write that in mathematical form. So what we want is a way for us to compare two embeddings and when you do an operation like the dot product to have it as a function of the distance.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5211s" target="_blank" rel="noopener">1:26:51</a> But here I&#x27;m saying the dot product of embeddings of these tokens it&#x27;s not totally true. Here I&#x27;m going to put it in quotes, because in the case of attention, we&#x27;re not comparing the same embeddings. We&#x27;re comparing the query embedding with the key embedding of the other token. So it&#x27;s modulo some transformation. And just to write things down, we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5239s" target="_blank" rel="noopener">1:27:19</a> are going to decompose, as a first approach, the representation of the embedding of a given token with what we call the input embedding, which is whatever representation we already have that is not position-specific, and then adding it as an element-wise addition in the vector space, the position embedding. That&#x27;s what the original transformer paper proposed, such that when you do the dot product operation that I just</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5269s" target="_blank" rel="noopener">1:27:49</a> mentioned, you have a term that pops out that is a dot product of these position embeddings together. And I&#x27;m not saying that all the other terms are not functions of this position embeddings. Some of them are cross terms, but we&#x27;re just going to ignore them for now. And we&#x27;re going to focus on what choice to get for these position embeddings in order for the representation to make sense.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5301s" target="_blank" rel="noopener">1:28:21</a> So the original transformer hard coded it with a formula that I just wrote down here. So it might look scary. Some of you might know about it already, but for all the others, it might look scary. So you have a combination of sines and cosines that you might ask yourself, why are they here? So we&#x27;re going to decompose all the notations in there</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5326s" target="_blank" rel="noopener">1:28:46</a> and see intuitively what they are for. So you see that you have the position as a numerator within these sines and cosines. And on the denominator, you have some huge number put at some exponent. And that exponent is a function of the position in the vector and the dimension of the embedding altogether, such that when you vary</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5357s" target="_blank" rel="noopener">1:29:17</a> this I between the first and the middle position, you cover exponents from 0 to 1. So in other words, you have these signs that have frequencies that are either high when this I is close to 0 because you have the position over something that is small. So it&#x27;s going to vary quite fast. So we&#x27;re going to call them high frequency.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5384s" target="_blank" rel="noopener">1:29:44</a> And on the other end of the spectrum, when you have I close to the dimension of the vector over 2, it&#x27;s going to be close to 1. And as you can see, the number that is elevated to that exponent is some number that looks arbitrary, but it&#x27;s quite large. It&#x27;s voluntarily taken quite large with respect to the sequence length, because the mindset behind it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5415s" target="_blank" rel="noopener">1:30:15</a> is that we want these frequencies when I is high, to be considered as low. So in other words, when you have a sequence length of let&#x27;s say 500, we want these 1 over 10,000 to be so small that the variation of that sine and cosine is of low frequency with</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5441s" target="_blank" rel="noopener">1:30:41</a> respect to the sequence length. Does that make sense? OK. Awesome. So now I&#x27;m going to show you the exact same figure that Afshine showed in a different context in a timestep embedding. But it turns out that here we choose a similar mathematical framing. So the same graph applies. And we&#x27;re going to analyze parts of these projection</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5468s" target="_blank" rel="noopener">1:31:08</a> and then see how it compares with respect to our frequencies that we qualified as high and low. So on the left, we&#x27;re looking at dimensions that are early on in the vector. So we call them the high frequencies. And as you can see, when you vary the sequence position, these numbers, they vary between negative 1 and 1 quite fast.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5497s" target="_blank" rel="noopener">1:31:37</a> And on the other end of the spectrum, when you look at positions of this vector that are larger than the cosine and sines take time in order to cover the whole face. So now I talked about a given frequency that was hard coded. This is a design choice. We&#x27;re going to hide it under some variable that I&#x27;m going to call omega y.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5528s" target="_blank" rel="noopener">1:32:08</a> And we&#x27;re going to look side by side what these vectors look like when you take position m on one hand and position n. And we&#x27;re going to try to see what taking the dot products between both of them is going to give us. So here you see that you have these sines that are aligned and these cosines, so that when you do the dot product,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5557s" target="_blank" rel="noopener">1:32:37</a> you have a sum of these sines of similar frequencies at position m and n and plus a product of cosines of a same frequency at positions m and n again. And if you recall your trigonometry class, sine A, sine B, plus cosine A cosine B is an identity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5587s" target="_blank" rel="noopener">1:33:07</a> And you can rewrite it as cosine of A minus B, such that when you compute this dot product, this is nothing else as the sum of about dimension of embeddings over 2 terms of this cosine of difference of terms. So it&#x27;s quite interpretable. So now let&#x27;s take a look at when we compare positions</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5617s" target="_blank" rel="noopener">1:33:37</a> m and n what the dot product evolves with respect to time. So you see that it has this natural curve that overall decreases. But it&#x27;s not monotonic. It doesn&#x27;t monotonically decrease, but it tends to decrease. And you can see multiple regions in this curve that you can interpret as to why you have such phenomenon happening. So at the very beginning, you see a sudden drop.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5648s" target="_blank" rel="noopener">1:34:08</a> And this can be interpreted by the fact that all your cosines in your sum, whether high frequency or low frequency, start from an angle close to 0, and they all drop from these cosine of 0 equals 1. And then as you progress, when you increase the distance between positions, m and n, you have your high frequency cosine</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5673s" target="_blank" rel="noopener">1:34:33</a> terms that oscillate between minus 1 and 1, and they will tend to cancel each other out. So this is why you see some oscillations but not that much. And then later on you see more and more oscillations coming in. This is your low frequency terms that start oscillating, and this is how it can be interpreted.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5703s" target="_blank" rel="noopener">1:35:03</a> So why are we choosing these positions embeddings in the first place? So we saw that we can have an interesting interpretation in terms of comparing two position embeddings when they are close versus far from each other. You have an intuitive interpretation as to the dot products that can be compared to the distance.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5726s" target="_blank" rel="noopener">1:35:26</a> And also something that I haven&#x27;t put here and that was highlighted by initial authors, the position embedding when you increase the position by a given factor, k, can be represented by a linear operation. So when you have all these matrix multiplication operations, you can see that operation as being absorbed by these matrix computations,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5754s" target="_blank" rel="noopener">1:35:54</a> such that position information can be taken into account. So it has this linear interpretation as well. And the argument is that it&#x27;s very simple because you have a pre-computed formula. So let&#x27;s say at training time, you have a given constraint on the sequence length. If at inference time you change that parameter, then you&#x27;re not lost because you know how</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5783s" target="_blank" rel="noopener">1:36:23</a> to extrapolate by the formula. And so we see that it just works well in practice. But then on the flip side, and I&#x27;m not talking about the fact that it&#x27;s hard-coded, but more about the absolute property of these position embeddings, we saw that it was introduced at the input level, whereas the initial motivation where I mentioned position embeddings were helpful were more</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5814s" target="_blank" rel="noopener">1:36:54</a> at the attention level. So it seems like we&#x27;re injecting this position information at a place where that information doesn&#x27;t matter most, but it might matter most at places where you want to compare embeddings with respect to one another. So we&#x27;re going to see how to alleviate that. And I mentioned as well this extra interaction terms. When you add position embeddings at the very beginning,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5843s" target="_blank" rel="noopener">1:37:23</a> that might interact with the input embeddings. And I&#x27;m not saying this is bad, but I&#x27;m saying this might not be the intention we have behind this position embeddings. So it doesn&#x27;t seem to align with the design choice that we have in mind. And just to give you some information regarding who</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5865s" target="_blank" rel="noopener">1:37:45</a> used it, basically, everyone. Like every first paper on transformers used absolute position embedding-- so not necessarily the hard-coded version, but the one that adds it in the input. So the transformer, of course, did it the way I presented. The original VIT didn&#x27;t hardcode it. It was something that was learned. And then the DiT did hard-code it but in 2D space in a manner</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5893s" target="_blank" rel="noopener">1:38:13</a> similar to one that we&#x27;re going to see very soon. But it did so at the input level. Yeah. A great point. So what about the 2D case? We&#x27;re going to see it. And yeah, great point. But first before doing that, we&#x27;re going to see if there is a better location to have these position embeddings be represented.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5920s" target="_blank" rel="noopener">1:38:40</a> And as you might have guessed from all my hints, the attention layer is going to be the place to put them. And this is the key insight from RoPE Rotary Position Embeddings.</p>
+</div>
+</section><section class="row" id="s116">
+<figure>
+<a href="slides/l5/p154.jpg" target="_blank">
+<img src="slides/l5/p154.jpg" alt="Slide p. 154: From absolute to relative position info" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 154 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5927s" target="_blank" rel="noopener">&#8776; 1:38:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Rotary-position-embeddings-(RoPE)"><span>Rotary position embeddings (RoPE)</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5934s" target="_blank" rel="noopener">1:38:54</a></div><section class="row" id="s117">
+<figure>
+<a href="slides/l5/p155.jpg" target="_blank">
+<img src="slides/l5/p155.jpg" alt="Slide p. 155: Default choice nowadays: rotations in attention layer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 155 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5934s" target="_blank" rel="noopener" title="Watch on YouTube from 1:38:54">&#9658; 1:38:54</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5934s" target="_blank" rel="noopener">1:38:54</a> That was a paper in 2021 that introduced these kinds of representation of positions, and that is the leading way people do it in practice today. And the way it works is as follows. You take queries. You take keys. And instead of fitting them in the dot product as is, you will rotate them by a rotation operation that takes into account their position.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5963s" target="_blank" rel="noopener">1:39:23</a> So you take the query. You rotate it with respect to something that depends on m. Same for key. That depends on n, its position. And you&#x27;re going to do the dot product of these rotated queries and keys instead of the raw ones. And one nice property that is interpretable</p>
+</div>
+</section><section class="row" id="s118">
+<figure>
+<a href="slides/l5/p156.jpg" target="_blank">
+<img src="slides/l5/p156.jpg" alt="Slide p. 156: Default choice nowadays: rotations in attention layer" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 156 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5983s" target="_blank" rel="noopener" title="Watch on YouTube from 1:39:43">&#9658; 1:39:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5983s" target="_blank" rel="noopener">1:39:43</a> here is that you see a rotation matrix that depends on the difference of positions, n minus m, pop out.</p>
+</div>
+</section><section class="row" id="s119">
+<figure>
+<a href="slides/l5/p157.jpg" target="_blank">
+<img src="slides/l5/p157.jpg" alt="Slide p. 157: Generalization to 2D?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 157 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5983s" target="_blank" rel="noopener">&#8776; 1:39:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s120">
+<figure>
+<a href="slides/l5/p158.jpg" target="_blank">
+<img src="slides/l5/p158.jpg" alt="Slide p. 158: 1" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 158 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5983s" target="_blank" rel="noopener">&#8776; 1:39:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s121">
+<figure>
+<a href="slides/l5/p159.jpg" target="_blank">
+<img src="slides/l5/p159.jpg" alt="Slide p. 159: Generalization to 2D?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 159 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5992s" target="_blank" rel="noopener" title="Watch on YouTube from 1:39:52">&#9658; 1:39:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5992s" target="_blank" rel="noopener">1:39:52</a> So you feel like it&#x27;s a design choice that that makes sense.</p>
+</div>
+</section><section class="row" id="s122">
+<figure>
+<a href="slides/l5/p160.jpg" target="_blank">
+<img src="slides/l5/p160.jpg" alt="Slide p. 160: Generalization to 2D?" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 160 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=5992s" target="_blank" rel="noopener">&#8776; 1:39:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-2D-RoPE-variants"><span>2D RoPE variants</span><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6000s" target="_blank" rel="noopener">1:40:00</a></div><section class="row" id="s123">
+<figure>
+<a href="slides/l5/p161.jpg" target="_blank">
+<img src="slides/l5/p161.jpg" alt="Slide p. 161: 2D RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 161 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6000s" target="_blank" rel="noopener" title="Watch on YouTube from 1:40:00">&#9658; 1:40:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6000s" target="_blank" rel="noopener">1:40:00</a> And then to answer your points, now we&#x27;re good for 1D. But what about 2D? So 2D you have this coordinates. But if you don&#x27;t talk about coordinates just yet, you might number them in a 1D manner. And it&#x27;s not super clear whether it makes sense at all to compare 1D numbers with respect to one another. So you have a few ways to get around it.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6029s" target="_blank" rel="noopener">1:40:29</a> So the first idea, which is a similar flavor of what the original DiT paper used is to segregate axes, such that you represent vectors with respect to their coordinates in the 2D space. And you do the x-axis in some part of the vector and the y-axis at some other part. And here we&#x27;re talking about one given design choice of how to order the indices with respect</p>
+</div>
+</section><section class="row" id="s124">
+<figure>
+<a href="slides/l5/p162.jpg" target="_blank">
+<img src="slides/l5/p162.jpg" alt="Slide p. 162: 2D RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 162 <a class="tlink chip" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6062s" target="_blank" rel="noopener" title="Watch on YouTube from 1:41:02">&#9658; 1:41:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6062s" target="_blank" rel="noopener">1:41:02</a> to where you project. But it doesn&#x27;t have to be grouped by even or odd indices. You can group these by any way you want because this is arbitrary. And so this is one way of doing it. It&#x27;s called axial RoPE. There is another way that you could get around it that mitigates the fact that--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6086s" target="_blank" rel="noopener">1:41:26</a> so here if you do the actual way, one thing is that if you do the dot product between two rotated vectors, you realize that you&#x27;re comparing x with x and y with y. So you&#x27;re missing that interaction component. And one way you can go around it is to mix rotations with respect to x and y in the same vector. So this is the so-called mixed RoPE.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6117s" target="_blank" rel="noopener">1:41:57</a> And the authors of the paper that discuss these two 2D strategies made a representation of a given input position and applied a frequency-based technique that I know some of you might know from the physics space called the Fourier Transform. So to apply the Fourier Transform, it&#x27;s filtered out for a given frequency&#x27;s budget-- only those that were taken into consideration. And after trying to reconstruct the signal</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6152s" target="_blank" rel="noopener">1:42:32</a> from these set of frequencies, saw that Axial RoPE had all these axial artifacts that were due to this lack of interaction between the two axes, whereas Mixed RoPE was able to leverage the same set of frequencies, like the same set of frequencies budgets in a way more efficient way. So these are two ways of looking at them, and mixing things seems to make it better.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6184s" target="_blank" rel="noopener">1:43:04</a> And something else that you might worry about beyond taking into account the 2D case, is how to make sense of these positions when you have different number of patches presented to you. So, for example, let&#x27;s say your teddy bear is in low resolution versus high resolution. How does it make sense me as a model to interpret what is at the center of the image versus what is on the left or what is on the right?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6212s" target="_blank" rel="noopener">1:43:32</a> And this is what Seedream 2 thought about. And the idea here is to center the coordinates in a way that will tell the model where the center of the image is in order for it to locate different parts of the image. So instead of having like a grid that starts from 0,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6237s" target="_blank" rel="noopener">1:43:57</a> you have the 0 roughly being at the center of the image, and then you adjust the external points. And one thing that you might wonder by Afshine&#x27;s description of MM-DiT models, for example, those that perform joint attention, so you have these points in the architecture where you might have text tokens interacting with image tokens.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6265s" target="_blank" rel="noopener">1:44:25</a> So one question you might ask yourself, how to quantify the position of one with respect to the other. And by thinking about this, one thing you might want to think about is what wouldn&#x27;t work. So what wouldn&#x27;t work intuitively is the positions at the horizontal lines of the image and the vertical ones. Because intuitively, you do not want your model</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6294s" target="_blank" rel="noopener">1:44:54</a> to think that your text tokens are a continuation of your image. So one natural position that the coin image paper points out is the diagonal, because it&#x27;s clear that it&#x27;s out of the area of the image. And by doing so, they see that they can just live together. And if you use an actual formulation of the 2D</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6323s" target="_blank" rel="noopener">1:45:23</a> representation, you even notice that your text tokens become equivalent to the 1D case because you have your x and y&#x27;s that are incremented by 1 between one another. So just you fall back on the same case. And so I just went through some of the keys that made some of these techniques work well. I just want to say that this is very much an open problem.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6353s" target="_blank" rel="noopener">1:45:53</a> There is no many papers that use the same techniques but rather many that use variations to reach their own architectures, goals. And then there are trade offs as well. And you might remember from the early slides that we were talking about teddy bear that was wanting to dance. So here is our teddy bear wishing you a great weekend.</p>
+</div>
+</section><section class="row" id="s125">
+<figure>
+<a href="slides/l5/p163.jpg" target="_blank">
+<img src="slides/l5/p163.jpg" alt="Slide p. 163: Scaling RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 163 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s126">
+<figure>
+<a href="slides/l5/p164.jpg" target="_blank">
+<img src="slides/l5/p164.jpg" alt="Slide p. 164: 0,0" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 164 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s127">
+<figure>
+<a href="slides/l5/p165.jpg" target="_blank">
+<img src="slides/l5/p165.jpg" alt="Slide p. 165: Scaling RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 165 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s128">
+<figure>
+<a href="slides/l5/p166.jpg" target="_blank">
+<img src="slides/l5/p166.jpg" alt="Slide p. 166: Multimodal RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 166 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s129">
+<figure>
+<a href="slides/l5/p167.jpg" target="_blank">
+<img src="slides/l5/p167.jpg" alt="Slide p. 167: Multimodal RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 167 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s130">
+<figure>
+<a href="slides/l5/p169.jpg" target="_blank">
+<img src="slides/l5/p169.jpg" alt="Slide pp. 168–169: Multimodal RoPE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 168–169 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s131">
+<figure>
+<a href="slides/l5/p170.jpg" target="_blank">
+<img src="slides/l5/p170.jpg" alt="Slide p. 170: Conclusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 170 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s132">
+<figure>
+<a href="slides/l5/p171.jpg" target="_blank">
+<img src="slides/l5/p171.jpg" alt="Slide p. 171: Thank you for your attention!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 171 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=HpFdSlMeXzQ&t=6377s" target="_blank" rel="noopener">&#8776; 1:46:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<p>Slides &copy; CME 296 instructors (Afshine Amidi &amp; Shervine Amidi), Stanford University.
+Transcript from the lecture video. Slide&ndash;transcript alignment is automatic
+(content matching) and approximate; timestamps link to the video.</p>
+<nav class="lnav"><a href="lecture4.html">&larr; Lecture 4</a><a href="index.html">All lectures</a><a href="lecture6.html">Lecture 6 &rarr;</a></nav>
+</footer>
+</body>
+</html>

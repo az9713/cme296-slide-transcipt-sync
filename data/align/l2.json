@@ -1,0 +1,2147 @@
+{
+ "lecture": 2,
+ "groups": [
+  {
+   "id": 0,
+   "img": "p001.jpg",
+   "pages": [
+    1,
+    1
+   ],
+   "title": "CME 296: Di\ufb00usion &",
+   "segments": [
+    0,
+    1
+   ],
+   "t_start": 0,
+   "ts_start": "0:00",
+   "t_end": 12
+  },
+  {
+   "id": 1,
+   "img": "p002.jpg",
+   "pages": [
+    2,
+    2
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "t_start": 18,
+   "ts_start": "0:18",
+   "t_end": 79
+  },
+  {
+   "id": 2,
+   "img": "p003.jpg",
+   "pages": [
+    3,
+    3
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    11
+   ],
+   "t_start": 87,
+   "ts_start": "1:27",
+   "t_end": 87
+  },
+  {
+   "id": 3,
+   "img": "p004.jpg",
+   "pages": [
+    4,
+    4
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+   ],
+   "t_start": 93,
+   "ts_start": "1:33",
+   "t_end": 126
+  },
+  {
+   "id": 4,
+   "img": "p005.jpg",
+   "pages": [
+    5,
+    5
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    18,
+    19
+   ],
+   "t_start": 132,
+   "ts_start": "2:12",
+   "t_end": 139
+  },
+  {
+   "id": 5,
+   "img": "p006.jpg",
+   "pages": [
+    6,
+    6
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    20
+   ],
+   "t_start": 146,
+   "ts_start": "2:26",
+   "t_end": 146
+  },
+  {
+   "id": 6,
+   "img": "p007.jpg",
+   "pages": [
+    7,
+    7
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+   ],
+   "t_start": 154,
+   "ts_start": "2:34",
+   "t_end": 215
+  },
+  {
+   "id": 7,
+   "img": "p008.jpg",
+   "pages": [
+    8,
+    8
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    31,
+    32,
+    33
+   ],
+   "t_start": 220,
+   "ts_start": "3:40",
+   "t_end": 231
+  },
+  {
+   "id": 8,
+   "img": "p009.jpg",
+   "pages": [
+    9,
+    9
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+   ],
+   "t_start": 239,
+   "ts_start": "3:59",
+   "t_end": 273
+  },
+  {
+   "id": 9,
+   "img": "p010.jpg",
+   "pages": [
+    10,
+    10
+   ],
+   "title": "Today's lecture",
+   "segments": [
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52
+   ],
+   "t_start": 278,
+   "ts_start": "4:38",
+   "t_end": 366
+  },
+  {
+   "id": 10,
+   "img": "p011.jpg",
+   "pages": [
+    11,
+    11
+   ],
+   "title": "Motivation",
+   "segments": [
+    53,
+    54,
+    55,
+    56,
+    57,
+    58
+   ],
+   "t_start": 374,
+   "ts_start": "6:14",
+   "t_end": 414
+  },
+  {
+   "id": 11,
+   "img": "p012.jpg",
+   "pages": [
+    12,
+    12
+   ],
+   "title": "Intuition",
+   "segments": [
+    59
+   ],
+   "t_start": 421,
+   "ts_start": "7:01",
+   "t_end": 421
+  },
+  {
+   "id": 12,
+   "img": "p013.jpg",
+   "pages": [
+    13,
+    13
+   ],
+   "title": "Reminder of what a gradient is",
+   "segments": [
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67
+   ],
+   "t_start": 427,
+   "ts_start": "7:07",
+   "t_end": 478
+  },
+  {
+   "id": 13,
+   "img": "p014.jpg",
+   "pages": [
+    14,
+    14
+   ],
+   "title": "Intuition",
+   "segments": []
+  },
+  {
+   "id": 14,
+   "img": "p015.jpg",
+   "pages": [
+    15,
+    15
+   ],
+   "title": "Problems with gradient of probability",
+   "segments": [
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77
+   ],
+   "t_start": 486,
+   "ts_start": "8:06",
+   "t_end": 553
+  },
+  {
+   "id": 15,
+   "img": "p016.jpg",
+   "pages": [
+    16,
+    16
+   ],
+   "title": "Problems with gradient of probability",
+   "segments": [
+    78
+   ],
+   "t_start": 559,
+   "ts_start": "9:19",
+   "t_end": 559
+  },
+  {
+   "id": 16,
+   "img": "p017.jpg",
+   "pages": [
+    17,
+    17
+   ],
+   "title": "Problems with gradient of probability",
+   "segments": [
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87
+   ],
+   "t_start": 570,
+   "ts_start": "9:30",
+   "t_end": 631
+  },
+  {
+   "id": 17,
+   "img": "p018.jpg",
+   "pages": [
+    18,
+    18
+   ],
+   "title": "Problems with gradient of probability",
+   "segments": [
+    88
+   ],
+   "t_start": 639,
+   "ts_start": "10:39",
+   "t_end": 639
+  },
+  {
+   "id": 18,
+   "img": "p022.jpg",
+   "pages": [
+    19,
+    22
+   ],
+   "title": "Reviewing gradient of log of p",
+   "segments": [
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120
+   ],
+   "t_start": 648,
+   "ts_start": "10:48",
+   "t_end": 866
+  },
+  {
+   "id": 19,
+   "img": "p023.jpg",
+   "pages": [
+    23,
+    23
+   ],
+   "title": "Intuition behind score function",
+   "segments": [
+    121
+   ],
+   "t_start": 872,
+   "ts_start": "14:32",
+   "t_end": 872
+  },
+  {
+   "id": 20,
+   "img": "p024.jpg",
+   "pages": [
+    24,
+    24
+   ],
+   "title": "Using the score function in our problem",
+   "segments": [
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153
+   ],
+   "t_start": 880,
+   "ts_start": "14:40",
+   "t_end": 1101
+  },
+  {
+   "id": 21,
+   "img": "p025.jpg",
+   "pages": [
+    25,
+    25
+   ],
+   "title": "Motivation",
+   "segments": [
+    154
+   ],
+   "t_start": 1114,
+   "ts_start": "18:34",
+   "t_end": 1114
+  },
+  {
+   "id": 22,
+   "img": "p027.jpg",
+   "pages": [
+    26,
+    27
+   ],
+   "title": "Score matching",
+   "segments": [
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174
+   ],
+   "t_start": 1120,
+   "ts_start": "18:40",
+   "t_end": 1251
+  },
+  {
+   "id": 23,
+   "img": "p028.jpg",
+   "pages": [
+    28,
+    28
+   ],
+   "title": "Attempts to estimate the score",
+   "segments": []
+  },
+  {
+   "id": 24,
+   "img": "p029.jpg",
+   "pages": [
+    29,
+    29
+   ],
+   "title": "Attempts to estimate the score",
+   "segments": []
+  },
+  {
+   "id": 25,
+   "img": "p030.jpg",
+   "pages": [
+    30,
+    30
+   ],
+   "title": "Score of a Gaussian distribution (example in 1D)",
+   "segments": [
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223,
+    224,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244
+   ],
+   "t_start": 1257,
+   "ts_start": "20:57",
+   "t_end": 1792
+  },
+  {
+   "id": 26,
+   "img": "p031.jpg",
+   "pages": [
+    31,
+    31
+   ],
+   "title": "New attempt: add noise to data",
+   "segments": []
+  },
+  {
+   "id": 27,
+   "img": "p032.jpg",
+   "pages": [
+    32,
+    32
+   ],
+   "title": "Add noise to distribution",
+   "segments": []
+  },
+  {
+   "id": 28,
+   "img": "p033.jpg",
+   "pages": [
+    33,
+    33
+   ],
+   "title": "Estimating the score of the noised distribution",
+   "segments": []
+  },
+  {
+   "id": 29,
+   "img": "p034.jpg",
+   "pages": [
+    34,
+    34
+   ],
+   "title": "Denoising score matching",
+   "segments": [
+    245,
+    246,
+    247,
+    248,
+    249,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255,
+    256,
+    257,
+    258,
+    259,
+    260,
+    261,
+    262,
+    263,
+    264,
+    265,
+    266,
+    267,
+    268,
+    269,
+    270,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    278,
+    279,
+    280,
+    281,
+    282,
+    283,
+    284,
+    285,
+    286,
+    287,
+    288,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    295,
+    296,
+    297,
+    298,
+    299,
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315,
+    316,
+    317,
+    318,
+    319,
+    320,
+    321,
+    322,
+    323,
+    324,
+    325,
+    326,
+    327
+   ],
+   "t_start": 1801,
+   "ts_start": "30:01",
+   "t_end": 2442
+  },
+  {
+   "id": 30,
+   "img": "p035.jpg",
+   "pages": [
+    35,
+    35
+   ],
+   "title": "Reminder about the objective of interest",
+   "segments": []
+  },
+  {
+   "id": 31,
+   "img": "p036.jpg",
+   "pages": [
+    36,
+    36
+   ],
+   "title": "Limitations with vanilla DSM",
+   "segments": [
+    328,
+    329,
+    330,
+    331,
+    332
+   ],
+   "t_start": 2449,
+   "ts_start": "40:49",
+   "t_end": 2478
+  },
+  {
+   "id": 32,
+   "img": "p037.jpg",
+   "pages": [
+    37,
+    37
+   ],
+   "title": "Limitations with vanilla DSM",
+   "segments": [
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    344,
+    345,
+    346,
+    347,
+    348,
+    349,
+    350,
+    351,
+    352,
+    353,
+    354,
+    355,
+    356,
+    357,
+    358,
+    359,
+    360,
+    361,
+    362,
+    363,
+    364,
+    365,
+    366,
+    367,
+    368,
+    369,
+    370,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    384,
+    385,
+    386,
+    387,
+    388,
+    389,
+    390,
+    391,
+    392,
+    393,
+    394,
+    395,
+    396
+   ],
+   "t_start": 2485,
+   "ts_start": "41:25",
+   "t_end": 2981
+  },
+  {
+   "id": 33,
+   "img": "p038.jpg",
+   "pages": [
+    38,
+    38
+   ],
+   "title": "Score matching with varying noise via NCSN",
+   "segments": [
+    397,
+    398,
+    399,
+    400,
+    401,
+    402,
+    403,
+    404,
+    405,
+    406,
+    407,
+    408,
+    409,
+    410,
+    411,
+    412,
+    413
+   ],
+   "t_start": 2990,
+   "ts_start": "49:50",
+   "t_end": 3117
+  },
+  {
+   "id": 34,
+   "img": "p039.jpg",
+   "pages": [
+    39,
+    40
+   ],
+   "title": "Intuition behind sampling strategy",
+   "segments": [
+    414
+   ],
+   "t_start": 3122,
+   "ts_start": "52:02",
+   "t_end": 3122
+  },
+  {
+   "id": 35,
+   "img": "p041.jpg",
+   "pages": [
+    41,
+    41
+   ],
+   "title": "Intuition behind sampling strategy",
+   "segments": [
+    415
+   ],
+   "t_start": 3128,
+   "ts_start": "52:08",
+   "t_end": 3128
+  },
+  {
+   "id": 36,
+   "img": "p042.jpg",
+   "pages": [
+    42,
+    42
+   ],
+   "title": "Sampling with Annealed Langevin Dynamics",
+   "segments": [
+    416
+   ],
+   "t_start": 3135,
+   "ts_start": "52:15",
+   "t_end": 3135
+  },
+  {
+   "id": 37,
+   "img": "p043.jpg",
+   "pages": [
+    43,
+    43
+   ],
+   "title": "Sampling with Annealed Langevin Dynamics",
+   "segments": [
+    417
+   ],
+   "t_start": 3142,
+   "ts_start": "52:22",
+   "t_end": 3142
+  },
+  {
+   "id": 38,
+   "img": "p044.jpg",
+   "pages": [
+    44,
+    44
+   ],
+   "title": ", perform iterative update for",
+   "segments": [
+    418
+   ],
+   "t_start": 3152,
+   "ts_start": "52:32",
+   "t_end": 3152
+  },
+  {
+   "id": 39,
+   "img": "p045.jpg",
+   "pages": [
+    45,
+    46
+   ],
+   "title": ", perform iterative update for",
+   "segments": [
+    419
+   ],
+   "t_start": 3160,
+   "ts_start": "52:40",
+   "t_end": 3160
+  },
+  {
+   "id": 40,
+   "img": "p047.jpg",
+   "pages": [
+    47,
+    49
+   ],
+   "title": ", perform iterative update for",
+   "segments": [
+    420
+   ],
+   "t_start": 3167,
+   "ts_start": "52:47",
+   "t_end": 3167
+  },
+  {
+   "id": 41,
+   "img": "p050.jpg",
+   "pages": [
+    50,
+    50
+   ],
+   "title": "Sampling with Annealed Langevin Dynamics",
+   "segments": [
+    421,
+    422,
+    423,
+    424,
+    425,
+    426,
+    427,
+    428,
+    429,
+    430,
+    431,
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444,
+    445,
+    446,
+    447,
+    448,
+    449,
+    450,
+    451,
+    452,
+    453,
+    454,
+    455,
+    456,
+    457,
+    458,
+    459,
+    460,
+    461,
+    462,
+    463
+   ],
+   "t_start": 3173,
+   "ts_start": "52:53",
+   "t_end": 3482
+  },
+  {
+   "id": 42,
+   "img": "p052.jpg",
+   "pages": [
+    51,
+    52
+   ],
+   "title": "Parallel between noise (DDPM) and score (NCSN)",
+   "segments": [
+    464,
+    465,
+    466,
+    467,
+    468,
+    469,
+    470,
+    471,
+    472,
+    473,
+    474,
+    475,
+    476,
+    477,
+    478,
+    479,
+    480,
+    481,
+    482,
+    483,
+    484,
+    485,
+    486,
+    487,
+    488,
+    489,
+    490,
+    491,
+    492,
+    493,
+    494,
+    495,
+    496,
+    497,
+    498,
+    499,
+    500,
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    512,
+    513,
+    514,
+    515
+   ],
+   "t_start": 3489,
+   "ts_start": "58:09",
+   "t_end": 3875
+  },
+  {
+   "id": 43,
+   "img": "p053.jpg",
+   "pages": [
+    53,
+    53
+   ],
+   "title": "Motivation",
+   "segments": []
+  },
+  {
+   "id": 44,
+   "img": "p054.jpg",
+   "pages": [
+    54,
+    54
+   ],
+   "title": "Intuition",
+   "segments": []
+  },
+  {
+   "id": 45,
+   "img": "p056.jpg",
+   "pages": [
+    55,
+    56
+   ],
+   "title": "Intuition",
+   "segments": [
+    516
+   ],
+   "t_start": 3882,
+   "ts_start": "1:04:42",
+   "t_end": 3882
+  },
+  {
+   "id": 46,
+   "img": "p057.jpg",
+   "pages": [
+    57,
+    57
+   ],
+   "title": "Intuition",
+   "segments": [
+    517,
+    518,
+    519,
+    520,
+    521,
+    522
+   ],
+   "t_start": 3890,
+   "ts_start": "1:04:50",
+   "t_end": 3921
+  },
+  {
+   "id": 47,
+   "img": "p058.jpg",
+   "pages": [
+    58,
+    58
+   ],
+   "title": "Let's \ufb01rst de\ufb01ne Wiener processes",
+   "segments": [
+    523,
+    524,
+    525,
+    526,
+    527,
+    528,
+    529,
+    530,
+    531,
+    532,
+    533,
+    534,
+    535,
+    536,
+    537,
+    538,
+    539,
+    540,
+    541
+   ],
+   "t_start": 3932,
+   "ts_start": "1:05:32",
+   "t_end": 4063
+  },
+  {
+   "id": 48,
+   "img": "p059.jpg",
+   "pages": [
+    59,
+    59
+   ],
+   "title": "DDPM continuous formulation",
+   "segments": [
+    542,
+    543
+   ],
+   "t_start": 4069,
+   "ts_start": "1:07:49",
+   "t_end": 4076
+  },
+  {
+   "id": 49,
+   "img": "p060.jpg",
+   "pages": [
+    60,
+    60
+   ],
+   "title": "NCSN continuous formulation",
+   "segments": [
+    544
+   ],
+   "t_start": 4087,
+   "ts_start": "1:08:07",
+   "t_end": 4087
+  },
+  {
+   "id": 50,
+   "img": "p061.jpg",
+   "pages": [
+    61,
+    61
+   ],
+   "title": "Di\ufb00erential formulation",
+   "segments": []
+  },
+  {
+   "id": 51,
+   "img": "p062.jpg",
+   "pages": [
+    62,
+    68
+   ],
+   "title": "Intuition behind di\ufb00erential formulation",
+   "segments": []
+  },
+  {
+   "id": 52,
+   "img": "p069.jpg",
+   "pages": [
+    69,
+    69
+   ],
+   "title": "Variance Preserving",
+   "segments": []
+  },
+  {
+   "id": 53,
+   "img": "p070.jpg",
+   "pages": [
+    70,
+    70
+   ],
+   "title": "Variance Preserving",
+   "segments": [
+    545
+   ],
+   "t_start": 4097,
+   "ts_start": "1:08:17",
+   "t_end": 4097
+  },
+  {
+   "id": 54,
+   "img": "p071.jpg",
+   "pages": [
+    71,
+    71
+   ],
+   "title": "Timeline and uni\ufb01cation of methods",
+   "segments": []
+  },
+  {
+   "id": 55,
+   "img": "p072.jpg",
+   "pages": [
+    72,
+    72
+   ],
+   "title": "Motivation",
+   "segments": []
+  },
+  {
+   "id": 56,
+   "img": "p073.jpg",
+   "pages": [
+    73,
+    73
+   ],
+   "title": "Training derivation",
+   "segments": [
+    546
+   ],
+   "t_start": 4105,
+   "ts_start": "1:08:25",
+   "t_end": 4105
+  },
+  {
+   "id": 57,
+   "img": "p074.jpg",
+   "pages": [
+    74,
+    74
+   ],
+   "title": "Training derivation",
+   "segments": [
+    547
+   ],
+   "t_start": 4111,
+   "ts_start": "1:08:31",
+   "t_end": 4111
+  },
+  {
+   "id": 58,
+   "img": "p075.jpg",
+   "pages": [
+    75,
+    77
+   ],
+   "title": "Training derivation",
+   "segments": [
+    548
+   ],
+   "t_start": 4117,
+   "ts_start": "1:08:37",
+   "t_end": 4117
+  },
+  {
+   "id": 59,
+   "img": "p078.jpg",
+   "pages": [
+    78,
+    78
+   ],
+   "title": "Training recipe",
+   "segments": [
+    549,
+    550,
+    551,
+    552,
+    553,
+    554,
+    555,
+    556,
+    557,
+    558,
+    559,
+    560,
+    561,
+    562
+   ],
+   "t_start": 4128,
+   "ts_start": "1:08:48",
+   "t_end": 4230
+  },
+  {
+   "id": 60,
+   "img": "p079.jpg",
+   "pages": [
+    79,
+    79
+   ],
+   "title": "Training recipe",
+   "segments": [
+    563,
+    564,
+    565,
+    566,
+    567,
+    568
+   ],
+   "t_start": 4235,
+   "ts_start": "1:10:35",
+   "t_end": 4284
+  },
+  {
+   "id": 61,
+   "img": "p080.jpg",
+   "pages": [
+    80,
+    80
+   ],
+   "title": "Training recipe",
+   "segments": [
+    569,
+    570,
+    571,
+    572,
+    573,
+    574,
+    575
+   ],
+   "t_start": 4292,
+   "ts_start": "1:11:32",
+   "t_end": 4350
+  },
+  {
+   "id": 62,
+   "img": "p081.jpg",
+   "pages": [
+    81,
+    81
+   ],
+   "title": "Motivation",
+   "segments": [
+    576,
+    577,
+    578,
+    579,
+    580,
+    581,
+    582
+   ],
+   "t_start": 4361,
+   "ts_start": "1:12:41",
+   "t_end": 4410
+  },
+  {
+   "id": 63,
+   "img": "p082.jpg",
+   "pages": [
+    82,
+    82
+   ],
+   "title": "Introducing the reverse formula",
+   "segments": [
+    583,
+    584,
+    585,
+    586,
+    587,
+    588
+   ],
+   "t_start": 4416,
+   "ts_start": "1:13:36",
+   "t_end": 4457
+  },
+  {
+   "id": 64,
+   "img": "p083.jpg",
+   "pages": [
+    83,
+    83
+   ],
+   "title": "Introducing the reverse formula",
+   "segments": [
+    589
+   ],
+   "t_start": 4466,
+   "ts_start": "1:14:26",
+   "t_end": 4466
+  },
+  {
+   "id": 65,
+   "img": "p084.jpg",
+   "pages": [
+    84,
+    85
+   ],
+   "title": "Intuition behind reverse time formula",
+   "segments": [
+    590
+   ],
+   "t_start": 4473,
+   "ts_start": "1:14:33",
+   "t_end": 4473
+  },
+  {
+   "id": 66,
+   "img": "p086.jpg",
+   "pages": [
+    86,
+    86
+   ],
+   "title": "Intuition behind reverse time formula",
+   "segments": [
+    591,
+    592,
+    593,
+    594,
+    595,
+    596,
+    597,
+    598,
+    599,
+    600,
+    601,
+    602,
+    603,
+    604,
+    605,
+    606,
+    607,
+    608,
+    609,
+    610,
+    611,
+    612,
+    613,
+    614,
+    615,
+    616,
+    617
+   ],
+   "t_start": 4479,
+   "ts_start": "1:14:39",
+   "t_end": 4663
+  },
+  {
+   "id": 67,
+   "img": "p087.jpg",
+   "pages": [
+    87,
+    87
+   ],
+   "title": "Intuition behind reverse time formula",
+   "segments": [
+    618,
+    619,
+    620,
+    621,
+    622,
+    623,
+    624,
+    625,
+    626,
+    627
+   ],
+   "t_start": 4670,
+   "ts_start": "1:17:50",
+   "t_end": 4745
+  },
+  {
+   "id": 68,
+   "img": "p088.jpg",
+   "pages": [
+    88,
+    88
+   ],
+   "title": "Intuition behind reverse time formula",
+   "segments": [
+    628,
+    629,
+    630,
+    631,
+    632,
+    633
+   ],
+   "t_start": 4752,
+   "ts_start": "1:19:12",
+   "t_end": 4790
+  },
+  {
+   "id": 69,
+   "img": "p089.jpg",
+   "pages": [
+    89,
+    89
+   ],
+   "title": "Intuition behind reverse time formula",
+   "segments": [
+    634,
+    635,
+    636,
+    637,
+    638,
+    639,
+    640,
+    641,
+    642,
+    643,
+    644,
+    645,
+    646,
+    647,
+    648,
+    649,
+    650,
+    651,
+    652,
+    653,
+    654,
+    655,
+    656,
+    657,
+    658,
+    659,
+    660,
+    661,
+    662,
+    663,
+    664,
+    665,
+    666,
+    667,
+    668,
+    669,
+    670,
+    671,
+    672,
+    673,
+    674,
+    675,
+    676,
+    677,
+    678,
+    679,
+    680,
+    681,
+    682,
+    683,
+    684,
+    685,
+    686,
+    687,
+    688,
+    689,
+    690,
+    691,
+    692,
+    693,
+    694,
+    695,
+    696,
+    697,
+    698,
+    699,
+    700,
+    701,
+    702,
+    703,
+    704
+   ],
+   "t_start": 4797,
+   "ts_start": "1:19:57",
+   "t_end": 5315
+  },
+  {
+   "id": 70,
+   "img": "p091.jpg",
+   "pages": [
+    90,
+    91
+   ],
+   "title": "Inference recipe",
+   "segments": [
+    705,
+    706,
+    707,
+    708,
+    709,
+    710
+   ],
+   "t_start": 5323,
+   "ts_start": "1:28:43",
+   "t_end": 5368
+  },
+  {
+   "id": 71,
+   "img": "p092.jpg",
+   "pages": [
+    92,
+    92
+   ],
+   "title": "Motivation",
+   "segments": [
+    711
+   ],
+   "t_start": 5373,
+   "ts_start": "1:29:33",
+   "t_end": 5373
+  },
+  {
+   "id": 72,
+   "img": "p094.jpg",
+   "pages": [
+    93,
+    94
+   ],
+   "title": "Limitations of an SDE",
+   "segments": [
+    712,
+    713
+   ],
+   "t_start": 5380,
+   "ts_start": "1:29:40",
+   "t_end": 5387
+  },
+  {
+   "id": 73,
+   "img": "p095.jpg",
+   "pages": [
+    95,
+    95
+   ],
+   "title": "Hypothetically: writing the SDE as an ODE",
+   "segments": [
+    714
+   ],
+   "t_start": 5397,
+   "ts_start": "1:29:57",
+   "t_end": 5397
+  },
+  {
+   "id": 74,
+   "img": "p096.jpg",
+   "pages": [
+    96,
+    96
+   ],
+   "title": "Hypothetically: writing the SDE as an ODE",
+   "segments": [
+    715
+   ],
+   "t_start": 5404,
+   "ts_start": "1:30:04",
+   "t_end": 5404
+  },
+  {
+   "id": 75,
+   "img": "p097.jpg",
+   "pages": [
+    97,
+    97
+   ],
+   "title": "ODE derivation",
+   "segments": [
+    716
+   ],
+   "t_start": 5410,
+   "ts_start": "1:30:10",
+   "t_end": 5410
+  },
+  {
+   "id": 76,
+   "img": "p098.jpg",
+   "pages": [
+    98,
+    98
+   ],
+   "title": "ODE derivation",
+   "segments": []
+  },
+  {
+   "id": 77,
+   "img": "p099.jpg",
+   "pages": [
+    99,
+    99
+   ],
+   "title": "ODE derivation",
+   "segments": [
+    717
+   ],
+   "t_start": 5415,
+   "ts_start": "1:30:15",
+   "t_end": 5415
+  },
+  {
+   "id": 78,
+   "img": "p100.jpg",
+   "pages": [
+    100,
+    100
+   ],
+   "title": "ODE derivation",
+   "segments": [
+    718
+   ],
+   "t_start": 5421,
+   "ts_start": "1:30:21",
+   "t_end": 5421
+  },
+  {
+   "id": 79,
+   "img": "p101.jpg",
+   "pages": [
+    101,
+    101
+   ],
+   "title": "ODE derivation",
+   "segments": [
+    719
+   ],
+   "t_start": 5428,
+   "ts_start": "1:30:28",
+   "t_end": 5428
+  },
+  {
+   "id": 80,
+   "img": "p104.jpg",
+   "pages": [
+    102,
+    104
+   ],
+   "title": "PF-ODE meaning",
+   "segments": [
+    720,
+    721,
+    722,
+    723,
+    724,
+    725,
+    726,
+    727,
+    728,
+    729,
+    730,
+    731,
+    732,
+    733,
+    734,
+    735,
+    736,
+    737,
+    738,
+    739,
+    740,
+    741,
+    742,
+    743,
+    744,
+    745,
+    746,
+    747,
+    748,
+    749,
+    750,
+    751,
+    752,
+    753,
+    754,
+    755,
+    756,
+    757,
+    758,
+    759,
+    760,
+    761,
+    762,
+    763,
+    764,
+    765,
+    766,
+    767,
+    768,
+    769,
+    770,
+    771,
+    772,
+    773,
+    774,
+    775,
+    776,
+    777,
+    778,
+    779,
+    780,
+    781,
+    782,
+    783,
+    784,
+    785,
+    786,
+    787,
+    788,
+    789,
+    790,
+    791,
+    792,
+    793,
+    794,
+    795,
+    796,
+    797,
+    798,
+    799,
+    800,
+    801,
+    802,
+    803,
+    804
+   ],
+   "t_start": 5434,
+   "ts_start": "1:30:34",
+   "t_end": 6054
+  },
+  {
+   "id": 81,
+   "img": "p105.jpg",
+   "pages": [
+    105,
+    105
+   ],
+   "title": "Comparison between reverse SDE and PF-ODE",
+   "segments": [
+    805
+   ],
+   "t_start": 6063,
+   "ts_start": "1:41:03",
+   "t_end": 6063
+  },
+  {
+   "id": 82,
+   "img": "p106.jpg",
+   "pages": [
+    106,
+    106
+   ],
+   "title": "DDIM",
+   "segments": []
+  },
+  {
+   "id": 83,
+   "img": "p107.jpg",
+   "pages": [
+    107,
+    107
+   ],
+   "title": "Complexity metric",
+   "segments": []
+  },
+  {
+   "id": 84,
+   "img": "p108.jpg",
+   "pages": [
+    108,
+    108
+   ],
+   "title": "Solving for x",
+   "segments": []
+  },
+  {
+   "id": 85,
+   "img": "p109.jpg",
+   "pages": [
+    109,
+    109
+   ],
+   "title": "Simplest method",
+   "segments": []
+  },
+  {
+   "id": 86,
+   "img": "p110.jpg",
+   "pages": [
+    110,
+    110
+   ],
+   "title": "More commonly used method",
+   "segments": []
+  },
+  {
+   "id": 87,
+   "img": "p111.jpg",
+   "pages": [
+    111,
+    111
+   ],
+   "title": "Properties of the ODE",
+   "segments": []
+  },
+  {
+   "id": 88,
+   "img": "p112.jpg",
+   "pages": [
+    112,
+    112
+   ],
+   "title": "Properties of the ODE",
+   "segments": []
+  },
+  {
+   "id": 89,
+   "img": "p113.jpg",
+   "pages": [
+    113,
+    113
+   ],
+   "title": "Properties of the ODE",
+   "segments": []
+  },
+  {
+   "id": 90,
+   "img": "p114.jpg",
+   "pages": [
+    114,
+    114
+   ],
+   "title": "Traditional solvers.",
+   "segments": []
+  },
+  {
+   "id": 91,
+   "img": "p115.jpg",
+   "pages": [
+    115,
+    115
+   ],
+   "title": "Solver tailored to PF-ODE",
+   "segments": [
+    806
+   ],
+   "t_start": 6068,
+   "ts_start": "1:41:08",
+   "t_end": 6068
+  },
+  {
+   "id": 92,
+   "img": "p116.jpg",
+   "pages": [
+    116,
+    116
+   ],
+   "title": "Solver tailored to PF-ODE",
+   "segments": [
+    807
+   ],
+   "t_start": 6076,
+   "ts_start": "1:41:16",
+   "t_end": 6076
+  },
+  {
+   "id": 93,
+   "img": "p117.jpg",
+   "pages": [
+    117,
+    117
+   ],
+   "title": "Variants of DPM-Solver",
+   "segments": [
+    808,
+    809,
+    810,
+    811,
+    812,
+    813,
+    814,
+    815,
+    816,
+    817,
+    818,
+    819,
+    820,
+    821,
+    822,
+    823,
+    824,
+    825,
+    826,
+    827,
+    828,
+    829,
+    830,
+    831,
+    832,
+    833,
+    834,
+    835,
+    836,
+    837,
+    838,
+    839,
+    840,
+    841,
+    842,
+    843,
+    844,
+    845,
+    846,
+    847,
+    848,
+    849,
+    850,
+    851,
+    852,
+    853,
+    854,
+    855,
+    856,
+    857,
+    858
+   ],
+   "t_start": 6084,
+   "ts_start": "1:41:24",
+   "t_end": 6440
+  },
+  {
+   "id": 94,
+   "img": "p118.jpg",
+   "pages": [
+    118,
+    118
+   ],
+   "title": "DPM-Solver conclusion",
+   "segments": [
+    859,
+    860,
+    861,
+    862,
+    863
+   ],
+   "t_start": 6448,
+   "ts_start": "1:47:28",
+   "t_end": 6476
+  },
+  {
+   "id": 95,
+   "img": "p119.jpg",
+   "pages": [
+    119,
+    119
+   ],
+   "title": "DPM-Solver conclusion",
+   "segments": [
+    864,
+    865,
+    866
+   ],
+   "t_start": 6481,
+   "ts_start": "1:48:01",
+   "t_end": 6496
+  },
+  {
+   "id": 96,
+   "img": "p120.jpg",
+   "pages": [
+    120,
+    120
+   ],
+   "title": "DPM-Solver conclusion",
+   "segments": [
+    867,
+    868,
+    869
+   ],
+   "t_start": 6502,
+   "ts_start": "1:48:22",
+   "t_end": 6519
+  },
+  {
+   "id": 97,
+   "img": "p121.jpg",
+   "pages": [
+    121,
+    121
+   ],
+   "title": "Thank you for your attention!",
+   "segments": []
+  }
+ ]
+}

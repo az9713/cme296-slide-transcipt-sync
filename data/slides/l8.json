@@ -1,0 +1,1078 @@
+{
+ "lecture": 8,
+ "n_pages": 112,
+ "groups": [
+  {
+   "pages": [
+    1
+   ],
+   "id": 0,
+   "img": "p001.jpg",
+   "page_first": 1,
+   "page_last": 1,
+   "title": "CME 296: Di\ufb00usion &",
+   "text": "CME 296: Di\ufb00usion & Large Vision Models Afshine Amidi & Shervine Amidi Lecture 8"
+  },
+  {
+   "pages": [
+    2
+   ],
+   "id": 1,
+   "img": "p002.jpg",
+   "page_first": 2,
+   "page_last": 2,
+   "title": "Recap",
+   "text": "Recap State-of-the-art models Extension to videos Alternatives to generation Di\ufb00usion for LLMs Closing thoughts Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    3,
+    4
+   ],
+   "id": 2,
+   "img": "p004.jpg",
+   "page_first": 3,
+   "page_last": 4,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 A teddy bear reading a book Generation model Generation paradigm"
+  },
+  {
+   "pages": [
+    5
+   ],
+   "id": 3,
+   "img": "p005.jpg",
+   "page_first": 5,
+   "page_last": 5,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Di\ufb00usion Lecture 1"
+  },
+  {
+   "pages": [
+    6
+   ],
+   "id": 4,
+   "img": "p006.jpg",
+   "page_first": 6,
+   "page_last": 6,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 \u2026 \u2026 Forward process Denoising Di\ufb00usion Probabilistic Models, Ho et al., 2020."
+  },
+  {
+   "pages": [
+    7
+   ],
+   "id": 5,
+   "img": "p007.jpg",
+   "page_first": 7,
+   "page_last": 7,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 \u2026 \u2026 Forward process Reverse process Denoising Di\ufb00usion Probabilistic Models, Ho et al., 2020."
+  },
+  {
+   "pages": [
+    8
+   ],
+   "id": 6,
+   "img": "p008.jpg",
+   "page_first": 8,
+   "page_last": 8,
+   "title": "Expand terms",
+   "text": "Expand terms Rewinding the quarter\u2026 Lecture 1 Derive lower bound Show tractable bound Deduce \ufb01nal loss 1 2 3 4 \u2026 \u2026 Forward process Reverse process Denoising Di\ufb00usion Probabilistic Models, Ho et al., 2020."
+  },
+  {
+   "pages": [
+    9
+   ],
+   "id": 7,
+   "img": "p009.jpg",
+   "page_first": 9,
+   "page_last": 9,
+   "title": "Expand terms",
+   "text": "Expand terms Rewinding the quarter\u2026 Lecture 1 Derive lower bound Show tractable bound Deduce \ufb01nal loss 1 2 3 4 \u2026 \u2026 Forward process Reverse process Noise predictor Actual noise Noised image Noise level Denoising Di\ufb00usion Probabilistic Models, Ho et al., 2020."
+  },
+  {
+   "pages": [
+    10
+   ],
+   "id": 8,
+   "img": "p010.jpg",
+   "page_first": 10,
+   "page_last": 10,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Score matching Lecture 1 Lecture 2"
+  },
+  {
+   "pages": [
+    11,
+    12
+   ],
+   "id": 9,
+   "img": "p012.jpg",
+   "page_first": 11,
+   "page_last": 12,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 A Connection Between Score Matching and Denoising Autoencoders, Vincent, 2010."
+  },
+  {
+   "pages": [
+    13,
+    14
+   ],
+   "id": 10,
+   "img": "p014.jpg",
+   "page_first": 13,
+   "page_last": 14,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Noise to remove from noisy sample Score from noisy to clean Drift Di\ufb00usion Forward Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020."
+  },
+  {
+   "pages": [
+    15
+   ],
+   "id": 11,
+   "img": "p015.jpg",
+   "page_first": 15,
+   "page_last": 15,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Noise to remove from noisy sample Score from noisy to clean Drift Di\ufb00usion Forward Reverse Score-Based Generative Modeling through Stochastic Di\ufb00erential Equations, Song et al., 2020."
+  },
+  {
+   "pages": [
+    16
+   ],
+   "id": 12,
+   "img": "p016.jpg",
+   "page_first": 16,
+   "page_last": 16,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Flow matching Lecture 1 Lecture 2 Lecture 3"
+  },
+  {
+   "pages": [
+    17
+   ],
+   "id": 13,
+   "img": "p017.jpg",
+   "page_first": 17,
+   "page_last": 17,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 ? Initial Target"
+  },
+  {
+   "pages": [
+    18
+   ],
+   "id": 14,
+   "img": "p018.jpg",
+   "page_first": 18,
+   "page_last": 18,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 ? Single sample Initial Target"
+  },
+  {
+   "pages": [
+    19
+   ],
+   "id": 15,
+   "img": "p019.jpg",
+   "page_first": 19,
+   "page_last": 19,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 ? Single sample Distribution Initial Target"
+  },
+  {
+   "pages": [
+    20,
+    21
+   ],
+   "id": 16,
+   "img": "p021.jpg",
+   "page_first": 20,
+   "page_last": 21,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 ? Single sample Distribution Initial Inference. Map 1 2 via to via Training. Estimate Target Flow Matching for Generative Modeling, Lipman et al., 2022."
+  },
+  {
+   "pages": [
+    22
+   ],
+   "id": 17,
+   "img": "p022.jpg",
+   "page_first": 22,
+   "page_last": 22,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 A teddy bear reading a book Generation model Condition Generation paradigm Image representation"
+  },
+  {
+   "pages": [
+    23
+   ],
+   "id": 18,
+   "img": "p023.jpg",
+   "page_first": 23,
+   "page_last": 23,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Latent space and guidance Lecture 1 Lecture 2 Lecture 3 Lecture 4"
+  },
+  {
+   "pages": [
+    24
+   ],
+   "id": 19,
+   "img": "p024.jpg",
+   "page_first": 24,
+   "page_last": 24,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Encoder Decoder Bottleneck Pixel space Pixel space Latent space Autoencoder"
+  },
+  {
+   "pages": [
+    25,
+    26
+   ],
+   "id": 20,
+   "img": "p026.jpg",
+   "page_first": 25,
+   "page_last": 26,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 \ufffd\ufffd \ufffd\ufffd Encoder Decoder Bottleneck Pixel space Pixel space Latent space Autoencoder Reconstruction Regularization of latent space Auto-Encoding Variational Bayes, Kingma et al., 2013."
+  },
+  {
+   "pages": [
+    27
+   ],
+   "id": 21,
+   "img": "p027.jpg",
+   "page_first": 27,
+   "page_last": 27,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 A teddy bear reading a book Generation model Condition Model architecture Generation paradigm Image representation"
+  },
+  {
+   "pages": [
+    28
+   ],
+   "id": 22,
+   "img": "p028.jpg",
+   "page_first": 28,
+   "page_last": 28,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Image generation architectures Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5"
+  },
+  {
+   "pages": [
+    29
+   ],
+   "id": 23,
+   "img": "p029.jpg",
+   "page_first": 29,
+   "page_last": 29,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity"
+  },
+  {
+   "pages": [
+    30
+   ],
+   "id": 24,
+   "img": "p030.jpg",
+   "page_first": 30,
+   "page_last": 30,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 U-Net & variants Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015."
+  },
+  {
+   "pages": [
+    31
+   ],
+   "id": 25,
+   "img": "p031.jpg",
+   "page_first": 31,
+   "page_last": 31,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 U-Net & variants Di\ufb00usion Transformer & variants Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    32
+   ],
+   "id": 26,
+   "img": "p032.jpg",
+   "page_first": 32,
+   "page_last": 32,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 U-Net & variants Di\ufb00usion Transformer & variants Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity Original U-Net 2015 2020 2021 2022 2023 U-Net in pixel space with DDPM 2024 2025 2026 U-Net in latent space with LDM Big U-Net with Stable Di\ufb00usion XL Di\ufb00usion Transformer Stable Di\ufb00usion 3 FLUX.1 Qwen-Image Z-Image U-Net and variants DiT and variants"
+  },
+  {
+   "pages": [
+    33
+   ],
+   "id": 27,
+   "img": "p033.jpg",
+   "page_first": 33,
+   "page_last": 33,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 A teddy bear reading a book Generation model Condition Model architecture Generation paradigm Model training Image representation"
+  },
+  {
+   "pages": [
+    34
+   ],
+   "id": 28,
+   "img": "p034.jpg",
+   "page_first": 34,
+   "page_last": 34,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Model training Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6"
+  },
+  {
+   "pages": [
+    35
+   ],
+   "id": 29,
+   "img": "p035.jpg",
+   "page_first": 35,
+   "page_last": 35,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Pre-training \ud83d\uddbc Learn how to generate images"
+  },
+  {
+   "pages": [
+    36
+   ],
+   "id": 30,
+   "img": "p036.jpg",
+   "page_first": 36,
+   "page_last": 36,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Pre-training Post-training \ud83d\uddbc \ud83d\ude03 Learn how to generate images Learn how to generate good images"
+  },
+  {
+   "pages": [
+    37
+   ],
+   "id": 31,
+   "img": "p037.jpg",
+   "page_first": 37,
+   "page_last": 37,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Pre-training Post-training Tuning \ud83d\uddbc \ud83d\ude03 \u2699 Learn how to generate images Learn how to generate good images Learn how to generate images for a special case"
+  },
+  {
+   "pages": [
+    38
+   ],
+   "id": 32,
+   "img": "p038.jpg",
+   "page_first": 38,
+   "page_last": 38,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Pre-training Post-training Tuning Distillation \u26a1 \ud83d\uddbc \ud83d\ude03 \u2699 Learn how to generate images Learn how to generate good images Learn how to generate images for a special case Learn how to generate images, fast"
+  },
+  {
+   "pages": [
+    39
+   ],
+   "id": 33,
+   "img": "p039.jpg",
+   "page_first": 39,
+   "page_last": 39,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 A teddy bear reading a book Generation model Condition Model architecture Generation paradigm Model training Evaluation Image representation"
+  },
+  {
+   "pages": [
+    40
+   ],
+   "id": 34,
+   "img": "p040.jpg",
+   "page_first": 40,
+   "page_last": 40,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Evaluation Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Lecture 7"
+  },
+  {
+   "pages": [
+    41
+   ],
+   "id": 35,
+   "img": "p041.jpg",
+   "page_first": 41,
+   "page_last": 41,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Lecture 7 Arti\ufb01cial Analysis Image Arena Leaderboard, edited screenshot taken on May 17th, 2026."
+  },
+  {
+   "pages": [
+    42
+   ],
+   "id": 36,
+   "img": "p042.jpg",
+   "page_first": 42,
+   "page_last": 42,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Lecture 7 Pre-trained encoder Pre-trained encoder Real image distribution Generated image distribution GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium, Heusel et al., 2017."
+  },
+  {
+   "pages": [
+    43,
+    44
+   ],
+   "id": 37,
+   "img": "p044.jpg",
+   "page_first": 43,
+   "page_last": 44,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 Lecture 1 Lecture 2 Lecture 3 Lecture 4 Lecture 5 Lecture 6 Lecture 7 Pre-trained encoder Pre-trained encoder Real image distribution Generated image distribution How cute is this teddy bear? MLLM Very cute! Human ratings \ud83d\udc22 Image generation MLLM-as-a-Judge \ud83d\udc07"
+  },
+  {
+   "pages": [
+    45
+   ],
+   "id": 38,
+   "img": "p045.jpg",
+   "page_first": 45,
+   "page_last": 45,
+   "title": "Rewinding the quarter\u2026",
+   "text": "Rewinding the quarter\u2026 A teddy bear reading a book Generation model Condition Model architecture Generation paradigm Model training Evaluation Image representation"
+  },
+  {
+   "pages": [
+    46
+   ],
+   "id": 39,
+   "img": "p046.jpg",
+   "page_first": 46,
+   "page_last": 46,
+   "title": "Recap",
+   "text": "Recap State-of-the-art models Extension to videos Alternatives to generation Di\ufb00usion for LLMs Closing thoughts Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    47
+   ],
+   "id": 40,
+   "img": "p047.jpg",
+   "page_first": 47,
+   "page_last": 47,
+   "title": "Leaderboard of text-to-image models",
+   "text": "Leaderboard of text-to-image models Best performing models come from top AI labs and are closed-source Screenshot of the Arti\ufb01cial Analysis Text to Image Leaderboard taken on May 24th, 2026."
+  },
+  {
+   "pages": [
+    48
+   ],
+   "id": 41,
+   "img": "p048.jpg",
+   "page_first": 48,
+   "page_last": 48,
+   "title": "Leaderboard of open weights text-to-image models",
+   "text": "Leaderboard of open weights text-to-image models \u2026but open-weights models are not too far behind! Screenshot of the Arti\ufb01cial Analysis Text to Image Leaderboard taken on May 24th, 2026."
+  },
+  {
+   "pages": [
+    49
+   ],
+   "id": 42,
+   "img": "p049.jpg",
+   "page_first": 49,
+   "page_last": 49,
+   "title": "Leaderboard of open weights text-to-image models",
+   "text": "Leaderboard of open weights text-to-image models Repository for FLUX.2 & FLUX.2: Analyzing and Enhancing the Latent Space of FLUX \u2013 Representation Comparison, Black Forest Labs, 2025. The usual. \u25cf Recti\ufb01ed \ufb02ow \u25cf Hybrid dual/single-stream MM-DiT \u25cf Relies on VAE \u25cf Uses Mistral 3 embeddings"
+  },
+  {
+   "pages": [
+    50
+   ],
+   "id": 43,
+   "img": "p050.jpg",
+   "page_first": 50,
+   "page_last": 50,
+   "title": "Leaderboard of open weights text-to-image models",
+   "text": "Leaderboard of open weights text-to-image models Qwen-Image Technical Report, Qwen Team, 2025. The usual. \u25cf Flow matching-based loss \u25cf Double-stream MM-DiT \u25cf Relies on VAE \u25cf Uses Qwen2.5VL embeddings"
+  },
+  {
+   "pages": [
+    51
+   ],
+   "id": 44,
+   "img": "p051.jpg",
+   "page_first": 51,
+   "page_last": 51,
+   "title": "Trend to watch: back to pixel-space di\ufb00usion?",
+   "text": "Trend to watch: back to pixel-space di\ufb00usion? HiDream-O1-Image: A Natively Uni\ufb01ed Image Generative Foundation Model with Pixel-level Uni\ufb01ed Transformer, Cai et al., 2026. The usual. \u25cf Flow matching-based loss \u25cf Transformer-based model What stands out! \u25cf VAE removed \u25cf No disjoint pre-trained text encoder"
+  },
+  {
+   "pages": [
+    52
+   ],
+   "id": 45,
+   "img": "p052.jpg",
+   "page_first": 52,
+   "page_last": 52,
+   "title": "Recap",
+   "text": "Recap State-of-the-art models Extension to videos Alternatives to generation Di\ufb00usion for LLMs Closing thoughts Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    53
+   ],
+   "id": 46,
+   "img": "p053.jpg",
+   "page_first": 53,
+   "page_last": 53,
+   "title": "From image to video generation",
+   "text": "From image to video generation \u25cf Extra dimension: time Frames Image Video"
+  },
+  {
+   "pages": [
+    54,
+    55
+   ],
+   "id": 47,
+   "img": "p055.jpg",
+   "page_first": 54,
+   "page_last": 55,
+   "title": "From image to video generation",
+   "text": "From image to video generation \u25cf Extra dimension: time \u25cf Temporal consistency from one frame to another Images generated with ChatGPT on May 25th, 2026. \u274c \u2705"
+  },
+  {
+   "pages": [
+    56
+   ],
+   "id": 48,
+   "img": "p056.jpg",
+   "page_first": 56,
+   "page_last": 56,
+   "title": "From image to video generation",
+   "text": "From image to video generation \u25cf Extra dimension: time \u25cf Temporal consistency from one frame to another \u25cf Computation considerations can be large"
+  },
+  {
+   "pages": [
+    57
+   ],
+   "id": 49,
+   "img": "p057.jpg",
+   "page_first": 57,
+   "page_last": 57,
+   "title": "From image to video generation",
+   "text": "From image to video generation \u25cf Extra dimension: time \u25cf Temporal consistency from one frame to another \u25cf Computation considerations \u25cf Metrics Towards Accurate Generative Models of Video: A New Metric & Challenges, Unterthiner et al., 2018. Fr\u00e9chet Video Distance"
+  },
+  {
+   "pages": [
+    58
+   ],
+   "id": 50,
+   "img": "p058.jpg",
+   "page_first": 58,
+   "page_last": 58,
+   "title": "Exploring architecture of leading model",
+   "text": "Exploring architecture of leading model \u25cf Spatio-temporal VAE Wan: Open and Advanced Large-Scale Video Generative Models, Wan team, 2025."
+  },
+  {
+   "pages": [
+    59
+   ],
+   "id": 51,
+   "img": "p059.jpg",
+   "page_first": 59,
+   "page_last": 59,
+   "title": "Exploring architecture of leading model",
+   "text": "Exploring architecture of leading model Wan: Open and Advanced Large-Scale Video Generative Models, Wan team, 2025. \u25cf Spatio-temporal VAE \u25cf Model architecture"
+  },
+  {
+   "pages": [
+    60
+   ],
+   "id": 52,
+   "img": "p060.jpg",
+   "page_first": 60,
+   "page_last": 60,
+   "title": "Video generation suggested readings",
+   "text": "Video generation suggested readings \u25cf Video Di\ufb00usion Models, Ho et al., 2022 \u25cf MagicVideo: E\ufb03cient Video Generation with Latent Di\ufb00usion Models, Zhou et al., 2022 \u25cf Video generation models as world simulators, OpenAI, 2024 \u25cf Movie Gen: A Cast of Media Foundation Models, Meta Team, 2024 \u25cf HunyuanVideo: A Systematic Framework For Large Video Generative Models, Kong et al., 2024 \u25cf Wan: Open and Advanced Large-Scale Video Generative Models, Team Wan, 2025 Note: this list is not exhaustive. \u25cf Stable Video Di\ufb00usion: Scaling Latent Video Di\ufb00usion Models to Large Datasets, Blattmann et al., 2023"
+  },
+  {
+   "pages": [
+    61
+   ],
+   "id": 53,
+   "img": "p061.jpg",
+   "page_first": 61,
+   "page_last": 61,
+   "title": "Recap",
+   "text": "Recap State-of-the-art models Extension to videos Alternatives to generation Di\ufb00usion for LLMs Closing thoughts Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    62,
+    63,
+    64
+   ],
+   "id": 54,
+   "img": "p064.jpg",
+   "page_first": 62,
+   "page_last": 64,
+   "title": "Limitation of image generation models",
+   "text": "Limitation of image generation models Make this image black and white Text-Image to Image generation model Images generated with ChatGPT on May 24th, 2026. \u274c"
+  },
+  {
+   "pages": [
+    65
+   ],
+   "id": 55,
+   "img": "p065.jpg",
+   "page_first": 65,
+   "page_last": 65,
+   "title": "Reformulate problem to put proper guardrails",
+   "text": "Reformulate problem to put proper guardrails Idea. Avoid from-scratch generation that is prone to mistakes by putting guardrails Suggested reading: RetouchIQ: MLLM Agents for Instruction-Based Image Retouching with Generalist Reward, Wu et al., 2026. Make this image black and white VLM Editing actions Editing software"
+  },
+  {
+   "pages": [
+    66
+   ],
+   "id": 56,
+   "img": "p066.jpg",
+   "page_first": 66,
+   "page_last": 66,
+   "title": "Image editing suggested readings",
+   "text": "Image editing suggested readings Note: this list is not exhaustive. \u25cf SmartEdit: Exploring Complex Instruction-based Image Editing with Multimodal Large Language Models, Huang et al., 2024 \u25cf MonetGPT: Solving Puzzles Enhances MLLMs' Image Retouching Skills, Dutt et al., 2025 \u25cf JarvisArt: Liberating Human Artistic Creativity via an Intelligent Photo Retouching Agent, Lin et al., 2025 \u25cf RetouchIQ: MLLM Agents for Instruction-Based Image Retouching with Generalist Reward, Wu et al., 2026"
+  },
+  {
+   "pages": [
+    67
+   ],
+   "id": 57,
+   "img": "p067.jpg",
+   "page_first": 67,
+   "page_last": 67,
+   "title": "Recap",
+   "text": "Recap State-of-the-art models Extension to videos Alternatives to generation Di\ufb00usion for LLMs Closing thoughts Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    68
+   ],
+   "id": 58,
+   "img": "p068.jpg",
+   "page_first": 68,
+   "page_last": 68,
+   "title": "Concepts borrowed from the text world",
+   "text": "Concepts borrowed from the text world Transformer Di\ufb00usion Transformer Figures from Attention Is All You Need, Vaswani et al., 2017, and Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    69
+   ],
+   "id": 59,
+   "img": "p069.jpg",
+   "page_first": 69,
+   "page_last": 69,
+   "title": "Concepts borrowed from the text world",
+   "text": "Concepts borrowed from the text world DPO Di\ufb00usion-DPO Direct Preference Optimization: Your Language Model is Secretly a Reward Model, Rafailov et al., 2023. Di\ufb00usion Model Alignment Using Direct Preference Optimization, Wallace et al., 2023."
+  },
+  {
+   "pages": [
+    70
+   ],
+   "id": 60,
+   "img": "p070.jpg",
+   "page_first": 70,
+   "page_last": 70,
+   "title": "Concepts borrowed from the text world",
+   "text": "Concepts borrowed from the text world DPO Di\ufb00usion-DPO GRPO Flow-GRPO DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models, Shao et al., 2024. Flow-GRPO: Training Flow Matching Models via Online RL, Liu et al., 2025."
+  },
+  {
+   "pages": [
+    71
+   ],
+   "id": 61,
+   "img": "p071.jpg",
+   "page_first": 71,
+   "page_last": 71,
+   "title": "Traditional generation paradigm for text",
+   "text": "Traditional generation paradigm for text Problem. Inference-time generation needs AutoRegressive Model (ARM) LLM [BOS] A teddy bear is A teddy bear is reading iterations Context. Text generation models generate rely on \"next token prediction\" reading [EOS]"
+  },
+  {
+   "pages": [
+    72
+   ],
+   "id": 62,
+   "img": "p072.jpg",
+   "page_first": 72,
+   "page_last": 72,
+   "title": "What about di\ufb00usion for text?",
+   "text": "What about di\ufb00usion for text? Idea. Adapt di\ufb00usion paradigm to text generation problem A teddy bear is reading [EOS] Text with random noise Diffusion-based LLM Move number of iterations from to"
+  },
+  {
+   "pages": [
+    73,
+    74
+   ],
+   "id": 63,
+   "img": "p073.jpg",
+   "page_first": 73,
+   "page_last": 74,
+   "title": "What about di\ufb00usion for text?",
+   "text": "What about di\ufb00usion for text? Idea. Adapt di\ufb00usion paradigm to text generation problem A teddy bear is reading [EOS] Diffusion-based LLM Text with less noise Diffusion-based LLM Text with random noise # di\ufb00usion steps"
+  },
+  {
+   "pages": [
+    75,
+    76,
+    77
+   ],
+   "id": 64,
+   "img": "p077.jpg",
+   "page_first": 75,
+   "page_last": 77,
+   "title": "Finding the equivalent of noise for text",
+   "text": "Finding the equivalent of noise for text Noisy image Noisy text ? \u25cf Continuous \u25cf Gaussian noise \u25cf Discrete \u25cf \"Random\" tokens have a semantic meaning"
+  },
+  {
+   "pages": [
+    78
+   ],
+   "id": 65,
+   "img": "p078.jpg",
+   "page_first": 78,
+   "page_last": 78,
+   "title": "Finding the equivalent of noise for text",
+   "text": "Finding the equivalent of noise for text Noisy image Noisy text \u25cf Continuous \u25cf Gaussian noise \u25cf Discrete \u25cf \"Random\" tokens have a semantic meaning [MASK]"
+  },
+  {
+   "pages": [
+    79
+   ],
+   "id": 66,
+   "img": "p079.jpg",
+   "page_first": 79,
+   "page_last": 79,
+   "title": "Training: learn to \ufb01ll the blanks",
+   "text": "Training: learn to \ufb01ll the blanks A teddy bear is reading [EOS] Step 1. Sample noise and mask ratio of tokens Corrupt text with noise level A bear is [EOS] [MASK] [MASK]"
+  },
+  {
+   "pages": [
+    80
+   ],
+   "id": 67,
+   "img": "p080.jpg",
+   "page_first": 80,
+   "page_last": 80,
+   "title": "Training: learn to \ufb01ll the blanks",
+   "text": "Training: learn to \ufb01ll the blanks teddy reading Diffusion-based LLM A bear is [EOS] Step 2. Predict tokens that were masked Step 1. Sample noise and mask ratio of tokens [MASK] [MASK] ? ?"
+  },
+  {
+   "pages": [
+    81
+   ],
+   "id": 68,
+   "img": "p081.jpg",
+   "page_first": 81,
+   "page_last": 81,
+   "title": "Inference: coarse to \ufb01ne",
+   "text": "Inference: coarse to \ufb01ne Diffusion-based LLM [MASK] [MASK] [MASK] [MASK] [MASK] [MASK] Initialize. Start with masked input"
+  },
+  {
+   "pages": [
+    82
+   ],
+   "id": 69,
+   "img": "p082.jpg",
+   "page_first": 82,
+   "page_last": 82,
+   "title": "Inference: coarse to \ufb01ne",
+   "text": "Inference: coarse to \ufb01ne A brown bear is sleeping [EOS] Diffusion-based LLM [MASK] [MASK] [MASK] [MASK] [MASK] [MASK] Initialize. Start with masked input Iterate. Predict masked tokens (commit)"
+  },
+  {
+   "pages": [
+    83,
+    84
+   ],
+   "id": 70,
+   "img": "p083.jpg",
+   "page_first": 83,
+   "page_last": 84,
+   "title": "Inference: coarse to \ufb01ne",
+   "text": "Inference: coarse to \ufb01ne Diffusion-based LLM [MASK] [MASK] [MASK] [MASK] [MASK] [MASK] Initialize. Start with masked input Iterate. Predict masked tokens (commit) and perform remasking (revise) A brown bear is sleeping [EOS]"
+  },
+  {
+   "pages": [
+    85
+   ],
+   "id": 71,
+   "img": "p085.jpg",
+   "page_first": 85,
+   "page_last": 85,
+   "title": "Inference: coarse to \ufb01ne",
+   "text": "Inference: coarse to \ufb01ne Diffusion-based LLM [MASK] [MASK] [MASK] [MASK] [MASK] [MASK] Initialize. Start with masked input Iterate. Predict masked tokens (commit) and perform remasking (revise) A is [EOS] [MASK] [MASK] [MASK]"
+  },
+  {
+   "pages": [
+    86
+   ],
+   "id": 72,
+   "img": "p086.jpg",
+   "page_first": 86,
+   "page_last": 86,
+   "title": "Inference: coarse to \ufb01ne",
+   "text": "Inference: coarse to \ufb01ne Diffusion-based LLM [MASK] [MASK] [MASK] Initialize. Start with masked input Iterate. Predict masked tokens (commit) and perform remasking (revise) A is [EOS]"
+  },
+  {
+   "pages": [
+    87,
+    88
+   ],
+   "id": 73,
+   "img": "p087.jpg",
+   "page_first": 87,
+   "page_last": 88,
+   "title": "Inference: coarse to \ufb01ne",
+   "text": "Inference: coarse to \ufb01ne A teddy bear is reading [EOS] Diffusion-based LLM Initialize. Start with masked input Iterate. Predict masked tokens (commit) and perform remasking (revise) Output. Obtain \ufb01nal output [MASK] [MASK] [MASK] A is [EOS]"
+  },
+  {
+   "pages": [
+    89
+   ],
+   "id": 74,
+   "img": "p089.jpg",
+   "page_first": 89,
+   "page_last": 89,
+   "title": "Discussion",
+   "text": "Discussion \u25cf \u26a1 10x speed compared to ARM Advantages."
+  },
+  {
+   "pages": [
+    90
+   ],
+   "id": 75,
+   "img": "p090.jpg",
+   "page_first": 90,
+   "page_last": 90,
+   "title": "Discussion",
+   "text": "Discussion \u25cf \ud83d\udcbb Well suited for coding tasks \u25cf \u26a1 10x speed compared to ARM Advantages. \"Fill in the middle\" tasks Speed is a bottleneck for \"Coding agents\""
+  },
+  {
+   "pages": [
+    91
+   ],
+   "id": 76,
+   "img": "p091.jpg",
+   "page_first": 91,
+   "page_last": 91,
+   "title": "Discussion",
+   "text": "Discussion \u25cf \ud83d\udcbb Well suited for coding tasks \u25cf \u26a1 10x speed compared to ARM Advantages. \u25cf \ud83c\udfcb Training is signi\ufb01cantly more expensive Challenges and current work. \"Fill in the middle\" tasks Speed is a bottleneck for \"Coding agents\""
+  },
+  {
+   "pages": [
+    92
+   ],
+   "id": 77,
+   "img": "p092.jpg",
+   "page_first": 92,
+   "page_last": 92,
+   "title": "Discussion",
+   "text": "Discussion \u25cf \ud83d\udcbb Well suited for coding tasks \u25cf \u26a1 10x speed compared to ARM Advantages. \u25cf \ud83d\udee0 Adapt ARM-based techniques (e.g. post-training approaches) \u25cf \ud83c\udfcb Training is signi\ufb01cantly more expensive Challenges and current work. \"Fill in the middle\" tasks Speed is a bottleneck for \"Coding agents\""
+  },
+  {
+   "pages": [
+    93
+   ],
+   "id": 78,
+   "img": "p093.jpg",
+   "page_first": 93,
+   "page_last": 93,
+   "title": "Discussion",
+   "text": "Discussion \u25cf \ud83d\udcbb Well suited for coding tasks \u25cf \u26a1 10x speed compared to ARM Advantages. \u25cf \ud83d\udee0 Adapt ARM-based techniques (e.g. post-training approaches) \u25cf \ud83c\udfcb Training is signi\ufb01cantly more expensive Challenges and current work. \u25cf \ud83e\udd1d Combine bene\ufb01ts of autoregression and di\ufb00usion \"Fill in the middle\" tasks Speed is a bottleneck for \"Coding agents\""
+  },
+  {
+   "pages": [
+    94
+   ],
+   "id": 79,
+   "img": "p094.jpg",
+   "page_first": 94,
+   "page_last": 94,
+   "title": "Di\ufb00usion LLMs is currently a very hot topic!",
+   "text": "Di\ufb00usion LLMs is currently a very hot topic! VentureBeat article, June 13th, 2025. TechCrunch headline, November 6th 2025. BusinessWire article, February 24th, 2026. Figure from A Survey on Di\ufb00usion Language Models, Li et al., 2025."
+  },
+  {
+   "pages": [
+    95
+   ],
+   "id": 80,
+   "img": "p095.jpg",
+   "page_first": 95,
+   "page_last": 95,
+   "title": "Di\ufb00usion LLMs suggested readings",
+   "text": "Di\ufb00usion LLMs suggested readings \u25cf Large Language Di\ufb00usion Models, Nie et al., 2025 \u25cf Block Di\ufb00usion: Interpolating Between Autoregressive and Di\ufb00usion Language Models, Arriola et al., 2025 \u25cf dLLM: Simple Di\ufb00usion Language Modeling, Zhou et al., 2026 \u25cf LLaDA2.0: Scaling Up Di\ufb00usion Language Models to 100B, Bie et al., 2025 \u25cf Scaling up Masked Di\ufb00usion Models on Text, Nie et al., 2024 \u25cf Seed Di\ufb00usion: A Large-Scale Di\ufb00usion Language Model with High-Speed Inference, Song et al., 2025 Note: this list is not exhaustive. \u25cf Structured Denoising Di\ufb00usion Models in Discrete State-Spaces, Austin et al., 2021"
+  },
+  {
+   "pages": [
+    96
+   ],
+   "id": 81,
+   "img": "p096.jpg",
+   "page_first": 96,
+   "page_last": 96,
+   "title": "Recap",
+   "text": "Recap State-of-the-art models Extension to videos Alternatives to generation Di\ufb00usion for LLMs Closing thoughts Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    97
+   ],
+   "id": 82,
+   "img": "p097.jpg",
+   "page_first": 97,
+   "page_last": 97,
+   "title": "More use cases to be expected",
+   "text": "More use cases to be expected Tomorrow. Democratization of existing generation capabilities. Screenshots taken on May 27th, 2026 on the API pricing websites of Google, OpenAI, Black Forest Labs, Stability AI. Gemini 3 Pro Image Preview GPT Image 2 FLUX.2 [max] Stable Image Ultra"
+  },
+  {
+   "pages": [
+    98
+   ],
+   "id": 83,
+   "img": "p098.jpg",
+   "page_first": 98,
+   "page_last": 98,
+   "title": "More use cases to be expected",
+   "text": "More use cases to be expected Tomorrow. Democratization of existing generation capabilities. Near term. Integrate wins seen across modalities. Truly insightful diagram? Create image using Photoshop/CAD? Reasoning Coding Synthesize entire class? Deep Research"
+  },
+  {
+   "pages": [
+    99
+   ],
+   "id": 84,
+   "img": "p099.jpg",
+   "page_first": 99,
+   "page_last": 99,
+   "title": "More use cases to be expected",
+   "text": "More use cases to be expected Tomorrow. Democratization of existing generation capabilities. Near term. Integrate wins seen across modalities. Long term. Translation of consequences across industries. Custom environments? Robotics Accelerated MRIs? Medicine Faster cycles? Visual design"
+  },
+  {
+   "pages": [
+    100
+   ],
+   "id": 85,
+   "img": "p100.jpg",
+   "page_first": 100,
+   "page_last": 100,
+   "title": "More use cases to be expected",
+   "text": "More use cases to be expected Tomorrow. Democratization of existing generation capabilities. Impossible? Putting together a perfectly \ufb01lmed, coherent and insightful class lecture? Near term. Integrate wins seen across modalities. Long term. Translation of consequences across industries."
+  },
+  {
+   "pages": [
+    101
+   ],
+   "id": 86,
+   "img": "p101.jpg",
+   "page_first": 101,
+   "page_last": 101,
+   "title": "Ongoing challenges",
+   "text": "Ongoing challenges Areas of improvement. Top of mind: \u25cf Costs Figures adapted from Analog in-memory computing attention mechanism for fast and energy-e\ufb03cient large language models, Leroux et al., 2025."
+  },
+  {
+   "pages": [
+    102
+   ],
+   "id": 87,
+   "img": "p102.jpg",
+   "page_first": 102,
+   "page_last": 102,
+   "title": "Ongoing challenges",
+   "text": "Ongoing challenges Areas of improvement. Top of mind: \u25cf Costs \u25cf Data quality Self-Consuming Generative Models Go MAD, Alemohammad et al., 2023. \"Model collapse\""
+  },
+  {
+   "pages": [
+    103
+   ],
+   "id": 88,
+   "img": "p103.jpg",
+   "page_first": 103,
+   "page_last": 103,
+   "title": "Ongoing challenges",
+   "text": "Ongoing challenges Areas of improvement. Top of mind: \u25cf Costs \u25cf Data quality \u25cf Trust Twitter Instagram Facebook Coalition for Content Provenance and Authenticity (C2PA), https://c2pa.org/. Photoshop Trivial \ufb02aw: metadata stripping/screenshotting!"
+  },
+  {
+   "pages": [
+    104
+   ],
+   "id": 89,
+   "img": "p104.jpg",
+   "page_first": 104,
+   "page_last": 104,
+   "title": "Ongoing challenges",
+   "text": "Ongoing challenges Areas of improvement. Top of mind: \u25cf Costs \u25cf Data quality \u25cf Trust SynthID-Image: Image watermarking at internet scale, Gowal et al., 2025. Watermarking"
+  },
+  {
+   "pages": [
+    105
+   ],
+   "id": 90,
+   "img": "p105.jpg",
+   "page_first": 105,
+   "page_last": 105,
+   "title": "Ongoing challenges",
+   "text": "Ongoing challenges Areas of improvement. Top of mind: \u25cf Costs \u25cf Data quality \u25cf Trust \u25cf Safety Deepfakes laws not moving at the speed of AI, Irvin-Mitchell, Public Source, 2026."
+  },
+  {
+   "pages": [
+    106,
+    107,
+    108
+   ],
+   "id": 91,
+   "img": "p108.jpg",
+   "page_first": 106,
+   "page_last": 108,
+   "title": "How to stay up-to-date with Vision advances",
+   "text": "How to stay up-to-date with Vision advances Papers \u25cf arXiv > Computer Science > Computer Vision and Pattern Recognition \u25cf General ML (NeurIPS, ICML, ICLR) and Vision (CVPR, ECCV) venues Code \u25cf Authors\u2019 GitHub repositories linked in their papers \u25cf paperswithcode.com: browse state-of-the-art datasets/methods for each task Miscellaneous \u25cf Stanford course websites (e.g. CS231n) \u25cf Twitter (academics + industry leaders) \u25cf YouTube theoretical (Two Minute Papers, Yannic Kilcher) and practical (Google Developers, HuggingFace) \u25cf Company/academia technical papers + blogs (Amazon Science, Apple ML, Google AI, Google DeepMind, Microsoft Research, OpenAI)"
+  },
+  {
+   "pages": [
+    109
+   ],
+   "id": 92,
+   "img": "p109.jpg",
+   "page_first": 109,
+   "page_last": 109,
+   "title": "Maybe useful for after the class",
+   "text": "Maybe useful for after the class https://github.com/afshinea/stanford-cme-296-di\ufb00usion-large-vision-models VIP Cheatsheet"
+  },
+  {
+   "pages": [
+    110
+   ],
+   "id": 93,
+   "img": "p110.jpg",
+   "page_first": 110,
+   "page_last": 110,
+   "title": "Thank you for this quarter!",
+   "text": "Thank you for this quarter! Afshine Shervine CME 296: Di\ufb00usion & Large Vision Models Website: https://cme296.stanford.edu/"
+  },
+  {
+   "pages": [
+    111
+   ],
+   "id": 94,
+   "img": "p111.jpg",
+   "page_first": 111,
+   "page_last": 111,
+   "title": "See you this Fall?",
+   "text": "See you this Fall? CME 295: Transformers & Large Language Models Website: https://cme295.stanford.edu/"
+  },
+  {
+   "pages": [
+    112
+   ],
+   "id": 95,
+   "img": "p112.jpg",
+   "page_first": 112,
+   "page_last": 112,
+   "title": "Wishing you all the best!",
+   "text": "Wishing you all the best! Feel free to reach out if you want to chat!"
+  }
+ ]
+}

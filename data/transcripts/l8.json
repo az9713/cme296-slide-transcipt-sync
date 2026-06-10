@@ -1,0 +1,5518 @@
+{
+ "lecture": 8,
+ "video_id": "oyLUvz9nR6E",
+ "segments": [
+  {
+   "t": 5,
+   "ts": "0:05",
+   "text": "Hello, everyone. And welcome to lecture 8 of CME 296.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 12,
+   "ts": "0:12",
+   "text": "So today is a special day because as you know, today is the last lecture of this entire class.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 20,
+   "ts": "0:20",
+   "text": "So the menu for today will be a little bit different. What we'll do is we'll divide this lecture into two parts.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 28,
+   "ts": "0:28",
+   "text": "In the first part, we'll try to piece together everything we've seen in the class up until now",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 36,
+   "ts": "0:36",
+   "text": "and see what we can take away from it. And in the second part, what we'll look at",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 43,
+   "ts": "0:43",
+   "text": "is adjacent fields where we can apply what we've have learned.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 49,
+   "ts": "0:49",
+   "text": "Does that sound good to you? So with that, what we'll do is we'll start with the first part, which is just piecing together",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 58,
+   "ts": "0:58",
+   "text": "everything we've seen this quarter. And the whole goal of this class has",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 66,
+   "ts": "1:06",
+   "text": "been to learn how to generate images. So, for instance, given an input prompt, how can we",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 74,
+   "ts": "1:14",
+   "text": "generate an image that is quite aligned with the prompt as input.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 81,
+   "ts": "1:21",
+   "text": "And of course, there is just a lot of dimensions we can look at. So this class has been about decomposing",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 91,
+   "ts": "1:31",
+   "text": "the fact of learning how it works into tractable parts. And if you remember, the first three lectures",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 98,
+   "ts": "1:38",
+   "text": "were about just understanding how we could generate images. Just let's suppose we have a black box model.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 106,
+   "ts": "1:46",
+   "text": "What is the paradigm that would allow us to just generate images.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 113,
+   "ts": "1:53",
+   "text": "So the first lecture was about diffusion, just",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 119,
+   "ts": "1:59",
+   "text": "learning how we could do that using the diffusion paradigm. And if you remember the first thing we said was,",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 129,
+   "ts": "2:09",
+   "text": "what could be a good starting point for us to generate those images?",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 135,
+   "ts": "2:15",
+   "text": "So if you think about it, the images that we want to generate they are",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 140,
+   "ts": "2:20",
+   "text": "a part of a data distribution that we do not know. And that data distribution can be complex,",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 148,
+   "ts": "2:28",
+   "text": "and it's difficult to sample from it. So one thing we said was, what are some distributions",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 155,
+   "ts": "2:35",
+   "text": "that we know how to sample from? So one such distribution was the Gaussian distribution.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 163,
+   "ts": "2:43",
+   "text": "And what we said was maybe in order for us to sample from this complicated data distribution,",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 171,
+   "ts": "2:51",
+   "text": "one thing we could do could be to sample from an easy distribution and then",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 178,
+   "ts": "2:58",
+   "text": "make our way up to the complicated data distribution.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 183,
+   "ts": "3:03",
+   "text": "So in this first lecture, what we said was let's represent images with just",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 189,
+   "ts": "3:09",
+   "text": "a multi-dimension variables that we could denote x.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 194,
+   "ts": "3:14",
+   "text": "And what we said was in order for us to learn how to go from Gaussian noise",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 204,
+   "ts": "3:24",
+   "text": "to clean images, what we'll do is we will come up with a forward process",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 210,
+   "ts": "3:30",
+   "text": "that we define that will allow us to corrupt clean images",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 216,
+   "ts": "3:36",
+   "text": "into noise. And the purpose of diffusion is to learn",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 222,
+   "ts": "3:42",
+   "text": "how to reverse that process. So if you remember, the forward process",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 227,
+   "ts": "3:47",
+   "text": "was a nice formulation that involves also",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 232,
+   "ts": "3:52",
+   "text": "Gaussian distributions. And so in order for us to derive the form",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 239,
+   "ts": "3:59",
+   "text": "of that reverse process, what we did was we tried to maximize the likelihood of seeing the data",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 250,
+   "ts": "4:10",
+   "text": "distribution under p theta. And we went through several steps that",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 255,
+   "ts": "4:15",
+   "text": "allowed us to derive a loss. So if you remember what we said was maximizing the likelihood",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 263,
+   "ts": "4:23",
+   "text": "is actually not tractable. So what we do is we derive a tractable lower bound,",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 269,
+   "ts": "4:29",
+   "text": "which was something where we used the forward process that we",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 275,
+   "ts": "4:35",
+   "text": "defined in it. So this lower bound is called ELBO.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 281,
+   "ts": "4:41",
+   "text": "And what we did is we expanded the terms within that lower bound.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 287,
+   "ts": "4:47",
+   "text": "And we showed that we could actually compute it. It was actually tractable.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 293,
+   "ts": "4:53",
+   "text": "And we ended up with a loss on us trying to estimate the noise that was added to a given image",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 302,
+   "ts": "5:02",
+   "text": "through this very simple L2 regression loss, which had a noised image as input along with its noise",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 312,
+   "ts": "5:12",
+   "text": "level. And what it was trying to do was to estimate the amount of noise that was added to the image",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 320,
+   "ts": "5:20",
+   "text": "or to the noisy image, I should say. So this was a first way of looking at things.",
+   "chapter": "Diffusion"
+  },
+  {
+   "t": 328,
+   "ts": "5:28",
+   "text": "So diffusion allowed us to go from an easy to sample from distribution, so the Gaussian distribution",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 336,
+   "ts": "5:36",
+   "text": "to the data distribution by learning how to remove the noise.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 343,
+   "ts": "5:43",
+   "text": "The second lecture was about another way of doing things, which was let's look at this data distribution,",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 355,
+   "ts": "5:55",
+   "text": "not from noise that you need to remove, but more in terms of where you need to go.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 363,
+   "ts": "6:03",
+   "text": "And we looked at a quantity called the score, which was defined as the gradient of the log of p.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 371,
+   "ts": "6:11",
+   "text": "And we saw that that quantity had nice properties. And in particular, it allowed us to not worry",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 379,
+   "ts": "6:19",
+   "text": "about that normalizing constant that is intractable. And what the score was telling us",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 386,
+   "ts": "6:26",
+   "text": "was where to go in order to land at that data distribution.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 392,
+   "ts": "6:32",
+   "text": "And in particular, there was a nice formula from Langevin dynamics, which basically",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 398,
+   "ts": "6:38",
+   "text": "said that if you knew how to compute the score, then what you could do is sample from noise",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 407,
+   "ts": "6:47",
+   "text": "and make your way to the data distribution.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 412,
+   "ts": "6:52",
+   "text": "So the whole goal of this lecture was to derive a way to estimate that score.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 420,
+   "ts": "7:00",
+   "text": "So the problem is the score is not the quantity that we know.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 425,
+   "ts": "7:05",
+   "text": "So what we did was have a way to introduce the Gaussian",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 431,
+   "ts": "7:11",
+   "text": "distribution to some extent so that we can leverage the properties that we know from the Gaussian",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 439,
+   "ts": "7:19",
+   "text": "distribution. And in particular, the fact that we knew how to compute in an analytical way",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 447,
+   "ts": "7:27",
+   "text": "the score of a Gaussian distribution. So what we did is we took observation from the target data",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 456,
+   "ts": "7:36",
+   "text": "distributions. And what we did is we noised them.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 461,
+   "ts": "7:41",
+   "text": "And then we looked at how we could estimate the score of the noise distribution.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 469,
+   "ts": "7:49",
+   "text": "So we saw that it was something that we could actually compute. But then there was a trade off.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 475,
+   "ts": "7:55",
+   "text": "The more noise you would put in the data distribution,",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 480,
+   "ts": "8:00",
+   "text": "the more your noise data distribution would be far from the data distribution of interest.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 487,
+   "ts": "8:07",
+   "text": "But then when you do that, you're able to estimate the score of the noise data distribution",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 496,
+   "ts": "8:16",
+   "text": "quite easily. So you have a trade off of you can compute the quantity, but it's not the quantity that you actually",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 502,
+   "ts": "8:22",
+   "text": "want versus if you have only a small amount of noise,",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 509,
+   "ts": "8:29",
+   "text": "then the score of that low noise data distribution is actually not something that you can estimate very well.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 517,
+   "ts": "8:37",
+   "text": "But the target that you want to estimate is closer to the actual quantity that you want.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 525,
+   "ts": "8:45",
+   "text": "So you had this trade off, and what we said was, well, how about we estimate the score, not just",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 535,
+   "ts": "8:55",
+   "text": "as a function of where we are in space, but also as a function of data distribution is.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 545,
+   "ts": "9:05",
+   "text": "And we ended up with the de-noising score matching loss, which allowed us to estimate",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 552,
+   "ts": "9:12",
+   "text": "the score of that noisy distribution, given a noisy image and a noise level.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 560,
+   "ts": "9:20",
+   "text": "And once we did that, we actually saw that this way of looking at things",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 567,
+   "ts": "9:27",
+   "text": "was actually very similar to the way we did in the first lecture",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 573,
+   "ts": "9:33",
+   "text": "with diffusion. And we saw that actually the score of the forward process",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 580,
+   "ts": "9:40",
+   "text": "is equal to minus the noise that you added over some coefficient.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 588,
+   "ts": "9:48",
+   "text": "So both approaches led to similar formulations.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 593,
+   "ts": "9:53",
+   "text": "And we saw that we actually had this identity. And then what we did was just realized",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 601,
+   "ts": "10:01",
+   "text": "that the way we were noising our data distribution was in a discrete way, and that there are many choices that you",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 610,
+   "ts": "10:10",
+   "text": "had to take at the very beginning, such as how many steps you want to take and so on.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 617,
+   "ts": "10:17",
+   "text": "And so this motivated us to move from discrete formulation",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 624,
+   "ts": "10:24",
+   "text": "to a continuous formulation. So we derived the continuous formulation",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 631,
+   "ts": "10:31",
+   "text": "of the forward process, which allowed us to come up with this stochastic differential equation, which",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 639,
+   "ts": "10:39",
+   "text": "is the delta in position during the forward process,",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 644,
+   "ts": "10:44",
+   "text": "which is equal to a drift term that is deterministic, plus a diffusion term, which is stochastic.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 654,
+   "ts": "10:54",
+   "text": "And here we're using the continuous equivalent of the noise, which as we saw was the Wiener process, dW.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 664,
+   "ts": "11:04",
+   "text": "And you could actually figure out how to move your x when you want it to noise it with respect",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 673,
+   "ts": "11:13",
+   "text": "to these two terms. And we actually saw that the first approach",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 681,
+   "ts": "11:21",
+   "text": "that we looked at in the first lecture and then the second approach that we looked at here",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 688,
+   "ts": "11:28",
+   "text": "were actually special cases of this more generic formula.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 694,
+   "ts": "11:34",
+   "text": "In particular, the DDPM formulation from lecture 1 was a variance-preserving formulation,",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 702,
+   "ts": "11:42",
+   "text": "whereas the one that we saw with the noise condition score networks was actually a variance exploding formulation.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 713,
+   "ts": "11:53",
+   "text": "And then what we did was OK, our goal is not just to noise images.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 719,
+   "ts": "11:59",
+   "text": "Our goal is to learn the reverse process. And so in order to do that, the nice thing was that",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 726,
+   "ts": "12:06",
+   "text": "in the '80s, we have a nice results that told us that",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 732,
+   "ts": "12:12",
+   "text": "for a given forward process, you could have a corresponding",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 738,
+   "ts": "12:18",
+   "text": "reverse process where you actually needed to know the score, which is actually the quantity that we're estimating",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 745,
+   "ts": "12:25",
+   "text": "here. So what we had to do was just to estimate the score in order",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 751,
+   "ts": "12:31",
+   "text": "to reverse the process. So long story short, lecture 1 we",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 757,
+   "ts": "12:37",
+   "text": "saw in order to go from noise to clean, we need to predict the noise to remove.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 764,
+   "ts": "12:44",
+   "text": "In lecture 2, we said, in order to go from noise to clean, we need to know where we want to move towards,",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 773,
+   "ts": "12:53",
+   "text": "which is the score. You can think of the score as a compass that tells you where the data distribution is located.",
+   "chapter": "Score matching"
+  },
+  {
+   "t": 782,
+   "ts": "13:02",
+   "text": "And then we ended up in the third lecture with a third way of looking at things, which",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 790,
+   "ts": "13:10",
+   "text": "is the flow matching formulation, which actually",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 795,
+   "ts": "13:15",
+   "text": "framed the problem in a different way. So what we did there was to consider the noisy distribution",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 803,
+   "ts": "13:23",
+   "text": "in the beginning as just an initial distribution, and the data distribution of interest",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 810,
+   "ts": "13:30",
+   "text": "was just a target distribution. And the goal for us was to figure out",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 817,
+   "ts": "13:37",
+   "text": "how to move your probability density from an initial distribution to a target distribution.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 826,
+   "ts": "13:46",
+   "text": "So that's the flow matching way of looking at things. It's the point of view of mass transport.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 836,
+   "ts": "13:56",
+   "text": "And in particular, there was one quantity that was very important, which is called the vector field or the velocity,",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 844,
+   "ts": "14:04",
+   "text": "which is denoted Ut of x. It is a vector that is defined at every position",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 850,
+   "ts": "14:10",
+   "text": "and at all time t. And what we saw was that in order to move each observations from one point",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 860,
+   "ts": "14:20",
+   "text": "to another, what we had to do was to just follow the vector field.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 866,
+   "ts": "14:26",
+   "text": "So we had this microscopic way of looking at things, which is the ODE that you see here.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 873,
+   "ts": "14:33",
+   "text": "So the dx over dt, which is equal to the vector field at that time t and at position x.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 883,
+   "ts": "14:43",
+   "text": "And we also had a second way of looking at this same thing.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 888,
+   "ts": "14:48",
+   "text": "So the first formulation is the microscopic formulation, which is what is happening to your individual particles.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 897,
+   "ts": "14:57",
+   "text": "The second way of looking at this same thing is at the macro level, where what",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 904,
+   "ts": "15:04",
+   "text": "you say is the evolution of the probability at a given time t",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 911,
+   "ts": "15:11",
+   "text": "is equal to minus the probability flux, which is what constitutes the continuity equation, which just",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 921,
+   "ts": "15:21",
+   "text": "tells you that you're not losing anything between time t equals 0 and 1.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 928,
+   "ts": "15:28",
+   "text": "And the whole point of us going into these formulas was for us to figure out a vector field which",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 940,
+   "ts": "15:40",
+   "text": "would allow us to go from this initial distribution to this target data distribution.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 947,
+   "ts": "15:47",
+   "text": "So this was the whole point. And in particular, let's assume you know the vector field",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 955,
+   "ts": "15:55",
+   "text": "that you want to estimate. The strategy here would be to have a model that",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 963,
+   "ts": "16:03",
+   "text": "estimates the vector field. So here, Ut theta of x.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 968,
+   "ts": "16:08",
+   "text": "So let's assume you learn such a model. If you do learn such a model, then",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 974,
+   "ts": "16:14",
+   "text": "in order to sample from the complicated data distribution which is p1, what you need to do",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 983,
+   "ts": "16:23",
+   "text": "is to just sample from your easy data distribution p0 and then numerically",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 990,
+   "ts": "16:30",
+   "text": "solve the [INAUDIBLE] here between times 0 [INAUDIBLE]",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 998,
+   "ts": "16:38",
+   "text": "using the vector field that you have learned.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1004,
+   "ts": "16:44",
+   "text": "And we saw that it's actually something that you can do in practice if you construct the target vector",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1013,
+   "ts": "16:53",
+   "text": "field in a way that makes it tractable. So we saw conditional probability paths,",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1021,
+   "ts": "17:01",
+   "text": "which were an easier way of looking at this, which is we don't know what the vector",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1029,
+   "ts": "17:09",
+   "text": "field in the general case. How about if we look at a simpler case where",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1034,
+   "ts": "17:14",
+   "text": "we want to move the initial data distribution, not to the target data distribution, but to a single point,",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1043,
+   "ts": "17:23",
+   "text": "which was the conditional probability path that we saw? And we saw that we could obtain a conditional flow matching",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1054,
+   "ts": "17:34",
+   "text": "loss that was equivalent to you learning the vector field that was the aggregate of all these conditional vector fields that",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1064,
+   "ts": "17:44",
+   "text": "allowed you to solve the problem of interest. So these first three lectures were by far the most",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1072,
+   "ts": "17:52",
+   "text": "mathematically challenging. I hope what I said made sense. We spent six hours on this.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1078,
+   "ts": "17:58",
+   "text": "And I hope I did a good job in 10 minutes to just recap what we did.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1084,
+   "ts": "18:04",
+   "text": "At the end of it, I just want you to remember that so we're in 2026.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1090,
+   "ts": "18:10",
+   "text": "People nowadays they use flow matching by default. And so if you just want to have something",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1099,
+   "ts": "18:19",
+   "text": "that you want to really master perfectly,",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1104,
+   "ts": "18:24",
+   "text": "I would recommend just really understanding the flow matching part because this is what most models nowadays use.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1112,
+   "ts": "18:32",
+   "text": "In particular, they use a variant that we saw that's called the rectified flow variant, which",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1119,
+   "ts": "18:39",
+   "text": "was an extension of this that allowed the path",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1125,
+   "ts": "18:45",
+   "text": "to be straighter, so that at inference time, you could afford having fewer steps in the numerical solver",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1136,
+   "ts": "18:56",
+   "text": "here so that you can just sample images with fewer steps.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1143,
+   "ts": "19:03",
+   "text": "Oof. So first three lectures, mathematically challenging.",
+   "chapter": "Flow matching"
+  },
+  {
+   "t": 1148,
+   "ts": "19:08",
+   "text": "It was purely for us to learn a paradigm to generate images.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1154,
+   "ts": "19:14",
+   "text": "But up until that point, we assumed two things.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1160,
+   "ts": "19:20",
+   "text": "So the first one is we assumed that we were generating images in an unconditioned way.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1167,
+   "ts": "19:27",
+   "text": "So we didn't have any input prompts. We did not worry about this. And the second thing was we just assumed that we",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1176,
+   "ts": "19:36",
+   "text": "had a way to represent images. So we just represented them with x with, I don't know,",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1182,
+   "ts": "19:42",
+   "text": "n dimensional vector. But we did not see what representation would make sense.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1189,
+   "ts": "19:49",
+   "text": "And this was the focus of lecture 4, which was titled",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1195,
+   "ts": "19:55",
+   "text": "latent space and guidance. And what we saw there was, well, in order",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1203,
+   "ts": "20:03",
+   "text": "to have a meaningful representation of your images, what you want is to have a way to keep only the useful stuff.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1214,
+   "ts": "20:14",
+   "text": "So how do you do that? Well, in pixel space, you see that you have a pretty large amount of spatial correlation, which",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1223,
+   "ts": "20:23",
+   "text": "means that if you look at a pixel, a lot of the surrounding pixels are more or less of that value.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1230,
+   "ts": "20:30",
+   "text": "So you can imagine that there is a lot of redundant information in there. So that's number 1.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1237,
+   "ts": "20:37",
+   "text": "And number 2 is in the pixel space, well,",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1243,
+   "ts": "20:43",
+   "text": "the dimensionality is pretty high. So given that the model that you're going to build from it",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1250,
+   "ts": "20:50",
+   "text": "is going to be a function of the dimension of your input, what you want to do is to make sure your input is not too big.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1260,
+   "ts": "21:00",
+   "text": "So you want to compress the input into something that is only keeping you the useful bits.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1269,
+   "ts": "21:09",
+   "text": "And in order for us to do that, we looked at a model that was called an autoencoder, whose",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1278,
+   "ts": "21:18",
+   "text": "only goal was to learn a way to represent images into a smaller",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1287,
+   "ts": "21:27",
+   "text": "space. That's called the latent space. So here on the slide, you see that you have the image",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1295,
+   "ts": "21:35",
+   "text": "in the pixel space as inputs. And then you have an encoder that does some downsampling",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1300,
+   "ts": "21:40",
+   "text": "operations that gets you some representation of the input image, not in the pixel space, but in a lower dimensional",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1309,
+   "ts": "21:49",
+   "text": "space, which is the latent space. And what you do here is to use that lower dimensional",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1317,
+   "ts": "21:57",
+   "text": "representation in order to reconstruct your input.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1324,
+   "ts": "22:04",
+   "text": "So you have a proxy task, which is how can you reconstruct the input as best as you can",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1333,
+   "ts": "22:13",
+   "text": "by going through this bottleneck. And when you do that, you are indeed",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1338,
+   "ts": "22:18",
+   "text": "able to learn a latent space that compresses the information into just fewer dimensions.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1346,
+   "ts": "22:26",
+   "text": "But then the problem that we encountered was that if you did that, you had no way of controlling",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1354,
+   "ts": "22:34",
+   "text": "the shape of the latent space. And in particular, if you want to learn",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1361,
+   "ts": "22:41",
+   "text": "how to generate images, what you want is to have an easy time at learning it.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1368,
+   "ts": "22:48",
+   "text": "So you don't want a space with spikes here and there and then nothing in between.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1377,
+   "ts": "22:57",
+   "text": "So what you want is something more at the top of the slide, which is a data distribution that",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1384,
+   "ts": "23:04",
+   "text": "is more compact and well put together. So in order for us to do that, what",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1391,
+   "ts": "23:11",
+   "text": "we did was go back to the way we formulated things",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1396,
+   "ts": "23:16",
+   "text": "and add a constraint for us to regularize the latent space.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1403,
+   "ts": "23:23",
+   "text": "And this was the VAE that we saw-- the variational autoencoder--",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1409,
+   "ts": "23:29",
+   "text": "which allowed us to structure the latent space in a way that would make our lives easier.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1418,
+   "ts": "23:38",
+   "text": "And we saw that in order to derive a loss for us to learn that model, we use the same trick as lecture 1, which",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1428,
+   "ts": "23:48",
+   "text": "leverages the ELBO. So the evidence lower bound. I'm not going to go into details.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1433,
+   "ts": "23:53",
+   "text": "But one thing I wanted to say here is we ended up with a loss that had two terms.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1441,
+   "ts": "24:01",
+   "text": "One was the pixel-wise reconstruction loss, which we had previously, but also",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1449,
+   "ts": "24:09",
+   "text": "a second term that was aiming at structuring the latent space as much as possible to a certain distribution that",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1458,
+   "ts": "24:18",
+   "text": "was called the prior distribution, p of z, so that we can have something that looks a little bit more",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1465,
+   "ts": "24:25",
+   "text": "like the top one. Cool.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1470,
+   "ts": "24:30",
+   "text": "So that was really the focus of that session. And we also learned how to represent the input.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1475,
+   "ts": "24:35",
+   "text": "So we saw different encoders, in particular transformer-based encoders, including the VIT-- vision transformer.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1484,
+   "ts": "24:44",
+   "text": "And then we saw that there are ways to combine different modalities in the same space,",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1490,
+   "ts": "24:50",
+   "text": "for instance, with CLIP using a contrastive loss. And then we also saw methods to incentivize our generation",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1501,
+   "ts": "25:01",
+   "text": "to be more aligned with our condition. And here, if you remember, we looked at classifier-free guidance that allowed us to do that.",
+   "chapter": "Latent space and guidance"
+  },
+  {
+   "t": 1511,
+   "ts": "25:11",
+   "text": "Cool. So up until that point, we knew how",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1517,
+   "ts": "25:17",
+   "text": "to generate images in terms of the way we wanted to go about doing this. We knew how to represent the inputs.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1524,
+   "ts": "25:24",
+   "text": "And we knew how to represent our noisy latents. Well, now the question is, what model are you actually going",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1532,
+   "ts": "25:32",
+   "text": "to use to do that? And this was lecture 5, which was on image generation",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1538,
+   "ts": "25:38",
+   "text": "architectures. And here we took a step back and just reminded ourselves",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1548,
+   "ts": "25:48",
+   "text": "of the problem that we have at hand, which is we have a model.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1553,
+   "ts": "25:53",
+   "text": "And what we want to do is to predict a quantity that will allow us to go from noise to clean.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1563,
+   "ts": "26:03",
+   "text": "So as I mentioned, the paradigm that is by far the most common these days is the flow matching paradigm.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1570,
+   "ts": "26:10",
+   "text": "So it's, in particular, a model that would predict the velocity.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1575,
+   "ts": "26:15",
+   "text": "So what we want is a generation model that takes in a noise level, the condition of interest,",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1584,
+   "ts": "26:24",
+   "text": "like your user prompt, and then your noisy latent as inputs",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1590,
+   "ts": "26:30",
+   "text": "in order to predict the velocity. And we saw that one popular architecture",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1598,
+   "ts": "26:38",
+   "text": "was the U-Net, which was composed of two main parts.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1605,
+   "ts": "26:45",
+   "text": "The first one was a downsampling part, which allowed to gain a global understanding of the inputs",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1613,
+   "ts": "26:53",
+   "text": "through downsampling operations, which allowed its receptive field to be bigger and bigger.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1620,
+   "ts": "27:00",
+   "text": "So here what we mean is when you compute the activation map, if you take a single value, what we're saying",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1628,
+   "ts": "27:08",
+   "text": "is that that value was a result of a pretty wide input.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1635,
+   "ts": "27:15",
+   "text": "So that's the downsampling part. And then the upsampling part was just a way for us to match the shape that we wanted.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1643,
+   "ts": "27:23",
+   "text": "And we had this copy and crop connections that allowed us to transfer lower level details that",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1653,
+   "ts": "27:33",
+   "text": "were computed as part of the downsampling operation.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1659,
+   "ts": "27:39",
+   "text": "So this was the U-Net. But of course, you know that in 2017, transformers just",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1666,
+   "ts": "27:46",
+   "text": "took the whole field by storm. And there was more and more models",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1671,
+   "ts": "27:51",
+   "text": "that were relying on the transformer and the self-attention mechanism. And it was not long after that the diffusion transformer",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1681,
+   "ts": "28:01",
+   "text": "came into play. So in 2022, I believe. So that architecture dealt with a limitation of the U-Nets,",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1690,
+   "ts": "28:10",
+   "text": "which was that patches that were far from one",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1695,
+   "ts": "28:15",
+   "text": "another from the image could not have a direct way of interacting with one another.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1702,
+   "ts": "28:22",
+   "text": "And in cases, like if you wanted to generate an image, let's say, a teddy bear that looks at himself in the mirror,",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1709,
+   "ts": "28:29",
+   "text": "then you would want to have that interaction to figure out the lower level details.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1715,
+   "ts": "28:35",
+   "text": "And we saw that diffusion transformer was injecting conditions using an adaptive layer norm",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1725,
+   "ts": "28:45",
+   "text": "framework. So it was just modulating the embeddings of the patches.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1733,
+   "ts": "28:53",
+   "text": "And then we saw that-- today is May 29th 2026.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1738,
+   "ts": "28:58",
+   "text": "So now we have a lot of such models out there. And in particular, there is one specific category",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1745,
+   "ts": "29:05",
+   "text": "that has emerged, which is the multi-modal diffusion transformer, which on top of doing",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1752,
+   "ts": "29:12",
+   "text": "this self-attention mechanism, also considers the condition as part of the joint attention.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1762,
+   "ts": "29:22",
+   "text": "And we looked at the timeline. So here what's in blue is U-Net. And what's in green is DiT and variants.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1769,
+   "ts": "29:29",
+   "text": "And of course, the timeline is not exhaustive but it is just a way for you to see that nowadays image",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1777,
+   "ts": "29:37",
+   "text": "generation models are almost everyone is relying on the DiT-based architecture.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1786,
+   "ts": "29:46",
+   "text": "Cool. And then at that stage, we knew how we could generate images.",
+   "chapter": "Image generation architectures"
+  },
+  {
+   "t": 1793,
+   "ts": "29:53",
+   "text": "We knew how to represent the input. We knew how to represent the latentce. We knew what model to use, but we",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1799,
+   "ts": "29:59",
+   "text": "didn't how to train that model. And that was the focus of lecture 6.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1805,
+   "ts": "30:05",
+   "text": "And so before digging into the details, one thing we wanted to just align",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1812,
+   "ts": "30:12",
+   "text": "was how we wanted our time step to be sampled during the training, because we had seen back in lecture 1 to 3",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1822,
+   "ts": "30:22",
+   "text": "that the time step that we were sampling in order to train our model was drawn from a uniform distribution.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1831,
+   "ts": "30:31",
+   "text": "And we spent some time just thinking about whether all noise",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1836,
+   "ts": "30:36",
+   "text": "levels are equally hard or not. And we saw that noise levels that are not super noisy,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1847,
+   "ts": "30:47",
+   "text": "but not towards clean, like those in the middle, were the most difficult because those",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1853,
+   "ts": "30:53",
+   "text": "were the places where we had to make important decisions about where to go.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1859,
+   "ts": "30:59",
+   "text": "And so that's the reason why the fact of sampling from a uniform distribution",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1867,
+   "ts": "31:07",
+   "text": "was not the most optimal. And we saw that there was this distribution called the logit-normal distribution, which",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1877,
+   "ts": "31:17",
+   "text": "is a distribution that focuses much more on the middle steps, was something that was more commonly used these days.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1886,
+   "ts": "31:26",
+   "text": "And we saw that not only that, but the resolution",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1892,
+   "ts": "31:32",
+   "text": "of your images also matter in terms of what the perceived noise is.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1899,
+   "ts": "31:39",
+   "text": "And in particular, if you want to train a model on higher resolution images, what",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1905,
+   "ts": "31:45",
+   "text": "you want is to make sure to noise your images a bit more than what you did previously, because",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1913,
+   "ts": "31:53",
+   "text": "for a given noise level, a lower resolution image",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1918,
+   "ts": "31:58",
+   "text": "will appear as being more noisy compared to higher resolution one.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1923,
+   "ts": "32:03",
+   "text": "And we did some math on the blackboard, if you remember, when we computed just the uncertainty",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1928,
+   "ts": "32:08",
+   "text": "around the underlying pixel value. But intuitively, it comes from the fact",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1935,
+   "ts": "32:15",
+   "text": "that there is spatial correlation within your image. So if you have more pixels to represent,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1943,
+   "ts": "32:23",
+   "text": "let's say, an area of the image, well, if you noise some of it,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1949,
+   "ts": "32:29",
+   "text": "and if you have more chances to see the actual value, then when you look at the image, you",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1955,
+   "ts": "32:35",
+   "text": "will have an easier time to see what the image is about as opposed to if you have a lower resolution",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1961,
+   "ts": "32:41",
+   "text": "image. So if you have pixels that are noised, then you have fewer chances of seeing",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1969,
+   "ts": "32:49",
+   "text": "the underlying true pixel value-- denoise pixel value.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1974,
+   "ts": "32:54",
+   "text": "And so with that, we saw that there are a few stages to a typical model training",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1981,
+   "ts": "33:01",
+   "text": "process, the first one being pre-training, which is learning how to generate images.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1989,
+   "ts": "33:09",
+   "text": "And so here you have-- so it's the most time consuming and expensive part of the whole pipeline,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 1995,
+   "ts": "33:15",
+   "text": "because you need to come up with a very big corpus of images that",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2001,
+   "ts": "33:21",
+   "text": "encompasses all of the possible images that you want to generate.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2006,
+   "ts": "33:26",
+   "text": "And it needs to be certain quality, and you need to have good mixtures and so on.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2012,
+   "ts": "33:32",
+   "text": "So a lot of effort is put into having a pre-trained data that",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2020,
+   "ts": "33:40",
+   "text": "is reflective of the way you want your image generation to learn.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2026,
+   "ts": "33:46",
+   "text": "And after that, we saw that once you",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2032,
+   "ts": "33:52",
+   "text": "get an image generation model that knows how to generate images, what you wanted to do",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2039,
+   "ts": "33:59",
+   "text": "is to generate good images. And in particular, good here can be something",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2047,
+   "ts": "34:07",
+   "text": "that people say just in the aesthetics term. So you want your image to look good,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2053,
+   "ts": "34:13",
+   "text": "but you also want your image generation model know how to generate images in your field of interest",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2061,
+   "ts": "34:21",
+   "text": "or in your task of interest. So, for instance, if you have an image generation model that",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2067,
+   "ts": "34:27",
+   "text": "has been pre-trained on, let's say, nature and then, I don't know, houses, but if you",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2074,
+   "ts": "34:34",
+   "text": "want that model to generate images, let's say, teddy bears, so what you want is, for instance,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2081,
+   "ts": "34:41",
+   "text": "to have an extension of that training that we call continued training, where you teach your model how",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2090,
+   "ts": "34:50",
+   "text": "to generate images in your set of images of interest, which",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2096,
+   "ts": "34:56",
+   "text": "here can be teddy bears. And what we saw was that a third optional step",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2105,
+   "ts": "35:05",
+   "text": "could be the tuning step, where you could have a situation where",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2110,
+   "ts": "35:10",
+   "text": "you want to generate images of one particular subject, of one particular person many times.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2120,
+   "ts": "35:20",
+   "text": "So if you are in that situation, what you want is to tweak your model in a way that will remember",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2130,
+   "ts": "35:30",
+   "text": "what you wanted to generate. And we saw DreamBooth as a way for us to do that.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2137,
+   "ts": "35:37",
+   "text": "So the idea was to gather a set of images of 5 to 10 typically that contains who you want to depict.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2147,
+   "ts": "35:47",
+   "text": "And what you do is you train your model to generate images that contain that specific person",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2156,
+   "ts": "35:56",
+   "text": "or that specific object, while having a rare token as input.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2164,
+   "ts": "36:04",
+   "text": "So what you are teaching your model was to rewire its brain towards generating something",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2170,
+   "ts": "36:10",
+   "text": "when it saw a specific token. And given that these models can be pretty big,",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2178,
+   "ts": "36:18",
+   "text": "we saw that there were also techniques to tune, not all weights, but a subset",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2186,
+   "ts": "36:26",
+   "text": "of the weights through this technique called LoRA-- low-rank adaptation.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2194,
+   "ts": "36:34",
+   "text": "And once you did that-- let's suppose you did either the first two or all three",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2200,
+   "ts": "36:40",
+   "text": "of the steps. What you want is to now deploy your model to production. So what you want is to have a model that does not cost you",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2211,
+   "ts": "36:51",
+   "text": "a lot and also does not take a lot of time to make generations. So we saw a bunch of methods that",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2218,
+   "ts": "36:58",
+   "text": "were aimed at shortening the number of steps that were needed",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2224,
+   "ts": "37:04",
+   "text": "for you to generate samples. So this category of methods is called distillation.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2231,
+   "ts": "37:11",
+   "text": "So we saw a number of methods. So I would encourage you to look at that lecture.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2237,
+   "ts": "37:17",
+   "text": "So there was progressive distillation as one example, but some others as well.",
+   "chapter": "Model training"
+  },
+  {
+   "t": 2244,
+   "ts": "37:24",
+   "text": "And then finally, last week, what we said was great,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2250,
+   "ts": "37:30",
+   "text": "we can do all of this. But we have not seen how we could evaluate how",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2256,
+   "ts": "37:36",
+   "text": "our images, how good they were. And if you don't know how to do that,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2262,
+   "ts": "37:42",
+   "text": "well, you don't where to put your efforts. So you need to know how well you're doing,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2268,
+   "ts": "37:48",
+   "text": "which is why lecture 7 was focused on evaluating images",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2275,
+   "ts": "37:55",
+   "text": "and in particular, how good those images were.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2281,
+   "ts": "38:01",
+   "text": "So we saw that the most common way people evaluate images",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2287,
+   "ts": "38:07",
+   "text": "on things like leaderboards is by having images generated",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2293,
+   "ts": "38:13",
+   "text": "by the models that are in your leaderboards and by having pairwise comparisons between them.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2301,
+   "ts": "38:21",
+   "text": "And we saw that there was a particular way of measuring performance that took into consideration",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2310,
+   "ts": "38:30",
+   "text": "the history of each model. And by history, I mean how people rated that model.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2320,
+   "ts": "38:40",
+   "text": "And the reason for that is we saw that if you were to win against a weak week model,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2328,
+   "ts": "38:48",
+   "text": "it is not the same thing as if you were to win against a strong model.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2334,
+   "ts": "38:54",
+   "text": "So you want to take into consideration how strong your opponent is, otherwise, a metric",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2341,
+   "ts": "39:01",
+   "text": "like the win rates would be very dependent on who you are making your comparisons with.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2348,
+   "ts": "39:08",
+   "text": "And we saw this metric called the Elo rating, Elo score that looked at this in the following way.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2357,
+   "ts": "39:17",
+   "text": "So if you were to rate different models, so you have a ratings,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2363,
+   "ts": "39:23",
+   "text": "let's call it R, that quantifies how good each model is.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2370,
+   "ts": "39:30",
+   "text": "So in order for you to-- let's suppose you have a new model.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2376,
+   "ts": "39:36",
+   "text": "You want to compute its rating. So what you would do is compare that new model to,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2382,
+   "ts": "39:42",
+   "text": "let's say, a model that is part of the list. And you would use the rating of the models",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2392,
+   "ts": "39:52",
+   "text": "to quantify how good they are, and take that into consideration in order to find",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2398,
+   "ts": "39:58",
+   "text": "the rating of the new model. So how do you do that? Well, the idea is quite simple.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2405,
+   "ts": "40:05",
+   "text": "So the ratings quantify how good models are.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2411,
+   "ts": "40:11",
+   "text": "So from that quantity, what you can do is to compute what you expect will happen.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2420,
+   "ts": "40:20",
+   "text": "So for instance, if you have a strong model and a weak model, well, what you expect is the strong model to win.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2428,
+   "ts": "40:28",
+   "text": "So you compute a quantity which is the expected score, which is a function of these two ratings.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2435,
+   "ts": "40:35",
+   "text": "And you compare that with the actual score.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2440,
+   "ts": "40:40",
+   "text": "And the difference between that, which is here, delta, tells you how surprised you are.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2447,
+   "ts": "40:47",
+   "text": "So if you won against a strong model, then you want your delta to be high.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2453,
+   "ts": "40:53",
+   "text": "And if you won against a weak model, then it's not a lot of signal for you because almost everyone",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2460,
+   "ts": "41:00",
+   "text": "wins against that weak model. So delta would be lower. So all of that to say that you will come across the Elo",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2469,
+   "ts": "41:09",
+   "text": "score quite a lot. And I just want you to remember that the Elo score is",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2475,
+   "ts": "41:15",
+   "text": "a smart way of computing pairwise comparisons",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2481,
+   "ts": "41:21",
+   "text": "by taking into consideration how strong your opponent is, if you compare model A and model B. Cool.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2491,
+   "ts": "41:31",
+   "text": "But not everyone has the luxury of having human ratings for everything they do. So that's why we also have a bunch of automated metrics.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2501,
+   "ts": "41:41",
+   "text": "So we looked at one that was quite popular nowadays, which is called the FID score--",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2509,
+   "ts": "41:49",
+   "text": "Fr\u00e9chet inception distance. So what this score does is it computes",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2517,
+   "ts": "41:57",
+   "text": "the distance between the distribution of your generated images and the distribution of real images.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2527,
+   "ts": "42:07",
+   "text": "And the idea is if these distributions are far, then it means that your generated images,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2535,
+   "ts": "42:15",
+   "text": "they don't look like real images. And we saw that the FID score-- so I didn't",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2543,
+   "ts": "42:23",
+   "text": "put the formula here, but it is something that is derived from a more general formulation.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2550,
+   "ts": "42:30",
+   "text": "And here, the actual formula is derived considering that these two distributions are",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2558,
+   "ts": "42:38",
+   "text": "considered as Gaussian. So that's the assumption that we're",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2563,
+   "ts": "42:43",
+   "text": "doing when we're computing this metric. And we saw that the lower this metric was, the better it was.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2571,
+   "ts": "42:51",
+   "text": "And of course, it's a proxy. So it's not a perfect metric.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2577,
+   "ts": "42:57",
+   "text": "And then we looked at more clever ways of obtaining scores,",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2584,
+   "ts": "43:04",
+   "text": "in particular, by leveraging these newer models.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2589,
+   "ts": "43:09",
+   "text": "So here, MLLM, which stands for multi-modal large language models that are able to both take texts, but also",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2601,
+   "ts": "43:21",
+   "text": "images as input. So you could very well say, you have this image. You have this input prompt.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2607,
+   "ts": "43:27",
+   "text": "Well, tell me how it looks like or how good that is. Then you could obtain some given scores.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2614,
+   "ts": "43:34",
+   "text": "And we saw that you also had a way to leverage these models",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2620,
+   "ts": "43:40",
+   "text": "in order for you to not have to ask your humans to rate",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2626,
+   "ts": "43:46",
+   "text": "your images, but to ask your MLLM as a judge to rate them for you.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2631,
+   "ts": "43:51",
+   "text": "You could have a tighter loop that would allow you to make iterations faster and have",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2638,
+   "ts": "43:58",
+   "text": "human ratings when you feel like your model is good enough for you to take that step.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2646,
+   "ts": "44:06",
+   "text": "And this was CME 296. So you see that in order for us to generate",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2653,
+   "ts": "44:13",
+   "text": "an image from a prompt, there is a lot that goes underneath.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2658,
+   "ts": "44:18",
+   "text": "And this is what the whole lectures 1 to 7 were about.",
+   "chapter": "Evaluation"
+  },
+  {
+   "t": 2668,
+   "ts": "44:28",
+   "text": "Cool. So now you finish this class after this lecture and you're like, OK, now I know all of this.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2675,
+   "ts": "44:35",
+   "text": "And so what? So I wanted to talk to you about the state of the art models that",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2681,
+   "ts": "44:41",
+   "text": "were out there. So what we did was just go to a popular arena that ranks",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2692,
+   "ts": "44:52",
+   "text": "the best models out there. So there's a leaderboard. And as you can see, there is the Elo score",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2697,
+   "ts": "44:57",
+   "text": "that is used to determine those ranks. And I just wanted for us to look at which models were the best",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2707,
+   "ts": "45:07",
+   "text": "and whether they were also using the methods that we saw in this class or not.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2715,
+   "ts": "45:15",
+   "text": "So let's start with the best models out there, and we see that we have the first two",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2721,
+   "ts": "45:21",
+   "text": "ranks that are from OpenAI. So GPT Image. And then we have two models from Google.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2727,
+   "ts": "45:27",
+   "text": "And then the fourth-- sorry, the fifth model is from xAI. So it's all closed-source models from top AI labs.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2737,
+   "ts": "45:37",
+   "text": "The problem with those models is we don't how they work because they're not publishing any reports.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2744,
+   "ts": "45:44",
+   "text": "So there's not a lot I can tell you. But that leaderboard also ranks open weight models",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2754,
+   "ts": "45:54",
+   "text": "that have technical reports that are published that are public and available.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2762,
+   "ts": "46:02",
+   "text": "So it's a screenshot that dates from five days ago. And we see that the highest ranked model is",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2769,
+   "ts": "46:09",
+   "text": "from a company called HiDream. So it's HiDream-01-Image number one.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2776,
+   "ts": "46:16",
+   "text": "And then you have Qwen Image that we saw in lecture 5,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2781,
+   "ts": "46:21",
+   "text": "when we talked about the multi-modal diffusion transformer. And then the ranks three to five are from this model",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2790,
+   "ts": "46:30",
+   "text": "from Black Forest Lab called FLUX 2. And what I wanted us to do was to go through these models",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2798,
+   "ts": "46:38",
+   "text": "and see what they were made of. So let's start with the last ones, the FLUX 2 models.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2807,
+   "ts": "46:47",
+   "text": "So they're based on rectified flow, which, as I mentioned,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2813,
+   "ts": "46:53",
+   "text": "is a derivative of flow matching. So something that we know.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2819,
+   "ts": "46:59",
+   "text": "Their architecture is based on the diffusion transformer.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2824,
+   "ts": "47:04",
+   "text": "But in particular, what our architecture is based on is a combination of single stream",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2834,
+   "ts": "47:14",
+   "text": "and double-stream diffusion transformer. So this is also something that we saw.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2841,
+   "ts": "47:21",
+   "text": "So they rely on a VAE to make sure that the latent space is compact and allows you to learn easily.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2849,
+   "ts": "47:29",
+   "text": "So that's also something that we saw. And we also happen to have some text",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2855,
+   "ts": "47:35",
+   "text": "encoder that was pre-trained. And here. It's a Mistral 3, that is used to generate the embeddings.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2865,
+   "ts": "47:45",
+   "text": "So up until now, the usual.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2871,
+   "ts": "47:51",
+   "text": "Let's go to the model number 2. So Qwen Image. The loss is a flow matching loss.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2878,
+   "ts": "47:58",
+   "text": "So also something that we know. So the architecture is a multi-modal diffusion",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2885,
+   "ts": "48:05",
+   "text": "transformer. And it also relies on a VAE. And the text embeddings are based on Qwen.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2895,
+   "ts": "48:15",
+   "text": "Also the usual. Now let's look at the top-ranked model, which by the way,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2903,
+   "ts": "48:23",
+   "text": "was published, I think, two weeks ago. So it's extremely recent. So flow matching loss also similar to what we saw.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2916,
+   "ts": "48:36",
+   "text": "The model is not exactly a multi-modal diffusion transformer, but it's something that is based on the transformer.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2922,
+   "ts": "48:42",
+   "text": "So also very similar. But turns out that there is no more VAE.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2933,
+   "ts": "48:53",
+   "text": "And there is no pre-trained text encoder.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2941,
+   "ts": "49:01",
+   "text": "So does that mean that what we learned was not true? What's going on?",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2947,
+   "ts": "49:07",
+   "text": "So let's see how that relates to what we learned.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2952,
+   "ts": "49:12",
+   "text": "So that paper, what it does is it actually performs",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2958,
+   "ts": "49:18",
+   "text": "the generation, not in a latent space, but in pixel space.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2965,
+   "ts": "49:25",
+   "text": "And now you may think, well, how is the dimensionality going? Because it's much higher than a latent space.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2972,
+   "ts": "49:32",
+   "text": "So that's the first question. And then the second question is pixel space is much harder for you to learn because we",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2980,
+   "ts": "49:40",
+   "text": "saw that in the space, valid images in the pixel space",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2987,
+   "ts": "49:47",
+   "text": "are more isolated. They're not smooth distribution.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 2993,
+   "ts": "49:53",
+   "text": "Well, here is my interpretation. So first of all, for the dimensionality.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3000,
+   "ts": "50:00",
+   "text": "So it turns out that the patch size that the paper uses is not",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3007,
+   "ts": "50:07",
+   "text": "the traditional 2 by 2 that we're used to for latent space. It's actually a much bigger one.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3013,
+   "ts": "50:13",
+   "text": "So it's a 32 by 32. So computationally here, the idea",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3020,
+   "ts": "50:20",
+   "text": "is to make it tractable by just having bigger patches.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3025,
+   "ts": "50:25",
+   "text": "And then when it comes to learnability, well, the fact of not having an easy space to learn from",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3036,
+   "ts": "50:36",
+   "text": "is just shifting the effort that needs to happen over to the diffusion-based transformer.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3045,
+   "ts": "50:45",
+   "text": "And so what I found very interesting with this paper was even if you make your problem harder for your diffusion",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3054,
+   "ts": "50:54",
+   "text": "transformer or your transformer-based model, well, you can still have amazing results,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3060,
+   "ts": "51:00",
+   "text": "if you scale it well enough. Because that model, well, turns out that it was scaled, I believe, to 8 billion",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3066,
+   "ts": "51:06",
+   "text": "and then also to 200 billion parameters, which is huge for image generation models.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3074,
+   "ts": "51:14",
+   "text": "And so what I wanted to say was that the space is fast moving,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3080,
+   "ts": "51:20",
+   "text": "that what we talked about still holds true, but that the trade off between making it easier",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3089,
+   "ts": "51:29",
+   "text": "for the transformer to learn versus doing it in the raw space is still something that was being figured out because there",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3097,
+   "ts": "51:37",
+   "text": "is something that I have not mentioned, which is when you learn the latent space,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3103,
+   "ts": "51:43",
+   "text": "so you're making it easier for your model to learn. You're having a more compact space.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3112,
+   "ts": "51:52",
+   "text": "But then the main thing that you're losing is fidelity, because it's a lossy operation for you",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3120,
+   "ts": "52:00",
+   "text": "to operate in a space that is not your original space. So when you know train your VAE, you just",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3127,
+   "ts": "52:07",
+   "text": "hope that you will reconstruct things truthfully. But it is not always the case.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3133,
+   "ts": "52:13",
+   "text": "And it just turns out that this paper shows that the downside of the VAE",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3144,
+   "ts": "52:24",
+   "text": "are such that we could maybe work without it, if you scale things in a big enough way.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3154,
+   "ts": "52:34",
+   "text": "So I found that interesting. And I think it's a newer trend of doing things without VAEs.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3160,
+   "ts": "52:40",
+   "text": "So I think it's just good for us to keep an eye on this. So again, this paper was published a few weeks ago.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3167,
+   "ts": "52:47",
+   "text": "I don't want to make general statements because maybe in a couple of months, then we will see maybe",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3173,
+   "ts": "52:53",
+   "text": "that the VAE is necessary. But I think this is a part that is worth watching.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3180,
+   "ts": "53:00",
+   "text": "Cool. So any questions on that? Yeah.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3187,
+   "ts": "53:07",
+   "text": "Oh, yeah. So the question is, what is the alternative to pre-trained encoder? So the alternative is to just learn it yourself.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3194,
+   "ts": "53:14",
+   "text": "So instead of having a pre-trained encoder",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3199,
+   "ts": "53:19",
+   "text": "computing the embeddings for you, what you do is you take the text as input.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3206,
+   "ts": "53:26",
+   "text": "What you do is you just tokenize it. So you divide it into arbitrary units of text.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3213,
+   "ts": "53:33",
+   "text": "And you learn the representation as part of your training. And so there's one thing I didn't say here,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3220,
+   "ts": "53:40",
+   "text": "but they're not using a pre-trained text encoder",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3225,
+   "ts": "53:45",
+   "text": "to do that, but they're doing some kind of prompt enhancement",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3231,
+   "ts": "53:51",
+   "text": "that allows you to be more explicit about the input prompt, because you may have a prompt like a teddy bear is reading.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3240,
+   "ts": "54:00",
+   "text": "But in order to generate a very good image, you need to know, for instance, how the lighting should be,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3247,
+   "ts": "54:07",
+   "text": "what camera position should be, and so on. And so that piece is also making the job of the text encoder",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3256,
+   "ts": "54:16",
+   "text": "easier because it just explicits what you need to have as condition.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3265,
+   "ts": "54:25",
+   "text": "Yeah. So the question is, if there is no disjoint text encoder,",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3270,
+   "ts": "54:30",
+   "text": "how are they able to understand text? So here the key word is pre-trained.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3277,
+   "ts": "54:37",
+   "text": "So there's still a text encoder, but it's just not something that you take off the shelf.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3282,
+   "ts": "54:42",
+   "text": "It is something that you train yourself as part of the training.",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3289,
+   "ts": "54:49",
+   "text": "OK, cool. So this concludes part 1, which was around recapping",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3295,
+   "ts": "54:55",
+   "text": "what we did up until now. So now that we know all of this, what I want us to do",
+   "chapter": "State-of-the-art models"
+  },
+  {
+   "t": 3305,
+   "ts": "55:05",
+   "text": "is to see how adjacent fields can benefit from what we have learned.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3312,
+   "ts": "55:12",
+   "text": "And a very natural extension that I want to talk to you about is videos.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3320,
+   "ts": "55:20",
+   "text": "So if you think about it, videos are nothing else than a sequence of frames which are images.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3328,
+   "ts": "55:28",
+   "text": "So you just have an extra dimension. So here you go from a 2D image to a 3D image across time.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3341,
+   "ts": "55:41",
+   "text": "And the question now for us is, what should we have in mind when we want to build a video generation model?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3350,
+   "ts": "55:50",
+   "text": "And what are the things we can use from what we have learned in order for us to be able to do that?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3356,
+   "ts": "55:56",
+   "text": "So the first thing that I want to tell you is there is an extra dimension, which is time.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3363,
+   "ts": "56:03",
+   "text": "The second thing that I want to talk to you about is that in a video, you need to make sure that there is some temporal",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3374,
+   "ts": "56:14",
+   "text": "consistency, as in you cannot go from one frame to the other",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3379,
+   "ts": "56:19",
+   "text": "in a way that completely changes what you're looking at. But you also need to make sure that whoever",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3388,
+   "ts": "56:28",
+   "text": "is being depicted in your frames do not have suddenly things that they did not have.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3395,
+   "ts": "56:35",
+   "text": "So, for instance, if you're looking at a video of a teddy bear reading, you don't want that teddy bear to all of a sudden acquire a hat",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3403,
+   "ts": "56:43",
+   "text": "and sunglasses at t plus 1, but then at t not have any of those.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3410,
+   "ts": "56:50",
+   "text": "So this is an extra thing that you need to worry about.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3415,
+   "ts": "56:55",
+   "text": "So for images, you want it to generate something that was plausible.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3421,
+   "ts": "57:01",
+   "text": "For videos, you need to generate something that looks plausible at a given time t, but you also need to make sure that the way frames are",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3431,
+   "ts": "57:11",
+   "text": "sequenced is also making sense. So you need to have that temporal consistency.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3438,
+   "ts": "57:18",
+   "text": "And of course, you need to make computations tractable",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3443,
+   "ts": "57:23",
+   "text": "because here, as you can imagine, if we go the route of representing our input",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3450,
+   "ts": "57:30",
+   "text": "as a sequence of 2D images, well, the dimension just got increased by a factor of t,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3459,
+   "ts": "57:39",
+   "text": "which is the time. And so you need to make sure that whatever you're doing",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3464,
+   "ts": "57:44",
+   "text": "is making things still tractable. And of course, metrics as well.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3471,
+   "ts": "57:51",
+   "text": "And well, I'll just get you the spoiler. So we still leverage the metrics that we have seen for images,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3479,
+   "ts": "57:59",
+   "text": "but we just extend them for videos. So the Fr\u00e9chet inception distance--",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3485,
+   "ts": "58:05",
+   "text": "FID-- is something that you may also see in the video worlds",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3490,
+   "ts": "58:10",
+   "text": "where the only thing that changes is the representation of the quantities",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3497,
+   "ts": "58:17",
+   "text": "that you're dealing with. So instead of having the Inception network to represent",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3503,
+   "ts": "58:23",
+   "text": "your image, what you're doing is you're using a pre-trained encoder that would represent your videos.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3512,
+   "ts": "58:32",
+   "text": "And you have, for instance, this metric called the Fr\u00e9chet video distance, that tells you how far apart your generated videos are",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3522,
+   "ts": "58:42",
+   "text": "from real ones using a similar method. But I want to call out one thing.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3528,
+   "ts": "58:48",
+   "text": "These metrics are just proxies. So it's always good to have human in the loop.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3538,
+   "ts": "58:58",
+   "text": "So now let's see how we can handle just generating videos",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3545,
+   "ts": "59:05",
+   "text": "by going through specific parts of the architecture that we may need to change.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3553,
+   "ts": "59:13",
+   "text": "So if you think about it, an image generation model, a traditional image generation model",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3559,
+   "ts": "59:19",
+   "text": "is a DIT-based model operating in a latent space.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3566,
+   "ts": "59:26",
+   "text": "So you have a VAE that compresses your input into some latent space.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3574,
+   "ts": "59:34",
+   "text": "And then you obtain, let's say, the final prediction that you then decode back in your initial space.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3582,
+   "ts": "59:42",
+   "text": "Well, the same thing is happening for videos. So here, you not only are compressing",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3591,
+   "ts": "59:51",
+   "text": "from a spatial perspective, you're also performing a temporal compression.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3599,
+   "ts": "59:59",
+   "text": "So do you remember when we talked about f, which was the ratio of the heights",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3605,
+   "ts": "1:00:05",
+   "text": "in your initial space over the height in your latent space?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3611,
+   "ts": "1:00:11",
+   "text": "Do you remember? So maybe I'll just quickly-- so we had this pixel space.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3617,
+   "ts": "1:00:17",
+   "text": "And then we have the latent space here. And then you have H and then h here.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3625,
+   "ts": "1:00:25",
+   "text": "So we had f, the spatial compression,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3630,
+   "ts": "1:00:30",
+   "text": "which was just the ratio of big H over little h. And that ratio is typically on the order",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3637,
+   "ts": "1:00:37",
+   "text": "of 8 for spatial compression. Here what you also want to do is to compress your input",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3646,
+   "ts": "1:00:46",
+   "text": "along the time dimension as well. So, why do you want to do that? Well, the first thing is you want",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3653,
+   "ts": "1:00:53",
+   "text": "to make sure your problem is tractable from a dimensionality",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3658,
+   "ts": "1:00:58",
+   "text": "perspective. But then the second reason is when",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3664,
+   "ts": "1:01:04",
+   "text": "you compress things in a smaller space, what you're assuming",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3670,
+   "ts": "1:01:10",
+   "text": "is you have redundant information. So spatially, we saw that we have spatial correlation,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3678,
+   "ts": "1:01:18",
+   "text": "meaning around some pixels, you have pixels of the similar value. So you have redundant information.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3685,
+   "ts": "1:01:25",
+   "text": "Well, it's the same along the time axis as well. Because you can very well imagine",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3692,
+   "ts": "1:01:32",
+   "text": "that if you go through the frames of a video, two consecutive frames will have a lot of the same information.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3702,
+   "ts": "1:01:42",
+   "text": "So it would also make sense for you to compress things also along the time axis.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3710,
+   "ts": "1:01:50",
+   "text": "And so here, this compression ratio, which we saw was for space, is also something",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3715,
+   "ts": "1:01:55",
+   "text": "that we have along the time dimension. And as a result, your latent space",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3723,
+   "ts": "1:02:03",
+   "text": "is composed, not of space latent, but of space time latent.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3732,
+   "ts": "1:02:12",
+   "text": "So what that means is the quantities represent, not only things that are within a given image,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3741,
+   "ts": "1:02:21",
+   "text": "but also with respect to time. So there is one thing that you may find interesting,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3748,
+   "ts": "1:02:28",
+   "text": "which is that the dimension over t is 1 plus t",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3755,
+   "ts": "1:02:35",
+   "text": "And then the latent space is of dimension 1 over t over 4.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3761,
+   "ts": "1:02:41",
+   "text": "But then you may ask, why the 1 plus? Why 1? And I would say it's a good question.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3768,
+   "ts": "1:02:48",
+   "text": "It's also a question I ask myself. Well, it turns out that if you want to generate a video,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3775,
+   "ts": "1:02:55",
+   "text": "you need to have a starting point. You need to have an initial frame.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3781,
+   "ts": "1:03:01",
+   "text": "Well, that 1 is a way for us to consider the first frame",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3789,
+   "ts": "1:03:09",
+   "text": "as being something special. It has a special place. It's the anchor frame.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3795,
+   "ts": "1:03:15",
+   "text": "We want to make sure we're representing it as well as possible.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3802,
+   "ts": "1:03:22",
+   "text": "And so the reason why we have the 1 plus is to represent that first frame, that anchor frame",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3809,
+   "ts": "1:03:29",
+   "text": "to its fullest extent, and then to use that as a way to continue the video in a way that is a natural continuation",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3818,
+   "ts": "1:03:38",
+   "text": "of that first frame. Does that make sense?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3826,
+   "ts": "1:03:46",
+   "text": "So by the way, we're going super quickly over a lot of things. So my goal is to just give you some pointers",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3834,
+   "ts": "1:03:54",
+   "text": "for if you're just interested, let's say, after today, and you want to just explore more,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3839,
+   "ts": "1:03:59",
+   "text": "these are just some small little things. The second thing I wanted to talk about with respect",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3844,
+   "ts": "1:04:04",
+   "text": "to the VAE is so as we said, it is not a 2D VAE.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3850,
+   "ts": "1:04:10",
+   "text": "It's a 3D VAE, because it's operating also along the time dimension.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3857,
+   "ts": "1:04:17",
+   "text": "So you will see that VAE is called a causal VAE.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3864,
+   "ts": "1:04:24",
+   "text": "So why causal? So causal is because when you perform, let's say,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3870,
+   "ts": "1:04:30",
+   "text": "convolutions, which is typically what one of the operations that VAE contains, you perform your convolution",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3878,
+   "ts": "1:04:38",
+   "text": "in a symmetric manner. But here, what you want to do for a given frame",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3887,
+   "ts": "1:04:47",
+   "text": "is to not compute feature maps that are",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3892,
+   "ts": "1:04:52",
+   "text": "a function of future frames. You only want for that frame to be",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3898,
+   "ts": "1:04:58",
+   "text": "a function of the same frame and the frames before. So that is why it's called a causal VAE.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3905,
+   "ts": "1:05:05",
+   "text": "It's because the convolution is not like the symmetric one that you're thinking of.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3910,
+   "ts": "1:05:10",
+   "text": "It's asymmetric. And the reason why people would do that",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3917,
+   "ts": "1:05:17",
+   "text": "is actually for several reasons. But one of the reasons is you don't want to go out of memory every time you do these things.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3925,
+   "ts": "1:05:25",
+   "text": "So what people do is sometimes they stream this encoding process.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3930,
+   "ts": "1:05:30",
+   "text": "And if you make sure that a given frame is not dependent on the future frames, which by the way, the receptive",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3937,
+   "ts": "1:05:37",
+   "text": "field can widen if you have several convolution operations.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3943,
+   "ts": "1:05:43",
+   "text": "So if you make sure that it only depends on that frame and the frames before, then,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3948,
+   "ts": "1:05:48",
+   "text": "computationally speaking, you can actually stream that encoding and decoding process.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3956,
+   "ts": "1:05:56",
+   "text": "I'm just giving you reason why. And then the second thing that I wanted",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3961,
+   "ts": "1:06:01",
+   "text": "to talk about with respect to the video-- oh, yeah. You have a question?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3968,
+   "ts": "1:06:08",
+   "text": "Great question. So the question is, why would you need frames before the last frame?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3975,
+   "ts": "1:06:15",
+   "text": "So let me give you an example. So let's suppose a teddy bear walks across the street.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3984,
+   "ts": "1:06:24",
+   "text": "And the camera looks at that Teddy bear, and it sees a pedestrian that is coming this way.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3991,
+   "ts": "1:06:31",
+   "text": "And then later on, that pedestrian comes back.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 3997,
+   "ts": "1:06:37",
+   "text": "So the information of who is going behind the teddy bear",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4002,
+   "ts": "1:06:42",
+   "text": "is something that is important to you. You want to be able to capture things that",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4007,
+   "ts": "1:06:47",
+   "text": "makes your video consistent. So that temporal consistency, which is making sure you're",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4013,
+   "ts": "1:06:53",
+   "text": "not inventing objects or people in your video that may have happened in the past.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4021,
+   "ts": "1:07:01",
+   "text": "So that's the reason why you want your receptive fields to not be one.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4028,
+   "ts": "1:07:08",
+   "text": "So you want to have some dependency on earlier frames",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4033,
+   "ts": "1:07:13",
+   "text": "compared to the last one. Does that answer your question?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4041,
+   "ts": "1:07:21",
+   "text": "The question is yeah efficiency concerns. And yeah, I hear you. So there is something we'll discuss",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4047,
+   "ts": "1:07:27",
+   "text": "which is exactly what is happening in the latent space. So, of course, you cannot generate a video of very,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4054,
+   "ts": "1:07:34",
+   "text": "very big time t. So what people do is divide the generation",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4060,
+   "ts": "1:07:40",
+   "text": "into several parts, where you can generate a video of, let's say, a fixed length,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4066,
+   "ts": "1:07:46",
+   "text": "and then take the last frame as the anchor frame to generate another video of, let's say, another fixed length.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4074,
+   "ts": "1:07:54",
+   "text": "So one way for you to make this more tractable is to just take the last frame of the video",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4081,
+   "ts": "1:08:01",
+   "text": "that you generated as the first frame, and then continue later on along with some condition.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4087,
+   "ts": "1:08:07",
+   "text": "So yeah. Yeah. So the question here is, how can you",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4094,
+   "ts": "1:08:14",
+   "text": "teach your model how to generate the next frame, given",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4100,
+   "ts": "1:08:20",
+   "text": "some conditions? So we're actually going to see that in the next slide. So this part is just about compressing the inputs,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4108,
+   "ts": "1:08:28",
+   "text": "but we're not yet generating the video. So we're going to see that in just one second.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4114,
+   "ts": "1:08:34",
+   "text": "But yeah, great question. Cool.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4119,
+   "ts": "1:08:39",
+   "text": "Any other questions? So I'll answer your question right now.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4125,
+   "ts": "1:08:45",
+   "text": "The way we generate videos is within that latent space,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4131,
+   "ts": "1:08:51",
+   "text": "similar to how we do it for image generation, we have this DiT-based architecture",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4138,
+   "ts": "1:08:58",
+   "text": "that works from patches and that generates patches.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4144,
+   "ts": "1:09:04",
+   "text": "The main difference from images is that these patches, they are not space patches.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4152,
+   "ts": "1:09:12",
+   "text": "They're not spatial patches. They're space time patches. And what that means is as input, we have,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4161,
+   "ts": "1:09:21",
+   "text": "if you want something that represents some part of the,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4169,
+   "ts": "1:09:29",
+   "text": "let's say, image, it's not really image because you're in the latent space across time.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4175,
+   "ts": "1:09:35",
+   "text": "And in order for you to think that you're",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4181,
+   "ts": "1:09:41",
+   "text": "doing a good job at producing a video that is consistent with oneself, one thing",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4187,
+   "ts": "1:09:47",
+   "text": "that you can tell yourself when you're looking at that whole process is that within the DiT,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4195,
+   "ts": "1:09:55",
+   "text": "you have the self-attention mechanism that allows your space time patches to interact with one another",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4202,
+   "ts": "1:10:02",
+   "text": "so that you're producing an output that is coherent across space, but also across time.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4210,
+   "ts": "1:10:10",
+   "text": "So I think your question also involved some amount of, how can you make sure that it reflects causality?",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4219,
+   "ts": "1:10:19",
+   "text": "So can you expand on what you mean by causality? So the question is, how can you make",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4226,
+   "ts": "1:10:26",
+   "text": "sure you have some causality versus correlation? I think at the end of the day, what you're",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4231,
+   "ts": "1:10:31",
+   "text": "doing is you're training your model on some data, and the resulting model is just reflecting the patterns that it",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4239,
+   "ts": "1:10:39",
+   "text": "has seen at training time. So if you feed it things that reflect, for instance, if you",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4245,
+   "ts": "1:10:45",
+   "text": "put a book on a table, and there's some dust that goes away, these are the patterns",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4251,
+   "ts": "1:10:51",
+   "text": "that your model will also learn. So I think at the end of the day, it all goes back to what kind of data you put inside.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4260,
+   "ts": "1:11:00",
+   "text": "So that's how I would think about it. Yeah. Yeah.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4267,
+   "ts": "1:11:07",
+   "text": "So the question is, well, we know in LLMs, we have a masked self-attention that makes things causal.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4274,
+   "ts": "1:11:14",
+   "text": "Maybe there is something that we can reuse here. Well, in the image generation world,",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4280,
+   "ts": "1:11:20",
+   "text": "we're making sure that all parts of the image, they interact with one another.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4285,
+   "ts": "1:11:25",
+   "text": "And this is actually something that we also have here, the main reason being that you want",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4293,
+   "ts": "1:11:33",
+   "text": "some consistency between every part of your video. And so for that reason, people typically",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4301,
+   "ts": "1:11:41",
+   "text": "keep the full self-attention. But then at the end of the day, you",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4306,
+   "ts": "1:11:46",
+   "text": "need to try it out and see how it works. [LAUGHS] But typically people keep the self-attention.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4312,
+   "ts": "1:11:52",
+   "text": "Yeah. OK, great.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4317,
+   "ts": "1:11:57",
+   "text": "So that model that we just saw is a model that is open weights. It's called Wan.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4323,
+   "ts": "1:12:03",
+   "text": "There are actually a multiple models out there. And this list of readings is by no means comprehensive.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4331,
+   "ts": "1:12:11",
+   "text": "So in case you're interested, feel free to just take a look at those.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4337,
+   "ts": "1:12:17",
+   "text": "So I know Wan is one such model. I believe there's also LTX as well.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4344,
+   "ts": "1:12:24",
+   "text": "Highly recommend reading the papers. I would say that given the fact that you",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4350,
+   "ts": "1:12:30",
+   "text": "know how image generation models work, it's now much, much easier to understand these papers.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4356,
+   "ts": "1:12:36",
+   "text": "So hopefully that's going to be helpful. Cool.",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4362,
+   "ts": "1:12:42",
+   "text": "So video generation was once adjacent fields",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4367,
+   "ts": "1:12:47",
+   "text": "that I wanted us to touch on. The second topic that I wanted us to talk about",
+   "chapter": "Video generation models"
+  },
+  {
+   "t": 4373,
+   "ts": "1:12:53",
+   "text": "is image editing. So let's imagine that you have an image,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4382,
+   "ts": "1:13:02",
+   "text": "and what you want to do is to edit that image. So you can say, make this image black and white.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4390,
+   "ts": "1:13:10",
+   "text": "So you could very well use what we have learned, which is you put that into your text image",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4398,
+   "ts": "1:13:18",
+   "text": "to image model. So ti to i. So, how do you do that? Well, you represent your condition,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4403,
+   "ts": "1:13:23",
+   "text": "which is the text and the image as part of, let's say, your MMDiT, and you inject that.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4410,
+   "ts": "1:13:30",
+   "text": "And you can obtain an output image. Well, the problem here is that you're",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4418,
+   "ts": "1:13:38",
+   "text": "considering this problem a from scratch generation problem.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4424,
+   "ts": "1:13:44",
+   "text": "So you're telling your model, make this image black and white. And what you're expecting is that exact same image,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4431,
+   "ts": "1:13:51",
+   "text": "but black and white. And you can just ask yourself, is it actually optimized",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4440,
+   "ts": "1:14:00",
+   "text": "to what I'm doing? So what I'm doing is I'm asking a model to generate a whole thing from scratch.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4445,
+   "ts": "1:14:05",
+   "text": "And I have no guarantee that it's the same image. So the question here, is there a better way for image",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4455,
+   "ts": "1:14:15",
+   "text": "editing tasks to edit your image? Specifically, in cases where you want the input image to be",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4462,
+   "ts": "1:14:22",
+   "text": "preserved, is there a better way to edit those images than to consider this from scratch generation problem?",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4472,
+   "ts": "1:14:32",
+   "text": "Well, so in this case, you see that the black and white image had the teddy bear raise its right arm.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4481,
+   "ts": "1:14:41",
+   "text": "And this is not what you want. So people have been thinking about this problem",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4487,
+   "ts": "1:14:47",
+   "text": "from another angle. So what they're saying is instead of considering this",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4494,
+   "ts": "1:14:54",
+   "text": "as an image generation problem, let's actually",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4500,
+   "ts": "1:15:00",
+   "text": "think about this problem as an image editing problem. And by editing, I mean, in the sense of performing",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4509,
+   "ts": "1:15:09",
+   "text": "some operations on the image. So one idea could be to have your image,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4520,
+   "ts": "1:15:20",
+   "text": "to have your prompt be fed into a VLM.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4525,
+   "ts": "1:15:25",
+   "text": "So vision language model, which is an MLLM-- multimodal large language model.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4533,
+   "ts": "1:15:33",
+   "text": "In order for you to receive live editing actions that",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4539,
+   "ts": "1:15:39",
+   "text": "could be maybe decrease the brightness by, I don't know, 50%, just increase the luminosity by x percent",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4549,
+   "ts": "1:15:49",
+   "text": "that you could then interact with an editing software,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4555,
+   "ts": "1:15:55",
+   "text": "like Photoshop, in order to get your final image.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4563,
+   "ts": "1:16:03",
+   "text": "So the nice thing with this approach is, well, first of all,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4568,
+   "ts": "1:16:08",
+   "text": "you have some guarantee that you are preserving your initial image, if, let's say, you're constraining the sets of actions that you're taking to,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4578,
+   "ts": "1:16:18",
+   "text": "let's say, an allow list of actions that here can only be harmless, like coloring actions.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4586,
+   "ts": "1:16:26",
+   "text": "But one challenge is for your VLM to know the set of possible actions",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4596,
+   "ts": "1:16:36",
+   "text": "well enough for the editing action to actually make sense.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4602,
+   "ts": "1:16:42",
+   "text": "So that's the main challenge. And so that's why some people--",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4607,
+   "ts": "1:16:47",
+   "text": "I mean, when I say some people, a lot of people are trying to think about how to do this. So there's a very short list of papers that try to resolve that.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4618,
+   "ts": "1:16:58",
+   "text": "But there is one method that I want to mention here, which is how do we want our outputs-- like, how can we",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4628,
+   "ts": "1:17:08",
+   "text": "make sure that our output is something that is aligned with something that makes sense? Well, a possible method is to look at the logs of people",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4641,
+   "ts": "1:17:21",
+   "text": "who are actually making edits. So let's assume you go to your favorite editing software. You have an input image.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4647,
+   "ts": "1:17:27",
+   "text": "And then you make some edits, and then you have a final image.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4652,
+   "ts": "1:17:32",
+   "text": "Well, the sequence of edits that you made is something that your model can learn from.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4659,
+   "ts": "1:17:39",
+   "text": "Well, the only thing that your model doesn't really know is what your intent was, because you typically",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4667,
+   "ts": "1:17:47",
+   "text": "don't tell your editing software, well, I want to make my image more like this.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4673,
+   "ts": "1:17:53",
+   "text": "You don't say that. So these papers, so most of them, what they're trying to do",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4679,
+   "ts": "1:17:59",
+   "text": "is to come up with pairs of initial image edited image,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4689,
+   "ts": "1:18:09",
+   "text": "along with the user intent that is inferred by these two images,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4696,
+   "ts": "1:18:16",
+   "text": "let's say, from annotators. And what they're doing is they're tuning the VLM on these golden sets",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4706,
+   "ts": "1:18:26",
+   "text": "in order to have it behave more like something that would tell you actions that would correspond to your intent.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4718,
+   "ts": "1:18:38",
+   "text": "So that's why you have papers on this. It's just because that in order for your model",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4723,
+   "ts": "1:18:43",
+   "text": "to learn how to do these things, you need to do some work in terms of which data to use,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4728,
+   "ts": "1:18:48",
+   "text": "how you want to train these things. And that's why they're here.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4733,
+   "ts": "1:18:53",
+   "text": "So I highly recommend reading them. It's an open area of research. If you take a look at the years they were published,",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4741,
+   "ts": "1:19:01",
+   "text": "I mean, they were published 2024, 2025, 2026. So extremely hot.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4748,
+   "ts": "1:19:08",
+   "text": "Any questions? Yeah. So the question is, how can the loss reflect the user intent?",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4756,
+   "ts": "1:19:16",
+   "text": "Well, the thing is you are not using the loss to infer the user intent.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4763,
+   "ts": "1:19:23",
+   "text": "So one possible way of inferring user intent is to feed an off-the-shelf VLM an initial image and an output",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4775,
+   "ts": "1:19:35",
+   "text": "image and to tell your VLM, well, tell me",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4780,
+   "ts": "1:19:40",
+   "text": "what changed between these two images in order to infer this box, make this image black and white.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4787,
+   "ts": "1:19:47",
+   "text": "So I'll give you an example. If we feed a VLM the colored image and the black and white",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4793,
+   "ts": "1:19:53",
+   "text": "image, and we ask the VLM, well, come up with something that tells me what",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4799,
+   "ts": "1:19:59",
+   "text": "changed between this and that image, it gives you the user intent.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4806,
+   "ts": "1:20:06",
+   "text": "And then what you can do is use that user intent along",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4811,
+   "ts": "1:20:11",
+   "text": "with the initial image. And then you can, of course, collect the editing action",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4817,
+   "ts": "1:20:17",
+   "text": "that the user took and tune your VLM to output",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4822,
+   "ts": "1:20:22",
+   "text": "these editing actions given this input. So that's one popular way I've been seeing these papers.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4829,
+   "ts": "1:20:29",
+   "text": "[INAUDIBLE] Yeah. Cool.",
+   "chapter": "Image editing"
+  },
+  {
+   "t": 4835,
+   "ts": "1:20:35",
+   "text": "Great. So now we're in the last part of what I wanted to talk to you about. And that part is actually an area",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4843,
+   "ts": "1:20:43",
+   "text": "that I think is a very, very hot area, which is how can we apply",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4849,
+   "ts": "1:20:49",
+   "text": "diffusion to the field of LLMs? So as you know, there has been a lot of transfer of knowledge",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4859,
+   "ts": "1:20:59",
+   "text": "from what has worked well in the text world to the vision world.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4864,
+   "ts": "1:21:04",
+   "text": "So in the text world, as you know, in 2017, we had the transformer that was initially",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4870,
+   "ts": "1:21:10",
+   "text": "designed for translation tasks. So let's suppose you want to translate from English to French.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4877,
+   "ts": "1:21:17",
+   "text": "What you do is you use this transformer to have some, let's say, English text as inputs in order",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4884,
+   "ts": "1:21:24",
+   "text": "to have a generated French text as output.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4890,
+   "ts": "1:21:30",
+   "text": "And as you know, well, people in the vision world, they adapted the architecture in a way that",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4897,
+   "ts": "1:21:37",
+   "text": "leverages some of the scalability benefits that the transformer brings to the vision world.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4904,
+   "ts": "1:21:44",
+   "text": "And in particular, there is one architecture we have spent a bunch of time on, which is the diffusion transformer, which",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4910,
+   "ts": "1:21:50",
+   "text": "relies on that. So that's one thing. The next thing is something we've briefly",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4916,
+   "ts": "1:21:56",
+   "text": "talked about during, I believe, lecture 6, which is around post-training approaches,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4924,
+   "ts": "1:22:04",
+   "text": "and in particular, the fact of injecting negative signals",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4929,
+   "ts": "1:22:09",
+   "text": "into your model. So there is this tuning method called",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4935,
+   "ts": "1:22:15",
+   "text": "DPO, which stands for direct preference optimization from the LLM world, that was something that was",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4941,
+   "ts": "1:22:21",
+   "text": "adapted to the diffusion world. So that's one. And another one that you may be aware of",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4947,
+   "ts": "1:22:27",
+   "text": "is GRPO, which now is widely in use in LLMs that is also",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4952,
+   "ts": "1:22:32",
+   "text": "something that has been something that people have experimented with in the vision",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4958,
+   "ts": "1:22:38",
+   "text": "world with flow GRPO. So now you can ask yourself, OK, text has given so much to us.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4966,
+   "ts": "1:22:46",
+   "text": "What can we give back to text? Well, I know this class is not about text, so I will not",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4975,
+   "ts": "1:22:55",
+   "text": "go into the details. But one thing I want to talk about is that in the text world,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4982,
+   "ts": "1:23:02",
+   "text": "we are doing things mostly in an autoregressive way, a little bit like when you and I, when we talk, what we do",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4991,
+   "ts": "1:23:11",
+   "text": "is we generate one word at a time. And whatever comes out is a function of whatever came before.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 4998,
+   "ts": "1:23:18",
+   "text": "Just to illustrate this, so you have your LLM, which here we say",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5003,
+   "ts": "1:23:23",
+   "text": "is autoregressive. Let's call it an ARM LLM, autoregressive model.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5009,
+   "ts": "1:23:29",
+   "text": "So here we have, let's say, a token that says, OK, we're starting the sentence. So we say, A. And then A goes into the model",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5018,
+   "ts": "1:23:38",
+   "text": "along with everything that came before and a teddy. And we repeat it again and again.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5024,
+   "ts": "1:23:44",
+   "text": "Teddy bear is reading. We're generating sentences by sequentially inputting",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5033,
+   "ts": "1:23:53",
+   "text": "tokens one at a time and having the model look at anything that it has generated before in order",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5039,
+   "ts": "1:23:59",
+   "text": "to generate the next token. Well, the problem with that is that if your output sentence",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5049,
+   "ts": "1:24:09",
+   "text": "or your output response is long, then",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5055,
+   "ts": "1:24:15",
+   "text": "you will take a lot of time outputting that response because the number of iterations here",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5063,
+   "ts": "1:24:23",
+   "text": "is in awe of the number of tokens that you output.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5069,
+   "ts": "1:24:29",
+   "text": "So in particular, I'm not sure if you do a lot of coding on a day-to-day basis, but let's suppose you want to, let's say,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5076,
+   "ts": "1:24:36",
+   "text": "code a huge thing, like 1,000 lines of code. Well, what that model is doing is really",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5083,
+   "ts": "1:24:43",
+   "text": "outputting things one at a time. It takes a long time. And of course, you want this to be quick.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5092,
+   "ts": "1:24:52",
+   "text": "Well, one idea is to borrow this idea of diffusion for text.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5103,
+   "ts": "1:25:03",
+   "text": "So here what you can think of is instead of doing things one at a time, how about we do everything",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5113,
+   "ts": "1:25:13",
+   "text": "at once. And we start from noise. And what we do is we progressively denoise in order",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5121,
+   "ts": "1:25:21",
+   "text": "to obtain our final output.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5126,
+   "ts": "1:25:26",
+   "text": "Why wouldn't we do that? So, by the way, it sounds very non-natural",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5133,
+   "ts": "1:25:33",
+   "text": "because I think you're very used to saying things in a sequential way.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5139,
+   "ts": "1:25:39",
+   "text": "But one analogy I want to point out here is let's suppose you're writing a speech.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5149,
+   "ts": "1:25:49",
+   "text": "So first of all, I'm not sure if you've ever written a speech. But if you were to write a speech, you typically don't write things in a very sequential way.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5156,
+   "ts": "1:25:56",
+   "text": "You first start with a draft. You have some skeleton of the bullet points",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5161,
+   "ts": "1:26:01",
+   "text": "you want to talk about. And then what you do is you refine-- go from coarse to fine grained.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5168,
+   "ts": "1:26:08",
+   "text": "So what I'm saying is this idea of doing everything at once, something that starts from noise up to clean,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5177,
+   "ts": "1:26:17",
+   "text": "although it's not natural, it is not completely unreasonable",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5182,
+   "ts": "1:26:22",
+   "text": "either. Do you agree with what I'm saying?",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5187,
+   "ts": "1:26:27",
+   "text": "Yeah? So let's suppose if we do that, then what we would do",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5192,
+   "ts": "1:26:32",
+   "text": "is reduce the complexity from having the number of iterations",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5200,
+   "ts": "1:26:40",
+   "text": "being in awe of number of output tokens to being in awe",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5205,
+   "ts": "1:26:45",
+   "text": "of the steps of diffusion. So let's see how we want to do that.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5213,
+   "ts": "1:26:53",
+   "text": "So let's assume we take text with random noise. And by the way, I'm not defining noise just yet,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5219,
+   "ts": "1:26:59",
+   "text": "but just assume that the text is noise in a way that we'll see later. Let's suppose we have a diffusion-based LLM.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5227,
+   "ts": "1:27:07",
+   "text": "So what we're saying is that we're having this text with less and less noise up until having",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5236,
+   "ts": "1:27:16",
+   "text": "the cleaned text exactly in the same way we have done for images.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5242,
+   "ts": "1:27:22",
+   "text": "So I just want to make sure this analogy is very clear. Here, we're denoising the whole input text in the same way",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5253,
+   "ts": "1:27:33",
+   "text": "that we're denoising the whole image all at once. Well, a natural question is we have",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5260,
+   "ts": "1:27:40",
+   "text": "seen that we can think of noise in the image world as Gaussian noise.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5266,
+   "ts": "1:27:46",
+   "text": "But for text, it's a little bit trickier. And here's the reason.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5272,
+   "ts": "1:27:52",
+   "text": "In the text world, things are discrete. So you have words. You have tokens.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5278,
+   "ts": "1:27:58",
+   "text": "You have this. You have that. You're not in a continuous world. So in the image world, you would represent your noise",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5287,
+   "ts": "1:28:07",
+   "text": "with a continuous multivariate variable, typically Gaussian noise. But how would you do with text?",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5294,
+   "ts": "1:28:14",
+   "text": "So one idea you can have is let's just throw whatever token we have.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5301,
+   "ts": "1:28:21",
+   "text": "That could be one option. Well, the problem is each token has a semantic meaning.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5309,
+   "ts": "1:28:29",
+   "text": "And so if you just take any token and you put it as a way to noise your input, then you may",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5320,
+   "ts": "1:28:40",
+   "text": "make your input have a meaning that",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5325,
+   "ts": "1:28:45",
+   "text": "is not a meaning you may want your input to have.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5331,
+   "ts": "1:28:51",
+   "text": "So for that reason, one thing that the field is starting to align on, which I believe is most common thing",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5340,
+   "ts": "1:29:00",
+   "text": "is to have an actual dedicated token, typically a masked token that would just represent a text token that you",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5350,
+   "ts": "1:29:10",
+   "text": "would not know of. So a noised text token. So let's assume you do that.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5358,
+   "ts": "1:29:18",
+   "text": "Then how would we apply what we have seen so far? Well, we have seen that for training--",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5366,
+   "ts": "1:29:26",
+   "text": "so I will spare you all the mathematical derivations which some of these papers they go into.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5372,
+   "ts": "1:29:32",
+   "text": "We will not go into that right now. But let's assume that we want to mimic the training that we",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5378,
+   "ts": "1:29:38",
+   "text": "have done for images. How would we do that? Well, we would take a clean sentence,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5385,
+   "ts": "1:29:45",
+   "text": "as in an unmasked sentence. And what we would do is to corrupt the text",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5393,
+   "ts": "1:29:53",
+   "text": "according to a noise level. And so here, what does that mean? That means that we would have, let's say, a t percent chance.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5402,
+   "ts": "1:30:02",
+   "text": "Let's suppose t equals 0.5-- a 50% chance of a token in that sentence being masked.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5408,
+   "ts": "1:30:08",
+   "text": "So what we're saying is let's suppose t equal to 0.5. We're masking 50% of the tokens.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5418,
+   "ts": "1:30:18",
+   "text": "And then our training strategy can be to reconstruct the tokens that",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5427,
+   "ts": "1:30:27",
+   "text": "were masked as a function of whatever was in the input that",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5433,
+   "ts": "1:30:33",
+   "text": "was not masked. That can be your training objective.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5439,
+   "ts": "1:30:39",
+   "text": "So I know this is not a text class, but for those of you who know about Bert, who's",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5447,
+   "ts": "1:30:47",
+   "text": "an encoder-only architecture, it also has something that is similar as a pre-training task.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5454,
+   "ts": "1:30:54",
+   "text": "The only difference is here, the masking scheme",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5460,
+   "ts": "1:31:00",
+   "text": "is done with respect to a noise level that can change, that can vary.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5465,
+   "ts": "1:31:05",
+   "text": "So you can have t, like a lot of noise. So almost everything masked versus a little bit",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5470,
+   "ts": "1:31:10",
+   "text": "masked, whereas for Bert, it's always a certain amount of masked token.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5476,
+   "ts": "1:31:16",
+   "text": "I just want to call that out. So let's suppose you have that. Then what you're doing is you're teaching your model",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5486,
+   "ts": "1:31:26",
+   "text": "to fill the blanks. Well, now how would you go about actually using such a model",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5495,
+   "ts": "1:31:35",
+   "text": "at inference time? So what you would do is same as what we did for images.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5501,
+   "ts": "1:31:41",
+   "text": "Start with completely noised inputs. So here a sequence full of masked token.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5508,
+   "ts": "1:31:48",
+   "text": "And then what you would do is just predict what would be hiding behind those masked tokens",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5516,
+   "ts": "1:31:56",
+   "text": "all at once. But then you want to make sure that you have enough buffer",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5524,
+   "ts": "1:32:04",
+   "text": "for you to make corrections. So you may want to revise some tokens that you have predicted.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5533,
+   "ts": "1:32:13",
+   "text": "So the field has several methods to do that, one of which is just remasking some tokens in a random way.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5542,
+   "ts": "1:32:22",
+   "text": "So some other methods, they're mask tokens with respect to some confidence scores.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5547,
+   "ts": "1:32:27",
+   "text": "For instance, if you have a token that you're unmasking that you're not very sure of, then",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5553,
+   "ts": "1:32:33",
+   "text": "you may want to just do another try. So here, you would take some tokens that, let's say, you're",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5560,
+   "ts": "1:32:40",
+   "text": "not sure of and remask them. And what you would do is to take that new sequence",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5570,
+   "ts": "1:32:50",
+   "text": "and perform the same operation, meaning trying to see who is behind that masked token.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5578,
+   "ts": "1:32:58",
+   "text": "And you do that again and again until obtaining your final outputs.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5585,
+   "ts": "1:33:05",
+   "text": "So this is a very high-level way of how such a paradigm would",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5592,
+   "ts": "1:33:12",
+   "text": "work for text. Well, the good thing is there is very active research on it.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5600,
+   "ts": "1:33:20",
+   "text": "And so I was reading one of the papers. So you can have speeds up to 10x compared to the traditional",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5608,
+   "ts": "1:33:28",
+   "text": "autoregressive way of doing things. And that is particularly useful for tasks",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5615,
+   "ts": "1:33:35",
+   "text": "that requires you to have response as quick as possible.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5621,
+   "ts": "1:33:41",
+   "text": "I know a lot of us are using some form of coding agents to do",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5626,
+   "ts": "1:33:46",
+   "text": "our coding work these days. And I'm sure you also want your agent",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5632,
+   "ts": "1:33:52",
+   "text": "to finish as quickly as possible. Well, this paradigm would allow you to speed up",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5638,
+   "ts": "1:33:58",
+   "text": "that process significantly. And that is the reason why coding is a very good use",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5645,
+   "ts": "1:34:05",
+   "text": "case for that paradigm. So on the one hand for the speed,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5652,
+   "ts": "1:34:12",
+   "text": "but on the second hand also because in coding, you naturally have a way to be interested in filling",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5663,
+   "ts": "1:34:23",
+   "text": "in the middle kind of tasks. Because if you look at your code base, you're rarely always trying to generate",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5671,
+   "ts": "1:34:31",
+   "text": "things in a sequential way, in an autoregressive way. Sometimes you have a bunch of code",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5677,
+   "ts": "1:34:37",
+   "text": "and you just want to generate code, let's say, in the middle of two functions.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5683,
+   "ts": "1:34:43",
+   "text": "So for filling the middle tasks, that paradigm is actually better compared to autoregressive tasks.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5692,
+   "ts": "1:34:52",
+   "text": "And we will not have time to go into details, but training is much more expensive,",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5698,
+   "ts": "1:34:58",
+   "text": "particularly because in the traditional way, the way training works is you input your whole input",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5708,
+   "ts": "1:35:08",
+   "text": "and then what you're doing is you're training your model",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5714,
+   "ts": "1:35:14",
+   "text": "to predict the next token. And you can parallelize that very well.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5719,
+   "ts": "1:35:19",
+   "text": "And this is unfortunately not something that you can do as well with the diffusion scheme.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5725,
+   "ts": "1:35:25",
+   "text": "And then the second thing is there are so many techniques that now are specific to how",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5731,
+   "ts": "1:35:31",
+   "text": "autoregressive models work that you would need to adapt. And there are also ways to combine the benefits of the two",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5741,
+   "ts": "1:35:41",
+   "text": "approaches. And for instance, block diffusion is an example of it.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5746,
+   "ts": "1:35:46",
+   "text": "So I just wanted to leave you with these screenshots that just tells you of the many headlines that you",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5752,
+   "ts": "1:35:52",
+   "text": "see around companies that are betting on this kind of technology.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5757,
+   "ts": "1:35:57",
+   "text": "So you have one such company called Inception that's actually founded by a professor at Stanford",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5765,
+   "ts": "1:36:05",
+   "text": "that's doing great. And I will just leave you with some suggested readings in case",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5772,
+   "ts": "1:36:12",
+   "text": "you want. And yeah. That's a great question. So the question is, how do you handle the variable output",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5779,
+   "ts": "1:36:19",
+   "text": "length? It's a great question. There are a few ways you can deal with that. But in practice, you indeed need to set",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5788,
+   "ts": "1:36:28",
+   "text": "a given length for your output. And what you do is you stop whatever",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5793,
+   "ts": "1:36:33",
+   "text": "is after a special token called end of sentence token. Now, you can imagine cases where you're",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5803,
+   "ts": "1:36:43",
+   "text": "expecting a way bigger output, but you always have shorter outputs. So you're wasting a lot of computations.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5808,
+   "ts": "1:36:48",
+   "text": "So that's why the last method I mentioned is something that can be useful. So block diffusion is one approach",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5817,
+   "ts": "1:36:57",
+   "text": "that's being worked on where you're actually generating text block by block.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5823,
+   "ts": "1:37:03",
+   "text": "So you're saying, OK, I'm going to generate, let's say, text of size, let's say, 100. And I'm going to use diffusion for that.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5830,
+   "ts": "1:37:10",
+   "text": "And once you generate such an output, if you didn't finish the output, then you",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5836,
+   "ts": "1:37:16",
+   "text": "will use that as a condition to perform another round of diffusion for the second block",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5841,
+   "ts": "1:37:21",
+   "text": "and so on and so forth until hitting an end of sentence token. So you touch a very good point, which",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5847,
+   "ts": "1:37:27",
+   "text": "is there are some differences between text and image. And the variable length is one of them.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5855,
+   "ts": "1:37:35",
+   "text": "Yep. Yeah. [INAUDIBLE] So the question is, can you apply this",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5861,
+   "ts": "1:37:41",
+   "text": "to other discrete things other than text? I'm sure yes. We will not cover this today, but the ways people",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5870,
+   "ts": "1:37:50",
+   "text": "have derived a tractable mathematical way to do that in the text world is something",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5876,
+   "ts": "1:37:56",
+   "text": "that involves transcribing things for discrete items. So I'm sure that it can be done.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5884,
+   "ts": "1:38:04",
+   "text": "So I would actually highly recommend the first paper for you to get a sense of how people",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5889,
+   "ts": "1:38:09",
+   "text": "go from continuous to discrete. Yeah. Yeah, great question.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5895,
+   "ts": "1:38:15",
+   "text": "So the question is, can you not consider text as just being a screenshot of-- sorry, can you not consider text as being images of text",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5903,
+   "ts": "1:38:23",
+   "text": "and use some kind of OCR mechanism to process that? So I think it's definitely a great approach.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5908,
+   "ts": "1:38:28",
+   "text": "There's actually a paper that was published a few months ago, DeepSeek OCR, that goes into that.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5914,
+   "ts": "1:38:34",
+   "text": "I do think it's promising. I believe there is some savings with respect to how many tokens",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5920,
+   "ts": "1:38:40",
+   "text": "that fills compared to how many tokens the actual text would fill in. So it's definitely another directions",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5927,
+   "ts": "1:38:47",
+   "text": "that I think is promising. Cool.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5932,
+   "ts": "1:38:52",
+   "text": "With that, I'll give it to Shervine. Thank you, Afshine.",
+   "chapter": "Diffusion for LLMs"
+  },
+  {
+   "t": 5937,
+   "ts": "1:38:57",
+   "text": "So welcome to the last stretch of CME 96. So we're going to see together some closing",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5944,
+   "ts": "1:39:04",
+   "text": "thoughts on what lies ahead, as well as some challenges that we see.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5950,
+   "ts": "1:39:10",
+   "text": "So first, let's look at today. So when you look at existing top models,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5955,
+   "ts": "1:39:15",
+   "text": "what is the typical price you have to pay for a perfect image? So I did the research for you.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5961,
+   "ts": "1:39:21",
+   "text": "I looked at major labs across the board, and it seems that the price per megapixel is of about $0.01.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5970,
+   "ts": "1:39:30",
+   "text": "And I think that's going to be a useful metric to track over time to see the transition from this being",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5977,
+   "ts": "1:39:37",
+   "text": "a nice thing to a commodity. And of course, in reality, you wouldn't use these top models",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5985,
+   "ts": "1:39:45",
+   "text": "that I listed here, but more of a distilled version. But still, the upper bound gives a good view",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5992,
+   "ts": "1:39:52",
+   "text": "of what people would be ready to pay for perfect quality.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 5998,
+   "ts": "1:39:58",
+   "text": "But then let's look at the kinds of challenges that could be tackled in the near term.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6005,
+   "ts": "1:40:05",
+   "text": "So one thing that you notice is that images, they are doing well on themselves.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6012,
+   "ts": "1:40:12",
+   "text": "But there are wins. In other modalities that you are inclined to include in order",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6018,
+   "ts": "1:40:18",
+   "text": "to make generation more powerful. So one example that I have in mind is reasoning with images.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6025,
+   "ts": "1:40:25",
+   "text": "So right now, anecdotally, if you ask for a diagram, you might get, with most models, a projection",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6034,
+   "ts": "1:40:34",
+   "text": "of what you asked on an image, which is a nice start. But it's not quite to the same level of refinement",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6041,
+   "ts": "1:40:41",
+   "text": "as the one you might get in the text world, where you ask a very precise question and the model",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6048,
+   "ts": "1:40:48",
+   "text": "goes in searching for a meaning behind it and then projecting the exact answer in a concise way.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6055,
+   "ts": "1:40:55",
+   "text": "So that seems like a good area of research.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6061,
+   "ts": "1:41:01",
+   "text": "And then one topic that I've seen mentioned here. So for image editing use cases, it",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6067,
+   "ts": "1:41:07",
+   "text": "seems that we're being too hard on ourselves. We're doing the whole generation process that is, by nature,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6074,
+   "ts": "1:41:14",
+   "text": "unconstrained. And it seems we have an opportunity to use existing tools and wins in the text world,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6082,
+   "ts": "1:41:22",
+   "text": "to use agents and existing human expertise",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6088,
+   "ts": "1:41:28",
+   "text": "to make editing happen in a constrained and tractable way.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6095,
+   "ts": "1:41:35",
+   "text": "And then you have other use cases that could seem attractive to you all.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6101,
+   "ts": "1:41:41",
+   "text": "For example, learning about a class, you have several streams of information that come from texts, for example, the slides, the lecture",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6108,
+   "ts": "1:41:48",
+   "text": "video, and also the audio track. So while you can put pieces together one by one today,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6118,
+   "ts": "1:41:58",
+   "text": "it seems that there is an opportunity to bring all modalities to a consistent and coherent way",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6124,
+   "ts": "1:42:04",
+   "text": "and generate synthesis out of this.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6130,
+   "ts": "1:42:10",
+   "text": "And in the longer run, you can see the consequences of all these benefits across industries",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6137,
+   "ts": "1:42:17",
+   "text": "that might be lagging because of some inertia factor. So you can think of so the field of robotics,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6144,
+   "ts": "1:42:24",
+   "text": "which seems to be the next area that could benefit from a revolution. So in text, we can generate text now like roughly solved images.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6153,
+   "ts": "1:42:33",
+   "text": "Now we see great images roughly solved. And it seems we have an opportunity to feed all these learnings into the ingredients that",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6162,
+   "ts": "1:42:42",
+   "text": "could make robotics pick up, for example, environments, but also",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6167,
+   "ts": "1:42:47",
+   "text": "medicine and other desk jobs that might need their own process of approvals",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6174,
+   "ts": "1:42:54",
+   "text": "to actually incorporate these wins. And maybe one day you won't need to come to lecture at all,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6182,
+   "ts": "1:43:02",
+   "text": "and there will be some model gathering all the pieces for you in a coherent and pedagogic way.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6190,
+   "ts": "1:43:10",
+   "text": "But I think we might still be far from that, because the fact of transmitting knowledge still",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6197,
+   "ts": "1:43:17",
+   "text": "requires that taste and opinion that even the text world doesn't have. So I'm quite curious to see when that will happen.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6206,
+   "ts": "1:43:26",
+   "text": "On the challenges side, so as we have seen, there are costs. And you can use distillation to alleviate a bit of that.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6214,
+   "ts": "1:43:34",
+   "text": "But also, there is research on the hardware side where right now hardware is built",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6220,
+   "ts": "1:43:40",
+   "text": "on top of matrix multiplies. But as you have seen, the building block",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6226,
+   "ts": "1:43:46",
+   "text": "of these days models is transformers and which relies on the concept of attention.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6231,
+   "ts": "1:43:51",
+   "text": "And this attention has a very precise succession of operations that you could think of simplifying",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6238,
+   "ts": "1:43:58",
+   "text": "in an analog to numeric way. So this research paper could be one such pointer.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6245,
+   "ts": "1:44:05",
+   "text": "But also one other concern is the data quality side because today, you see all these images",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6251,
+   "ts": "1:44:11",
+   "text": "that are being generated that are out in the wild. So for the next generation of models,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6258,
+   "ts": "1:44:18",
+   "text": "you might encounter the issue of not finding the true distribution p data, as we had assumed we had.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6265,
+   "ts": "1:44:25",
+   "text": "And you have some papers that study the phenomenon of so-called model collapse, where",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6272,
+   "ts": "1:44:32",
+   "text": "feeding what has been generated is a way for [AUDIO OUT].",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6278,
+   "ts": "1:44:38",
+   "text": "So it looks like an echo chamber of mistakes that keep growing. And you see that at the end, if you represent embeddings",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6286,
+   "ts": "1:44:46",
+   "text": "of generations somewhere, you could clearly cluster the two.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6291,
+   "ts": "1:44:51",
+   "text": "But how could we deal with that? So that's the kind of trust point",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6297,
+   "ts": "1:44:57",
+   "text": "which is key in our society. You want to be able to trust images. And now these days, with how similar",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6305,
+   "ts": "1:45:05",
+   "text": "the true data distribution and generated images are, it seems like the border is becoming thin.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6311,
+   "ts": "1:45:11",
+   "text": "So two ways to counter that. There is a norm called C2PA that has been gaining traction",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6320,
+   "ts": "1:45:20",
+   "text": "across software companies. So you might see this AI info popping in.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6325,
+   "ts": "1:45:25",
+   "text": "It's because images that you create with AI have some of history attached to it that surfaces it.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6332,
+   "ts": "1:45:32",
+   "text": "So that could be one way to tackle the data collection quality issue that I mentioned before.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6339,
+   "ts": "1:45:39",
+   "text": "But the thing is, if you take a screenshot of this, the concept of metadata disappears.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6346,
+   "ts": "1:45:46",
+   "text": "So are we doomed? Actually, no. There are other ways that we could employ to get around this.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6354,
+   "ts": "1:45:54",
+   "text": "One example is watermarking with the example of SynthID from Google DeepMind that hides behind pixels patterns",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6364,
+   "ts": "1:46:04",
+   "text": "that reveal its origin. So beyond that, you also have the topic",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6369,
+   "ts": "1:46:09",
+   "text": "of safety, which is very important. And creating images that are harmful to others",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6376,
+   "ts": "1:46:16",
+   "text": "can have societal implications. So there is two parts to fixing this.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6383,
+   "ts": "1:46:23",
+   "text": "One is on the model side where each company has their own policies to guard such generations.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6390,
+   "ts": "1:46:30",
+   "text": "But also law is picking up. And what can you do from there?",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6397,
+   "ts": "1:46:37",
+   "text": "So let's say, this class ends. How can you be updated? So one suggestion is to take a look at the relevant archive",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6408,
+   "ts": "1:46:48",
+   "text": "section on computer vision. But you might see that the number of submissions every day",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6414,
+   "ts": "1:46:54",
+   "text": "is of 100. So this might not be tractable. But on the other hand, some venues",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6420,
+   "ts": "1:47:00",
+   "text": "do a good job at distilling some of these works. Not all, but they can give you an idea of where the field is heading.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6428,
+   "ts": "1:47:08",
+   "text": "And something else that I want to tell you is all these papers, we saw a bunch of formulas all over the place.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6436,
+   "ts": "1:47:16",
+   "text": "And sometimes you just want to know how they work. And a great pattern that we see in academia and in the industry",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6445,
+   "ts": "1:47:25",
+   "text": "is that there is code release of what was used to design a given method.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6450,
+   "ts": "1:47:30",
+   "text": "So I highly encourage cloning the GitHub repo and playing with an AI assistant coding software",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6457,
+   "ts": "1:47:37",
+   "text": "on just getting you through the flow. And you will learn a ton just by doing that.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6463,
+   "ts": "1:47:43",
+   "text": "And beyond that, you have other resources. So on Twitter, you have a growing community of people",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6471,
+   "ts": "1:47:51",
+   "text": "who talk about these topics. So if your For You page turns out to be in the clusters of these topics,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6479,
+   "ts": "1:47:59",
+   "text": "you can get a lot of interesting recommendations. And another highlight is other Stanford courses that talk about",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6486,
+   "ts": "1:48:06",
+   "text": "vision, like 231n that I recommend. And there is this study guide that we",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6493,
+   "ts": "1:48:13",
+   "text": "shared at the beginning of the class that we aim at keeping up to date across the years.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6502,
+   "ts": "1:48:22",
+   "text": "But beyond all that, Afshine and I wanted to say that we are very happy to come here every Friday",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6508,
+   "ts": "1:48:28",
+   "text": "and teach this class and spend time with you. It has been a pleasure for us. And thank you, hidden heroes, who came here on the evenings",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6519,
+   "ts": "1:48:39",
+   "text": "and asked so many great questions. You were one of the reasons why the class was so dynamic",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6525,
+   "ts": "1:48:45",
+   "text": "and generated insights that could then be useful to everyone.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6530,
+   "ts": "1:48:50",
+   "text": "Thank you also to those watching online. Thank you for the great questions on Ed. And I hope the class was of value to you.",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6539,
+   "ts": "1:48:59",
+   "text": "And if you are around in the fall, Afshine and I will be teaching a similar class,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6546,
+   "ts": "1:49:06",
+   "text": "but in the text world where it will be our second edition. And if you are in for a new ride,",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6553,
+   "ts": "1:49:13",
+   "text": "then we'd love to see you again. And our favorite teddy bear is coming one last time",
+   "chapter": "Closing thoughts"
+  },
+  {
+   "t": 6561,
+   "ts": "1:49:21",
+   "text": "to wish you a great summer and all the best. Thank you. [APPLAUSE]",
+   "chapter": "Closing thoughts"
+  }
+ ],
+ "chapters": [
+  {
+   "name": "Introduction",
+   "t": 5
+  },
+  {
+   "name": "Diffusion",
+   "t": 98
+  },
+  {
+   "name": "Score matching",
+   "t": 328
+  },
+  {
+   "name": "Flow matching",
+   "t": 782
+  },
+  {
+   "name": "Latent space and guidance",
+   "t": 1148
+  },
+  {
+   "name": "Image generation architectures",
+   "t": 1511
+  },
+  {
+   "name": "Model training",
+   "t": 1793
+  },
+  {
+   "name": "Evaluation",
+   "t": 2244
+  },
+  {
+   "name": "State-of-the-art models",
+   "t": 2668
+  },
+  {
+   "name": "Video generation models",
+   "t": 3305
+  },
+  {
+   "name": "Image editing",
+   "t": 4373
+  },
+  {
+   "name": "Diffusion for LLMs",
+   "t": 4835
+  },
+  {
+   "name": "Closing thoughts",
+   "t": 5937
+  },
+  {
+   "name": "Stanford CME2",
+   "pending": true
+  }
+ ]
+}

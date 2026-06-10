@@ -1,0 +1,15 @@
+# Source slide decks — downloaded from cme296.stanford.edu, regenerable
+slides/*.pdf
+
+# Rendered slide images — regenerable via tools/extract_slides.py (~61 MB)
+site/slides/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+Thumbs.db
+.DS_Store

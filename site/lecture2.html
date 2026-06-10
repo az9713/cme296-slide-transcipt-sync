@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture 2: Score matching — CME 296: Diffusion &amp; Large Vision Models</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<p class="course"><a href="index.html">CME 296: Diffusion &amp; Large Vision Models</a></p>
+<h1>Lecture 2: Score matching</h1>
+<p class="meta">April 10th, 2026 &middot;
+<a href="https://cme296.stanford.edu/slides/spring26-cme296-lecture2.pdf" target="_blank" rel="noopener">Slides (PDF)</a> &middot;
+<a href="https://www.youtube.com/watch?v=_WaR2fjZpEQ" target="_blank" rel="noopener">Video on YouTube</a></p>
+<nav class="lnav"><a href="lecture1.html">&larr; Lecture 1</a><a href="index.html">All lectures</a><a href="lecture3.html">Lecture 3 &rarr;</a></nav>
+</div>
+</header>
+<details class="toc wrap"><summary>Chapters</summary><p><a href="#ch-Introduction">Introduction</a> &middot; <a href="#ch-Motivation-behind-score-matching">Motivation behind score matching</a> &middot; <a href="#ch-Lanvegin-sampling">Lanvegin sampling</a> &middot; <a href="#ch-Score-estimation">Score estimation</a> &middot; <a href="#ch-Implicit-score-matching,-sliced-score-matching">Implicit score matching, sliced score matching</a> &middot; <a href="#ch-Score-of-a-Gaussian-distribution">Score of a Gaussian distribution</a> &middot; <a href="#ch-Denoising-score-matching">Denoising score matching</a> &middot; <a href="#ch-Limitations-of-DSM">Limitations of DSM</a> &middot; <a href="#ch-Noise-conditional-score-networks">Noise conditional score networks</a> &middot; <a href="#ch-Annealed-Langevin-dynamics">Annealed Langevin dynamics</a> &middot; <a href="#ch-Parallel-between-DDPM-and-score">Parallel between DDPM and score</a> &middot; <a href="#ch-Continuous-derivation">Continuous derivation</a> &middot; <a href="#ch-SDE-formulation">SDE formulation</a> &middot; <a href="#ch-Training">Training</a> &middot; <a href="#ch-Reverse-SDE">Reverse SDE</a> &middot; <a href="#ch-Inference-with-Euler-Maruyama">Inference with Euler-Maruyama</a> &middot; <a href="#ch-PF-ODE">PF-ODE</a> &middot; <a href="#ch-DPM-Solver">DPM-Solver</a></p></details>
+<main class="wrap">
+<div class="chapter" id="ch-Introduction"><span>Introduction</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=0s" target="_blank" rel="noopener">0:00</a></div><section class="row" id="s0">
+<figure>
+<a href="slides/l2/p001.jpg" target="_blank">
+<img src="slides/l2/p001.jpg" alt="Slide p. 1: CME 296: Diﬀusion &amp;" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 1 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=0s" target="_blank" rel="noopener" title="Watch on YouTube from 0:00">&#9658; 0:00</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=0s" target="_blank" rel="noopener">0:00</a> 0:05 Hello, everyone, and welcome to lecture 2 of CME 296. So today is a very exciting day because we&#x27;ll be talking about a new generation paradigm, which</p>
+</div>
+</section><section class="row" id="s1">
+<figure>
+<a href="slides/l2/p002.jpg" target="_blank">
+<img src="slides/l2/p002.jpg" alt="Slide p. 2: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 2 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=18s" target="_blank" rel="noopener" title="Watch on YouTube from 0:18">&#9658; 0:18</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=18s" target="_blank" rel="noopener">0:18</a> is going to be score matching. So if you remember last week, we saw a first generation paradigm which was diffusion with DDPM. So today we&#x27;re going to see a new way of doing this and see how this relates to the way we were doing this with diffusion with DDPM. So before we start, I&#x27;m just going to recap what we saw last week.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=47s" target="_blank" rel="noopener">0:47</a> So if you remember, the first three lectures are all about understanding how we can generate new samples by trying to generate from a distribution pdata that we do not know that is potentially complicated. So here we have nothing as input. So it&#x27;s unconditioned generation. And our goal is to learn a way to generate new images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=79s" target="_blank" rel="noopener">1:19</a> So what did we see last time? So our strategy was to take images</p>
+</div>
+</section><section class="row" id="s2">
+<figure>
+<a href="slides/l2/p003.jpg" target="_blank">
+<img src="slides/l2/p003.jpg" alt="Slide p. 3: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 3 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=87s" target="_blank" rel="noopener" title="Watch on YouTube from 1:27">&#9658; 1:27</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=87s" target="_blank" rel="noopener">1:27</a> from the training set that we called clean because they did not have any kind of noise.</p>
+</div>
+</section><section class="row" id="s3">
+<figure>
+<a href="slides/l2/p004.jpg" target="_blank">
+<img src="slides/l2/p004.jpg" alt="Slide p. 4: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 4 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=93s" target="_blank" rel="noopener" title="Watch on YouTube from 1:33">&#9658; 1:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=93s" target="_blank" rel="noopener">1:33</a> And what we did is we defined a process q that added some noise progressively, such that at the end of the day, we ended up with just pure noise or almost pure noise. And the goal of DDPM was to learn a reverse process that was able to predict the noise to remove from the noisy image.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=121s" target="_blank" rel="noopener">2:01</a> So that was the strategy. You take an image. You gradually add some noise. And what you do is you try to learn how given a noisy image</p>
+</div>
+</section><section class="row" id="s4">
+<figure>
+<a href="slides/l2/p005.jpg" target="_blank">
+<img src="slides/l2/p005.jpg" alt="Slide p. 5: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 5 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=132s" target="_blank" rel="noopener" title="Watch on YouTube from 2:12">&#9658; 2:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=132s" target="_blank" rel="noopener">2:12</a> and given the noise level, how you can remove the noise from that image. So the way we went about doing this was through likelihood estimation.</p>
+</div>
+</section><section class="row" id="s5">
+<figure>
+<a href="slides/l2/p006.jpg" target="_blank">
+<img src="slides/l2/p006.jpg" alt="Slide p. 6: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 6 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=146s" target="_blank" rel="noopener" title="Watch on YouTube from 2:26">&#9658; 2:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=146s" target="_blank" rel="noopener">2:26</a> So we had our model p theta that we&#x27;re trying to learn. And what we were doing is trying to maximize</p>
+</div>
+</section><section class="row" id="s6">
+<figure>
+<a href="slides/l2/p007.jpg" target="_blank">
+<img src="slides/l2/p007.jpg" alt="Slide p. 7: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 7 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=154s" target="_blank" rel="noopener" title="Watch on YouTube from 2:34">&#9658; 2:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=154s" target="_blank" rel="noopener">2:34</a> the probability of our model seeing the data from a training set. But we saw that it was intractable. So what we did is we derived a tractable lower bound that we could also maximize that could be a good proxy for our objective. And we ended up with this ELBO formulation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=178s" target="_blank" rel="noopener">2:58</a> And what we did is we expanded the terms from the lower bound. And what we saw was that there was some nice terms that came out of it. So there was, for instance, a KL divergence between exactly what we wanted to learn and the forward process that we defined that was something that we could express. And then the third step was to indeed show</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=208s" target="_blank" rel="noopener">3:28</a> that this was tractable. And we leveraged the fact that we were actually defining our forward process with Gaussian noise and with Gaussian distributions.</p>
+</div>
+</section><section class="row" id="s7">
+<figure>
+<a href="slides/l2/p008.jpg" target="_blank">
+<img src="slides/l2/p008.jpg" alt="Slide p. 8: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 8 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=220s" target="_blank" rel="noopener" title="Watch on YouTube from 3:40">&#9658; 3:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=220s" target="_blank" rel="noopener">3:40</a> And the good thing with Gaussian distributions is there&#x27;s a lot of nice properties, which is things that we leverage here. And at the end of the day, we deduced a loss function that was actually very simple. It was a simple L2 regression loss on the noise</p>
+</div>
+</section><section class="row" id="s8">
+<figure>
+<a href="slides/l2/p009.jpg" target="_blank">
+<img src="slides/l2/p009.jpg" alt="Slide p. 9: Recap of last episode…" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 9 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=239s" target="_blank" rel="noopener" title="Watch on YouTube from 3:59">&#9658; 3:59</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=239s" target="_blank" rel="noopener">3:59</a> that we wanted to remove. All good so far? So this was last time. And so this was the loss that we had. So we had the the noised image as an input along with the noise level. And we had our model that we wanted to train which is here, the noise predictor-- epsilon theta. And what we wanted to do is to have</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=267s" target="_blank" rel="noopener">4:27</a> that match as close as possible the actual noise that we use.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=273s" target="_blank" rel="noopener">4:33</a> And as I mentioned, this way of doing things was just one way.</p>
+</div>
+</section><div class="chapter" id="ch-Motivation-behind-score-matching"><span>Motivation behind score matching</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=278s" target="_blank" rel="noopener">4:38</a></div><section class="row" id="s9">
+<figure>
+<a href="slides/l2/p010.jpg" target="_blank">
+<img src="slides/l2/p010.jpg" alt="Slide p. 10: Today&#x27;s lecture" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 10 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=278s" target="_blank" rel="noopener" title="Watch on YouTube from 4:38">&#9658; 4:38</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=278s" target="_blank" rel="noopener">4:38</a> And what we&#x27;re going to see today is another way of doing this, which is called score matching. So I&#x27;m going to start with just taking another perspective of the problem that we have at stake. So remember that we have some training sets that contains some images. So these are for instance, the Teddy bear images that we have. And our goal is to sample a new image from that distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=312s" target="_blank" rel="noopener">5:12</a> So this set of images, they come from a complex data distribution, let&#x27;s say, pdata that we do not. And our goal is to sample from it. Now, a very common strategy that we will again reuse here is to sample from an easy distribution</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=340s" target="_blank" rel="noopener">5:40</a> and then to recover the image that we want to sample towards the end. So here this cross this represents maybe an observation that we can sample that is not part of pdata but part of a distribution that is easy to sample from. So let&#x27;s say Gaussian noise. So given that what we&#x27;re wondering is,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=366s" target="_blank" rel="noopener">6:06</a> is there a way to go from something that is easy to sample towards something that</p>
+</div>
+</section><section class="row" id="s10">
+<figure>
+<a href="slides/l2/p011.jpg" target="_blank">
+<img src="slides/l2/p011.jpg" alt="Slide p. 11: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 11 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=374s" target="_blank" rel="noopener" title="Watch on YouTube from 6:14">&#9658; 6:14</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=374s" target="_blank" rel="noopener">6:14</a> is hard to sample? Does that make sense? It&#x27;s going to be a bit more clear. So let&#x27;s imagine you have p of x, which is the probability density function that takes in x, the representation of images as input, and that tells you the probability density of it happening at x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=404s" target="_blank" rel="noopener">6:44</a> So this is what the figure is showing. So here darker colors mean higher values of p of x. So if you were over here, what would</p>
+</div>
+</section><section class="row" id="s11">
+<figure>
+<a href="slides/l2/p012.jpg" target="_blank">
+<img src="slides/l2/p012.jpg" alt="Slide p. 12: Intuition" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 12 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=421s" target="_blank" rel="noopener" title="Watch on YouTube from 7:01">&#9658; 7:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=421s" target="_blank" rel="noopener">7:01</a> be a way for you to come closer to regions</p>
+</div>
+</section><section class="row" id="s12">
+<figure>
+<a href="slides/l2/p013.jpg" target="_blank">
+<img src="slides/l2/p013.jpg" alt="Slide p. 13: Reminder of what a gradient is" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 13 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=427s" target="_blank" rel="noopener" title="Watch on YouTube from 7:07">&#9658; 7:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=427s" target="_blank" rel="noopener">7:07</a> higher values of p of x? So the answer is, let&#x27;s take the gradient. So just as a reminder, the gradient of a scalar function here that takes in as inputs x, which is multidimensional, and returns a scalar,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=451s" target="_blank" rel="noopener">7:31</a> so the gradient of the function is the vector of components, partial derivative of that function with respect to each dimension of the multidimensional space. And what the gradient here represents is the direction where this p of x is higher value. So here the idea is if we can have access to gradient of p of x, then from this starting</p>
+</div>
+</section><section class="row" id="s13">
+<figure>
+<a href="slides/l2/p014.jpg" target="_blank">
+<img src="slides/l2/p014.jpg" alt="Slide p. 14: Intuition" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 14 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=478s" target="_blank" rel="noopener">&#8776; 7:58</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s14">
+<figure>
+<a href="slides/l2/p015.jpg" target="_blank">
+<img src="slides/l2/p015.jpg" alt="Slide p. 15: Problems with gradient of probability" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 15 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=486s" target="_blank" rel="noopener" title="Watch on YouTube from 8:06">&#9658; 8:06</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=486s" target="_blank" rel="noopener">8:06</a> point, we can maybe go towards regions higher density. 8:17 But there is a problem. The problem is that estimating the gradient of the probability density function is actually a very hard thing to do. And there are a few reasons for that. So the first one is that probability density functions, by definition, they are normalized,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=522s" target="_blank" rel="noopener">8:42</a> meaning that if you take the integral towards the whole space, the integral of p of x needs to be equal to 1. So you have this constant, that maybe we can note here z, that is something that is very hard, intractable for you to compute, because you would need to sum across all possible values of your space. And space is multi-dimensional, and it&#x27;s</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=547s" target="_blank" rel="noopener">9:07</a> a lot of computation, not something that you can actually do. So this quantity is intractable. So if p of x is intractable, then if you take the gradient,</p>
+</div>
+</section><section class="row" id="s15">
+<figure>
+<a href="slides/l2/p016.jpg" target="_blank">
+<img src="slides/l2/p016.jpg" alt="Slide p. 16: Problems with gradient of probability" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 16 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=559s" target="_blank" rel="noopener" title="Watch on YouTube from 9:19">&#9658; 9:19</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=559s" target="_blank" rel="noopener">9:19</a> it&#x27;s also intractable. So that&#x27;s the first reason. The second reason is different compared to the first one, which</p>
+</div>
+</section><section class="row" id="s16">
+<figure>
+<a href="slides/l2/p017.jpg" target="_blank">
+<img src="slides/l2/p017.jpg" alt="Slide p. 17: Problems with gradient of probability" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 17 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=570s" target="_blank" rel="noopener" title="Watch on YouTube from 9:30">&#9658; 9:30</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=570s" target="_blank" rel="noopener">9:30</a> is due to the fact that the probability density function can take very low values in certain regions of space where there are very few data. So let&#x27;s suppose here-- let&#x27;s say you have a point here, then the probability would be very small. And so this can cause some numerical stability issues.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=596s" target="_blank" rel="noopener">9:56</a> So because of these reasons, maybe we can take a look at another candidate of a way for you to go from a certain point towards regions of high density of the space. And that potential candidate can be the gradient of the log of the probability, as opposed to just the gradient of the probability. So why could that be-- why would that be a good candidate?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=631s" target="_blank" rel="noopener">10:31</a> Well, do you remember the first point I mentioned regarding the normalizing constant?</p>
+</div>
+</section><section class="row" id="s17">
+<figure>
+<a href="slides/l2/p018.jpg" target="_blank">
+<img src="slides/l2/p018.jpg" alt="Slide p. 18: Problems with gradient of probability" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 18 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=639s" target="_blank" rel="noopener" title="Watch on YouTube from 10:39">&#9658; 10:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=639s" target="_blank" rel="noopener">10:39</a> Well, thanks to the properties of the logarithm function, if you take the logarithm of the numerator over the denominator,</p>
+</div>
+</section><section class="row" id="s18">
+<figure>
+<a href="slides/l2/p022.jpg" target="_blank">
+<img src="slides/l2/p022.jpg" alt="Slide pp. 19–22: Reviewing gradient of log of p" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 19–22 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=648s" target="_blank" rel="noopener" title="Watch on YouTube from 10:48">&#9658; 10:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=648s" target="_blank" rel="noopener">10:48</a> it&#x27;s just the logarithm of the numerator minus the logarithm of the denominator. And given that the normalizing constant is constant with respect to x, the point in space, the gradient of log of z is actually 0. So what that means is in order to compute the gradient of log of p, you don&#x27;t have to figure out how you want to compute that intractable quantity.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=683s" target="_blank" rel="noopener">11:23</a> So that&#x27;s reason number 1. Reason number 2, I&#x27;m not sure if this was obvious to you, but just to emphasize on this a bit more, the gradient of the log is actually pointing in the same direction as the gradient of p. And the reason for that is just a calculus reason. So the gradient of log of p is equal to the gradient of p over p.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=710s" target="_blank" rel="noopener">11:50</a> And so what that means is up to some normalization, the gradient of the log of p is pointing towards the same direction of gradient of p. Because p is a scalar. Just remember p is a scalar. So it&#x27;s as if you were dividing your vector by the same quantity across all dimensions. First reason, it is tractable.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=741s" target="_blank" rel="noopener">12:21</a> Second reason, it is pointing in the same direction as gradient of p. And then the third reason is that it is just more numerically stable. And the reason for that is when gradient of p is very, very small, then there are chances that p is also very small.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=764s" target="_blank" rel="noopener">12:44</a> And so if you take the ratio, it is not as small. So that&#x27;s the third reason. So for all of these reasons, a possible strategy for you to go from one point in space towards region higher densities with respect to the probability density function</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=790s" target="_blank" rel="noopener">13:10</a> can be to follow the direction given by gradient of log of p, which we call the score. So this is the reason why this lecture is called score matching. It is because we&#x27;re interested in this quantity, which is the score, which is the gradient of the log of p. One note that I will add is just see that I said gradient</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=817s" target="_blank" rel="noopener">13:37</a> of log of p with respect to x. So you may think it is redundant, but it is actually because we want to distinguish it from another score, which is with respect to the parameters of a model that sometimes people use. And so I just want to clarify here that we take the gradient with respect to x, which is the position in the space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=843s" target="_blank" rel="noopener">14:03</a> Sounds good? OK. Cool. So this is how our score would look like in space. So here if you&#x27;re further away, typically the score, the magnitude would be bigger because you have the gradient of p over p. And p is small, and it&#x27;s smaller when you get closer to the distribution. So now a question that I have for you is,</p>
+</div>
+</section><div class="chapter" id="ch-Lanvegin-sampling"><span>Lanvegin sampling</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=872s" target="_blank" rel="noopener">14:32</a></div><section class="row" id="s19">
+<figure>
+<a href="slides/l2/p023.jpg" target="_blank">
+<img src="slides/l2/p023.jpg" alt="Slide p. 23: Intuition behind score function" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 23 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=872s" target="_blank" rel="noopener" title="Watch on YouTube from 14:32">&#9658; 14:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=872s" target="_blank" rel="noopener">14:32</a> let&#x27;s suppose we sample from this space, sample from a distribution that is easy to sample, which is somewhere</p>
+</div>
+</section><section class="row" id="s20">
+<figure>
+<a href="slides/l2/p024.jpg" target="_blank">
+<img src="slides/l2/p024.jpg" alt="Slide p. 24: Using the score function in our problem" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 24 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=880s" target="_blank" rel="noopener" title="Watch on YouTube from 14:40">&#9658; 14:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=880s" target="_blank" rel="noopener">14:40</a> in space. And if I were to tell you, if I were to ask you, how would you go from this point to higher density regions of the space using the score? How would you do it? [AUDIO OUT] Follow the score. Yeah. So you could follow the score. So the reason why I&#x27;m asking you this question</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=905s" target="_blank" rel="noopener">15:05</a> is because there is a catch. Because if you follow the score, it means that you&#x27;re going towards higher density regions of the space. But the problem is you may always go where the density is highest. And so here when you look at this illustration, there are places where density is not the highest,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=930s" target="_blank" rel="noopener">15:30</a> but it is still a valid sample from the distribution. So actually what we want is not only go towards higher density places of the region, but also to have some diversity, to not always go at the same place. So that&#x27;s the reason why. Let&#x27;s assume we know the score. We would use a sampling method that is very commonly used, and I&#x27;m going to call out now, which is called the Langevin</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=966s" target="_blank" rel="noopener">16:06</a> sampling. And what that does is it not only allows you to go towards higher density regions of the space, but also have a stochastic term that allows you to go to explore a little bit the region. So I displayed the formula here on the slide a little bit out of nowhere.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=990s" target="_blank" rel="noopener">16:30</a> So we won&#x27;t have time to derive it. But I just want to show you that there is a way for you to start from a starting point, and then use the score to end up with a sample from the probability distribution. And that method is called Langevin sampling. So if you know about MCMC methods, so Markov Chain Monte Carlo, so Langevin sampling</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1020s" target="_blank" rel="noopener">17:00</a> is just one such methods. That sounds good? Yeah. [AUDIO OUT] Yep. [AUDIO OUT] 17:26 Yeah, so the question is, are these coefficients coming out of nowhere? Are they&#x27;re here for a reason?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1052s" target="_blank" rel="noopener">17:32</a> The answer is yes. They&#x27;re here for a reason. And they can be derived using some equations. So if you&#x27;ve heard Fokker-Planck equation is something that you can use to derive this. We won&#x27;t have time to derive it, but there is a reason. There is a reason for this. Yeah. [AUDIO OUT] Yes.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1079s" target="_blank" rel="noopener">17:59</a> So the question is, is there a convergence concern because the score is getting lower and you always go from one to the other? Is that the question? So we will see that later on and see how that is actually not a concern. But yeah, great question. Yeah. [AUDIO OUT] 18:28 So the question is, how do you choose alpha? And we&#x27;re going to also see that later.</p>
+</div>
+</section><section class="row" id="s21">
+<figure>
+<a href="slides/l2/p025.jpg" target="_blank">
+<img src="slides/l2/p025.jpg" alt="Slide p. 25: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 25 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1114s" target="_blank" rel="noopener" title="Watch on YouTube from 18:34">&#9658; 18:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1114s" target="_blank" rel="noopener">18:34</a> But it is something that you choose.</p>
+</div>
+</section><section class="row" id="s22">
+<figure>
+<a href="slides/l2/p027.jpg" target="_blank">
+<img src="slides/l2/p027.jpg" alt="Slide pp. 26–27: Score matching" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 26–27 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1120s" target="_blank" rel="noopener" title="Watch on YouTube from 18:40">&#9658; 18:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1120s" target="_blank" rel="noopener">18:40</a> Cool. Great questions. And with that, I for now assume that we</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1127s" target="_blank" rel="noopener">18:47</a> knew how to get the score. But the reality is we don&#x27;t. So we&#x27;re going to spend this first part just trying to see how we can estimate the score. And it is actually not an easy problem, and we&#x27;re going to see why. So first of all, the task of estimating the score is widely known as score matching,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1154s" target="_blank" rel="noopener">19:14</a> because you&#x27;re trying to match the score. So here the way you want to do it is similar with the noise L2 regression. You also want to have some L2 regression, but this time on the score. But the main problem is you don&#x27;t know what pdata is, and you also do not know the score of the data distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1180s" target="_blank" rel="noopener">19:40</a> So looking at this loss function, there&#x27;s actually no way for you to estimate s theta of x.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1190s" target="_blank" rel="noopener">19:50</a> So that&#x27;s the reason why there&#x27;s been a few papers across the years, along the years, that have tried to estimate this score function without having the need to know the true score function. So I&#x27;m just going to enumerate a few methods that were out there. For instance, this one is back in 2005, there was a method called Implicit Score Matching that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1219s" target="_blank" rel="noopener">20:19</a> derived a loss that actually did not require you to have the knowledge of the true score function. And there is another method called Sliced Score Matching, which used the fact of projecting the score on different random vectors, random projections. So I put the papers at the bottom of the slide.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1245s" target="_blank" rel="noopener">20:45</a> We&#x27;re not going to go into details just because these methods are not really commonly used like nowadays. But instead what we&#x27;re going to do</p>
+</div>
+</section><section class="row" id="s23">
+<figure>
+<a href="slides/l2/p028.jpg" target="_blank">
+<img src="slides/l2/p028.jpg" alt="Slide p. 28: Attempts to estimate the score" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 28 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1251s" target="_blank" rel="noopener">&#8776; 20:51</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s24">
+<figure>
+<a href="slides/l2/p029.jpg" target="_blank">
+<img src="slides/l2/p029.jpg" alt="Slide p. 29: Attempts to estimate the score" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 29 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1251s" target="_blank" rel="noopener">&#8776; 20:51</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Score-of-a-Gaussian-distribution"><span>Score of a Gaussian distribution</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1257s" target="_blank" rel="noopener">20:57</a></div><section class="row" id="s25">
+<figure>
+<a href="slides/l2/p030.jpg" target="_blank">
+<img src="slides/l2/p030.jpg" alt="Slide p. 30: Score of a Gaussian distribution (example in 1D)" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 30 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1257s" target="_blank" rel="noopener" title="Watch on YouTube from 20:57">&#9658; 20:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1257s" target="_blank" rel="noopener">20:57</a> is to focus on the common method that is being used, which is called denoising score matching. And it relies on the following observation. So I told you that we do not have the knowledge of the score of the true distribution, because the true distribution is a complex distribution. But I also told you that Gaussian distributions</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1286s" target="_blank" rel="noopener">21:26</a> have very nice properties. So one idea that we can have is let&#x27;s try to see if we can compute the score of a Gaussian distribution. So let&#x27;s assume that we have a random variable x that is drawn from a normal distribution of mean mu and variance sigma squared. So here I&#x27;m taking an example in 1D just so that we&#x27;re--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1310s" target="_blank" rel="noopener">21:50</a> so that it&#x27;s easier. So the probability distribution function or probability density function is given by this formula, which is analytically explicit. It is something that is given here. Well, it turns out that if you take the gradient of the log of p, then you end up with this very nice formulation of minus x</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1344s" target="_blank" rel="noopener">22:24</a> minus mu over sigma squared. Should we derive it, or is it, quote unquote, &quot;obvious&quot;? You want to derive it? No? OK. Maybe one thing I will do is to just tell you why this formula makes sense. So if you consider a Gaussian distribution,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1377s" target="_blank" rel="noopener">22:57</a> the probability density function would be something like this. You&#x27;ll have high densities towards the mean. And then you will have lower values of the densities as you go away. So here what you&#x27;re saying is if you take some x in space, what it is saying is the score at that point x is given by minus x</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1406s" target="_blank" rel="noopener">23:26</a> minus mu over sigma squared. So what that means is, so minus x minus mu is mu minus x. Oops. So it&#x27;s supposed to be a straight line. So let&#x27;s suppose it&#x27;s a straight line. It&#x27;s going to be somewhere like this. Sigma squared is positive. So it&#x27;s going to be pointing towards the mean. And just remember that the score is</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1436s" target="_blank" rel="noopener">23:56</a> a quantity that gives us the direction of higher densities in the space. So just to tell you that this formula makes sense. So back to our original goal. So what we want is to find a way to compute</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1462s" target="_blank" rel="noopener">24:22</a> the score of a distribution. And we saw that computing the score of a Gaussian distribution is easy. So how about we take one point from our training set and we noise it. So let&#x27;s suppose we&#x27;re given x from our training set. And let&#x27;s suppose we add some Gaussian noise, and we scale it with sigma.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1495s" target="_blank" rel="noopener">24:55</a> Then we have x tilde, which is equal to x plus sigma epsilon. So x tilde follows a normal distribution of mean x and variance sigma squared I. And using exactly these results, you get that the score of-- so we&#x27;re calling that q sigma of x tilde given x. So this quantity is actually something that is tractable.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1530s" target="_blank" rel="noopener">25:30</a> 25:35 So now the question is, how can we use that result in order to go back to our initial objective, which is to determine the score of the data distribution of interest? So just remember at the first starting point we want to estimate the score of pdata, which is like this.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1564s" target="_blank" rel="noopener">26:04</a> Well, the key idea here is to take that data distribution and to noise it. So for that, we&#x27;re going to introduce q sigma of x tilde, which is this quantity. And I&#x27;m going to explain what that quantity is. So what I&#x27;m going to do is to just rewrite the expression</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1595s" target="_blank" rel="noopener">26:35</a> on the blackboard. And maybe it&#x27;s here. [AUDIO OUT] OK. Thank you. So you have q sigma of x tilde. Whoops. So it is a function of this perturbation. So it&#x27;s called the perturbation kernel. So you take one data point from your data distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1629s" target="_blank" rel="noopener">27:09</a> And then you noise it. So this is the one. And what you&#x27;re actually doing is you&#x27;re repeating that procedure for all elements of your training set. Which is why you&#x27;re ending up with this distribution. So this is an expression that takes in each point of your training set.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1659s" target="_blank" rel="noopener">27:39</a> And that noises it. And you just repeat that process for all points of your training set. And this you can interpret it as a joint probability distribution that you can also note q sigma of x tilde and x, which is a valid one. Because if you integrate over x tilde and x, you get one.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1690s" target="_blank" rel="noopener">28:10</a> So I just want you to look at this formula and just not be scared about what that means. I think it&#x27;s quite easy. Another way of seeing this is in practice, what you have is only a few data points from your distribution. So it&#x27;s as if you were saying you take the finite set of data points that you have from your distribution, and what you do</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1718s" target="_blank" rel="noopener">28:38</a> is you noise each of it. So it&#x27;s as if you were obtaining a mixture of Gaussians. It&#x27;s as if you were obtaining-- you have your different points. And what you do is you noise, you noise each point. And so we&#x27;re going to call q sigma of x tilde the noisy distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1748s" target="_blank" rel="noopener">29:08</a> Yeah? Cool. So as you can tell, q sigma is a function of sigma. And sigma tells you how much noise you&#x27;re adding to the distribution. So if you have, let&#x27;s say, a small sigma, your distribution is just a little bit noisy. So it just spreads a little bit. But then as you add more and more noise, it just spreads out and takes much more space.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1783s" target="_blank" rel="noopener">29:43</a> So how can you use these definitions in order for us to compute the true score? So we&#x27;re going to see it now. So let&#x27;s consider the score matching objective</p>
+</div>
+</section><section class="row" id="s26">
+<figure>
+<a href="slides/l2/p031.jpg" target="_blank">
+<img src="slides/l2/p031.jpg" alt="Slide p. 31: New attempt: add noise to data" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 31 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1792s" target="_blank" rel="noopener">&#8776; 29:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s27">
+<figure>
+<a href="slides/l2/p032.jpg" target="_blank">
+<img src="slides/l2/p032.jpg" alt="Slide p. 32: Add noise to distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 32 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1792s" target="_blank" rel="noopener">&#8776; 29:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s28">
+<figure>
+<a href="slides/l2/p033.jpg" target="_blank">
+<img src="slides/l2/p033.jpg" alt="Slide p. 33: Estimating the score of the noised distribution" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 33 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1792s" target="_blank" rel="noopener">&#8776; 29:52</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Denoising-score-matching"><span>Denoising score matching</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1801s" target="_blank" rel="noopener">30:01</a></div><section class="row" id="s29">
+<figure>
+<a href="slides/l2/p034.jpg" target="_blank">
+<img src="slides/l2/p034.jpg" alt="Slide p. 34: Denoising score matching" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 34 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1801s" target="_blank" rel="noopener" title="Watch on YouTube from 30:01">&#9658; 30:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1801s" target="_blank" rel="noopener">30:01</a> not on the original data distribution but on the noisy distribution. So if we take q sigma of x tilde, we have the squared distance between the score of x tilde and the-- sorry, the predicted score and the true score of x tilde. Well, there is a paper that showed that this is actually</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1831s" target="_blank" rel="noopener">30:31</a> equivalent to optimizing for another loss function, which is this one, which is s theta of x tilde minus the score, but conditioned on each data points of your training set. And so why is this good news? It is because that conditional score is something</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1857s" target="_blank" rel="noopener">30:57</a> that we already saw. It is tractable, but we have a problem. And the problem we&#x27;re going to see later. Before we do that, I&#x27;m just trying to see if we have time to derive it. So the derivation is in between being trivial and not trivial. It&#x27;s in the middle. I would say the proof is quite nice. It is not required for you to know for the exam.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1888s" target="_blank" rel="noopener">31:28</a> So I think in the interest of time, I&#x27;m not going to do the full proof, but I&#x27;m going to show you how you can derive it just through the main step. So what we&#x27;re saying is we have the original score matching function, which is the one at the top, which is the squared distance between the score of the noise observation minus the true score of q sigma.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1928s" target="_blank" rel="noopener">32:08</a> 32:14 What we&#x27;re saying is optimizing for these loss function is the same as optimizing for this one. So the expectation is over x over your training set and then x tilde, which is given x. And so it&#x27;s expectation of, again, the score of the noisy observation,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1961s" target="_blank" rel="noopener">32:41</a> but this one minus the true score of the conditional observation condition on x. So what you want to show this is the same as optimizing for this, which is tractable. So the trick here is to recognize the fact that you have a distance of two quantities, let&#x27;s say, a</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=1990s" target="_blank" rel="noopener">33:10</a> and b, which is something that you can expand as follows. So the distance between a and b squared is a squared minus 2 dot product of a and b plus this square norm of b. And what you see is-- so these two loss functions, you want</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2024s" target="_blank" rel="noopener">33:44</a> to optimize them with respect to the parameters of the model, which is theta. And so you first realize that the b term in both loss functions, they are not a function of theta. So actually you don&#x27;t care. So this one you ignore.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2048s" target="_blank" rel="noopener">34:08</a> And then you look at just the first term, the a term. And you just realize that these terms are the same. So this one you also don&#x27;t care. The only thing that you care is showing that the expectation across x tilde of the dot product between the two is the same as the expectation of over x and x tilde of the dot product between these prediction</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2080s" target="_blank" rel="noopener">34:40</a> model and this conditional score. You want to show that these two are equal. And this is what the proof is showing. So if you&#x27;re interested in the details, I would highly encourage you to take a look at the original paper, which is the denoising score matching paper in the appendix. So it&#x27;s maybe a five or six-line derivation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2106s" target="_blank" rel="noopener">35:06</a> And what it does is it just leverages the definition of q sigma and then just does some nice term expansion and term identification. So all I want to say is that this equivalence is not pure magic. It&#x27;s just math, math. And what is great about it is that we&#x27;re</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2133s" target="_blank" rel="noopener">35:33</a> able to optimize the loss of the score matching for the noisy distribution using a tractable loss. [AUDIO OUT] So the question is, the score of the noisy data is equal to the score of the conditional. Well, not exactly, but what your model s theta of x tilde learns</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2166s" target="_blank" rel="noopener">36:06</a> ends up being the same. And the reason for that is because here what you care about is the direction where you&#x27;re optimizing your model. So you do gradient descent typically. And what you care about is the gradient of that loss with respect to theta. And so that&#x27;s why we have this whole derivation to just show that the loss at the bottom</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2195s" target="_blank" rel="noopener">36:35</a> is equal to the one at the top, plus some constant that is not a function of theta. And for that reason, if you optimize the loss that is tractable from the bottom, it&#x27;s the same as optimizing the loss from the top. [AUDIO OUT] They&#x27;re not equal. Yes, exactly. Yeah, yeah. Great question. Any other questions on this?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2218s" target="_blank" rel="noopener">36:58</a> Yeah. [AUDIO OUT] Yeah, yeah, yeah. Great question. So the question is, what is the intuition behind this being the same? So I think the intuition goes back to the way you define q sigma and the way taking the expectation works. So here what you&#x27;re saying is if you take a look at scores</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2269s" target="_blank" rel="noopener">37:49</a> conditioned on points from the training sets, so if you take a look at this, and then if you somehow see all the different scores from all the different points conditioned on these points, then on average is going to be the same as if you were to actually take the score from the overall noisy distribution. That&#x27;s the rough intuition.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2302s" target="_blank" rel="noopener">38:22</a> Does that make sense? OK. OK, cool. I&#x27;m looking at the time. So let&#x27;s see. Yeah, so again, the proof is not something that we will expect in the exam. So feel free to just take a look at it if you&#x27;re just curious. But it&#x27;s not required. So this is also called L of DSM, so Denoising Score Matching.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2335s" target="_blank" rel="noopener">38:55</a> And again this loss is tractable because you know the score of q sigma of x tilde conditional on x, because this is a score of a Gaussian. So just recapping where we are, what we wanted to do is to estimate the score of the true distribution. So what we said was, OK, it&#x27;s actually not something we can do. Let&#x27;s fall back on an easier setup.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2366s" target="_blank" rel="noopener">39:26</a> And what we said was that the easier setup was that in the Gaussian case, you are able to analytically compute the true score. So what we did is we took the true data distribution, and we noised it. And what we showed was that optimizing for the loss that is not tractable is the same as optimizing for loss that is tractable.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2396s" target="_blank" rel="noopener">39:56</a> So in other words, you are able to estimate the score of a noisy data distribution. But it is still not equal to pdata, because what you want is pdata. You don&#x27;t want the noisy data distribution. So it&#x27;s only something that is going in the direction of what we want, but it&#x27;s not exactly what we want. So let&#x27;s see what this q sigma looks like.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2431s" target="_blank" rel="noopener">40:31</a> So what we want, again, is to go from a starting point towards the data distribution. But here we do not have the score of the true data distribution. So how about if we take a noisy distribution</p>
+</div>
+</section><section class="row" id="s30">
+<figure>
+<a href="slides/l2/p035.jpg" target="_blank">
+<img src="slides/l2/p035.jpg" alt="Slide p. 35: Reminder about the objective of interest" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 35 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2442s" target="_blank" rel="noopener">&#8776; 40:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Limitations-of-DSM"><span>Limitations of DSM</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2449s" target="_blank" rel="noopener">40:49</a></div><section class="row" id="s31">
+<figure>
+<a href="slides/l2/p036.jpg" target="_blank">
+<img src="slides/l2/p036.jpg" alt="Slide p. 36: Limitations with vanilla DSM" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 36 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2449s" target="_blank" rel="noopener" title="Watch on YouTube from 40:49">&#9658; 40:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2449s" target="_blank" rel="noopener">40:49</a> that we can compute where sigma is very, very small. So when sigma is very, very small, q sigma is very close to pdata distribution, because we noise it just a little bit. Well, the problem is that if we take q sigma with sigma that is very small, then we&#x27;ll just have poor estimations of the score in low-density regions.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2478s" target="_blank" rel="noopener">41:18</a> Do you see why?</p>
+</div>
+</section><section class="row" id="s32">
+<figure>
+<a href="slides/l2/p037.jpg" target="_blank">
+<img src="slides/l2/p037.jpg" alt="Slide p. 37: Limitations with vanilla DSM" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 37 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2485s" target="_blank" rel="noopener" title="Watch on YouTube from 41:25">&#9658; 41:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2485s" target="_blank" rel="noopener">41:25</a> So I&#x27;m probably going to just explain this. So the good thing is it&#x27;s already there. So I&#x27;m just going to fall back on the definition of the loss here. So this is the loss that we&#x27;re optimizing. So what that means is that we want to optimize on the loss that is around the distance between the predicted score and the score</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2521s" target="_blank" rel="noopener">42:01</a> of the noisy distribution q, which is equal to this. So you&#x27;re weighting your loss function with respect to how likely your points x tilde are to appear. So in other words, if x tilde is not likely to appear,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2560s" target="_blank" rel="noopener">42:40</a> then the fact that it is off from the true value is not something that is going to be materially noticeable in the loss. So the model will not really be incentivized to make predictions accurate for x tilde that are not likely to appear. OK.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2585s" target="_blank" rel="noopener">43:05</a> So does this part make sense? So what I&#x27;m saying here is we are able to estimate the score of this noisy data distribution, but we&#x27;re not able to estimate it accurately in places of the space that are not likely to appear under q sigma. That&#x27;s what I&#x27;m saying.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2611s" target="_blank" rel="noopener">43:31</a> And the problem with that is if you sample from a distribution that is easy to sample from, for instance, a Gaussian, well, most of the time you&#x27;re in regions that are low density. So if you use the score of a noisy distribution with a small noise, then you will not have estimations of that score that will be accurate in those low density regions.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2640s" target="_blank" rel="noopener">44:00</a> So you will not be to accurately go towards the high-density regions. So in other words, I&#x27;m going just to explain this a bit more on an illustration here. So it&#x27;s as if we were saying that we have our complicated</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2671s" target="_blank" rel="noopener">44:31</a> data distribution here that we have maybe noise a little bit. So it&#x27;s like this. So this one is pdata, and this one is q sigma. So what I&#x27;m saying here is we are able to compute the score of this q sigma, but we&#x27;re not able to estimate it accurately in spaces of low density, so for instance, here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2701s" target="_blank" rel="noopener">45:01</a> So what that means is if I sample an observation from an easy distribution that is in a low-density region, then when I&#x27;m going to use the score to get closer to that region, those estimates they may be super off. So I won&#x27;t be able to come towards where I want. And that is the problem with a small amount of noise. So what do you do, well, you can tell me just increase the noise,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2739s" target="_blank" rel="noopener">45:39</a> then. Because if you increase the noise, then if you add enough noise, like, let&#x27;s suppose q sigma with sigma big, then that point in space will be covered with a high enough density such that you can have more accurate estimations of the score of the noisy distribution. But the problem is that now q sigma is too different from your p data.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2778s" target="_blank" rel="noopener">46:18</a> So in other terms, what you&#x27;re learning is not exactly what you want. It&#x27;s like something that&#x27;s different. So you have this trade-off. If you have too little noise, then it&#x27;s good. What you&#x27;re trying to learn is very close to what you actually want to learn, which a the score of the true data distribution. But the problem is you do not have good estimates in low-density regions.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2804s" target="_blank" rel="noopener">46:44</a> But at the same time, if you have too high of a noise, well, the distribution now is too different from the true data distribution. But you now can have good estimations. So it&#x27;s a little bit like the bias variance trade-off in a sense. You just don&#x27;t have both at the same time in this case, which is making the situation complicated.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2833s" target="_blank" rel="noopener">47:13</a> Yeah. [AUDIO OUT] So the question is, if we configure the Langevin sampling in a way that can work, then we can make this work? So the answer is yes. So it&#x27;s the next part. And we&#x27;re going to see how we can do that. But yeah, that&#x27;s a good intuition. [AUDIO OUT]</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2873s" target="_blank" rel="noopener">47:53</a> So the question is, why is it poor of an estimation in low-density scores? This is true. It&#x27;s correct, this one. Not this one actually, the tractable one is the true one. But the only problem is that the tractability of your loss function is also a function of how you configured it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2898s" target="_blank" rel="noopener">48:18</a> in terms of the expectation. So the expectation here is over q sigma, meaning that if you have an x tilde, which is in low-density regions, then it&#x27;s just not going to have a high weight loss, which is just not incentivizing your model to actually properly learn it. So in a sense, it&#x27;s a loss-weighting problem.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2927s" target="_blank" rel="noopener">48:47</a> [AUDIO OUT] So the predicted score will be inaccurate. Yes. Yeah. [AUDIO OUT] Yeah. So the question is, how about the regularity conditions of the function? So here let&#x27;s assume that this is not a problem. Here let&#x27;s assume it&#x27;s not a problem. But you&#x27;re right that, for instance, for sigma very small</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2962s" target="_blank" rel="noopener">49:22</a> you have indeed very spiky ones. This is the correct intuition. So yeah. [AUDIO OUT] Yes, exactly. So high noise smoothens it. Low noise produces some spikiness around those training data points. OK, cool. I think this is probably the most challenging part of the lecture. So yeah, hope you got the intuition as to why that is a problem.</p>
+</div>
+</section><div class="chapter" id="ch-Noise-conditional-score-networks"><span>Noise conditional score networks</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2990s" target="_blank" rel="noopener">49:50</a></div><section class="row" id="s33">
+<figure>
+<a href="slides/l2/p038.jpg" target="_blank">
+<img src="slides/l2/p038.jpg" alt="Slide p. 38: Score matching with varying noise via NCSN" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 38 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2990s" target="_blank" rel="noopener" title="Watch on YouTube from 49:50">&#9658; 49:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=2990s" target="_blank" rel="noopener">49:50</a> So what are we going to do? And you had the right intuition in terms of making some tweaks to the Langevin sampling. So what we&#x27;re going to do is now we&#x27;re not going to learn the score of one distribution. We&#x27;re going to learn the score of several distributions of several noise levels. So instead of predicting s theta of x, we&#x27;re going to predict s theta of x where you&#x27;re in space</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3022s" target="_blank" rel="noopener">50:22</a> and sigma your noise level. And the idea here is to consider several distributions, one with a small amount of noise, then bigger, then bigger, then bigger. And the way you&#x27;re going to use those different score estimates is at the very beginning-- so if I show you my beautiful charts here. At the very beginning, what you care about is knowing roughly where to go,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3061s" target="_blank" rel="noopener">51:01</a> where to go in space, roughly. So here it&#x27;s fine if you have the score of a distribution that is quite approximate from the true one, as long as you know roughly where you need to go. So the idea is here, you will use the score of a distribution that has been very noisy. And let&#x27;s say you&#x27;re going to go somewhere here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3091s" target="_blank" rel="noopener">51:31</a> And then at that point, you&#x27;re going to use the score of a distribution with less noise, because maybe that distribution with less noise covers that region. And now you know maybe a little bit better where the actual high-density regions of the true data distribution is. And you&#x27;re going to go again with lower amount of noise</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3117s" target="_blank" rel="noopener">51:57</a> again and again and again until coming here.</p>
+</div>
+</section><section class="row" id="s34">
+<figure>
+<a href="slides/l2/p039.jpg" target="_blank">
+<img src="slides/l2/p039.jpg" alt="Slide pp. 39–40: Intuition behind sampling strategy" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 39–40 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3122s" target="_blank" rel="noopener" title="Watch on YouTube from 52:02">&#9658; 52:02</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3122s" target="_blank" rel="noopener">52:02</a> So that is the idea. You&#x27;re not going to only rely on one kind of noisy distribution</p>
+</div>
+</section><section class="row" id="s35">
+<figure>
+<a href="slides/l2/p041.jpg" target="_blank">
+<img src="slides/l2/p041.jpg" alt="Slide p. 41: Intuition behind sampling strategy" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 41 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3128s" target="_blank" rel="noopener" title="Watch on YouTube from 52:08">&#9658; 52:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3128s" target="_blank" rel="noopener">52:08</a> with a small amount of noise or one with a higher amount of noise. You&#x27;re going to actually rely on all of them</p>
+</div>
+</section><section class="row" id="s36">
+<figure>
+<a href="slides/l2/p042.jpg" target="_blank">
+<img src="slides/l2/p042.jpg" alt="Slide p. 42: Sampling with Annealed Langevin Dynamics" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 42 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3135s" target="_blank" rel="noopener" title="Watch on YouTube from 52:15">&#9658; 52:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3135s" target="_blank" rel="noopener">52:15</a> in a way that will make this problem easy for you. So at the very beginning, what you care about</p>
+</div>
+</section><section class="row" id="s37">
+<figure>
+<a href="slides/l2/p043.jpg" target="_blank">
+<img src="slides/l2/p043.jpg" alt="Slide p. 43: Sampling with Annealed Langevin Dynamics" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 43 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3142s" target="_blank" rel="noopener" title="Watch on YouTube from 52:22">&#9658; 52:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3142s" target="_blank" rel="noopener">52:22</a> is roughly where to go. And then the more you get closer, you care more and more about the little details.</p>
+</div>
+</section><section class="row" id="s38">
+<figure>
+<a href="slides/l2/p044.jpg" target="_blank">
+<img src="slides/l2/p044.jpg" alt="Slide p. 44: , perform iterative update for" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 44 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3152s" target="_blank" rel="noopener" title="Watch on YouTube from 52:32">&#9658; 52:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3152s" target="_blank" rel="noopener">52:32</a> And these methods is something that you will recognize with the following name, so NCSN, Noise</p>
+</div>
+</section><section class="row" id="s39">
+<figure>
+<a href="slides/l2/p045.jpg" target="_blank">
+<img src="slides/l2/p045.jpg" alt="Slide pp. 45–46: , perform iterative update for" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 45–46 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3160s" target="_blank" rel="noopener" title="Watch on YouTube from 52:40">&#9658; 52:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3160s" target="_blank" rel="noopener">52:40</a> Conditional Score Network. So is this framework of learning scores of different noise</p>
+</div>
+</section><section class="row" id="s40">
+<figure>
+<a href="slides/l2/p047.jpg" target="_blank">
+<img src="slides/l2/p047.jpg" alt="Slide pp. 47–49: , perform iterative update for" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 47–49 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3167s" target="_blank" rel="noopener" title="Watch on YouTube from 52:47">&#9658; 52:47</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3167s" target="_blank" rel="noopener">52:47</a> levels. So I just want to reiterate what I drew on the blackboard.</p>
+</div>
+</section><div class="chapter" id="ch-Annealed-Langevin-dynamics"><span>Annealed Langevin dynamics</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3173s" target="_blank" rel="noopener">52:53</a></div><section class="row" id="s41">
+<figure>
+<a href="slides/l2/p050.jpg" target="_blank">
+<img src="slides/l2/p050.jpg" alt="Slide p. 50: Sampling with Annealed Langevin Dynamics" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 50 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3173s" target="_blank" rel="noopener" title="Watch on YouTube from 52:53">&#9658; 52:53</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3173s" target="_blank" rel="noopener">52:53</a> So let&#x27;s suppose you sample an observation from a distribution that is easy to sample from that is far from your actual data distribution. So what you do is you will actually rely on the predicted score from a noised data distribution that is very noisy. And you&#x27;re going to go step by step by relying on scores from distribution that are less and less noise until coming to your last point, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3209s" target="_blank" rel="noopener">53:29</a> is something that hopefully will be very, very close to the pdata distribution, which is going to be a noise data distribution with a very low sigma. OK. So does that make sense? Yeah? OK. Cool</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3233s" target="_blank" rel="noopener">53:53</a> So back to your intuition on the Langevin sampling. So your intuition was 100% correct. This way of sampling things that I explained with varying noise levels is actually called annealed Langevin dynamics. And it&#x27;s this idea of starting with a high amount of noise and decreasing the noise progressively.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3263s" target="_blank" rel="noopener">54:23</a> So you will also see that in the literature as ALD. Yeah. [AUDIO OUT] Yeah. [AUDIO OUT] So the question is, what is exactly the trade-off here? So the idea is with a high amount of noise,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3295s" target="_blank" rel="noopener">54:55</a> if you add a high enough amount of noise, then previous low-density regions will be covered by the noisy distribution. And if you add enough noise, like, with a very high amount of sigma, then you will cover it. The only problem is-- so you can learn the score of that very noisy distribution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3320s" target="_blank" rel="noopener">55:20</a> But the problem is that the true score of that noisy distribution is going to be far from the score of the data distribution. So that is the trade-off. [AUDIO OUT] Right. So the direction that it will be pointing will be roughly where you want to go, but not exactly. But the idea here is that the very beginning you don&#x27;t really care. So for instance, if from here from Stanford,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3351s" target="_blank" rel="noopener">55:51</a> I want to go to New York, I know roughly I want to go this way. And then I go this way. And then the more I get closer, the more I want to refine exactly where New York is. Yeah. OK, cool. There is something else I wanted to say. OK. So there&#x27;s something else I wanted to say,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3377s" target="_blank" rel="noopener">56:17</a> which I think we&#x27;ll cover a little bit later. But first, we&#x27;re going to cover how we&#x27;re going to sample new observations using this annealed Langevin dynamics. So here what you would do is sample some noise from very noisy Gaussian with a high amount of noise. And what you&#x27;re going to do is for every noise level,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3406s" target="_blank" rel="noopener">56:46</a> you&#x27;re going to run your Langevin sampling. And this is the formula that we saw at the very beginning, which is you add the point that you&#x27;re at with the predicted score, which is where you want to go, and then some amount of noise, which allows for a bit of diversity. And once you do that for all noise levels until coming to a very small noise level,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3435s" target="_blank" rel="noopener">57:15</a> then you end up with the actual image. So one thing that I want to say regarding the score, you can think of the score as being a compass. Now, when you are in the forest and you want to see where the city is, just follow the direction of the compass. It&#x27;s the same idea here. So we&#x27;re in the space, space of images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3465s" target="_blank" rel="noopener">57:45</a> A lot of these regions of space are images that are actually not real images. But what you want is to go towards regions of high density with respect to your target data distribution. So it&#x27;s as if you were following a compass to come at your destination.</p>
+</div>
+</section><div class="chapter" id="ch-Parallel-between-DDPM-and-score"><span>Parallel between DDPM and score</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3489s" target="_blank" rel="noopener">58:09</a></div><section class="row" id="s42">
+<figure>
+<a href="slides/l2/p052.jpg" target="_blank">
+<img src="slides/l2/p052.jpg" alt="Slide pp. 51–52: Parallel between noise (DDPM) and score (NCSN)" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 51–52 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3489s" target="_blank" rel="noopener" title="Watch on YouTube from 58:09">&#9658; 58:09</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3489s" target="_blank" rel="noopener">58:09</a> OK, cool. So last time-- you had a question? [AUDIO OUT] 58:22 Oh, yeah. So the question is data distribution can be any data distribution? Yes, yes. OK. So now what I want to tell you is how what I&#x27;m telling you now here relates to what we saw last week. So if you remember, DDPM was all about taking a clean image</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3530s" target="_blank" rel="noopener">58:50</a> and then noising it. So if you remember, we had these coefficients. And for instance, in this case, the noised image was the square root of alpha t bar times your clean image plus square root of 1 minus alpha t bar times the noise. What I told you here also involves noise.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3555s" target="_blank" rel="noopener">59:15</a> So a natural question that you may ask is, how does the score relate to the noise prediction task that we saw last week? Well, the forward process of xt given x0, you just see that it is a normal distribution centered on the square root of alpha t bar times x0. And you actually realize that the score of that distribution</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3589s" target="_blank" rel="noopener">59:49</a> is equal to minus the noise that you added over some coefficient. So in other words, these two quantities, so the score meaning where you should go to end up where the clean images are and the noise that you added, are actually two quantities that are linked.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3616s" target="_blank" rel="noopener">1:00:16</a> And they are linked such that the score is equal to minus the noise that you added. And that makes sense. So why does that make sense? So I&#x27;m just going to clean that part. Whoops. So why does that make sense? So here if you have your clean image</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3646s" target="_blank" rel="noopener">1:00:46</a> and then if you noised, so it&#x27;s as if you added some amount of something noise. But then if you want to go back to high-density regions it&#x27;s basically your score. So it makes sense that the two are in opposite directions.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3670s" target="_blank" rel="noopener">1:01:10</a> So by the way, does that make sense that it is the formula? So maybe I can also derive it. So remember that the score of a normal distribution is equal to minus x minus the mean over the variance. So in this case, we have--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3706s" target="_blank" rel="noopener">1:01:46</a> so x, what is x? It&#x27;s a noisy image. And the noisy image has the following formula. So noisy image is the square root of alpha t bar times x0 plus square root of 1 minus alpha t bar times epsilon. You subtract the mean of the normal distribution, which is this square root of alpha t bar times x0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3733s" target="_blank" rel="noopener">1:02:13</a> So this gives you minus. And then this is square root of 1 minus alpha t bar epsilon over your variance, which is 1 minus alpha t bar. Which is exactly what you have on the slides. Does that make sense? OK. Cool. So this is just to give you a parallel between NCSN and DDPM.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3774s" target="_blank" rel="noopener">1:02:54</a> So these two methods are just two different ways of noising your sample at the end of the day, because one is taking some weighted average between the clean sample x0 and the noise, and the other one is just adding noise with just sigma. So that is the reason why this, so DDPM, you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3801s" target="_blank" rel="noopener">1:03:21</a> will see it be characterized as being variance preserving. Because if you take the variance of xt is going to be roughly equal to 1. And this is assuming that your x0 are normalized. They have a mean of 0 and variance of 1. So if you take the variance of xt, it&#x27;s roughly alpha t bar plus-- so square root of alpha t bar</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3828s" target="_blank" rel="noopener">1:03:48</a> squared plus square root of 1 minus alpha t bar squared, which is equal to 1 roughly. And this formulation, the NCSN one is going to be mentioned as being variants exploding. Oh, I have to go way back in the slides. This one is going to be variance exploding because you&#x27;re going</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3856s" target="_blank" rel="noopener">1:04:16</a> to add more and more noise. And the noise is going to just increase a lot. So it&#x27;s not bounded by 1. OK. Cool. So, so far what we&#x27;ve seen is noising images using a discrete set of noise increments.</p>
+</div>
+</section><section class="row" id="s43">
+<figure>
+<a href="slides/l2/p053.jpg" target="_blank">
+<img src="slides/l2/p053.jpg" alt="Slide p. 53: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 53 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3875s" target="_blank" rel="noopener">&#8776; 1:04:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s44">
+<figure>
+<a href="slides/l2/p054.jpg" target="_blank">
+<img src="slides/l2/p054.jpg" alt="Slide p. 54: Intuition" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 54 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3875s" target="_blank" rel="noopener">&#8776; 1:04:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><div class="chapter" id="ch-Continuous-derivation"><span>Continuous derivation</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3882s" target="_blank" rel="noopener">1:04:42</a></div><section class="row" id="s45">
+<figure>
+<a href="slides/l2/p056.jpg" target="_blank">
+<img src="slides/l2/p056.jpg" alt="Slide pp. 55–56: Intuition" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 55–56 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3882s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:42">&#9658; 1:04:42</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3882s" target="_blank" rel="noopener">1:04:42</a> But one could argue that these discretization is arbitrary.</p>
+</div>
+</section><section class="row" id="s46">
+<figure>
+<a href="slides/l2/p057.jpg" target="_blank">
+<img src="slides/l2/p057.jpg" alt="Slide p. 57: Intuition" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 57 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3890s" target="_blank" rel="noopener" title="Watch on YouTube from 1:04:50">&#9658; 1:04:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3890s" target="_blank" rel="noopener">1:04:50</a> It is something that you need to decide before starting your training process. So one idea is to actually consider continuous evolution instead of discrete one. So the reason why you would be interested in doing that is because we also have a field of math, which is in differential equations that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3915s" target="_blank" rel="noopener">1:05:15</a> have a bunch of very convenient toolkits to solve these kinds of equations. So one idea is to actually start from what we saw in DDPM and NCSN and try to see how they would be</p>
+</div>
+</section><section class="row" id="s47">
+<figure>
+<a href="slides/l2/p058.jpg" target="_blank">
+<img src="slides/l2/p058.jpg" alt="Slide p. 58: Let&#x27;s ﬁrst deﬁne Wiener processes" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 58 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3932s" target="_blank" rel="noopener" title="Watch on YouTube from 1:05:32">&#9658; 1:05:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3932s" target="_blank" rel="noopener">1:05:32</a> like in the continuous world. So in order to do that, we first need to have an equivalent of noise increments. Because up until now, the way we added noise to clean images was via sampling from a Gaussian distribution. So it&#x27;s like normal distribution of mean 0 and covariance matrix, the identity, and then just adding noise like this.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3964s" target="_blank" rel="noopener">1:06:04</a> But what you want is to have a continuous equivalent of having these noise increments. And this is where the Wiener process comes in. So who has heard of the Wiener process before? Yeah. No one? Maybe one. OK. So the Wiener process is a type of stochastic process.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=3991s" target="_blank" rel="noopener">1:06:31</a> So stochastic process is a family of random variables that are indexed by some index t, let&#x27;s say, the time. And a Wiener process is a stochastic process that follows the following properties. So we have W0 by definition that is equal to 0.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4015s" target="_blank" rel="noopener">1:06:55</a> And the difference between Wt and Ws, which is an increment, follows a normal distribution of mean 0 and variance t minus s times I. And these increments, so these differences are actually independent from one another. So you can think of the equivalent of a random walk. So you walk one here and then one</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4046s" target="_blank" rel="noopener">1:07:26</a> there but in the continuous world. So one thing that I want to say is that what is independent is the increments and not the value of the ability itself. Because you can imagine that Wt will depend on Wt minus 1</p>
+</div>
+</section><section class="row" id="s48">
+<figure>
+<a href="slides/l2/p059.jpg" target="_blank">
+<img src="slides/l2/p059.jpg" alt="Slide p. 59: DDPM continuous formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 59 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4069s" target="_blank" rel="noopener" title="Watch on YouTube from 1:07:49">&#9658; 1:07:49</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4069s" target="_blank" rel="noopener">1:07:49</a> and so on. So what we&#x27;re saying is that the increments are independent from one another. So with that in mind, what we can do is to derive a continuous formulation of DDPM and NCSN.</p>
+</div>
+</section><section class="row" id="s49">
+<figure>
+<a href="slides/l2/p060.jpg" target="_blank">
+<img src="slides/l2/p060.jpg" alt="Slide p. 60: NCSN continuous formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 60 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4087s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:07">&#9658; 1:08:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4087s" target="_blank" rel="noopener">1:08:07</a> So in the interest of time, what I&#x27;m going to do is to only derive the DDPM case.</p>
+</div>
+</section><section class="row" id="s50">
+<figure>
+<a href="slides/l2/p061.jpg" target="_blank">
+<img src="slides/l2/p061.jpg" alt="Slide p. 61: Diﬀerential formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 61 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4087s" target="_blank" rel="noopener">&#8776; 1:08:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s51">
+<figure>
+<a href="slides/l2/p062.jpg" target="_blank">
+<img src="slides/l2/p062.jpg" alt="Slide pp. 62–68: Intuition behind diﬀerential formulation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 62–68 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4087s" target="_blank" rel="noopener">&#8776; 1:08:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s52">
+<figure>
+<a href="slides/l2/p069.jpg" target="_blank">
+<img src="slides/l2/p069.jpg" alt="Slide p. 69: Variance Preserving" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 69 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4087s" target="_blank" rel="noopener">&#8776; 1:08:07</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s53">
+<figure>
+<a href="slides/l2/p070.jpg" target="_blank">
+<img src="slides/l2/p070.jpg" alt="Slide p. 70: Variance Preserving" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 70 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4097s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:17">&#9658; 1:08:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4097s" target="_blank" rel="noopener">1:08:17</a> So what we&#x27;re saying is we&#x27;re starting</p>
+</div>
+</section><section class="row" id="s54">
+<figure>
+<a href="slides/l2/p071.jpg" target="_blank">
+<img src="slides/l2/p071.jpg" alt="Slide p. 71: Timeline and uniﬁcation of methods" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 71 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4097s" target="_blank" rel="noopener">&#8776; 1:08:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s55">
+<figure>
+<a href="slides/l2/p072.jpg" target="_blank">
+<img src="slides/l2/p072.jpg" alt="Slide p. 72: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 72 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4097s" target="_blank" rel="noopener">&#8776; 1:08:17</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s56">
+<figure>
+<a href="slides/l2/p073.jpg" target="_blank">
+<img src="slides/l2/p073.jpg" alt="Slide p. 73: Training derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 73 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4105s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:25">&#9658; 1:08:25</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4105s" target="_blank" rel="noopener">1:08:25</a> from the update formula that adds noise to a less noisy image.</p>
+</div>
+</section><section class="row" id="s57">
+<figure>
+<a href="slides/l2/p074.jpg" target="_blank">
+<img src="slides/l2/p074.jpg" alt="Slide p. 74: Training derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 74 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4111s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:31">&#9658; 1:08:31</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4111s" target="_blank" rel="noopener">1:08:31</a> And what we want is to obtain a continuous way of expressing that.</p>
+</div>
+</section><section class="row" id="s58">
+<figure>
+<a href="slides/l2/p075.jpg" target="_blank">
+<img src="slides/l2/p075.jpg" alt="Slide pp. 75–77: Training derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 75–77 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4117s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:37">&#9658; 1:08:37</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4117s" target="_blank" rel="noopener">1:08:37</a> So I&#x27;m just going to rewrite what is on the slide. So xt is equal to square root of 1 minus beta of xt minus 1</p>
+</div>
+</section><section class="row" id="s59">
+<figure>
+<a href="slides/l2/p078.jpg" target="_blank">
+<img src="slides/l2/p078.jpg" alt="Slide p. 78: Training recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 78 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4128s" target="_blank" rel="noopener" title="Watch on YouTube from 1:08:48">&#9658; 1:08:48</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4128s" target="_blank" rel="noopener">1:08:48</a> plus square root of beta times epsilon. So if you remember, beta is your noise schedule. It&#x27;s the amount of noise that you add at each time step. And so what you want is to have an expression of a differential evolution in x as a function of everything else.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4156s" target="_blank" rel="noopener">1:09:16</a> So what I&#x27;m going to do is subtract that quantity with xt minus 1 And then have t and t minus 1 be very, very small so that I can consider this to be continuous. So what I&#x27;m going to do here is just some math. So I&#x27;m taking xt and I&#x27;m subtracting xt minus 1. So it&#x27;s going to be square root of 1 minus beta minus 1,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4190s" target="_blank" rel="noopener">1:09:50</a> xt minus 1 plus square root of beta t epsilon. So beta t is the quantity of noise that you add between two discrete steps. What I&#x27;m going to do is to define a quantity that I&#x27;m going to write beta parenthesis t, which is the rate of noise at time t times</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4224s" target="_blank" rel="noopener">1:10:24</a> dt, an increment of time. So what this is saying is when we&#x27;re going to have t10 to 0-- so this is going to 10 to 0,</p>
+</div>
+</section><section class="row" id="s60">
+<figure>
+<a href="slides/l2/p079.jpg" target="_blank">
+<img src="slides/l2/p079.jpg" alt="Slide p. 79: Training recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 79 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4235s" target="_blank" rel="noopener" title="Watch on YouTube from 1:10:35">&#9658; 1:10:35</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4235s" target="_blank" rel="noopener">1:10:35</a> but we&#x27;re going to have some rates of noise that&#x27;s going to be nonzero, that&#x27;s going to be your schedule. So if I pause that, so this becomes xt minus xt minus 1 is equal to, so 1 minus beta t dt minus 1 xt minus 1 plus square root--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4278s" target="_blank" rel="noopener">1:11:18</a> I&#x27;m going to also replace it here-- of beta t dt epsilon. So far I&#x27;ve just plugged in the new beta t expression.</p>
+</div>
+</section><section class="row" id="s61">
+<figure>
+<a href="slides/l2/p080.jpg" target="_blank">
+<img src="slides/l2/p080.jpg" alt="Slide p. 80: Training recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 80 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4292s" target="_blank" rel="noopener" title="Watch on YouTube from 1:11:32">&#9658; 1:11:32</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4292s" target="_blank" rel="noopener">1:11:32</a> So what we&#x27;re going to obtain now is actually something that&#x27;s going to be quite nice. So if we tend t to 0, so if we consider a continuous evolution, xt minus xt minus 1 is also going to be a differential evolution.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4333s" target="_blank" rel="noopener">1:12:13</a> So here, I&#x27;m going to rewrite xt minus xt minus 1 as just d of x. So when dt tends to 0, you have Taylor expansion formulas that tells you that square root of 1 minus something that tends to 0, which is equal to 1 minus 1/2 of that something.</p>
+</div>
+</section><section class="row" id="s62">
+<figure>
+<a href="slides/l2/p081.jpg" target="_blank">
+<img src="slides/l2/p081.jpg" alt="Slide p. 81: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 81 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4361s" target="_blank" rel="noopener" title="Watch on YouTube from 1:12:41">&#9658; 1:12:41</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4361s" target="_blank" rel="noopener">1:12:41</a> So this is just Taylor expansion. So here, I&#x27;m going to say it&#x27;s roughly equal to 1 minus 1/2 of beta t dt. xt minus 1 is roughly going to be x. So this is 1 minus this minus 1, because you have the 1 here, times x plus--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4393s" target="_blank" rel="noopener">1:13:13</a> so you have square root of beta t. But then the Wiener process that we defined is such that a small increment in the Wiener process is actually something that you can rewrite as being square root of dt times epsilon,</p>
+</div>
+</section><section class="row" id="s63">
+<figure>
+<a href="slides/l2/p082.jpg" target="_blank">
+<img src="slides/l2/p082.jpg" alt="Slide p. 82: Introducing the reverse formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 82 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4416s" target="_blank" rel="noopener" title="Watch on YouTube from 1:13:36">&#9658; 1:13:36</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4416s" target="_blank" rel="noopener">1:13:36</a> because it follows a normal distribution of variance dt times I. So here, I&#x27;m going to recognize the square root of dt times e. That&#x27;s right. Square root of dt times epsilon as being dW, which is equal-- so it&#x27;s as if it was equal to d of x is equal, so this is going to cancel out, 1/2 of beta x dt plus square</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4451s" target="_blank" rel="noopener">1:14:11</a> root of B dW. And now you may be wondering, why am I writing all these equations? Why are we doing this? Well, you&#x27;re going to see that when we rewrite this,</p>
+</div>
+</section><section class="row" id="s64">
+<figure>
+<a href="slides/l2/p083.jpg" target="_blank">
+<img src="slides/l2/p083.jpg" alt="Slide p. 83: Introducing the reverse formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 83 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4466s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:26">&#9658; 1:14:26</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4466s" target="_blank" rel="noopener">1:14:26</a> for instance, for DDPM and then for NCSN, what we realize</p>
+</div>
+</section><div class="chapter" id="ch-SDE-formulation"><span>SDE formulation</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4473s" target="_blank" rel="noopener">1:14:33</a></div><section class="row" id="s65">
+<figure>
+<a href="slides/l2/p084.jpg" target="_blank">
+<img src="slides/l2/p084.jpg" alt="Slide pp. 84–85: Intuition behind reverse time formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 84–85 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4473s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:33">&#9658; 1:14:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4473s" target="_blank" rel="noopener">1:14:33</a> is that we have an expression of dx equal to something times</p>
+</div>
+</section><section class="row" id="s66">
+<figure>
+<a href="slides/l2/p086.jpg" target="_blank">
+<img src="slides/l2/p086.jpg" alt="Slide p. 86: Intuition behind reverse time formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 86 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4479s" target="_blank" rel="noopener" title="Watch on YouTube from 1:14:39">&#9658; 1:14:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4479s" target="_blank" rel="noopener">1:14:39</a> dt plus something times dW. So these two terms have very specific names. So one is called the drift. So this quantity is called the drift. So it&#x27;s deterministic. And this one is called the diffusion, which is what is stochastic. And you actually have a nice intuition about it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4506s" target="_blank" rel="noopener">1:15:06</a> when it comes to how x varies in space. So if you suppose x to start from here and you only have a drift term, what you&#x27;re going to have is just deterministic evolution using f of x and t. So you&#x27;re going to go from x to x plus dx using f of xt times dt.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4534s" target="_blank" rel="noopener">1:15:34</a> And then you&#x27;re going to repeat this process again and again in a deterministic fashion. So this first term is deterministic. Now let&#x27;s look at what the second term does. So here you start from a point x, and you add some quantity that is a function of noise, Gaussian noise. So here it&#x27;s going to be something that is noisy, so</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4565s" target="_blank" rel="noopener">1:16:05</a> the stochastic part. Which means that if you take the whole expression, you&#x27;re going to end up with something-- so one step from x to x plus dx is going to be including a deterministic step and a stochastic step. And this is something that will follow the slides here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4594s" target="_blank" rel="noopener">1:16:34</a> So all I want to say is that DDPM and NCSN can actually be transcribed from their discrete formulations to a continuous one. So when you see these formulas, just know that it is just us transcribing them to be continuous. And the reason why we want to do that is because this is going to be an SDE, so Stochastic</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4621s" target="_blank" rel="noopener">1:17:01</a> Differential Equation, for which the field already has a lot of techniques to solve them. And I&#x27;m just going to tell you now about why the DDPM formula makes sense just from an intuitive perspective. So what we&#x27;re saying is in a 2D space, so this is the origin.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4648s" target="_blank" rel="noopener">1:17:28</a> This is 0. And then we have a vector x. So what we&#x27;re saying is that an increment in x is going to be negative with respect to where x is. So it&#x27;s going to be somewhere like this. And then we&#x27;re going to have a little bit of noise added</p>
+</div>
+</section><section class="row" id="s67">
+<figure>
+<a href="slides/l2/p087.jpg" target="_blank">
+<img src="slides/l2/p087.jpg" alt="Slide p. 87: Intuition behind reverse time formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 87 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4670s" target="_blank" rel="noopener" title="Watch on YouTube from 1:17:50">&#9658; 1:17:50</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4670s" target="_blank" rel="noopener">1:17:50</a> to it, so maybe like this. So in other words the noising process, the forward process is bringing x closer to 0 and adding some noise so that this converges to a variance of 1, which is what DDPM is about. Because the DDPM you take a clean image, and then you noise it with convenience coefficients</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4706s" target="_blank" rel="noopener">1:18:26</a> such that after t steps, it becomes a normal distribution of mean 0 and variance 1. And this is exactly what you&#x27;re also seeing by interpreting the terms of this equation. Does that make sense? So I just want to tell you this to just tell you that these formulas are not just formulas. They have a meaning if you think about each term.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4734s" target="_blank" rel="noopener">1:18:54</a> And here this expression of the continuous evolution of the forward process for DDPM actually makes intuitive sense when you&#x27;re just writing things down. [AUDIO OUT]</p>
+</div>
+</section><section class="row" id="s68">
+<figure>
+<a href="slides/l2/p088.jpg" target="_blank">
+<img src="slides/l2/p088.jpg" alt="Slide p. 88: Intuition behind reverse time formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 88 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4752s" target="_blank" rel="noopener" title="Watch on YouTube from 1:19:12">&#9658; 1:19:12</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4752s" target="_blank" rel="noopener">1:19:12</a> So question is, why is it useful? We&#x27;re going to see it exactly now. So I&#x27;m going to tell you now what is useful. So the reason why it&#x27;s useful is 1, you&#x27;re not going to have to necessarily define discretization steps between each noised images. So you&#x27;re not going to say, OK, I need let&#x27;s say t steps to do the whole noising process. So that&#x27;s the number 1. And number 2 is there&#x27;s a number of results</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4784s" target="_blank" rel="noopener">1:19:44</a> in the field of stochastic differential equations, which is essentially what this is. There&#x27;s a number of results that will allow you to solve the reverse process.</p>
+</div>
+</section><section class="row" id="s69">
+<figure>
+<a href="slides/l2/p089.jpg" target="_blank">
+<img src="slides/l2/p089.jpg" alt="Slide p. 89: Intuition behind reverse time formula" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 89 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4797s" target="_blank" rel="noopener" title="Watch on YouTube from 1:19:57">&#9658; 1:19:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4797s" target="_blank" rel="noopener">1:19:57</a> Because what you want is to be able to denoise images. So here what we&#x27;re doing is we&#x27;re just noising images. But what we care about is how to denoise images, which is the reverse process. And the reason why it is convenient for us to think in the continuous world is for us to be able to leverage these results. And we&#x27;re going to see these results in a few minutes.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4828s" target="_blank" rel="noopener">1:20:28</a> OK, cool. So here I just want to say that this drift term f and the diffusion g is the following for DDPM, but it is this form for NCSN. And you see that there is no drift term, and it is mainly because we&#x27;re only adding noise. And the idea behind DDPM and score matching</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4857s" target="_blank" rel="noopener">1:20:57</a> is actually something that was developed in parallel. So here what I want to say is just a historical evolution of how things happened and how we came up to that unified view of describing the forward process in order to solve the reverse process. So on the one side, the diffusion literature had this given branch with a 2015 paper just describing how you can derive a tractable loss in order</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4887s" target="_blank" rel="noopener">1:21:27</a> to solve for this, the diffusion problem. And then you have the DDPM paper which came out in 2020 that successfully applied that for images. That was on the one side. And on the other side in to score matching world, you had this principle of using the score to go from a starting point to the distribution and the fact that it alleviated this intractable normalizing constant.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4917s" target="_blank" rel="noopener">1:21:57</a> And then there was a paper that described how to do that in the case of a noise distribution. And then the NCSN method is actually something that came out with a later paper. And there is one paper that unified both of these paradigms, which is a paper called Score-Based Generative Modeling Through Stochastic Differential Equation, which is a paper I highly recommend reading.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4945s" target="_blank" rel="noopener">1:22:25</a> It&#x27;s actually written by folks from Stanford, so Yang Song and coauthors. And it is from that moment that the community has seen these two paradigms as being unified. And this is the way we have seen this play out. So now why did we do this in the first place? So our goal is to recover clean images.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=4981s" target="_blank" rel="noopener">1:23:01</a> So we know how to noise them through this forward process that we now are able to express in continuous term. What we care about is to denoise into clean images. And so here what we&#x27;re doing again predicting the score. So this score formulation is just a regression on the conditional score which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5010s" target="_blank" rel="noopener">1:23:30</a> we saw was tractable, which is, as we saw, minus epsilon over some coefficients. And the way you would train such a model is following this loss function, which is an expectation over clean images that you noise. And so what you do is you sample a clean image and then</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5036s" target="_blank" rel="noopener">1:23:56</a> some noise and time step. And then what you do is you obtain your noised image. And so here noised image is just a combination of the clean image and the noise with some alpha and sigma t, which can be chosen either in the DDPM way or another way. And what you do is you predict the score</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5060s" target="_blank" rel="noopener">1:24:20</a> that you know is tractable using your noised image and your time step. But now you may be asking, well, why do</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5075s" target="_blank" rel="noopener">1:24:35</a> you want to predict the score? Because we saw that for NCSN, we had the score that we used in order to sample new observations from the data distribution. But we saw in the case of DDPM that we actually predicted the noise to remove. So we had these two different formulations. So now the question that you may ask is, why do you want to focus on the score here?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5108s" target="_blank" rel="noopener">1:25:08</a> And the answer to that is that the forward process that is described by the SDE can be reversed through a reverse SDE that involves the score. So I&#x27;m just going to repeat exactly what I said. So the forward process, which is described by the SDE,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5135s" target="_blank" rel="noopener">1:25:35</a> is something that you can reverse through a reverse SDE which involves the score. And the reason why the score is popping up here is due to some derivations that we&#x27;re not going to go here, but this is just a result that comes from a paper from 1982. So it&#x27;s a result from the SDE world that were just leveraging here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5164s" target="_blank" rel="noopener">1:26:04</a> So that is one of the points why we&#x27;re caring about the continuous formulation is because we want to be able to leverage results around these SDEs, and this is one of them. And so now I want to walk you through what that reverse process equation is about. So I told you that the forward process was composed of a drift</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5196s" target="_blank" rel="noopener">1:26:36</a> term and a diffusion term. So it was dx equal to f of x and t times dt, which is the drift, and then plus gt times dW, which is the stochastic term, the diffusion term. And what we&#x27;re saying is that in order to do the reverse process, we actually cannot just have the same equation. We need to add a correction in the drift that</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5228s" target="_blank" rel="noopener">1:27:08</a> involves the score. And here is the intuition. The intuition is that in the forward process, we have added some stochasticity that made us deviate from where the actual data point was. So as a result of that, when we want to reverse that process, what we actually want to counteract this phenomenon</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5259s" target="_blank" rel="noopener">1:27:39</a> is to go towards the regions of high density scaled by that diffusion factor. So what I&#x27;m telling you is that the reverse process SDE is obtained through some derivation. But the way you would interpret it is that the correction to the drift is due to the fact</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5284s" target="_blank" rel="noopener">1:28:04</a> that you diffused in the forward process. And this made you be further from high-density regions. So this is what the reverse process is like. So it&#x27;s dx times the drift, which is the original drift minus the diffusion coefficient times the score times dt plus your diffusion term. And here we noted dW bar because the Wiener process</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5315s" target="_blank" rel="noopener">1:28:35</a> from the reverse process is actually different compared to the one from the forward process, which is</p>
+</div>
+</section><div class="chapter" id="ch-Reverse-SDE"><span>Reverse SDE</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5323s" target="_blank" rel="noopener">1:28:43</a></div><section class="row" id="s70">
+<figure>
+<a href="slides/l2/p091.jpg" target="_blank">
+<img src="slides/l2/p091.jpg" alt="Slide pp. 90–91: Inference recipe" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 90–91 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5323s" target="_blank" rel="noopener" title="Watch on YouTube from 1:28:43">&#9658; 1:28:43</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5323s" target="_blank" rel="noopener">1:28:43</a> why we noted this with the bar. And we&#x27;re just going to conclude with how you would do inference.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5331s" target="_blank" rel="noopener">1:28:51</a> So to do inference, you just sample some noise. And then again what you do is you leverage the nice results from the fact that you are handling SDEs, Stochastic Differential Equations. So you, for instance, will use a solver called Euler-Maruyama that is able to numerically solve the reverse process. So here you can think of it as a numerical method that will let you go from your original ex back to the endpoint using the reverse process equation.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5368s" target="_blank" rel="noopener">1:29:28</a> And you will obtain your final image, which will hopefully</p>
+</div>
+</section><div class="chapter" id="ch-Inference-with-Euler-Maruyama"><span>Inference with Euler-Maruyama</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5373s" target="_blank" rel="noopener">1:29:33</a></div><section class="row" id="s71">
+<figure>
+<a href="slides/l2/p092.jpg" target="_blank">
+<img src="slides/l2/p092.jpg" alt="Slide p. 92: Motivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 92 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5373s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:33">&#9658; 1:29:33</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5373s" target="_blank" rel="noopener">1:29:33</a> be an image that is satisfying. And that&#x27;s going to be your final image.</p>
+</div>
+</section><section class="row" id="s72">
+<figure>
+<a href="slides/l2/p094.jpg" target="_blank">
+<img src="slides/l2/p094.jpg" alt="Slide pp. 93–94: Limitations of an SDE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 93–94 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5380s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:40">&#9658; 1:29:40</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5380s" target="_blank" rel="noopener">1:29:40</a> Yeah. [AUDIO OUT] Yes, so this one-- yeah. [AUDIO OUT] Yeah. So here, you can think of this equation as being a discretization of the reverse SDE which is here.</p>
+</div>
+</section><section class="row" id="s73">
+<figure>
+<a href="slides/l2/p095.jpg" target="_blank">
+<img src="slides/l2/p095.jpg" alt="Slide p. 95: Hypothetically: writing the SDE as an ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 95 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5397s" target="_blank" rel="noopener" title="Watch on YouTube from 1:29:57">&#9658; 1:29:57</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5397s" target="_blank" rel="noopener">1:29:57</a> So this is exactly this SDE, but you&#x27;re doing it step by step. [AUDIO OUT]</p>
+</div>
+</section><section class="row" id="s74">
+<figure>
+<a href="slides/l2/p096.jpg" target="_blank">
+<img src="slides/l2/p096.jpg" alt="Slide p. 96: Hypothetically: writing the SDE as an ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 96 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5404s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:04">&#9658; 1:30:04</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5404s" target="_blank" rel="noopener">1:30:04</a> So the question is, what is fx of t? What is g? So these are the coefficients that are here.</p>
+</div>
+</section><section class="row" id="s75">
+<figure>
+<a href="slides/l2/p097.jpg" target="_blank">
+<img src="slides/l2/p097.jpg" alt="Slide p. 97: ODE derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 97 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5410s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:10">&#9658; 1:30:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5410s" target="_blank" rel="noopener">1:30:10</a> So for instance, in this case, f of x and t is minus 1/2 of beta</p>
+</div>
+</section><section class="row" id="s76">
+<figure>
+<a href="slides/l2/p098.jpg" target="_blank">
+<img src="slides/l2/p098.jpg" alt="Slide p. 98: ODE derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 98 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5410s" target="_blank" rel="noopener">&#8776; 1:30:10</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s77">
+<figure>
+<a href="slides/l2/p099.jpg" target="_blank">
+<img src="slides/l2/p099.jpg" alt="Slide p. 99: ODE derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 99 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5415s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:15">&#9658; 1:30:15</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5415s" target="_blank" rel="noopener">1:30:15</a> times x. And g is square root of b. [AUDIO OUT]</p>
+</div>
+</section><section class="row" id="s78">
+<figure>
+<a href="slides/l2/p100.jpg" target="_blank">
+<img src="slides/l2/p100.jpg" alt="Slide p. 100: ODE derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 100 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5421s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:21">&#9658; 1:30:21</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5421s" target="_blank" rel="noopener">1:30:21</a> It is the same. So the question is, this is for the forward. But this f and g are the same in the forward and backwards.</p>
+</div>
+</section><section class="row" id="s79">
+<figure>
+<a href="slides/l2/p101.jpg" target="_blank">
+<img src="slides/l2/p101.jpg" alt="Slide p. 101: ODE derivation" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 101 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5428s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:28">&#9658; 1:30:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5428s" target="_blank" rel="noopener">1:30:28</a> Yep. And with that, I&#x27;m going to give it to Shervine.</p>
+</div>
+</section><div class="chapter" id="ch-PF-ODE"><span>PF-ODE</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5434s" target="_blank" rel="noopener">1:30:34</a></div><section class="row" id="s80">
+<figure>
+<a href="slides/l2/p104.jpg" target="_blank">
+<img src="slides/l2/p104.jpg" alt="Slide pp. 102–104: PF-ODE meaning" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>pp. 102–104 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5434s" target="_blank" rel="noopener" title="Watch on YouTube from 1:30:34">&#9658; 1:30:34</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5434s" target="_blank" rel="noopener">1:30:34</a> Thank you, Afshine. So I&#x27;m going to come here and sing a very similar song as the one I sang last week when we transitioned from DDPM to DDIM. So we&#x27;re going to look at this reverse SDE equation and look at what is not optimal in practice and see what we can do about it. So as Afshine mentioned, you have this Brownian motion.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5459s" target="_blank" rel="noopener">1:30:59</a> That is one term of that reverse is the equation. And what problem do we have with that? So as you saw in the transition from x and x plus dx, you have all these spikes that happen due to the stochasticity. And this process is the reason why we cannot take large steps when resolving it, because otherwise you would be</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5485s" target="_blank" rel="noopener">1:31:25</a> approximating a movement that is something that you look at the microscopic level. So you need a high number of steps in your solver to start with. And also the second point is that when you look at your errors that you do when you solve these reverse SDE equation, you have now two sources. You have the first source that comes</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5510s" target="_blank" rel="noopener">1:31:50</a> from the regular discretization step. And then you have the stochastic error that comes in, and they accumulate. So just like last week, I&#x27;m going to paint the picture of what we would like to have and see if we can get there. So what would be the right counterpart of an SDE in a nicer world?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5537s" target="_blank" rel="noopener">1:32:17</a> It would be an ODE. So the ODE does have this term on the left but doesn&#x27;t have any stochasticity. And going through each point that I mentioned, you would be able to gauge how fast you go depending on the regularity on the function of the left. So you have some methods that can take adaptive steps. And then the second point is that in terms of errors that you&#x27;re committing, once you solve</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5567s" target="_blank" rel="noopener">1:32:47</a> that equation, they are only focused on the discretization of the left part. So you have less sources of error. And I&#x27;m going to sketch you a derivation for which only the high-level gist is what I want you to. So there are going to be some intermediary results that I&#x27;m just going to state. And some equations we don&#x27;t need to know necessarily</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5595s" target="_blank" rel="noopener">1:33:15</a> how they are derived. I&#x27;m just telling you that they are there. So let&#x27;s start from the forward SDE. As Afshine had mentioned it, you have this f of x and t term, the drift term, and the diffusion term. So it turns out that for equations that verify this equality, you can apply the Fokker-Planck equation, where you have this pt of x that comes up.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5626s" target="_blank" rel="noopener">1:33:46</a> That is the probability of the flow. And you have two terms on the right that could be interpreted in physical terms by the term on the left that is a transport term and the one on the right that you see g squared on, which is the diffusion term. So the derivation of such an equation is non-trivial and is out of scope here. I&#x27;m just going to state that we are going through that results.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5658s" target="_blank" rel="noopener">1:34:18</a> And then by rearranging the terms and using an identity on pt, we can come to another equation that is called the continuity equation that I&#x27;m just going to tell you that it&#x27;s going to be something that we see in more details at the beginning of next lecture. But what&#x27;s interesting about that continuity equation is that on the right side, there is a factor</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5694s" target="_blank" rel="noopener">1:34:54</a> that is to be interpreted as a velocity. And the velocity is dx over dt. So once you identify that factor, you can come up with an equation that this term that has been identified as the velocity needs to verify. And you come up with an equation that is indeed an ODE, and we call it the PF-ODE. PF stands for Probability Flows.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5724s" target="_blank" rel="noopener">1:35:24</a> And let&#x27;s look at that equation for a bit. So just like we mentioned a short time ago, f and g are modeling assumptions that are the ones that we had as assumptions once you derive this diffusion concept. And what about the score? So the score is also something that we can know. Because once you have a model that can approximate this score,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5757s" target="_blank" rel="noopener">1:35:57</a> you just have to put x as inputs, and you can get the score. So what I want to say is that this whole term that popped up is all composed of components that we can know. OK, great. And now I&#x27;m going to re-emphasize each side of that PF-ODE.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5784s" target="_blank" rel="noopener">1:36:24</a> So it&#x27;s an ODE we said because we don&#x27;t have a stochastic term, and it&#x27;s probability flow because it&#x27;s an ODE that comes from verifying the continuity equation, that is, an equation that is focused on the probability flow. And one interesting thing about that equation is that once you have an initial condition on PT,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5810s" target="_blank" rel="noopener">1:36:50</a> you can fully characterize what P is. But this is something that you cannot say about x. Because as you can see here, if you have v that is solution-- that is part of this equation, then if you add-- if you do v plus v null, where v null verifies divergence of v null and pt equals 0, then v plus v null also can be plugged in here.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5845s" target="_blank" rel="noopener">1:37:25</a> So all of that to say that the probability flow between the reverse SDE and here are preserved. But the trajectories are not. OK. So I went through a lot so far. Any questions? Yeah. [AUDIO OUT] 1:37:59 Yeah, fair. So the question is, what&#x27;s the interpretation here? So we did all these equations to conserve the probability flow,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5887s" target="_blank" rel="noopener">1:38:07</a> and the trajectories are going to be different. And they are characterized with this modified term on the v side. So instead of having these-- so you have this one half that came in, and that compensates for the stochasticity part that disappears. So you&#x27;re going to still have trajectories that verify in aggregate the probability flow conditions,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5915s" target="_blank" rel="noopener">1:38:35</a> but they are going to be different. And the interpretation is not average or anything specific. I would say it&#x27;s just that in aggregate, they verify the probability flow property at each time t and x. [AUDIO OUT] Yeah. [AUDIO OUT] Yeah, yeah, yeah. So the question is, will they end up with the same properties</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5946s" target="_blank" rel="noopener">1:39:06</a> that you have the distribution at the end? And the answer is yes, because PT is preserved. OK. Awesome. And so I&#x27;m going to draw a comparison between solving that reverse SDE equation and using PF-ODE. So exactly as we mentioned here, the term on the left,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5972s" target="_blank" rel="noopener">1:39:32</a> like the drift term, is compensated for that lack of stochastic term. And then the great point that you made is that we no longer have something that is stochastic. But once you have an initial condition, you deterministically know where you&#x27;re going. So that&#x27;s one big difference that you</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=5996s" target="_blank" rel="noopener">1:39:56</a> might remember from last time resembles something that you know. And as a result, since the only source of diversity is now your initial draw, you have less sampling diversity. And interestingly, when you look at experiments, you have higher sample quality. And that could be explained intuitively by the fact that you introduce noise at each time step</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6027s" target="_blank" rel="noopener">1:40:27</a> enables you to explore regions of the space that you wouldn&#x27;t have explored with a deterministic path. And you may self-correct your trajectory, as opposed to resolving an ODE that is only conditioned on your initial points and all the errors that you accumulate by solving the ODE numerically. So you have a nice interpretation there.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6054s" target="_blank" rel="noopener">1:40:54</a> And of course, now that we have an ODE where we can adapt step sizes, you can now</p>
+</div>
+</section><section class="row" id="s81">
+<figure>
+<a href="slides/l2/p105.jpg" target="_blank">
+<img src="slides/l2/p105.jpg" alt="Slide p. 105: Comparison between reverse SDE and PF-ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 105 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener" title="Watch on YouTube from 1:41:03">&#9658; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">1:41:03</a> resolve this faster, which is a nice property. And the fact that I told you that I&#x27;m</p>
+</div>
+</section><section class="row" id="s82">
+<figure>
+<a href="slides/l2/p106.jpg" target="_blank">
+<img src="slides/l2/p106.jpg" alt="Slide p. 106: DDIM" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 106 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s83">
+<figure>
+<a href="slides/l2/p107.jpg" target="_blank">
+<img src="slides/l2/p107.jpg" alt="Slide p. 107: Complexity metric" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 107 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s84">
+<figure>
+<a href="slides/l2/p108.jpg" target="_blank">
+<img src="slides/l2/p108.jpg" alt="Slide p. 108: Solving for x" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 108 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s85">
+<figure>
+<a href="slides/l2/p109.jpg" target="_blank">
+<img src="slides/l2/p109.jpg" alt="Slide p. 109: Simplest method" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 109 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s86">
+<figure>
+<a href="slides/l2/p110.jpg" target="_blank">
+<img src="slides/l2/p110.jpg" alt="Slide p. 110: More commonly used method" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 110 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s87">
+<figure>
+<a href="slides/l2/p111.jpg" target="_blank">
+<img src="slides/l2/p111.jpg" alt="Slide p. 111: Properties of the ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 111 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s88">
+<figure>
+<a href="slides/l2/p112.jpg" target="_blank">
+<img src="slides/l2/p112.jpg" alt="Slide p. 112: Properties of the ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 112 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s89">
+<figure>
+<a href="slides/l2/p113.jpg" target="_blank">
+<img src="slides/l2/p113.jpg" alt="Slide p. 113: Properties of the ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 113 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s90">
+<figure>
+<a href="slides/l2/p114.jpg" target="_blank">
+<img src="slides/l2/p114.jpg" alt="Slide p. 114: Traditional solvers." loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 114 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6063s" target="_blank" rel="noopener">&#8776; 1:41:03</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section><section class="row" id="s91">
+<figure>
+<a href="slides/l2/p115.jpg" target="_blank">
+<img src="slides/l2/p115.jpg" alt="Slide p. 115: Solver tailored to PF-ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 115 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6068s" target="_blank" rel="noopener" title="Watch on YouTube from 1:41:08">&#9658; 1:41:08</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6068s" target="_blank" rel="noopener">1:41:08</a> drawing a very similar parallel between PF-ODE and the reverse SDE as the one I drew last week between DDIM</p>
+</div>
+</section><section class="row" id="s92">
+<figure>
+<a href="slides/l2/p116.jpg" target="_blank">
+<img src="slides/l2/p116.jpg" alt="Slide p. 116: Solver tailored to PF-ODE" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 116 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6076s" target="_blank" rel="noopener" title="Watch on YouTube from 1:41:16">&#9658; 1:41:16</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6076s" target="_blank" rel="noopener">1:41:16</a> and DDPM, we can see a lot of shared commonalities that I&#x27;ve put here for reference.</p>
+</div>
+</section><div class="chapter" id="ch-DPM-Solver"><span>DPM-Solver</span><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6084s" target="_blank" rel="noopener">1:41:24</a></div><section class="row" id="s93">
+<figure>
+<a href="slides/l2/p117.jpg" target="_blank">
+<img src="slides/l2/p117.jpg" alt="Slide p. 117: Variants of DPM-Solver" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 117 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6084s" target="_blank" rel="noopener" title="Watch on YouTube from 1:41:24">&#9658; 1:41:24</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6084s" target="_blank" rel="noopener">1:41:24</a> And now let&#x27;s look at how we can solve this equation in practice and if we can do even better than regular solvers. In order to do that, I&#x27;m going to introduce a way to assess complexity that is widely used in these papers called NFE. So it&#x27;s the number of function evaluations. And what we want to do is for a sampler to get good quality results with a minimum amount of NFEs.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6113s" target="_blank" rel="noopener">1:41:53</a> So it&#x27;s a measure that makes intuitive sense in the sense that we want to minimize the number of forward passes that you perform on your model. And I&#x27;m going to introduce this notion of solving an ODE by the very simple method that some of you might know already, so Euler&#x27;s method. If you consider this ODE dx equals v of x and t dt,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6142s" target="_blank" rel="noopener">1:42:22</a> you can, based on your initial point and the derivative at that point, approximate the next point. But the issue with that is that there is quite a bit of errors. Even though it&#x27;s just one NFE per step, you end up with the results that might be imprecise. So people to account for that fact are using a fancier techniques, so Runge-Kutta 4 is one of them that--</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6174s" target="_blank" rel="noopener">1:42:54</a> so I represent it here on this graph the intuition of it. So you look at midpoints, measure the derivative, have some derivative measurement on the endpoint as well. And if you do some weighting out of all of this, you obtain an update step that is of low error rate. I think here it&#x27;s O of delta t to the power of 5, which</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6202s" target="_blank" rel="noopener">1:43:22</a> is nice. So you might tell me, OK, hey, Shervine, we have solved everything. We have a nice sampling method. What could we do better? So actually let&#x27;s look again at v of x and t. So I told you it&#x27;s f of x and t minus this term on the right that is divided by 2. But if you look at all the equations that we use in the diffusion world,</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6231s" target="_blank" rel="noopener">1:43:51</a> you see that f and x and t can be rewritten as f of t times x. So what does that tell you? So that tells you that this ODE is linear in x. So it has a linear term. And what can you say about the term on the right? Is it linear or-- so you would have x as an input to where?</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6266s" target="_blank" rel="noopener">1:44:26</a> What is the term on the right? The one in the rectangle. It&#x27;s the score. So the score is what we try to estimate as part of our reverse diffusion process. And it&#x27;s typically something that you would approximate with a neural network. And neural networks, are they linear? No, they&#x27;re highly nonlinear. After the first layer and first activation function, it&#x27;s no longer linear.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6293s" target="_blank" rel="noopener">1:44:53</a> So you have a nonlinear term there. And one thing we could do is instead of trying to discretize this whole equation without leveraging the fact that part of it is linear, we can use some math properties that says that with methods like the variations of constants that some of you might have heard of, you can derive an exact solution to part of it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6323s" target="_blank" rel="noopener">1:45:23</a> and focus the discretization process on the other part. And that&#x27;s what DPM solver is all about. And I&#x27;m going to spare you the details of the derivation. It&#x27;s quite long. I have attached the paper at the bottom in case you&#x27;re interested. It&#x27;s a bit involved. You get an update formula that has this exact term on the left</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6348s" target="_blank" rel="noopener">1:45:48</a> and then some integral on the right. And the integral on the right focuses On the nonlinear term that we saw. And one highlight that I&#x27;ll mention here is that we are not solving this in the time space. There has been a change of variables, and this is what the lambda that you see in this equation stands for. And there is a one-to-one mapping</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6373s" target="_blank" rel="noopener">1:46:13</a> between time steps and lambdas. Because lambda is strictly monotonic here. So yeah, this is one interesting thing to note. And the question now is, how do we discretize this equation? Because we have this integral now left. And we cannot integrate something that is approximated</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6401s" target="_blank" rel="noopener">1:46:41</a> by a neural network over a continuous range. So what we do is that this is the part that is going to be discretized. And you have variants of DPM solver that discretize it at different levels of granularity. So the first one is DPM solver 1 that the paper shows gives an equation that is equivalent to DDIM actually.</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6426s" target="_blank" rel="noopener">1:47:06</a> And DPM solver 2 uses Taylor&#x27;s expansion at higher levels up to any number k. And the number-- so the NFE for each is of I plus 1-- is of I, sorry.</p>
+</div>
+</section><section class="row" id="s94">
+<figure>
+<a href="slides/l2/p118.jpg" target="_blank">
+<img src="slides/l2/p118.jpg" alt="Slide p. 118: DPM-Solver conclusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 118 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6448s" target="_blank" rel="noopener" title="Watch on YouTube from 1:47:28">&#9658; 1:47:28</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6448s" target="_blank" rel="noopener">1:47:28</a> And so to recap what we did is that we started from the forward SDE, rearranged terms using properties that we knew of. Came up with a PF-ODE that verified the same probability flow. And that enabled us to generate new samples. And then we leveraged the format of the PF-ODE to further optimize the way we would resolve it</p>
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6476s" target="_blank" rel="noopener">1:47:56</a> by focusing our NFEs on the discretization parts that really</p>
+</div>
+</section><section class="row" id="s95">
+<figure>
+<a href="slides/l2/p119.jpg" target="_blank">
+<img src="slides/l2/p119.jpg" alt="Slide p. 119: DPM-Solver conclusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 119 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6481s" target="_blank" rel="noopener" title="Watch on YouTube from 1:48:01">&#9658; 1:48:01</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6481s" target="_blank" rel="noopener">1:48:01</a> matters here. And here you see that DPM solver resolves the ODE with a much better trade-off between budget and quality. And the difference on the paper you can see it at low number of steps they&#x27;re quite huge in terms of N metric.</p>
+</div>
+</section><section class="row" id="s96">
+<figure>
+<a href="slides/l2/p120.jpg" target="_blank">
+<img src="slides/l2/p120.jpg" alt="Slide p. 120: DPM-Solver conclusion" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 120 <a class="tlink chip" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6502s" target="_blank" rel="noopener" title="Watch on YouTube from 1:48:22">&#9658; 1:48:22</a></figcaption>
+</figure>
+<div class="transcript">
+<p><a class="tlink" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6502s" target="_blank" rel="noopener">1:48:22</a> And then just like DDIM, you don&#x27;t need to retrain the network when you want to sample with this solver because the objective function is the same. And in practice, with only tens of NFEs, you can get good results. And that was it. I hope you have a great weekend.</p>
+</div>
+</section><section class="row" id="s97">
+<figure>
+<a href="slides/l2/p121.jpg" target="_blank">
+<img src="slides/l2/p121.jpg" alt="Slide p. 121: Thank you for your attention!" loading="lazy" width="1280" height="720">
+</a>
+<figcaption>p. 121 <a class="tlink chip dim" href="https://www.youtube.com/watch?v=_WaR2fjZpEQ&t=6519s" target="_blank" rel="noopener">&#8776; 1:48:39</a></figcaption>
+</figure>
+<div class="transcript">
+<p class="dim">Shown briefly — discussed together with the adjacent slides.</p>
+</div>
+</section>
+</main>
+<footer class="wrap">
+<p>Slides &copy; CME 296 instructors (Afshine Amidi &amp; Shervine Amidi), Stanford University.
+Transcript from the lecture video. Slide&ndash;transcript alignment is automatic
+(content matching) and approximate; timestamps link to the video.</p>
+<nav class="lnav"><a href="lecture1.html">&larr; Lecture 1</a><a href="index.html">All lectures</a><a href="lecture3.html">Lecture 3 &rarr;</a></nav>
+</footer>
+</body>
+</html>

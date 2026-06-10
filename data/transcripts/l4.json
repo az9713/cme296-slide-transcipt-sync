@@ -1,0 +1,5078 @@
+{
+ "lecture": 4,
+ "video_id": "WUUq6TVAu8U",
+ "segments": [
+  {
+   "t": 0,
+   "ts": "0:00",
+   "text": "0:05 Hello, everyone. And welcome to lecture 4 of CME 296.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 13,
+   "ts": "0:13",
+   "text": "So before we start, I just want to say that those first three lectures were really the most technical",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 20,
+   "ts": "0:20",
+   "text": "and mathematically challenging. So in that sense, I'm still glad you're here.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 25,
+   "ts": "0:25",
+   "text": "And I really hope that those three lectures gave you the intuition as to why we were going to use this generation",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 34,
+   "ts": "0:34",
+   "text": "paradigm. Because there are going to be used as building blocks for everything that we're going to see from now on.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 42,
+   "ts": "0:42",
+   "text": "In particular, during the first three lectures, we focused on unconditional generation.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 51,
+   "ts": "0:51",
+   "text": "And now, what we're going to see is how we can generate images with a condition which",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 58,
+   "ts": "0:58",
+   "text": "can be a user prompt, like input text, or an input image.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 65,
+   "ts": "1:05",
+   "text": "And so in that sense, the title of today's lecture is multi-modal guided generation.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 73,
+   "ts": "1:13",
+   "text": "With that, we're going to start. And as usual, I'm going to just recap",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 80,
+   "ts": "1:20",
+   "text": "what we did the previous times. So as I mentioned, the first three lectures",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 86,
+   "ts": "1:26",
+   "text": "were mathematically challenging, and they were about seeing how we could generate",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 91,
+   "ts": "1:31",
+   "text": "images, what were the paradigms that we could use. So the first lecture was focused on the diffusion paradigm",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 99,
+   "ts": "1:39",
+   "text": "with DDPM, where we saw that we were taking clean images, that we were noising in a discrete way.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 108,
+   "ts": "1:48",
+   "text": "And so here, we had this formula, which was a combination of a clean image and Gaussian noise",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 116,
+   "ts": "1:56",
+   "text": "that we weighted with those coefficients. And what we saw with a bunch of math",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 123,
+   "ts": "2:03",
+   "text": "was that we could derive an expression that we could optimize in order to reconstruct",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 131,
+   "ts": "2:11",
+   "text": "those clean images that we've noised. And we ended up with a very nice expression, an L2 loss",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 141,
+   "ts": "2:21",
+   "text": "on the noise that was added. And in particular, if we wanted to denoise,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 147,
+   "ts": "2:27",
+   "text": "we had the following formula that allowed you to go from a step t to step t minus 1 using this model e",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 157,
+   "ts": "2:37",
+   "text": "theta, which was the predicted noise that was added. And so in that sense, it was parameterized with respect",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 165,
+   "ts": "2:45",
+   "text": "to the noise epsilon. Then in lecture 2, what we did was",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 170,
+   "ts": "2:50",
+   "text": "that we derived the continuous version of what we derived",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 177,
+   "ts": "2:57",
+   "text": "in a discrete way in lecture 1. And we also saw a second paradigm, a second way of seeing things, which was score matching.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 186,
+   "ts": "3:06",
+   "text": "And we saw that when we looked at these two ways of doing things, if we were to take the increment of time",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 198,
+   "ts": "3:18",
+   "text": "from t to t plus 1 and tend it to 0,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 203,
+   "ts": "3:23",
+   "text": "we had a general expression of the increment in x, which would be as a function of dt,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 212,
+   "ts": "3:32",
+   "text": "the increment in time, and dw, which is the continuous version of adding noise.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 218,
+   "ts": "3:38",
+   "text": "And in particular, you had these two terms. So on the left side, the drift term, and then on the right side",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 227,
+   "ts": "3:47",
+   "text": "was the diffusion term. And we saw that in order to reverse the noise that",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 234,
+   "ts": "3:54",
+   "text": "was added, so a.k.a. reverse process, we could use a result from theories",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 241,
+   "ts": "4:01",
+   "text": "on stochastic differential equations, where we saw that we could derive the reverse process if we",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 251,
+   "ts": "4:11",
+   "text": "knew the score, which is why this formulation was parameterized as a function of the score.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 258,
+   "ts": "4:18",
+   "text": "So here it's noted S of theta. And in lecture three, we saw that actually, we",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 266,
+   "ts": "4:26",
+   "text": "could think of this whole thing as a completely-- in a completely different way. And we can think of it as transporting a probability",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 275,
+   "ts": "4:35",
+   "text": "mass from an initial distribution up to a target distribution. And in that sense, we could express a noisy image",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 285,
+   "ts": "4:45",
+   "text": "as a combination of noise and sample from the target distribution.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 292,
+   "ts": "4:52",
+   "text": "And all of what we had to do was to just predict the vector field, a.k.a.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 298,
+   "ts": "4:58",
+   "text": "The velocity, which was noted u of theta.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 304,
+   "ts": "5:04",
+   "text": "But one thing that we kept silent",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 309,
+   "ts": "5:09",
+   "text": "was how we could actually represent all of these quantities, in particular xt,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 317,
+   "ts": "5:17",
+   "text": "the representation of the image when it's noised at a given level, the noise itself.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 328,
+   "ts": "5:28",
+   "text": "All of these, we just assumed that there was some way of representing these in some n",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 335,
+   "ts": "5:35",
+   "text": "or d dimensional space. So one thing that we will do today is to see what space could actually",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 343,
+   "ts": "5:43",
+   "text": "be more appropriate for this kind of work. And then the second thing is, as you can see,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 352,
+   "ts": "5:52",
+   "text": "the models that we need to estimate-- so epsilon theta, s",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 358,
+   "ts": "5:58",
+   "text": "of theta, you have theta. There are only a function of denoised image and the time,",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 365,
+   "ts": "6:05",
+   "text": "but they're not a function of any condition, any user input.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 371,
+   "ts": "6:11",
+   "text": "So this is also something that we're going to see, a.k.a. How can we incorporate a condition",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 378,
+   "ts": "6:18",
+   "text": "that could guide the generation towards what we want.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 384,
+   "ts": "6:24",
+   "text": "So this is the menu for today. So to recap, we're going to see three things.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 390,
+   "ts": "6:30",
+   "text": "The first one is how can we represent those noisy images.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 396,
+   "ts": "6:36",
+   "text": "The second thing that we're going to see is how to represent the conditions that we want as inputs.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 402,
+   "ts": "6:42",
+   "text": "So for instance, the input text here, a Teddy bear reading a book that we want to generate an image for",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 409,
+   "ts": "6:49",
+   "text": "or an input image that you want to condition your generation for.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 414,
+   "ts": "6:54",
+   "text": "And then the third thing is how we can guide the generation process using that as an input.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 424,
+   "ts": "7:04",
+   "text": "So we're going to start with number one, how to represent these noisy images.",
+   "chapter": "Introduction"
+  },
+  {
+   "t": 432,
+   "ts": "7:12",
+   "text": "And I'm going to start with the most natural approach that you could have when you see those images.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 441,
+   "ts": "7:21",
+   "text": "We, as humans, we are very accustomed to seeing things in the pixel space.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 448,
+   "ts": "7:28",
+   "text": "So here, if you take this image as an example, this image has a certain height H, certain width, W.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 457,
+   "ts": "7:37",
+   "text": "So what you can do is to represent each pixel",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 462,
+   "ts": "7:42",
+   "text": "as a function of the intensity of the color that composes it.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 469,
+   "ts": "7:49",
+   "text": "And in particular, a very common representation is using R, so red, green, and blue.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 478,
+   "ts": "7:58",
+   "text": "So in other words, you would have each pixel that would have three values, which",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 485,
+   "ts": "8:05",
+   "text": "would make up the color. And you would have these values cover all pixels of the image.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 492,
+   "ts": "8:12",
+   "text": "So you would have a dimension n that would be equal to 3 times the size, the number of pixels,",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 500,
+   "ts": "8:20",
+   "text": "which is h times w. And so you could represent your image",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 507,
+   "ts": "8:27",
+   "text": "as a tensor along the axis, the height, the width,",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 513,
+   "ts": "8:33",
+   "text": "and the number of channels here, which are three, which represents R, G, and B.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 520,
+   "ts": "8:40",
+   "text": "So this could be one way. But the big problem with that is that it's very high dimension.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 529,
+   "ts": "8:49",
+   "text": "So if we take the example of a, quote, unquote, \"regular image,\" so 1,024 times 1,024 pixels, then we would end up with",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 541,
+   "ts": "9:01",
+   "text": "a number of dimensions, which would be on the order of a million. So 10 to the power of 6.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 549,
+   "ts": "9:09",
+   "text": "And if you think about it, this is just a lot of dimensions to consider in our training generation",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 557,
+   "ts": "9:17",
+   "text": "paradigm algorithms, which are, of course, a function of the dimension in which you operate.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 564,
+   "ts": "9:24",
+   "text": "So that's one very big drawback. The second drawback is if you look at your image,",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 572,
+   "ts": "9:32",
+   "text": "you actually see that you have a lot of redundancies. So if you see, for instance, in a given neighborhood of pixels,",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 581,
+   "ts": "9:41",
+   "text": "you have a lot of very similar values. So in a sense, you can consider this as a waste of dimensions.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 591,
+   "ts": "9:51",
+   "text": "So it's not very compact. And then the third thing is if you",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 597,
+   "ts": "9:57",
+   "text": "remember our whole first three lectures were about taking the image, and adding noise,",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 603,
+   "ts": "10:03",
+   "text": "and then just moving it in the space with respect to added noise.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 609,
+   "ts": "10:09",
+   "text": "Well, here, if you take an image, and you were to move it slightly in that space",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 615,
+   "ts": "10:15",
+   "text": "by adding some noise, you would actually obtain an image, a noisy image that would actually not",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 621,
+   "ts": "10:21",
+   "text": "be very meaningful. It would not mean anything.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 627,
+   "ts": "10:27",
+   "text": "So in particular, so I'm not sure if you recall this nice graphs or charts, where",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 634,
+   "ts": "10:34",
+   "text": "you would see the areas of high density of your target",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 640,
+   "ts": "10:40",
+   "text": "desired distribution. So here, what we want is clusters of observations",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 649,
+   "ts": "10:49",
+   "text": "that are likely to occur. But what we get is actually the thing on the right, which is a space with very spiky regions, where",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 658,
+   "ts": "10:58",
+   "text": "each spike represents an actual valid image.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 664,
+   "ts": "11:04",
+   "text": "And that's not good. So for all these reasons, we're going",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 670,
+   "ts": "11:10",
+   "text": "to just come up with a wish list of a space that we would like to have.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 677,
+   "ts": "11:17",
+   "text": "So I'm going to go through that step by step. So the first one is the high dimensionality observation",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 684,
+   "ts": "11:24",
+   "text": "that I made. So here, what we want is a dimension that's more, quote, unquote, \"tractable.\"",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 691,
+   "ts": "11:31",
+   "text": "So that's number one. Number two of our wish list is to have a representation that",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 697,
+   "ts": "11:37",
+   "text": "does not have a lot of redundancies, that has some way of compacting things.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 704,
+   "ts": "11:44",
+   "text": "So number 2 is compact representation.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 709,
+   "ts": "11:49",
+   "text": "Number 3, regarding the representation not being meaningful, so here, we want a representation that is meaningful.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 718,
+   "ts": "11:58",
+   "text": "And you can think of this when I say what meaningful means.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 724,
+   "ts": "12:04",
+   "text": "It's when you look at the space, and you're able to have clusters of regions where valid images happen.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 734,
+   "ts": "12:14",
+   "text": "That's what I mean by meaningful space. So this is our wish list.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 742,
+   "ts": "12:22",
+   "text": "So before we move ahead, I want to take the time",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 747,
+   "ts": "12:27",
+   "text": "to introduce two terminologies that are widely used in those papers.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 753,
+   "ts": "12:33",
+   "text": "So I prefer to define them now and clearly so that you what they refer to.",
+   "chapter": "Pixel space"
+  },
+  {
+   "t": 760,
+   "ts": "12:40",
+   "text": "So you will see that there is a lot talk about semantic similarity.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 766,
+   "ts": "12:46",
+   "text": "So what does semantic similarity mean? So semantic similarity of an image",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 772,
+   "ts": "12:52",
+   "text": "is something that refers to its global geometry to its overall structure.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 779,
+   "ts": "12:59",
+   "text": "And in particular, what that means is if two images are semantically similar,",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 787,
+   "ts": "13:07",
+   "text": "what that means is that they roughly represent the same thing.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 793,
+   "ts": "13:13",
+   "text": "So here on the slide, you have on the left a Teddy bear that is reading a book. On the right, you have also a Teddy bear",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 799,
+   "ts": "13:19",
+   "text": "that is reading a book. They're not exactly aligned pixel wise, but they're semantically similar.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 807,
+   "ts": "13:27",
+   "text": "So that's for semantic similarity. Now, you have another notation, which is perceptual similarity.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 818,
+   "ts": "13:38",
+   "text": "So this one refers to more of the local details of an image.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 825,
+   "ts": "13:45",
+   "text": "More to the lower level texture of an image. And when you say that two images are perceptually similar, what",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 835,
+   "ts": "13:55",
+   "text": "that means is that to the human eye, they look the same.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 840,
+   "ts": "14:00",
+   "text": "So for instance, you have, again, two pictures of a Teddy bear. So I'm not sure if you see the one on the right",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 846,
+   "ts": "14:06",
+   "text": "has some little glasses. But it's perceptually very similar.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 852,
+   "ts": "14:12",
+   "text": "Does that make sense, that distinction?",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 859,
+   "ts": "14:19",
+   "text": "Yeah. The reason why I say that is I'm going to use that terminology going forward, so I just want to make sure we all what these are.",
+   "chapter": "Semantic vs perceptual similarity"
+  },
+  {
+   "t": 868,
+   "ts": "14:28",
+   "text": "So what are we doing? What we want is to come up with a space that",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 875,
+   "ts": "14:35",
+   "text": "fulfills our wish list that we established before.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 881,
+   "ts": "14:41",
+   "text": "So here is our first attempt. So how about we take an image in the pixel space,",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 890,
+   "ts": "14:50",
+   "text": "and what we try to do is find a representation",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 896,
+   "ts": "14:56",
+   "text": "that's meaningful using the following architecture.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 902,
+   "ts": "15:02",
+   "text": "So let's assume we take that image, and we put it into some model.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 908,
+   "ts": "15:08",
+   "text": "Let's call it an encoder that encodes the image",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 913,
+   "ts": "15:13",
+   "text": "and produces an output that is of lower dimensionality as the input.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 920,
+   "ts": "15:20",
+   "text": "So here, we go from an image of size HW and number",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 926,
+   "ts": "15:26",
+   "text": "of channels, which, as you know, is equal to 3 in the pixel space because in the RGB",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 932,
+   "ts": "15:32",
+   "text": "representation. And here, we end up with a latent representation",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 937,
+   "ts": "15:37",
+   "text": "of size lowercase h, lowercase w, and little c.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 945,
+   "ts": "15:45",
+   "text": "And then what we do is we put that representation back",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 951,
+   "ts": "15:51",
+   "text": "to the decoder. So if we were to do that, our objective",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 957,
+   "ts": "15:57",
+   "text": "is to recover the original image.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 962,
+   "ts": "16:02",
+   "text": "So we don't want to lose any information by encoding our image into a lower dimensional space.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 969,
+   "ts": "16:09",
+   "text": "So here, such a setup is called an autoencoder.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 976,
+   "ts": "16:16",
+   "text": "So the only job of an autoencoder is to find a lower dimension representation that's called",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 986,
+   "ts": "16:26",
+   "text": "the latent representation. And what it does us is take an image",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 992,
+   "ts": "16:32",
+   "text": "in the pixel space as input, compress it, and then decode it.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1000,
+   "ts": "16:40",
+   "text": "And here, the task is making sure that what you get as output",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1005,
+   "ts": "16:45",
+   "text": "is the same as what you get as input. So you may think, OK, it's a very useless model, which",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1015,
+   "ts": "16:55",
+   "text": "I agree, unless you're interested in the latent space, which we are.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1022,
+   "ts": "17:02",
+   "text": "This is what we're interested in. So does this setup make sense?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1028,
+   "ts": "17:08",
+   "text": "Cool. And then terminology wise, the latent space, like that part,",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1036,
+   "ts": "17:16",
+   "text": "is called the bottleneck just because we're forcing the model to rely on fewer dimensions, and we",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1042,
+   "ts": "17:22",
+   "text": "want the model to still preserve the richness of the details that",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1049,
+   "ts": "17:29",
+   "text": "are present in the image. So let's see how we do that.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1054,
+   "ts": "17:34",
+   "text": "But before we go, I want to introduce another notation that you also see a lot in papers, which",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1060,
+   "ts": "17:40",
+   "text": "is called the spatial compression ratio, which",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1066,
+   "ts": "17:46",
+   "text": "is defined by the amount by which you go from Big H",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1072,
+   "ts": "17:52",
+   "text": "to little h. So it's just the ratio between the two.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1077,
+   "ts": "17:57",
+   "text": "And that ratio is typically on the order of 8.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1082,
+   "ts": "18:02",
+   "text": "So that's the order of magnitude that you should have in mind.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1088,
+   "ts": "18:08",
+   "text": "Cool. So let's see now based on what I told you how each component works.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1097,
+   "ts": "18:17",
+   "text": "So in terms of what is input in the encoder, as we mentioned,",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1103,
+   "ts": "18:23",
+   "text": "we have our input image. Let's note it x that we put in our encoder, that we note E phi.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1113,
+   "ts": "18:33",
+   "text": "And we get a latent representation z that is equal to E phi of x.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1120,
+   "ts": "18:40",
+   "text": "And so the way we would do that would be to use a network that contains some downsampling",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1129,
+   "ts": "18:49",
+   "text": "operations. So what that means is it allows us to go from a bigger",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1134,
+   "ts": "18:54",
+   "text": "dimension to a lower dimension. We're not going to go into too much details",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1141,
+   "ts": "19:01",
+   "text": "into what that network is because we're going to talk more about this in the next lecture.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1147,
+   "ts": "19:07",
+   "text": "But I just want to tell you roughly the two main operations that you can expect, which you may have seen.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1155,
+   "ts": "19:15",
+   "text": "So the first one is convolutions. So who has heard of convolutions before?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1160,
+   "ts": "19:20",
+   "text": "Yeah, everyone. So I can go fast. Convolutions is just a way to scan your image using a filter.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1168,
+   "ts": "19:28",
+   "text": "So the image is in red, the filter is in blue. And what you get is what we call an activation map or a feature",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1176,
+   "ts": "19:36",
+   "text": "map that is in purple.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1181,
+   "ts": "19:41",
+   "text": "And then the second operation that you see in these kinds of networks is pooling.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1186,
+   "ts": "19:46",
+   "text": "So pooling is a downsampling operator that allows you to either take the maximum of a given square,",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1195,
+   "ts": "19:55",
+   "text": "or the average, or either max pooling or average pooling. And it allows you to introduce some spatial invariance",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1203,
+   "ts": "20:03",
+   "text": "just because you can aggregate the pixels to a higher",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1208,
+   "ts": "20:08",
+   "text": "granularity. We're not going to go into too much detail, but these are just for reference.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1216,
+   "ts": "20:16",
+   "text": "So when it comes to the decoder, what you would do is take the latent representation",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1222,
+   "ts": "20:22",
+   "text": "z into the decoder d theta. And you would get your reconstructed output x hat.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1232,
+   "ts": "20:32",
+   "text": "So here, you would use upsampling operations, for instance reverse convolutions.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1240,
+   "ts": "20:40",
+   "text": "And the goal of this model is as much as possible,",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1245,
+   "ts": "20:45",
+   "text": "for your reconstructed output to be as close as possible to your input.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1253,
+   "ts": "20:53",
+   "text": "So the loss function of such a model would be something along the lines of just an L2 regression",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1259,
+   "ts": "20:59",
+   "text": "between the input x and the reconstructed input x hat.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1266,
+   "ts": "21:06",
+   "text": "So I have a question for you. Do you think this model is a good model?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1273,
+   "ts": "21:13",
+   "text": "21:18 So this is what we're going to see now. So let's go through our checklist. First one is, OK., is the dimension more tractable?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1287,
+   "ts": "21:27",
+   "text": "Yes, more tractable. Is the representation more compact?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1292,
+   "ts": "21:32",
+   "text": "Yes, it's more compact. Is the representation meaningful?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1298,
+   "ts": "21:38",
+   "text": "Meaning do you have a nice shape in your latent space in the way we represent it?",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1306,
+   "ts": "21:46",
+   "text": "Yes, exactly. Not necessarily. Well, the reason for that is we have not",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1312,
+   "ts": "21:52",
+   "text": "constrained our latent space to be structured in any particular way. So the model is just only incentivized",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1321,
+   "ts": "22:01",
+   "text": "to reconstruct the input as best as it can.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1326,
+   "ts": "22:06",
+   "text": "And it really doesn't care what shape the latent space is.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1332,
+   "ts": "22:12",
+   "text": "So you actually still end up with this kind of space, which is not good.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1337,
+   "ts": "22:17",
+   "text": "This is not good because your flow matching model, your diffusion model is just not able to learn very well",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1345,
+   "ts": "22:25",
+   "text": "in those spaces because, first of all, the representations are all over the place.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1353,
+   "ts": "22:33",
+   "text": "And if you remember, one common thing with all of these generation paradigms",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1359,
+   "ts": "22:39",
+   "text": "is that you start from a normal distribution, like a standard normal distribution.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1365,
+   "ts": "22:45",
+   "text": "So you need a way for you to not get lost. So if everything is far apart, it just doesn't work.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1374,
+   "ts": "22:54",
+   "text": "So that's not good. So let's go back to the drawing board, and let's see what we can change.",
+   "chapter": "Autoencoder"
+  },
+  {
+   "t": 1382,
+   "ts": "23:02",
+   "text": "So we take our image, we compress it, and then we decompress it.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1388,
+   "ts": "23:08",
+   "text": "Everything's perfect. Well, let's see what we can do in the latent space.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1395,
+   "ts": "23:15",
+   "text": "Our goal here would be to, quote, unquote, \"enforce\"",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1401,
+   "ts": "23:21",
+   "text": "the latent space to have some structure. So this is our goal.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1407,
+   "ts": "23:27",
+   "text": "And we're going to see how we can do that. OK, let's go back to where we were.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1415,
+   "ts": "23:35",
+   "text": "We take our input image x. But instead of just letting it through a standard encoder, what",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1426,
+   "ts": "23:46",
+   "text": "we will do is to actually not try to predict",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1433,
+   "ts": "23:53",
+   "text": "or generate the latent representation directly.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1439,
+   "ts": "23:59",
+   "text": "We will actually predict two things, the mean",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1447,
+   "ts": "24:07",
+   "text": "and the standard deviation of the distribution that it can be drawn from.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1454,
+   "ts": "24:14",
+   "text": "So in other words, what we're going to see to say is instead",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1460,
+   "ts": "24:20",
+   "text": "of saying that one x corresponds to one latent representation,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1466,
+   "ts": "24:26",
+   "text": "we're going to say that 1x actually is mapped to some",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1472,
+   "ts": "24:32",
+   "text": "probability distribution, which sounds kind of weird, right?",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1479,
+   "ts": "24:39",
+   "text": "It's not very natural. But we're going to see why that mitigates the problem.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1485,
+   "ts": "24:45",
+   "text": "So here, as a reminder, so the output of the encoder will not be just a latent vector.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1493,
+   "ts": "24:53",
+   "text": "It will be-- so the mean mu phi. And the variance sigma squared phi.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1503,
+   "ts": "25:03",
+   "text": "So these are the two outputs of the encoder. And what we will say is that the latent representation",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1510,
+   "ts": "25:10",
+   "text": "of this distribution, this latent representation",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1516,
+   "ts": "25:16",
+   "text": "is actually drawn from this distribution. That's what we're going to say.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1521,
+   "ts": "25:21",
+   "text": "And we're going to say something else. So in a bit of an informal way, we're",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1528,
+   "ts": "25:28",
+   "text": "going to say that this distribution is going",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1534,
+   "ts": "25:34",
+   "text": "to be roughly forced to follow or to approximate",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1539,
+   "ts": "25:39",
+   "text": "another distribution. So it's not very mathematically rigorous.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1544,
+   "ts": "25:44",
+   "text": "We were going to see exactly how we can express that. But in your mind, I want you to know",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1549,
+   "ts": "25:49",
+   "text": "that this is a condition for us to structure the latent",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1555,
+   "ts": "25:55",
+   "text": "space in a way where we say the latent representation of an input x will be roughly",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1563,
+   "ts": "26:03",
+   "text": "in a given region of the space. We're going to force that, or we're going to incentivize the model to learn that.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1571,
+   "ts": "26:11",
+   "text": "So that's the idea.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1577,
+   "ts": "26:17",
+   "text": "Cool. And yeah, this distribution is-- OK, you may have guessed it.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1582,
+   "ts": "26:22",
+   "text": "Again, standard normal distribution just because it's. It's a nice distribution with great properties.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1589,
+   "ts": "26:29",
+   "text": "And by the way, this distribution, we're going to call it the prior distribution.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1596,
+   "ts": "26:36",
+   "text": "So let's see how the decoder works. So let's assume we have put our input image into the encoder.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1607,
+   "ts": "26:47",
+   "text": "We have predicted the mean. We have predicted the standard deviation. We have drawn a latent representation",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1614,
+   "ts": "26:54",
+   "text": "from the distribution. So now, the decoding stage will be around taking that representation",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1622,
+   "ts": "27:02",
+   "text": "and passing it through the decoder which again will output",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1627,
+   "ts": "27:07",
+   "text": "two things, the mean new theta of this latent representation",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1634,
+   "ts": "27:14",
+   "text": "z and standard deviation. And what we're going to say is, again,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1641,
+   "ts": "27:21",
+   "text": "that the reconstructed image is going to be drawn from a probability distribution of these two",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1650,
+   "ts": "27:30",
+   "text": "parameters. Well, one thing that I want to say is actually,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1658,
+   "ts": "27:38",
+   "text": "we're going to simplify this part of the problem a little bit. We're actually going to say that the variance is not something",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1666,
+   "ts": "27:46",
+   "text": "we're going to predict. We're just going to fix it to be constant just because there",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1673,
+   "ts": "27:53",
+   "text": "is less impact in you making sure to introduce",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1679,
+   "ts": "27:59",
+   "text": "some variation in the output. Because in the pixel space, even if you add a little bit of noise, it's not",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1687,
+   "ts": "28:07",
+   "text": "going to change the image a whole lot. So that's why people just say, OK, we're",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1693,
+   "ts": "28:13",
+   "text": "going to take some variants that's constant fixed, and we're not going to predict that.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1699,
+   "ts": "28:19",
+   "text": "We're only going to predict the mean. We can draw from this distribution. But sometimes, people also just take the mean as the output.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1710,
+   "ts": "28:30",
+   "text": "So this part is more of a detail. Yeah. So the question here is that whether the latency",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1717,
+   "ts": "28:37",
+   "text": "is drawn from the Gaussian or is drawn from the q-- the encoder here q phi z given x.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1725,
+   "ts": "28:45",
+   "text": "So it's a great question. So this model, which we're going to see what the name is,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1733,
+   "ts": "28:53",
+   "text": "is both a model that we can use to learn the latent space, And so have a reconstruction task.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1740,
+   "ts": "29:00",
+   "text": "But it's also something that can be interpreted as a generative model. So if your goal is to reconstruct the input,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1748,
+   "ts": "29:08",
+   "text": "then your input here is going to be the z that you",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1753,
+   "ts": "29:13",
+   "text": "drew from that distribution. So it's going to be the latent representation of x.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1760,
+   "ts": "29:20",
+   "text": "But if your goal is to generate just a new image,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1766,
+   "ts": "29:26",
+   "text": "then you would actually draw that z from the prior distribution. So the question is the encoder gives you a mean and a variance.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1774,
+   "ts": "29:34",
+   "text": "It does not give you something deterministic exactly. It gives you a mean and a variance.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1780,
+   "ts": "29:40",
+   "text": "And what you're doing is just drawing from that. So you-- yes, you draw from that.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1785,
+   "ts": "29:45",
+   "text": "So great question. So the question is, well, if you have a generative model here, why would you bother.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1792,
+   "ts": "29:52",
+   "text": "And just use diffusion, use flow matching, use all these things? It's a great question. You have a number of differences between the two",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1800,
+   "ts": "30:00",
+   "text": "which makes diffusion flow matching and score actually perform better than VAE.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1805,
+   "ts": "30:05",
+   "text": "One of the differences is here, you only go from latent",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1812,
+   "ts": "30:12",
+   "text": "to pixel in just one step, whereas the other ones, you have several steps that just allows you",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1818,
+   "ts": "30:18",
+   "text": "to put more compute in there. That's one reason. But there are some others that I hope we",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1823,
+   "ts": "30:23",
+   "text": "can get to if we get some time. But we're going to see the relationship between the two.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1829,
+   "ts": "30:29",
+   "text": "Another question? Yeah. The question is, does the latent space look like a normal distribution?",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1835,
+   "ts": "30:35",
+   "text": "So there is something that makes it be \"regularized,\" quote,",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1845,
+   "ts": "30:45",
+   "text": "unquote, to be a normal distribution. It depends on a term that you can tweak with respect to a coefficient",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1852,
+   "ts": "30:52",
+   "text": "that we're going to see. And depending on the value of that coefficient, it may look more or less than a normal distribution.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1861,
+   "ts": "31:01",
+   "text": "But we're going to see that. Cool.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1867,
+   "ts": "31:07",
+   "text": "So the first time I saw this model, I was confused. You may be confused now, and I hope",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1873,
+   "ts": "31:13",
+   "text": "what we're going to see will make you a bit less confused.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1878,
+   "ts": "31:18",
+   "text": "So here, one thing that I want to say is in the autoencoder case, the loss function was pretty clear.",
+   "chapter": "Variational autoencoders"
+  },
+  {
+   "t": 1889,
+   "ts": "31:29",
+   "text": "You would just try to estimate the reconstructed output",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1898,
+   "ts": "31:38",
+   "text": "in such a way that it's as close as possible to your input.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1905,
+   "ts": "31:45",
+   "text": "But here, you have a bunch of distributions everywhere. There's not like an obvious way of expressing that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1911,
+   "ts": "31:51",
+   "text": "without doing some math. So what I propose is that we derive the loss function",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1919,
+   "ts": "31:59",
+   "text": "for this model, which I'm not sure if I can tell it now, but I'm going to tell it.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1924,
+   "ts": "32:04",
+   "text": "It's called the variational autoencoder. And we're going to see what makes it variational.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1932,
+   "ts": "32:12",
+   "text": "So if you remember, in a lot of cases,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1940,
+   "ts": "32:20",
+   "text": "the way you derive a loss function is by doing maximum likelihood estimation.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1948,
+   "ts": "32:28",
+   "text": "So what does that mean? That means that you have some model of parameters theta.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1954,
+   "ts": "32:34",
+   "text": "And what you want is to find the parameters theta that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1960,
+   "ts": "32:40",
+   "text": "maximize the probability of your model seeing the data.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1968,
+   "ts": "32:48",
+   "text": "That's what ML is. And that's what we're going to use to see how we can derive a loss function that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1975,
+   "ts": "32:55",
+   "text": "can help us learn theta. So in particular, what we want is to maximize",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1983,
+   "ts": "33:03",
+   "text": "the log of p theta of x. So I'm going to write it down. So what we want is to express log p theta of x with respect",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 1995,
+   "ts": "33:15",
+   "text": "to something that we can compute. Because this, we cannot really compute something just",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2004,
+   "ts": "33:24",
+   "text": "by looking at it. So let's see how we can do that. So I'm going to just start with expressing p theta of x",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2014,
+   "ts": "33:34",
+   "text": "as a function of something. So this model can be seen as a generative model that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2024,
+   "ts": "33:44",
+   "text": "starts from a latent variable that you draw from what",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2030,
+   "ts": "33:50",
+   "text": "we call a prior distribution. So one idea of expressing p theta",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2038,
+   "ts": "33:58",
+   "text": "of x, if you remember lecture 1, we can consider",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2044,
+   "ts": "34:04",
+   "text": "the joint probability distribution of p theta of z, a latent, and x, and sum across all latent z",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2061,
+   "ts": "34:21",
+   "text": "that led to x. We can do that, right?",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2067,
+   "ts": "34:27",
+   "text": "So what we say is that p theta of x is equal to this joint probability",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2073,
+   "ts": "34:33",
+   "text": "distribution of x, your image in pixel space, and z, your latent.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2081,
+   "ts": "34:41",
+   "text": "And you're just going to integrate over all possible latent representations.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2090,
+   "ts": "34:50",
+   "text": "So this quantity is nothing else than you're",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2098,
+   "ts": "34:58",
+   "text": "drawing from a prior, so p of z, and then using your decoder",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2110,
+   "ts": "35:10",
+   "text": "to estimate x given z. So this quantity is the integral of your prior times",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2121,
+   "ts": "35:21",
+   "text": "p theta of x given z, dz.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2126,
+   "ts": "35:26",
+   "text": "P of z. Yeah, exactly. So the Gaussian.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2133,
+   "ts": "35:33",
+   "text": "p theta x given z. Well, it's your model, your model that you want to find.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2142,
+   "ts": "35:42",
+   "text": "The problem is that you need to compute this for all possible latent z.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2153,
+   "ts": "35:53",
+   "text": "And z is still high dimensional-- high dimensional vector.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2159,
+   "ts": "35:59",
+   "text": "So this, if you were to compute this quantity for all z,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2165,
+   "ts": "36:05",
+   "text": "it's actually not something that you can do. Because you would have to compute a lot of such quantities",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2173,
+   "ts": "36:13",
+   "text": "with given zs in order to get a good estimate. And it's just not something that you can do.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2180,
+   "ts": "36:20",
+   "text": "So do you remember a similar setting we had in lecture 1,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2189,
+   "ts": "36:29",
+   "text": "which is the reason why we're going to see how we can find a convenient bound that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2196,
+   "ts": "36:36",
+   "text": "could be maybe more tractable? Because so far, I have not used the fact",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2201,
+   "ts": "36:41",
+   "text": "that we also have a way to encode the input in order",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2206,
+   "ts": "36:46",
+   "text": "to get latents that are more likely to be the ones that I want to consider here.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2214,
+   "ts": "36:54",
+   "text": "So what I'm going to do now is to find--",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2220,
+   "ts": "37:00",
+   "text": "so what I want to do first is to maximize this quantity. So I want to find theta that maximizes this quantity.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2229,
+   "ts": "37:09",
+   "text": "So we saw just now that this quantity is not something that I can actually compute.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2235,
+   "ts": "37:15",
+   "text": "So what we're going to do is to find a lower bound that could be something",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2243,
+   "ts": "37:23",
+   "text": "that you could compute. And what we want to do is to maximize that lower bound",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2248,
+   "ts": "37:28",
+   "text": "in the hope that it will also maximize this in order to find our parameters theta.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2257,
+   "ts": "37:37",
+   "text": "So let's do it. So you would have the following. So I'm going to just come here.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2264,
+   "ts": "37:44",
+   "text": "I would just say that p of x is equal to the integral of p",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2270,
+   "ts": "37:50",
+   "text": "of z times p theta of x given z, which is just at that point,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2278,
+   "ts": "37:58",
+   "text": "I'm going to use the same trick that we did in lecture 1, which is to involve",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2289,
+   "ts": "38:09",
+   "text": "the output of the encoder. And here, it is q phi of z given x times q phi of z given x.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2302,
+   "ts": "38:22",
+   "text": "So what does this represent? So this represents the probability distribution",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2315,
+   "ts": "38:35",
+   "text": "of the zs that are likely to occur for this given x.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2322,
+   "ts": "38:42",
+   "text": "Because here, in the original form, what you were doing was to just sum across all possible latent representations",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2332,
+   "ts": "38:52",
+   "text": "out there, but there are many of them. So it's like, you're in the ocean,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2339,
+   "ts": "38:59",
+   "text": "and someone tells you, OK, just look through the whole ocean.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2344,
+   "ts": "39:04",
+   "text": "But the thing is, only a small subset of the zs",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2350,
+   "ts": "39:10",
+   "text": "are actually the ones that you want. They're actually only a subset of the zs that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2357,
+   "ts": "39:17",
+   "text": "are the ones that are responsible for your x to appear, which is the reason why we're letting these q",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2365,
+   "ts": "39:25",
+   "text": "phi of z given x pop up. And this expression, so this is equal to this.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2375,
+   "ts": "39:35",
+   "text": "And this gets equal to just the expectation of p of z times",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2381,
+   "ts": "39:41",
+   "text": "p theta of x given z over q phi of z",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2388,
+   "ts": "39:48",
+   "text": "given x, where your z is drawn from q phi of z given x.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2400,
+   "ts": "40:00",
+   "text": "So why am I doing this whole thing?",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2405,
+   "ts": "40:05",
+   "text": "Because what I want to do is to take",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2411,
+   "ts": "40:11",
+   "text": "the log of this whole thing.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2417,
+   "ts": "40:17",
+   "text": "I want to take the log of this whole thing",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2423,
+   "ts": "40:23",
+   "text": "and do the same trick as we did for the DPM, which is the Jensen's inequality.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2431,
+   "ts": "40:31",
+   "text": "And I'm going to say that it's the expectation of the log of this whole thing.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2438,
+   "ts": "40:38",
+   "text": "40:46 So I'm taking the log of this quantity, which I expressed",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2451,
+   "ts": "40:51",
+   "text": "as a function of the output given by the encoder for which I",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2458,
+   "ts": "40:58",
+   "text": "can find a lower bound. And now, we're going to see that this lower bound is actually",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2467,
+   "ts": "41:07",
+   "text": "something that is tractable.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2472,
+   "ts": "41:12",
+   "text": "We're going to see it now. So what I'm going to do is to just rewrite this expression.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2481,
+   "ts": "41:21",
+   "text": "So we have-- so the expectation of the log of the whole thing,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2492,
+   "ts": "41:32",
+   "text": "which is equal to the expectation of the log of p",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2499,
+   "ts": "41:39",
+   "text": "theta of x given z plus the expectation of--",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2509,
+   "ts": "41:49",
+   "text": "so I'm going to be a little bit smart. I will say minus the expectation of the log of q phi of z",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2521,
+   "ts": "42:01",
+   "text": "given x over your prior distribution.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2528,
+   "ts": "42:08",
+   "text": "So here, what I just did was I take",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2535,
+   "ts": "42:15",
+   "text": "the log of pz times p theta of x given z over q phi of z given x.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2542,
+   "ts": "42:22",
+   "text": "And what I did is I just-- I used the property of the log, which is logarithm of the product, is the sum",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2551,
+   "ts": "42:31",
+   "text": "of the logarithm of the terms. So I had this one pop up.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2557,
+   "ts": "42:37",
+   "text": "And this one, I just rearranged. I put the denominator in the numerator, and I added the minus.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2564,
+   "ts": "42:44",
+   "text": "And given that it's an expectation for both of these that are over z drawn from your encoder output, which",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2575,
+   "ts": "42:55",
+   "text": "is q phi of z given x, this term is actually",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2584,
+   "ts": "43:04",
+   "text": "the KL divergence of q phi of z given x and your prior.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2593,
+   "ts": "43:13",
+   "text": "43:19 So what does this all mean?",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2605,
+   "ts": "43:25",
+   "text": "What this all means is in order to find the theta that maximizes this quantity,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2613,
+   "ts": "43:33",
+   "text": "we derived a lower bound. That is something that will see is tractable.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2619,
+   "ts": "43:39",
+   "text": "So it's this expression, which we have divided into two terms.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2626,
+   "ts": "43:46",
+   "text": "So the first one is expectation of the logarithm of p theta of x given z.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2632,
+   "ts": "43:52",
+   "text": "And the other one is a KL divergence.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2637,
+   "ts": "43:57",
+   "text": "So we're going to see that these two terms are actually quite interpretable.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2643,
+   "ts": "44:03",
+   "text": "The first one is actually a reconstruction term.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2649,
+   "ts": "44:09",
+   "text": "Because if you remember, p theta of x given z",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2655,
+   "ts": "44:15",
+   "text": "is a normal distribution with fixed variance.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2660,
+   "ts": "44:20",
+   "text": "So we know the probability density analytically. So if you take the log of the probability",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2668,
+   "ts": "44:28",
+   "text": "density of a Gaussian, you actually end up with something super simple, which is the norm of x.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2677,
+   "ts": "44:37",
+   "text": "So the input and the reconstructed outputs.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2682,
+   "ts": "44:42",
+   "text": "And then the second term is actually a term. So back to your question.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2687,
+   "ts": "44:47",
+   "text": "It is a term that penalizes the distribution coming",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2693,
+   "ts": "44:53",
+   "text": "from your encoder being far from this fixed prior distribution.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2700,
+   "ts": "45:00",
+   "text": "So loss functions usually have a coefficient in front of this term to penalize",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2706,
+   "ts": "45:06",
+   "text": "more or less the fact of being far or close from this prior distribution.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2714,
+   "ts": "45:14",
+   "text": "And depending on the coefficient there, you're going to have either something that",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2721,
+   "ts": "45:21",
+   "text": "will look like a normal distribution or not.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2726,
+   "ts": "45:26",
+   "text": "So that is the part of your loss that will allow you to do that.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2732,
+   "ts": "45:32",
+   "text": "I'm looking at the time. I'm not super in advance, but I'm going to just pause for one minute",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2738,
+   "ts": "45:38",
+   "text": "if you have any questions. So the question is we're pushing the distribution of the encoder",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2744,
+   "ts": "45:44",
+   "text": "to be more of the normal distribution. So we want to do that to normalize the latent space,",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2751,
+   "ts": "45:51",
+   "text": "but we don't want to do that too much. Otherwise, so the prior distribution is p of z.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2758,
+   "ts": "45:58",
+   "text": "It doesn't care what x is. And in other words, if you push it too much towards something",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2765,
+   "ts": "46:05",
+   "text": "that is just static, it will just not",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2771,
+   "ts": "46:11",
+   "text": "consider the input at all. It will collapse. Yeah, so it's called posterior collapse.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2778,
+   "ts": "46:18",
+   "text": "So just one other question, and then I'll move on. Yeah. So the question is-- so we had this image",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2783,
+   "ts": "46:23",
+   "text": "with the little spikiness and that was the autoencoder, the standard autoencoder part.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2789,
+   "ts": "46:29",
+   "text": "This one is actually structured in the latent space in a way that makes it more smooth, more well put together, and yes.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2797,
+   "ts": "46:37",
+   "text": "So I'm going to speed up a little bit.",
+   "chapter": "ELBO derivation"
+  },
+  {
+   "t": 2803,
+   "ts": "46:43",
+   "text": "Let's go through our checklist. Tractable dimension, yes.",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2809,
+   "ts": "46:49",
+   "text": "Compact representation, yes. Meaningful representation, yes.",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2819,
+   "ts": "46:59",
+   "text": "Oops, truthful representation. No. Wait.",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2824,
+   "ts": "47:04",
+   "text": "Why is that? So these models, they actually end up reconstructing the image",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2833,
+   "ts": "47:13",
+   "text": "in an imperfect way. And what we actually obtain are more blurry images.",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2841,
+   "ts": "47:21",
+   "text": "And so I'm hoping that in the next nine minutes, we're going to see why that is the case",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2848,
+   "ts": "47:28",
+   "text": "and how we can solve it. So first of all, let's look at the loss",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2855,
+   "ts": "47:35",
+   "text": "function that we have derived, which is composed of a reconstruction loss and a regularization loss.",
+   "chapter": "Blurriness issue of VAEs"
+  },
+  {
+   "t": 2864,
+   "ts": "47:44",
+   "text": "So the reconstruction loss. What is it? We have not derived it here.",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2869,
+   "ts": "47:49",
+   "text": "But I am telling you that if you derive it, it is the pixel wise L2 between the input",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2880,
+   "ts": "48:00",
+   "text": "and the reconstructed output, the reconstructed input, sorry.",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2885,
+   "ts": "48:05",
+   "text": "And so what that means is if the generation is a little bit off",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2892,
+   "ts": "48:12",
+   "text": "by a few pixels, it will actually get very penalized.",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2898,
+   "ts": "48:18",
+   "text": "Because the distance is pixel wise. So what ends up happening is the model",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2907,
+   "ts": "48:27",
+   "text": "tends to produce values that are more averaged,",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2912,
+   "ts": "48:32",
+   "text": "which produces this blurriness sensation that you're seeing. But then you will tell me, well, Afshin, the standard autoencoder",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2922,
+   "ts": "48:42",
+   "text": "also had that loss. So why didn't it happen there?",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2927,
+   "ts": "48:47",
+   "text": "Well, the fact is, it also happened there, but it's even more pronounced here",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2933,
+   "ts": "48:53",
+   "text": "because of the structure of the model that we have defined,",
+   "chapter": "Reconstruction loss"
+  },
+  {
+   "t": 2940,
+   "ts": "49:00",
+   "text": "which is that the latent representation is not a one to one mapping with the input x, it is not.",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2950,
+   "ts": "49:10",
+   "text": "Instead, what we have said is a given input x maps to a probability distribution,",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2957,
+   "ts": "49:17",
+   "text": "like a set of probable points that could be actually latent representations of this x.",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2965,
+   "ts": "49:25",
+   "text": "So the model will introduce this uncertainty even more in the reconstruction that it will output.",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2973,
+   "ts": "49:33",
+   "text": "And here, what we want to do is to combat",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2980,
+   "ts": "49:40",
+   "text": "that blurriness sensation. Because here, if we were to perform diffusion in the latent",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2988,
+   "ts": "49:48",
+   "text": "space, and if we were to decode the final output in the latent",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 2995,
+   "ts": "49:55",
+   "text": "space, the last thing that we want is for our output to be blurry.",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 3001,
+   "ts": "50:01",
+   "text": "We do not want that. So now, we're going to see a couple of strategies",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 3009,
+   "ts": "50:09",
+   "text": "that will allow us to combat that blurriness artifact",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 3015,
+   "ts": "50:15",
+   "text": "that we're seeing. And the first one is going to be about a kind of loss that's",
+   "chapter": "KL regularization loss"
+  },
+  {
+   "t": 3022,
+   "ts": "50:22",
+   "text": "called the perceptual loss. I'm going to say exactly what that means.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3028,
+   "ts": "50:28",
+   "text": "So let's imagine you have your image x.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3034,
+   "ts": "50:34",
+   "text": "The intuition here is we don't want the reconstructed output",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3039,
+   "ts": "50:39",
+   "text": "to be compared with the input pixel to pixel because it does not allow for little shifting",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3047,
+   "ts": "50:47",
+   "text": "here and there. So what we want instead is to be able to compare the input",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3055,
+   "ts": "50:55",
+   "text": "and the reconstruction more in terms of similarity, that something that looks similar to you",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3063,
+   "ts": "51:03",
+   "text": "as a human, perceptually similar.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3068,
+   "ts": "51:08",
+   "text": "So how can you do that? Well, there are some models out there",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3074,
+   "ts": "51:14",
+   "text": "that there are convolutional based, for instance, that actually extract features from these images",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3084,
+   "ts": "51:24",
+   "text": "in their layers. And here, we refer them as feature maps.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3092,
+   "ts": "51:32",
+   "text": "And one good thing-- one good thing about these feature maps is that they represent things from this image that",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3101,
+   "ts": "51:41",
+   "text": "have more of a spatial invariance compared to the original image.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3108,
+   "ts": "51:48",
+   "text": "So what does that mean? That means that if you have two images that are slightly",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3115,
+   "ts": "51:55",
+   "text": "shifted, slightly different, then their feature maps will actually not be that different.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3124,
+   "ts": "52:04",
+   "text": "So the idea here is instead of comparing the pixel based",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3130,
+   "ts": "52:10",
+   "text": "images one to the other, we're going to compare their representation, their feature maps",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3138,
+   "ts": "52:18",
+   "text": "one to another. And I'm not sure if you've heard that loss, but there is a loss that's called LPIPS, so",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3147,
+   "ts": "52:27",
+   "text": "Learn Perceptual Image Patch Similarity. So it is a loss or it is a metric I should say,",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3155,
+   "ts": "52:35",
+   "text": "that is composed of the difference between the feature maps of two images, and that are weighted by a coefficient, which",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3166,
+   "ts": "52:46",
+   "text": "is here WL. There are coefficients that are tuned",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3172,
+   "ts": "52:52",
+   "text": "by the authors of this paper in order to match what humans consider as being perceptually similar.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3182,
+   "ts": "53:02",
+   "text": "So long story short-- so by the way, the formula is scary, but it's not that big of a deal.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3187,
+   "ts": "53:07",
+   "text": "We don't care about the whole thing. What we care about is that we're not comparing",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3193,
+   "ts": "53:13",
+   "text": "images in the pixel space. We're comparing images between their feature maps.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3202,
+   "ts": "53:22",
+   "text": "And what we're saying here is that the feature maps of two images better reflect their structure, their details,",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3211,
+   "ts": "53:31",
+   "text": "and are less sensitive to spatial differences.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3217,
+   "ts": "53:37",
+   "text": "So that is one strategy. So one thing to note is that we would weight this loss",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3226,
+   "ts": "53:46",
+   "text": "by some coefficients. You could think, OK, this loss is answering all our needs.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3231,
+   "ts": "53:51",
+   "text": "Let's have the weight for this part of the loss be super high. Well, if you do that, actually, there",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3237,
+   "ts": "53:57",
+   "text": "are some bad things that also happen. So we have what we call checkerboard artifacts, which",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3244,
+   "ts": "54:04",
+   "text": "as you can tell is like a grid like artifact in the image that is similar to this one.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3251,
+   "ts": "54:11",
+   "text": "So you don't want to have too big of a weight either.",
+   "chapter": "Perceptual loss"
+  },
+  {
+   "t": 3258,
+   "ts": "54:18",
+   "text": "So that's one. And then a second strategy to combat blurriness",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3264,
+   "ts": "54:24",
+   "text": "is what we're going to see now. So the problem that we have is that the decoder of the VA",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3273,
+   "ts": "54:33",
+   "text": "is outputting an image that is blurry. So one idea could be to ask another model",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3283,
+   "ts": "54:43",
+   "text": "to tell you whether the input image, so in this case, the blurry image is a real image or not?",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3290,
+   "ts": "54:50",
+   "text": "And based on that, what we would do",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3295,
+   "ts": "54:55",
+   "text": "is incentivize this other network called the discriminator, to distinguish outputs coming",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3304,
+   "ts": "55:04",
+   "text": "from the decoder compared to real images, which would then flag blurry images as being fake.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3314,
+   "ts": "55:14",
+   "text": "And we would penalize the decoder for generating images that would be flagged",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3322,
+   "ts": "55:22",
+   "text": "as fake by the discriminator. So have you heard of GANs before?",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3329,
+   "ts": "55:29",
+   "text": "So we don't have time to talk about them in detail, but I think this slide is summing up what is happening.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3335,
+   "ts": "55:35",
+   "text": "So you have two models that are competing with one another.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3340,
+   "ts": "55:40",
+   "text": "The decoder that wants to produce images that the discriminator cannot distinguish from being fake,",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3349,
+   "ts": "55:49",
+   "text": "and the discriminator that wants to distinguish the output from the decoder compared to images from real life.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3360,
+   "ts": "56:00",
+   "text": "And what this will do is incentivize the decoder to produce more realistic images.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3369,
+   "ts": "56:09",
+   "text": "And in doing so, it will help with removing that blurriness.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3376,
+   "ts": "56:16",
+   "text": "So that is called adversarial loss. So what we saw was that the original loss of the VA,",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3385,
+   "ts": "56:25",
+   "text": "which we derived here, led to outputs that were too blurry.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3393,
+   "ts": "56:33",
+   "text": "It was fulfilling all the wish list that we had, but it was not leading to a truthful reconstruction, which",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3401,
+   "ts": "56:41",
+   "text": "is the reason why we saw two different strategies",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3407,
+   "ts": "56:47",
+   "text": "to add to our loss, to counterbalance the tendency for the model to produce blurry outputs.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3415,
+   "ts": "56:55",
+   "text": "So these are the perceptual loss and the adversarial loss.",
+   "chapter": "Adversarial loss"
+  },
+  {
+   "t": 3421,
+   "ts": "57:01",
+   "text": "So before giving it to Sherwin, I could not let you without telling you",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3426,
+   "ts": "57:06",
+   "text": "how this fits together with the diffusion models. So in particular, the reason why we did this whole thing",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3435,
+   "ts": "57:15",
+   "text": "is for us to use our diffusion flow matching model not in the pixel space, but in the latent space.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3445,
+   "ts": "57:25",
+   "text": "Because computationally it's just cheaper and it's able to scale.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3451,
+   "ts": "57:31",
+   "text": "So now, we're going to see what our strategy for training and inference is.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3457,
+   "ts": "57:37",
+   "text": "So for training, what we do is we first train the VA exactly like we saw.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3465,
+   "ts": "57:45",
+   "text": "And then what we're going to do is to train our image generation model, like using for instance flow matching,",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3473,
+   "ts": "57:53",
+   "text": "in the latent space of the VA. And we're going to see how we do that.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3480,
+   "ts": "58:00",
+   "text": "So let's suppose we have an image from our target data distribution.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3486,
+   "ts": "58:06",
+   "text": "We pass it through the encoder. Our encoder gives us two quantities.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3493,
+   "ts": "58:13",
+   "text": "So the mean and the standard deviation. And what we do is we sample from that distribution",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3500,
+   "ts": "58:20",
+   "text": "to get our latent representation. And then what happens is in our latent space,",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3507,
+   "ts": "58:27",
+   "text": "so we hopefully have a smoother latent space. We have our z1, which corresponds to the clean image.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3516,
+   "ts": "58:36",
+   "text": "We sample from the noisy data distribution.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3521,
+   "ts": "58:41",
+   "text": "And here, I'm just illustrating the case of flow matching, we have zt, which is a weighted combination of the two.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3529,
+   "ts": "58:49",
+   "text": "And what we do is we optimize for, let's say, our velocity like the l2 loss.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3536,
+   "ts": "58:56",
+   "text": "We'll do that. This is for training. So how about inference?",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3543,
+   "ts": "59:03",
+   "text": "Well, let's assume that you have trained your model.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3548,
+   "ts": "59:08",
+   "text": "Then now, what you want to do is to generate new images. So what you're going to do is to first sample",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3558,
+   "ts": "59:18",
+   "text": "from an easy distribution in the latent space. So for instance, Gaussian noise.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3565,
+   "ts": "59:25",
+   "text": "And you're going to use, for instance flow matching, the velocity that you have learned",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3572,
+   "ts": "59:32",
+   "text": "to solve it numerically and arrive, at let's say a point z1, which is the latent representation of your end",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3583,
+   "ts": "59:43",
+   "text": "trajectory. And what we're going to do is to use the VAE decoder to decode that output back to pixel space.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3593,
+   "ts": "59:53",
+   "text": "So let's see how it looks like. So this is your latent space that you have learned. You sample from the noisy distribution",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3600,
+   "ts": "1:00:00",
+   "text": "in that latent space. You solve numerically the ODE using the learned vector fields",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3608,
+   "ts": "1:00:08",
+   "text": "that we've trained right before. You obtain z1. The problem is, z1 to us, it doesn't mean anything",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3616,
+   "ts": "1:00:16",
+   "text": "because it's not in a pixel space. So what you do is you take that z1,",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3622,
+   "ts": "1:00:22",
+   "text": "you pass it through the decoder, and you obtain the image in pixel space.",
+   "chapter": "Latent diffusion models"
+  },
+  {
+   "t": 3631,
+   "ts": "1:00:31",
+   "text": "So to conclude, what we've seen is a way",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3636,
+   "ts": "1:00:36",
+   "text": "to find a latent space that is of lower dimension, that",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3642,
+   "ts": "1:00:42",
+   "text": "is smoother, and that is also able to preserve",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3649,
+   "ts": "1:00:49",
+   "text": "the details of your image. And so in particular, we say that the encoder",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3655,
+   "ts": "1:00:55",
+   "text": "acts as a low pass filter. Because what it does represents those images mostly based",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3666,
+   "ts": "1:01:06",
+   "text": "on their semantic similarity. So this is actually something we have not seen.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3672,
+   "ts": "1:01:12",
+   "text": "But for a diffusion model to find all the details",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3680,
+   "ts": "1:01:20",
+   "text": "in its exploration is much harder than finding something that is semantically what it wants to generate.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3687,
+   "ts": "1:01:27",
+   "text": "So this is the reason why we're giving the decoder the task of conveying all the low level details, all",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3696,
+   "ts": "1:01:36",
+   "text": "the perceptual elements. And the role of the decoder is to take that latent",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3703,
+   "ts": "1:01:43",
+   "text": "representation and to make it an output that is full of details, that is realistic,",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3711,
+   "ts": "1:01:51",
+   "text": "and that is matching what we want. And for that reason, you have the encoder",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3717,
+   "ts": "1:01:57",
+   "text": "and the decoder, which you would think is symmetric. But in practice, the VAEs that are used in conjunction",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3727,
+   "ts": "1:02:07",
+   "text": "with diffusion models are such that the decoder is actually bigger than the encoder.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3734,
+   "ts": "1:02:14",
+   "text": "1:02:20 Does that make sense? So we don't have a lot of time. So one thing that I put down there",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3747,
+   "ts": "1:02:27",
+   "text": "is a longer form version of everything I mentioned in some very interesting articles, which",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3755,
+   "ts": "1:02:35",
+   "text": "I recommend reading, but not mandatory as part of this class, which is some results from flux 2, which",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3764,
+   "ts": "1:02:44",
+   "text": "is a text to image model, and the LDM paper, the Latent",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3769,
+   "ts": "1:02:49",
+   "text": "Diffusion Model paper that is at the bottom of the slide.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3774,
+   "ts": "1:02:54",
+   "text": "Yeah. So the question is, what should we",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3779,
+   "ts": "1:02:59",
+   "text": "think of the role of the encoder and the decoder? So at the end of the day, what you",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3785,
+   "ts": "1:03:05",
+   "text": "want is to have an easy time generating images, at the end of the day.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3790,
+   "ts": "1:03:10",
+   "text": "And what you want is to not have too high of a computational burden for your diffusion model to operate.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3798,
+   "ts": "1:03:18",
+   "text": "So what you want is a latent space that is low in dimensionality, and that is easy for you",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3807,
+   "ts": "1:03:27",
+   "text": "to learn. So what does easy for you to learn mean? It means having a space that is not super spiky,",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3815,
+   "ts": "1:03:35",
+   "text": "but that is more smooth. And in particular, in order for you to obtain such a space,",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3825,
+   "ts": "1:03:45",
+   "text": "it is actually something that in practice, something that you can obtain if you focus on the semantic meaning",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3834,
+   "ts": "1:03:54",
+   "text": "of these images, as opposed to capturing all the low level details. So in other words, what I'm saying",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3842,
+   "ts": "1:04:02",
+   "text": "is, even if two images are perceptually not very similar,",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3848,
+   "ts": "1:04:08",
+   "text": "but if they represent the same thing, what we want for these images is to be located not too",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3855,
+   "ts": "1:04:15",
+   "text": "far from one another in the latent space. So we want the encoder to mostly capture the semantic meaning.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3863,
+   "ts": "1:04:23",
+   "text": "So the encoder, what we want is to make the job of the diffusion model easy.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3869,
+   "ts": "1:04:29",
+   "text": "And so this is the learnability. You will see in those paper, learnability.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3874,
+   "ts": "1:04:34",
+   "text": "So once you have images that are semantically similar, that are close to one another, you do your diffusion process.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3884,
+   "ts": "1:04:44",
+   "text": "You obtain, let's say a point that you say, OK, this is the latent representation",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3889,
+   "ts": "1:04:49",
+   "text": "that I want to have in the pixel space. So now, the job of your decoder is",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3896,
+   "ts": "1:04:56",
+   "text": "to make sure that all the details that you want to have in this final image are there.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3903,
+   "ts": "1:05:03",
+   "text": "So in that sense, in contrast to the encoder, the decoders job is to make sure all the perceptual details are",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3913,
+   "ts": "1:05:13",
+   "text": "present in the final decoded image in the pixel space. So in that sense, you have these two different roles",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3921,
+   "ts": "1:05:21",
+   "text": "of the encoder and the decoder. So you want your diffusion model to have an easy time learning",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3927,
+   "ts": "1:05:27",
+   "text": "this thing, and you want a space that has some semantic information, which is what",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3934,
+   "ts": "1:05:34",
+   "text": "I mentioned the encoder can do. But what you want, at the end of the day, is to have an image that contains the details that you",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3942,
+   "ts": "1:05:42",
+   "text": "want, and that part is mostly something that decoder can help with in the decoding stage.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3952,
+   "ts": "1:05:52",
+   "text": "OK, I'm 10 minutes over time, but with that, I'll give it to Sherwin.",
+   "chapter": "Encoder vs decoder trade-off"
+  },
+  {
+   "t": 3958,
+   "ts": "1:05:58",
+   "text": "Thank you, Afshin. So now, we're going to see together how to represent the conditions that we",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 3965,
+   "ts": "1:06:05",
+   "text": "have at the input of this generation models. So the first kind of condition that we can have",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 3971,
+   "ts": "1:06:11",
+   "text": "is the text one. So the text world, when it comes to representing embeddings",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 3978,
+   "ts": "1:06:18",
+   "text": "has a long history. And I'm not going to go through the whole history of how we represent embeddings.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 3984,
+   "ts": "1:06:24",
+   "text": "I'm just going to focus on how people do it today. And the way they do it is with transformer-based architectures.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 3993,
+   "ts": "1:06:33",
+   "text": "So let's first see how we can decompose the input sentence.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4000,
+   "ts": "1:06:40",
+   "text": "So we have this concept called tokenization, which is the practice of decomposing any piece of text",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4008,
+   "ts": "1:06:48",
+   "text": "into atomic components. So you can have something that operates",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4013,
+   "ts": "1:06:53",
+   "text": "at an arbitrary level, word level, subword level",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4018,
+   "ts": "1:06:58",
+   "text": "or character level. And a software level is usually algorithms",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4025,
+   "ts": "1:07:05",
+   "text": "that learn how to best decompose the tokens with respect to the data by focusing a vocabulary",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4034,
+   "ts": "1:07:14",
+   "text": "budget on those tokens that most frequently occur. And the tokenization technique that's most used these days",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4043,
+   "ts": "1:07:23",
+   "text": "is subword. But for simplicity, the one that you're",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4048,
+   "ts": "1:07:28",
+   "text": "going to see in the slides is more towards arbitrary, but it's just for representation purposes.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4054,
+   "ts": "1:07:34",
+   "text": "So who knows about transformers? OK, so most of you.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4060,
+   "ts": "1:07:40",
+   "text": "So there is a sister course that talks about transformers at length. I'm not going to talk about transformers at length,",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4066,
+   "ts": "1:07:46",
+   "text": "but just give the main pieces of information that you should know. So it is an encoder, decoder architecture",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4076,
+   "ts": "1:07:56",
+   "text": "that is centered on the concept of extension. And it came out in 2017.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4083,
+   "ts": "1:08:03",
+   "text": "And most of the language models that you see today are based off of it. Even vision models, you have many of them",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4091,
+   "ts": "1:08:11",
+   "text": "that are based on the transformer. And the good thing about it that made it work well",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4098,
+   "ts": "1:08:18",
+   "text": "is that it's inductive biases are based on the concept of attention that proved to be generalizable.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4105,
+   "ts": "1:08:25",
+   "text": "And let's focus now on this concept of attention.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4110,
+   "ts": "1:08:30",
+   "text": "So if we had to summarize in a single sentence what it is, it is the practice of representing",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4118,
+   "ts": "1:08:38",
+   "text": "a given piece of input as a function of all the others.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4124,
+   "ts": "1:08:44",
+   "text": "And here, with the example, a cute Teddy bear is reading, if we want to represent",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4130,
+   "ts": "1:08:50",
+   "text": "in the space of attention the token Teddy bear, what we do is that we have embeddings for all these tokens.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4138,
+   "ts": "1:08:58",
+   "text": "You have learnable matrices that will turn them into the space of queries, q, keys, k, and values, v.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4148,
+   "ts": "1:09:08",
+   "text": "And what you're going to learn is a distribution of keys--",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4153,
+   "ts": "1:09:13",
+   "text": "of this key over keys. And the weights that you obtain are",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4159,
+   "ts": "1:09:19",
+   "text": "going to be those that you place on the corresponding values. So in summary, you're able to represent the embedding of Teddy",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4167,
+   "ts": "1:09:27",
+   "text": "bear with respect to the others in this sentence in that way.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4173,
+   "ts": "1:09:33",
+   "text": "And you can write this down in matrix form, which is this softmax term that represents this probability",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4182,
+   "ts": "1:09:42",
+   "text": "distribution. So the square root of DK is just a normalizing constant that prevents the sum from becoming too large.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4191,
+   "ts": "1:09:51",
+   "text": "So the dimension of these queries and keys. And multiplied by the value, which carries",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4198,
+   "ts": "1:09:58",
+   "text": "the embedding of the values. So you can find this attention layer",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4205,
+   "ts": "1:10:05",
+   "text": "at three different locations. So two of them are self-attention layers.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4212,
+   "ts": "1:10:12",
+   "text": "So in the encoder and another one masked self-attention, which conveys the fact",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4218,
+   "ts": "1:10:18",
+   "text": "that tokens can attend only on those that were predicted before. And then you have another layer, where attention occurs,",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4227,
+   "ts": "1:10:27",
+   "text": "which is called cross attention, which will make these queries attend on other encoded keys",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4237,
+   "ts": "1:10:37",
+   "text": "and values. So this is the high level. And in just a few words, the main components",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4245,
+   "ts": "1:10:45",
+   "text": "is that your input tokens are converted into embeddings",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4250,
+   "ts": "1:10:50",
+   "text": "with a learnable layer. You add some information regarding the position of your tokens.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4257,
+   "ts": "1:10:57",
+   "text": "Then you make it through or go through an encoder that will apply this concept of attention",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4263,
+   "ts": "1:11:03",
+   "text": "and also add on top of it some learnable mechanism to add some complexity for each tokens representation, which",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4275,
+   "ts": "1:11:15",
+   "text": "is those feedforward network. And then the decoder level, when you want to generate,",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4282,
+   "ts": "1:11:22",
+   "text": "let's say a sentence, you start with some placeholder token",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4288,
+   "ts": "1:11:28",
+   "text": "that you-- for which you add position embeddings as well, that you self-attention and then perform",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4294,
+   "ts": "1:11:34",
+   "text": "cross-attention with respect to your encoders tokens. And then you also have feedforward there",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4302,
+   "ts": "1:11:42",
+   "text": "to finally obtain your output. So I'm telling you all that to mention",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4310,
+   "ts": "1:11:50",
+   "text": "that there are locations where embeddings can be extracted out",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4315,
+   "ts": "1:11:55",
+   "text": "of all of these. So if you use the encoder part of the network, you can find the ends of the encoders, a location where",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4325,
+   "ts": "1:12:05",
+   "text": "you have an encoded meaning of your inputs tokens.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4331,
+   "ts": "1:12:11",
+   "text": "And this is typically one of those locations, where you could say these are the embeddings of my input.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4339,
+   "ts": "1:12:19",
+   "text": "OK, great. So now, doing the same for images. Let's say you have a condition that is based on images.",
+   "chapter": "Text representation with Transformers"
+  },
+  {
+   "t": 4348,
+   "ts": "1:12:28",
+   "text": "One thing that is pretty nice is that everything that we mentioned just now can be reproduced with images.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4356,
+   "ts": "1:12:36",
+   "text": "So all these token representations are just numbers. And you could well represent these numbers.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4366,
+   "ts": "1:12:46",
+   "text": "You can associate them with patches of images. And this is what the ViT vision transformer paper does, which",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4377,
+   "ts": "1:12:57",
+   "text": "follows the same principle. But instead of learning embeddings on tokens,",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4383,
+   "ts": "1:13:03",
+   "text": "you learn embeddings of on patches of images. So everything stays the same.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4390,
+   "ts": "1:13:10",
+   "text": "And you can perform tasks, such as image classification with it.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4399,
+   "ts": "1:13:19",
+   "text": "And something that I haven't done in the tech space that we can do here together in this image world,",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4405,
+   "ts": "1:13:25",
+   "text": "is to see how these pieces come together in this example of a Teddy bear reading a book.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4412,
+   "ts": "1:13:32",
+   "text": "So here, you decompose your image into these patches that we mentioned.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4418,
+   "ts": "1:13:38",
+   "text": "Each of these patches, you have a learnable layer that gives you an initial representation of what",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4424,
+   "ts": "1:13:44",
+   "text": "they mean. So in the case of text, you would have a dictionary of tokens that are mapped to embeddings.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4433,
+   "ts": "1:13:53",
+   "text": "But here, you have something that is more continuous. So you can have a linear layer.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4438,
+   "ts": "1:13:58",
+   "text": "You can have a convolutional layer. You can have everything you want. So you have something at that stage",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4444,
+   "ts": "1:14:04",
+   "text": "that gives a representation of these patches. And then in a classification setting, you have a token.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4453,
+   "ts": "1:14:13",
+   "text": "So for example here, CLS that will carry information regarding the class of your image that you want to predict.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4462,
+   "ts": "1:14:22",
+   "text": "So each of these can be represented by embeddings.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4468,
+   "ts": "1:14:28",
+   "text": "And we mentioned that we have position information encoded in them. And next class, we're going to see more about position encoding",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4479,
+   "ts": "1:14:39",
+   "text": "and all of this. So I'm not going to expand too much.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4486,
+   "ts": "1:14:46",
+   "text": "So you have a representation for each of these patches of your input that you then feed your VIT.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4493,
+   "ts": "1:14:53",
+   "text": "And exactly, as we mentioned, at the output of the encoder, you can locate one specific embedding",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4502,
+   "ts": "1:15:02",
+   "text": "that carries the semantic information of your input image. So here, it would be the output corresponding to the CLS token",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4513,
+   "ts": "1:15:13",
+   "text": "that here, you project to learn a classification task for example. But let's say you are at a representation",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4521,
+   "ts": "1:15:21",
+   "text": "stage of your workflow. You would just take the embedding",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4526,
+   "ts": "1:15:26",
+   "text": "that you see in orange at the top as your representation of the image.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4531,
+   "ts": "1:15:31",
+   "text": "OK, great. So something that I didn't tell you is that for texts,",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4541,
+   "ts": "1:15:41",
+   "text": "doing that process is cheap in data because the task that we use to learn these models",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4550,
+   "ts": "1:15:50",
+   "text": "is self-supervised by nature. We anchor on next token prediction in the world of text,",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4557,
+   "ts": "1:15:57",
+   "text": "and you have a bunch of text in the internet. It's easy to have such data, and it's easy to learn.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4566,
+   "ts": "1:16:06",
+   "text": "But in the image world, if you want to handcraft a similar task that is as meaningful as what",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4571,
+   "ts": "1:16:11",
+   "text": "we have in the text world, we have a bit more trouble. One of these candidates that I just shown",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4578,
+   "ts": "1:16:18",
+   "text": "is the classification task, for example, for which you need to gather labels.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4584,
+   "ts": "1:16:24",
+   "text": "So it's quite expensive. And I just want to say that one follow up work",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4593,
+   "ts": "1:16:33",
+   "text": "that works on embedding of images that we're not going to see in details today is Dino self-distillation",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4602,
+   "ts": "1:16:42",
+   "text": "with no Labels for which the concept is to have a teacher and a student model that receive",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4612,
+   "ts": "1:16:52",
+   "text": "the different kinds of inputs. And they aim at learning similar probability distribution",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4619,
+   "ts": "1:16:59",
+   "text": "in the output that are prototypes. So I think it's a very interesting paper",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4625,
+   "ts": "1:17:05",
+   "text": "to see how we can build representations out of no labels, just out of the images themselves.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4632,
+   "ts": "1:17:12",
+   "text": "So OK.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4637,
+   "ts": "1:17:17",
+   "text": "Great. So now, we went through how we can represent text and images.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4644,
+   "ts": "1:17:24",
+   "text": "So did everything make sense so far? So we went slightly fast, but I just want to make sure we got the gist out of it.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4655,
+   "ts": "1:17:35",
+   "text": "Yeah, the comment is in the image world. Do these images become tokenized?",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4661,
+   "ts": "1:17:41",
+   "text": "So you can think of them that way. The only difference is that we don't have a dictionary of tokens, but rather we look at them",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4669,
+   "ts": "1:17:49",
+   "text": "in a continuous manner. Because in the text world, you would just have a lookup. But here, a learnable.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4674,
+   "ts": "1:17:54",
+   "text": "So that's exactly right. Yeah. So the comment is depending on how you cut your image,",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4683,
+   "ts": "1:18:03",
+   "text": "you can have errors. Yeah, totally right. And this is why it's a hyperparameter. This ViT model comes with different batch sizes,",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4690,
+   "ts": "1:18:10",
+   "text": "and this is one of the trade offs. Yeah, so I mean, absolutely.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4695,
+   "ts": "1:18:15",
+   "text": "OK, awesome. So now that we have seen how to represent text and images",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4700,
+   "ts": "1:18:20",
+   "text": "separately, you might wonder, OK, hey, I want to generate a new image with conditioning.",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4706,
+   "ts": "1:18:26",
+   "text": "That depends on both, let's say, were I want to condition on either, but I",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4711,
+   "ts": "1:18:31",
+   "text": "don't want to have to deal with two spaces. So how would you bring them together?",
+   "chapter": "Image representation with ViT"
+  },
+  {
+   "t": 4719,
+   "ts": "1:18:39",
+   "text": "So what we want is to learn a relationship between text",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4725,
+   "ts": "1:18:45",
+   "text": "and image that has this nice property of when you look",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4731,
+   "ts": "1:18:51",
+   "text": "at the embedding space, you want similar concepts,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4737,
+   "ts": "1:18:57",
+   "text": "either image text to be grouped together, and dissimilar ones to be pushed away",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4743,
+   "ts": "1:19:03",
+   "text": "from each other with respect to some metric. So let's take the example of our Teddy bear",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4751,
+   "ts": "1:19:11",
+   "text": "and something totally unrelated. Let's say a water polo ball. So the Teddy bear with the text token, Teddy bear is similar.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4763,
+   "ts": "1:19:23",
+   "text": "Same with the water polo ball image and the water polo ball token.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4768,
+   "ts": "1:19:28",
+   "text": "But the opposite pairs are nuts. And we want a way to quantify each situation",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4775,
+   "ts": "1:19:35",
+   "text": "and learn it automatically. So how can we do that?",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4781,
+   "ts": "1:19:41",
+   "text": "So let's build a matrix of these two. So this is just phrasing in a different way What.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4786,
+   "ts": "1:19:46",
+   "text": "I've just said. And what we want is Teddy bear and the image of Teddy",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4792,
+   "ts": "1:19:52",
+   "text": "bear to be of high similarity. So what we're going to do is project these embeddings",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4801,
+   "ts": "1:20:01",
+   "text": "that we talked about in the same space. So we're going to build these vectors with the representations",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4809,
+   "ts": "1:20:09",
+   "text": "that we just saw before. So what we're doing here is the same. So we have our patches of images alongside the CLS token",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4818,
+   "ts": "1:20:18",
+   "text": "that you pass through the VIT architecture. And then once you get the last embedding representation,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4828,
+   "ts": "1:20:28",
+   "text": "what we're going to do is to project it in a space that we're going to have it shared with the tech space.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4835,
+   "ts": "1:20:35",
+   "text": "So the property of that projection layer that we built is that it's going to output a vector of same dimension",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4843,
+   "ts": "1:20:43",
+   "text": "by construction as the one for text. So we do that here.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4849,
+   "ts": "1:20:49",
+   "text": "And then we do the same for the text world.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4854,
+   "ts": "1:20:54",
+   "text": "So by the way, I mentioned to you that we would look at embeddings at the end of the encoder layer.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4860,
+   "ts": "1:21:00",
+   "text": "And here, I'm showing another procedure to get embeddings of text, which is to pass all of these tokens",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4870,
+   "ts": "1:21:10",
+   "text": "to the decoder and decode the one corresponding to the last token.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4876,
+   "ts": "1:21:16",
+   "text": "And by construction of the attention mechanism and the transformer, these embedding",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4882,
+   "ts": "1:21:22",
+   "text": "coming out of the last token is going to represent the whole sentence. So it's another equivalent way of showing",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4889,
+   "ts": "1:21:29",
+   "text": "the representation of tokens. And we're going to take that representation and project it,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4896,
+   "ts": "1:21:36",
+   "text": "as we said, in that same shared space. And by construction, these u and v are now comparable.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4906,
+   "ts": "1:21:46",
+   "text": "You can do dot products. You can compute similarities. And we define these similarity S variable",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4915,
+   "ts": "1:21:55",
+   "text": "that is the scaled dot product. And one thing that we can do now is",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4924,
+   "ts": "1:22:04",
+   "text": "to transform this notion of similarity into some score that can be seen as a probability distribution",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4933,
+   "ts": "1:22:13",
+   "text": "through the softmax operator. So if you compute the exponential of the similarity",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4939,
+   "ts": "1:22:19",
+   "text": "between image Teddy bear and Teddy bear over the sum of the exponentials of this image Teddy",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4946,
+   "ts": "1:22:26",
+   "text": "bear and all the other text tokens, you find the probability distribution",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4952,
+   "ts": "1:22:32",
+   "text": "that this image corresponds to that piece of text.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4957,
+   "ts": "1:22:37",
+   "text": "So you can do that from a fixed image to the set of texts.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4963,
+   "ts": "1:22:43",
+   "text": "And you can do that on the other hand, with a fixed piece of text token to all the images.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4972,
+   "ts": "1:22:52",
+   "text": "So you can have both ways. And what we do is that we can define two losses that",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4980,
+   "ts": "1:23:00",
+   "text": "look symmetric, that represents respectively, how similar,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4986,
+   "ts": "1:23:06",
+   "text": "like the penalization of any error of a fixed image based on all pieces of text and similarity",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 4995,
+   "ts": "1:23:15",
+   "text": "error of a piece of text with respect to all the images. So it's symmetric cross entropy.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5002,
+   "ts": "1:23:22",
+   "text": "And then when we sum these two losses, we can obtain a final formulation that",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5009,
+   "ts": "1:23:29",
+   "text": "represents what we care about.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5014,
+   "ts": "1:23:34",
+   "text": "So that is the key of the CLIP model",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5020,
+   "ts": "1:23:40",
+   "text": "that trains the representations of both image and text worlds",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5026,
+   "ts": "1:23:46",
+   "text": "into, like with this way of training things. So what we do is that we scrape a bunch of images",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5036,
+   "ts": "1:23:56",
+   "text": "and captions off of the internet. And then for a given batch, we say that a given image has its associated",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5044,
+   "ts": "1:24:04",
+   "text": "caption as the true label, and then all the other captions in that batch are negatives.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5051,
+   "ts": "1:24:11",
+   "text": "So it's called in batch negatives. And you do the same thing of captions with respect",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5058,
+   "ts": "1:24:18",
+   "text": "to all the images. And you obtain that way final embeddings in the text and image",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5067,
+   "ts": "1:24:27",
+   "text": "encoders here that will generate the representation that you're looking for.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5073,
+   "ts": "1:24:33",
+   "text": "So here, just to give some order of magnitude, the paper talked about 400M pairs of data.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5085,
+   "ts": "1:24:45",
+   "text": "And it's great reach great accuracy even unsupervised tasks.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5091,
+   "ts": "1:24:51",
+   "text": "But the issue here is this softmax. So every time you have a huge batch of data,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5099,
+   "ts": "1:24:59",
+   "text": "you need to build a similarity matrix of a fixed image",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5104,
+   "ts": "1:25:04",
+   "text": "with respect to all the captions and symmetrically. And this is not a great computationally.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5112,
+   "ts": "1:25:12",
+   "text": "And also, from a mining standpoint, what you're truly saying in your loss is",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5118,
+   "ts": "1:25:18",
+   "text": "that you want to maximize the similarity of your true image caption pair, but you don't it's truly enforce the fact",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5127,
+   "ts": "1:25:27",
+   "text": "that all the other similarities should be each very small. So some follow up work reframes this problem into a sigmoid loss",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5139,
+   "ts": "1:25:39",
+   "text": "one. So instead of saying I want this one image to have a probability",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5147,
+   "ts": "1:25:47",
+   "text": "distribution that matches that of the true caption, we take one caption and one image separately,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5155,
+   "ts": "1:25:55",
+   "text": "and we ask ourselves the question, do they match or not? And by doing so you don't have all this similarity matrix",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5164,
+   "ts": "1:26:04",
+   "text": "complexities. And also, you have a stronger statement at your loss level",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5170,
+   "ts": "1:26:10",
+   "text": "that's pushes the positives together and the negatives further apart.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5177,
+   "ts": "1:26:17",
+   "text": "OK, so any questions on this contrastive learning part?",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5185,
+   "ts": "1:26:25",
+   "text": "Yep? The question is, do you start from a pre-trained encoder, and what weights do you change?",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5190,
+   "ts": "1:26:30",
+   "text": "So I think in the paper, they start from scratch. And they train both encoders from scratch.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5195,
+   "ts": "1:26:35",
+   "text": "You could very well freeze or start with some pre-trained encoder.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5200,
+   "ts": "1:26:40",
+   "text": "Freeze all the layers. Let the last layer. I think typically, you would just train everything.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5206,
+   "ts": "1:26:46",
+   "text": "And in real life, I think you just wouldn't train anything. You would just pick something out of Hugging Face.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5214,
+   "ts": "1:26:54",
+   "text": "But yeah, in practice, since it's easy to get all this data-- so typically,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5220,
+   "ts": "1:27:00",
+   "text": "you would scrape the internet. Look at images, and look at all tags in HTML.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5226,
+   "ts": "1:27:06",
+   "text": "So you can get all these pairs. So I think you're in such a setup, where doing it from scratch makes sense,",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5233,
+   "ts": "1:27:13",
+   "text": "but what you suggested makes sense as well. Yeah. So I think it depends on what works best.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5240,
+   "ts": "1:27:20",
+   "text": "Yeah. So the question is the transformer architecture a prerequisite for this task.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5245,
+   "ts": "1:27:25",
+   "text": "Not at all. So you can do it with any encoders. And the reason why I talked about transformers",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5250,
+   "ts": "1:27:30",
+   "text": "is to ground the way of encoding into what people do in practice. But you don't have to have this architecture as a prerequisite.",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5258,
+   "ts": "1:27:38",
+   "text": "Yeah. OK, awesome. So now, we're going to reach the most exciting part",
+   "chapter": "Contrastive learning with CLIP"
+  },
+  {
+   "t": 5265,
+   "ts": "1:27:45",
+   "text": "of the class, which is finally, how do you guide our generation",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5270,
+   "ts": "1:27:50",
+   "text": "model with the condition. And we're going to go back to thinking about what we discussed",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5279,
+   "ts": "1:27:59",
+   "text": "these past lectures. So we had this diffusion mechanism, where you are at a given step here, xt plus 1.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5288,
+   "ts": "1:28:08",
+   "text": "And you want to find the less noisy version of the image xt.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5294,
+   "ts": "1:28:14",
+   "text": "And the thing that we want to do now is to do that with a condition that I called y,",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5301,
+   "ts": "1:28:21",
+   "text": "but that you might see called c in papers. So you want to guide the generation towards generating",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5308,
+   "ts": "1:28:28",
+   "text": "a sample that follows y.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5314,
+   "ts": "1:28:34",
+   "text": "So a first idea that you might have is OK, it's a classification.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5319,
+   "ts": "1:28:39",
+   "text": "There is a concept of classification. I can come up with a classifier of weights phi",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5326,
+   "ts": "1:28:46",
+   "text": "and try to make it work. So how could you make it work? You start from this probability distribution",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5333,
+   "ts": "1:28:53",
+   "text": "that you want to sample from. And then by applying Bayes' rule,",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5339,
+   "ts": "1:28:59",
+   "text": "like the conditional version with the right arguments for A, B, and C, you obtain this product of two probability",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5349,
+   "ts": "1:29:09",
+   "text": "distributions that you can see on the left represents the one step generation process that we know.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5358,
+   "ts": "1:29:18",
+   "text": "And on the right side, you have the probability distribution of y given xt, which would typically be what",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5366,
+   "ts": "1:29:26",
+   "text": "the classifier would give you. So now, let's see how we could sample from this.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5373,
+   "ts": "1:29:33",
+   "text": "So taking a look at the probability distribution on the left. So if we recall the first lecture,",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5379,
+   "ts": "1:29:39",
+   "text": "let's say in the DDPM world, you know that this probability",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5385,
+   "ts": "1:29:45",
+   "text": "distribution follows a normal distribution of a mean that we learn and of variance that",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5392,
+   "ts": "1:29:52",
+   "text": "is following a noise schedule. So we don't learn it. It's something that we have.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5399,
+   "ts": "1:29:59",
+   "text": "So we know the expression of this. If you look at the probability distribution of this,",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5407,
+   "ts": "1:30:07",
+   "text": "it's something that we know. So we have that on one hand.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5413,
+   "ts": "1:30:13",
+   "text": "And on the other, we look at our probability distribution",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5419,
+   "ts": "1:30:19",
+   "text": "at the end of the classifier. So here, why are we not happy with that--",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5427,
+   "ts": "1:30:27",
+   "text": "I mean, we have the data of the probability distribution. You just have to put the noisy image to your classifier,",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5434,
+   "ts": "1:30:34",
+   "text": "and then you have it. You have a probability distribution. Why are we not happy with that? It's because we cannot plug it into that product equation that",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5444,
+   "ts": "1:30:44",
+   "text": "we saw and then easily sample from it. We want to reframe it in a way that we",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5450,
+   "ts": "1:30:50",
+   "text": "can have this nice Gaussian distribution that we had, for example, at the unconditioned generation step.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5459,
+   "ts": "1:30:59",
+   "text": "So what we do is that we have a trick that expands this probability distribution with a Taylor",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5467,
+   "ts": "1:31:07",
+   "text": "expansion. And then you come up with a first term",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5473,
+   "ts": "1:31:13",
+   "text": "that is a function of xt. And when you plug the probability,",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5482,
+   "ts": "1:31:22",
+   "text": "I mean the log of p phi that we just found into this product, you see that the probability distribution",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5489,
+   "ts": "1:31:29",
+   "text": "that you want to learn is simply the same one that you had, but with a shifted mean.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5495,
+   "ts": "1:31:35",
+   "text": "So I just want to take a pause for a second.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5501,
+   "ts": "1:31:41",
+   "text": "So we went through a process that where we tried to find an easy probability",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5507,
+   "ts": "1:31:47",
+   "text": "distribution to sample from. So we went through a series of equations. But all I want you to know from all of that",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5514,
+   "ts": "1:31:54",
+   "text": "is that we tried to get to this state, where",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5519,
+   "ts": "1:31:59",
+   "text": "we can sample from an easy distribution, and that's what we reached. So in some way, we're happy.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5525,
+   "ts": "1:32:05",
+   "text": "And then here, what's good about it is that you don't need to retrain your unconditioned model.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5531,
+   "ts": "1:32:11",
+   "text": "So your theta and your sigma t are things that. And there is a downside to it.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5539,
+   "ts": "1:32:19",
+   "text": "Now, I mentioned classifiers. You need to learn a classifier that operates on noisy images.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5546,
+   "ts": "1:32:26",
+   "text": "And the process here is that you need to have that classifier that predicts some probability",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5554,
+   "ts": "1:32:34",
+   "text": "distribution, and then you need to take the backward pass on the network in order to find the gradient.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5562,
+   "ts": "1:32:42",
+   "text": "Did that make sense so far?",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5569,
+   "ts": "1:32:49",
+   "text": "OK, great. So when we sample from the distribution that I mentioned in practice, one thing that people see",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5576,
+   "ts": "1:32:56",
+   "text": "is that it doesn't produce samples that follow the y condition enough.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5582,
+   "ts": "1:33:02",
+   "text": "So this is why you see that W factor being introduced",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5588,
+   "ts": "1:33:08",
+   "text": "that can be tuned to force the generation process to follow the classifier's gradients more.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5596,
+   "ts": "1:33:16",
+   "text": "And this is what we call the guidance part. So we saw that we don't have to retrain",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5603,
+   "ts": "1:33:23",
+   "text": "the unconditioned model in order to sample from this distribution. But on the other hand, you need to have a classifier that",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5611,
+   "ts": "1:33:31",
+   "text": "operates on top of a domain that can be composed of noisy images.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5617,
+   "ts": "1:33:37",
+   "text": "And the bad thing about it is that you typically don't have that out of the box. So it's typically something that you",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5623,
+   "ts": "1:33:43",
+   "text": "have to train as part of your training process, which is a downside.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5629,
+   "ts": "1:33:49",
+   "text": "And also, the fact that you need to compute the backwards pass",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5635,
+   "ts": "1:33:55",
+   "text": "of your classifier is quite expensive, which is also not great.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5641,
+   "ts": "1:34:01",
+   "text": "And something else that I will mention is that you not only need to have that extra classifier",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5648,
+   "ts": "1:34:08",
+   "text": "and spend all these budgets to compute the gradients, but you need to make sure that the signal of your gradients",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5660,
+   "ts": "1:34:20",
+   "text": "scales well with the coefficient w that you introduce.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5666,
+   "ts": "1:34:26",
+   "text": "So you need some hyperparameter tuning to make sure that the operation that you're doing is meaningful.",
+   "chapter": "Classifier-based guidance"
+  },
+  {
+   "t": 5675,
+   "ts": "1:34:35",
+   "text": "So one question that you might ask yourself, is it possible to do this guided generation without the needs",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5683,
+   "ts": "1:34:43",
+   "text": "of a classifier? And the answer is yes.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5689,
+   "ts": "1:34:49",
+   "text": "So if you use Bayes' formula, you can see that you can define an implicit classifier,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5697,
+   "ts": "1:34:57",
+   "text": "so called p of y given x based on the generation,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5706,
+   "ts": "1:35:06",
+   "text": "like the unconditioned generation of your image and the conditioned generation of your image,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5713,
+   "ts": "1:35:13",
+   "text": "so conditioned on y. Which means that if you have a network that",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5719,
+   "ts": "1:35:19",
+   "text": "can generate an image without any conditions and that can generate an image with a given condition,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5727,
+   "ts": "1:35:27",
+   "text": "then you can solve this problem by plugging this equation back into what we had, which is what we do here.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5735,
+   "ts": "1:35:35",
+   "text": "So the equation that I showed regarding",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5740,
+   "ts": "1:35:40",
+   "text": "the distribution of the next sampling step",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5746,
+   "ts": "1:35:46",
+   "text": "can be written in epsilon space. So I mentioned this Gaussian distribution of shifted mean.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5753,
+   "ts": "1:35:53",
+   "text": "You can rewrite the noise that you want to predict into one that takes into account",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5760,
+   "ts": "1:36:00",
+   "text": "that classifier signal. And what the authors of the paper",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5766,
+   "ts": "1:36:06",
+   "text": "of the classifier free guidance paper did is that they plugged in the P phi.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5774,
+   "ts": "1:36:14",
+   "text": "Expression with the implicit classifier, the expression that I just mentioned before.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5781,
+   "ts": "1:36:21",
+   "text": "And they obtained this very nice expression that is a function of the noise that we",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5788,
+   "ts": "1:36:28",
+   "text": "want to remove based on a model that isn't fed any condition,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5794,
+   "ts": "1:36:34",
+   "text": "and one for which a condition is provided. And what you can see is that there",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5801,
+   "ts": "1:36:41",
+   "text": "is this w term in the middle that has about the same interpretation as the one",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5806,
+   "ts": "1:36:46",
+   "text": "that we saw before that will tweak the generation",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5813,
+   "ts": "1:36:53",
+   "text": "to be more or less towards the condition that you bring.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5818,
+   "ts": "1:36:58",
+   "text": "So there's that. And then now, we are happy because we no longer have to train separate classifier phi.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5825,
+   "ts": "1:37:05",
+   "text": "We can just rely on the generation network's weights.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5831,
+   "ts": "1:37:11",
+   "text": "So how does that look like in practice? So with a certain probability called",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5838,
+   "ts": "1:37:18",
+   "text": "the unconditional probability, what you can do is sample an image from your training set, and time",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5846,
+   "ts": "1:37:26",
+   "text": "step, and noise, and try to predict the noise from it, which is what we saw in the past.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5853,
+   "ts": "1:37:33",
+   "text": "And with probability 1 minus p unconditional, what you can do",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5860,
+   "ts": "1:37:40",
+   "text": "is do the same. But then use the embeddings that we saw in the parts",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5866,
+   "ts": "1:37:46",
+   "text": "just before to feed that network with this additional information",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5871,
+   "ts": "1:37:51",
+   "text": "and predict the quantity of noise to remove with the condition y.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5878,
+   "ts": "1:37:58",
+   "text": "So you do that 1 minus p and conditional times.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5885,
+   "ts": "1:38:05",
+   "text": "And what you get is something interesting,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5890,
+   "ts": "1:38:10",
+   "text": "which is if you look at how your predictions look like,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5897,
+   "ts": "1:38:17",
+   "text": "so let's say the noise that you want to remove is the points top left, and then the noise that you",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5903,
+   "ts": "1:38:23",
+   "text": "want to remove when you have a condition is the one in the middle. Then the guidance hyperparameter w",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5911,
+   "ts": "1:38:31",
+   "text": "will push the prediction of the noise more towards the noise of the condition sample.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5920,
+   "ts": "1:38:40",
+   "text": "And the reason why we do that is that because in practice, if you don't have this hyperparameter, you tend.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5929,
+   "ts": "1:38:49",
+   "text": "And if you just use the condition sample noise as the one that you use to denoise your noisy latents,",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5937,
+   "ts": "1:38:57",
+   "text": "you might obtain images that do not follow your prompts very",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5943,
+   "ts": "1:39:03",
+   "text": "closely. And this is why we have such a hyperparameter in the first place.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5948,
+   "ts": "1:39:08",
+   "text": "In terms of numbers, the guidance parameter is typically set to just a few, I think three.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5958,
+   "ts": "1:39:18",
+   "text": "In the paper, so typically more than one. And I just want to put a disclaimer here",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5964,
+   "ts": "1:39:24",
+   "text": "that the equations that I showed with the classifier guidance",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5969,
+   "ts": "1:39:29",
+   "text": "hyperparameter might have several definitions. So you might see formulas with w in there, w plus 1.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5978,
+   "ts": "1:39:38",
+   "text": "So all these values of w that you take are dependent on the equation that you operate from.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5986,
+   "ts": "1:39:46",
+   "text": "So this is 1. And then the other thing is that in practice at training time, the proportion of time for which you",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 5993,
+   "ts": "1:39:53",
+   "text": "show unconditioned generation is typically 10%, 20% of time.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6001,
+   "ts": "1:40:01",
+   "text": "And this time, you do not need to have an additional classifier at hand and to do",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6008,
+   "ts": "1:40:08",
+   "text": "an expensive backward pass. But you still need to do two inference steps.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6015,
+   "ts": "1:40:15",
+   "text": "Because we saw that the equation has this epsilon theta of xt and no condition, and the one with the condition",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6023,
+   "ts": "1:40:23",
+   "text": "which is 2 forward passes. So you still have some extra cost, although it's better than the other technique.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6031,
+   "ts": "1:40:31",
+   "text": "And this technique, CFG is the one that's most used today.",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6038,
+   "ts": "1:40:38",
+   "text": "OK. So any questions?",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6047,
+   "ts": "1:40:47",
+   "text": "OK, great. With that, I hope you have a great weekend. [APPLAUSE]",
+   "chapter": "Classifier-free guidance"
+  },
+  {
+   "t": 6054,
+   "ts": "1:40:54",
+   "text": "Stanford CME29",
+   "chapter": "Classifier-free guidance"
+  }
+ ],
+ "chapters": [
+  {
+   "name": "Introduction",
+   "t": 0
+  },
+  {
+   "name": "Pixel space",
+   "t": 432
+  },
+  {
+   "name": "Semantic vs perceptual similarity",
+   "t": 760
+  },
+  {
+   "name": "Autoencoder",
+   "t": 868
+  },
+  {
+   "name": "Variational autoencoders",
+   "t": 1382
+  },
+  {
+   "name": "ELBO derivation",
+   "t": 1889
+  },
+  {
+   "name": "Blurriness issue of VAEs",
+   "t": 2803
+  },
+  {
+   "name": "Reconstruction loss",
+   "t": 2864
+  },
+  {
+   "name": "KL regularization loss",
+   "t": 2940
+  },
+  {
+   "name": "Perceptual loss",
+   "t": 3022
+  },
+  {
+   "name": "Adversarial loss",
+   "t": 3258
+  },
+  {
+   "name": "Latent diffusion models",
+   "t": 3421
+  },
+  {
+   "name": "Encoder vs decoder trade-off",
+   "t": 3631
+  },
+  {
+   "name": "Text representation with Transformers",
+   "t": 3958
+  },
+  {
+   "name": "Image representation with ViT",
+   "t": 4348
+  },
+  {
+   "name": "Contrastive learning with CLIP",
+   "t": 4719
+  },
+  {
+   "name": "Classifier-based guidance",
+   "t": 5265
+  },
+  {
+   "name": "Classifier-free guidance",
+   "t": 5675
+  }
+ ]
+}

@@ -1,0 +1,1374 @@
+{
+ "lecture": 4,
+ "n_pages": 148,
+ "groups": [
+  {
+   "pages": [
+    1
+   ],
+   "id": 0,
+   "img": "p001.jpg",
+   "page_first": 1,
+   "page_last": 1,
+   "title": "CME 296: Di\ufb00usion &",
+   "text": "CME 296: Di\ufb00usion & Large Vision Models Afshine Amidi & Shervine Amidi Lecture 4"
+  },
+  {
+   "pages": [
+    2
+   ],
+   "id": 1,
+   "img": "p002.jpg",
+   "page_first": 2,
+   "page_last": 2,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lecture 1: Di\ufb00usion, DDPM"
+  },
+  {
+   "pages": [
+    3
+   ],
+   "id": 2,
+   "img": "p003.jpg",
+   "page_first": 3,
+   "page_last": 3,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lecture 2: Score matching, SDE Lecture 1: Di\ufb00usion, DDPM"
+  },
+  {
+   "pages": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "id": 3,
+   "img": "p004.jpg",
+   "page_first": 4,
+   "page_last": 7,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lecture 3: Flow matching Lecture 2: Score matching, SDE Lecture 1: Di\ufb00usion, DDPM"
+  },
+  {
+   "pages": [
+    8
+   ],
+   "id": 4,
+   "img": "p008.jpg",
+   "page_first": 8,
+   "page_last": 8,
+   "title": "Today's lecture",
+   "text": "Today's lecture A teddy bear reading a book Condition Black box architecture Today's lecture: Multimodal guided generation Representation Guided generation"
+  },
+  {
+   "pages": [
+    9
+   ],
+   "id": 5,
+   "img": "p009.jpg",
+   "page_first": 9,
+   "page_last": 9,
+   "title": "Today's lecture: Part 1",
+   "text": "Today's lecture: Part 1 A teddy bear reading a book Condition Black box architecture Today's lecture: Multimodal guided generation Representation 1 Guided generation"
+  },
+  {
+   "pages": [
+    10
+   ],
+   "id": 6,
+   "img": "p010.jpg",
+   "page_first": 10,
+   "page_last": 10,
+   "title": "From pixel to latent space",
+   "text": "From pixel to latent space Latent di\ufb00usion models Text representation Image representation Contrastive learning Guidance Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    11
+   ],
+   "id": 7,
+   "img": "p011.jpg",
+   "page_first": 11,
+   "page_last": 11,
+   "title": "Pixel space",
+   "text": "Pixel space Naive approach. Represent everything in pixel space R G B Number of pixels"
+  },
+  {
+   "pages": [
+    12,
+    13,
+    14,
+    15
+   ],
+   "id": 8,
+   "img": "p015.jpg",
+   "page_first": 12,
+   "page_last": 15,
+   "title": "Limitations of the pixel space",
+   "text": "Limitations of the pixel space \u25cf High dimensionality \u25cf Redundant information (correlated pixels) \u25cf Representation not meaningful (if we move in space, image becomes gibberish) \ud83d\udc4d \ud83d\udc4e"
+  },
+  {
+   "pages": [
+    16
+   ],
+   "id": 9,
+   "img": "p016.jpg",
+   "page_first": 16,
+   "page_last": 16,
+   "title": "Wish list of an ideal space",
+   "text": "Wish list of an ideal space Tractable dimension \u25cf High dimensionality \u25cf Redundant information (correlated pixels) \u25cf Representation not meaningful (if we move in space, image becomes gibberish)"
+  },
+  {
+   "pages": [
+    17
+   ],
+   "id": 10,
+   "img": "p017.jpg",
+   "page_first": 17,
+   "page_last": 17,
+   "title": "Wish list of an ideal space",
+   "text": "Wish list of an ideal space Tractable dimension \u25cf High dimensionality \u25cf Redundant information (correlated pixels) Compact representation \u25cf Representation not meaningful (if we move in space, image becomes gibberish)"
+  },
+  {
+   "pages": [
+    18
+   ],
+   "id": 11,
+   "img": "p018.jpg",
+   "page_first": 18,
+   "page_last": 18,
+   "title": "Wish list of an ideal space",
+   "text": "Wish list of an ideal space Tractable dimension \u25cf High dimensionality \u25cf Redundant information (correlated pixels) \u25cf Representation not meaningful (if we move in space, image becomes gibberish) Compact representation Meaningful representation"
+  },
+  {
+   "pages": [
+    19
+   ],
+   "id": 12,
+   "img": "p019.jpg",
+   "page_first": 19,
+   "page_last": 19,
+   "title": "Terminology",
+   "text": "Terminology Semantic similarity \u25cf Structural \u25cf Global geometry \u25cf \"Low\" frequency"
+  },
+  {
+   "pages": [
+    20
+   ],
+   "id": 13,
+   "img": "p020.jpg",
+   "page_first": 20,
+   "page_last": 20,
+   "title": "Terminology",
+   "text": "Terminology Semantic similarity Perceptual similarity \u25cf Structural \u25cf Global geometry \u25cf \"Low\" frequency \u25cf Local \u25cf Texture \u25cf \"High\" frequency"
+  },
+  {
+   "pages": [
+    21
+   ],
+   "id": 14,
+   "img": "p021.jpg",
+   "page_first": 21,
+   "page_last": 21,
+   "title": "Attempt 1: Learn representation via an autoencoder",
+   "text": "Attempt 1: Learn representation via an autoencoder Encoder Decoder Bottleneck Pixel space Pixel space Latent space Stacked Convolutional Auto-Encoders for Hierarchical Feature Extraction, Masci et al., 2011. Goal. Learn latent representation via \"proxy task\" (reconstruction) Autoencoder"
+  },
+  {
+   "pages": [
+    22
+   ],
+   "id": 15,
+   "img": "p022.jpg",
+   "page_first": 22,
+   "page_last": 22,
+   "title": "Attempt 1: Learn representation via an autoencoder",
+   "text": "Attempt 1: Learn representation via an autoencoder Pixel space Pixel space Latent space Goal. Learn latent representation via \"proxy task\" (reconstruction) Spatial compression ratio"
+  },
+  {
+   "pages": [
+    23
+   ],
+   "id": 16,
+   "img": "p023.jpg",
+   "page_first": 23,
+   "page_last": 23,
+   "title": "Encoder",
+   "text": "Encoder Downsampling operations via convolutions Encoder Pixel space Latent space"
+  },
+  {
+   "pages": [
+    24
+   ],
+   "id": 17,
+   "img": "p024.jpg",
+   "page_first": 24,
+   "page_last": 24,
+   "title": "Quick refresher on convolutions",
+   "text": "Quick refresher on convolutions Convolution VIP cheatsheets on Convolutional Neural Networks, Amidi, 2018."
+  },
+  {
+   "pages": [
+    25
+   ],
+   "id": 18,
+   "img": "p025.jpg",
+   "page_first": 25,
+   "page_last": 25,
+   "title": "Quick refresher on convolutions",
+   "text": "Quick refresher on convolutions Convolution Pooling VIP cheatsheets on Convolutional Neural Networks, Amidi, 2018."
+  },
+  {
+   "pages": [
+    26
+   ],
+   "id": 19,
+   "img": "p026.jpg",
+   "page_first": 26,
+   "page_last": 26,
+   "title": "Decoder",
+   "text": "Decoder Latent space Decoder Pixel space Upsampling operations via reverse convolutions"
+  },
+  {
+   "pages": [
+    27
+   ],
+   "id": 20,
+   "img": "p027.jpg",
+   "page_first": 27,
+   "page_last": 27,
+   "title": "Loss function of autoencoder",
+   "text": "Loss function of autoencoder Loss. Compare input Goal. Learn how to reconstruct input with reconstructed input AE = AutoEncoder"
+  },
+  {
+   "pages": [
+    28
+   ],
+   "id": 21,
+   "img": "p028.jpg",
+   "page_first": 28,
+   "page_last": 28,
+   "title": "Checklist for attempt 1",
+   "text": "Checklist for attempt 1 \u2705 \u2705 Tractable dimension Compact representation \u274c Meaningful representation"
+  },
+  {
+   "pages": [
+    29
+   ],
+   "id": 22,
+   "img": "p029.jpg",
+   "page_first": 29,
+   "page_last": 29,
+   "title": "Attempt 2: Learn a constrained latent space",
+   "text": "Attempt 2: Learn a constrained latent space Auto-Encoding Variational Bayes, Kingma et al., 2013. Goal. Enforce some \"structure\" on the latent space Encoder Decoder Constrained bottleneck Pixel space Pixel space Latent space Constrained Autoencoder"
+  },
+  {
+   "pages": [
+    30
+   ],
+   "id": 23,
+   "img": "p030.jpg",
+   "page_first": 30,
+   "page_last": 30,
+   "title": "Attempt 2: Learn a constrained latent space",
+   "text": "Attempt 2: Learn a constrained latent space Goal. Enforce some \"structure\" on the latent space Encoder Decoder Pixel space Pixel space Latent space Constrained Autoencoder Constrained bottleneck"
+  },
+  {
+   "pages": [
+    31
+   ],
+   "id": 24,
+   "img": "p031.jpg",
+   "page_first": 31,
+   "page_last": 31,
+   "title": "Revised encoder",
+   "text": "Revised encoder Encoder Pixel space Latent space"
+  },
+  {
+   "pages": [
+    32,
+    33
+   ],
+   "id": 25,
+   "img": "p033.jpg",
+   "page_first": 32,
+   "page_last": 33,
+   "title": "Revised decoder",
+   "text": "Revised decoder Latent space Decoder Pixel space Assumption: constant variance (for simplicity)"
+  },
+  {
+   "pages": [
+    34
+   ],
+   "id": 26,
+   "img": "p034.jpg",
+   "page_first": 34,
+   "page_last": 34,
+   "title": "Objective",
+   "text": "Objective"
+  },
+  {
+   "pages": [
+    35
+   ],
+   "id": 27,
+   "img": "p035.jpg",
+   "page_first": 35,
+   "page_last": 35,
+   "title": "Step 1: Re-using ELBO trick from Lecture 1!",
+   "text": "Step 1: Re-using ELBO trick from Lecture 1! Derive lower bound for maximum (log-)likelihood estimation 1 ELBO = Evidence Lower BOund Derivation: Use Jensen's inequality on a convenient variational distribution"
+  },
+  {
+   "pages": [
+    36
+   ],
+   "id": 28,
+   "img": "p036.jpg",
+   "page_first": 36,
+   "page_last": 36,
+   "title": "Step 2: Expand terms of the lower bound",
+   "text": "Step 2: Expand terms of the lower bound Expand terms of lower bound 2 Derivation: Use properties of the log function and rearrange terms"
+  },
+  {
+   "pages": [
+    37
+   ],
+   "id": 29,
+   "img": "p037.jpg",
+   "page_first": 37,
+   "page_last": 37,
+   "title": "Loss function of variational autoencoder",
+   "text": "Loss function of variational autoencoder Goal. Learn how to reconstruct input using a structured latent space Loss. Trade-o\ufb00 between reconstruction and latent space structure: Reconstruction Regularization of latent space VAE = Variational AutoEncoder Auto-Encoding Variational Bayes, Kingma et al., 2013."
+  },
+  {
+   "pages": [
+    38
+   ],
+   "id": 30,
+   "img": "p038.jpg",
+   "page_first": 38,
+   "page_last": 38,
+   "title": "Checklist for attempt 2",
+   "text": "Checklist for attempt 2 \u2705 \u2705 Tractable dimension Compact representation \u2705 Meaningful representation \u274c Truthful representation"
+  },
+  {
+   "pages": [
+    39
+   ],
+   "id": 31,
+   "img": "p039.jpg",
+   "page_first": 39,
+   "page_last": 39,
+   "title": "Attempt 3: address limitations of original VAE",
+   "text": "Attempt 3: address limitations of original VAE Reconstruction Latent space regularization Goal. Avoid blurriness!"
+  },
+  {
+   "pages": [
+    40
+   ],
+   "id": 32,
+   "img": "p040.jpg",
+   "page_first": 40,
+   "page_last": 40,
+   "title": "Refresher on reconstruction loss",
+   "text": "Refresher on reconstruction loss Idea. Check reconstruction of input Description. or pixel-wise distance between output and actual Weight. If too high, this can produce blurry outputs"
+  },
+  {
+   "pages": [
+    41
+   ],
+   "id": 33,
+   "img": "p041.jpg",
+   "page_first": 41,
+   "page_last": 41,
+   "title": "Refresher on KL regularization",
+   "text": "Refresher on KL regularization Idea. Make latent space more structured Description. KL divergence between the output of the encoder and the prior Weight. If too high, this can lead to \"posterior collapse\""
+  },
+  {
+   "pages": [
+    42,
+    43
+   ],
+   "id": 34,
+   "img": "p043.jpg",
+   "page_first": 42,
+   "page_last": 43,
+   "title": "Combat blurriness with perceptual loss",
+   "text": "Combat blurriness with perceptual loss Illustration from Visualizing and Understanding Convolutional Networks, Zeiler et al., 2013. Example of feature maps in early layers"
+  },
+  {
+   "pages": [
+    44,
+    45,
+    46
+   ],
+   "id": 35,
+   "img": "p045.jpg",
+   "page_first": 44,
+   "page_last": 46,
+   "title": "Combat blurriness with perceptual loss",
+   "text": "Combat blurriness with perceptual loss Idea. Force model to pay attention to shapes sensitive to human eye (edges, shapes) and have some translation invariance Description. Learned Perceptual Image Patch Similarity (LPIPS) The Unreasonable E\ufb00ectiveness of Deep Features as a Perceptual Metric, Zhang et al., 2018."
+  },
+  {
+   "pages": [
+    47
+   ],
+   "id": 36,
+   "img": "p047.jpg",
+   "page_first": 47,
+   "page_last": 47,
+   "title": "Combat blurriness with perceptual loss",
+   "text": "Combat blurriness with perceptual loss Idea. Force model to pay attention to shapes sensitive to human eye (edges, shapes) and have some translation invariance Description. Learned Perceptual Image Patch Similarity (LPIPS) Weight."
+  },
+  {
+   "pages": [
+    48
+   ],
+   "id": 37,
+   "img": "p048.jpg",
+   "page_first": 48,
+   "page_last": 48,
+   "title": "No",
+   "text": "No \"checkerboard artifact\" Combat blurriness with perceptual loss If too high, this can produce \"checkerboard artifacts\" Illustrations from Deconvolution and Checkerboard Artifacts, Odena et al., 2016. Presence of \"checkerboard artifact\""
+  },
+  {
+   "pages": [
+    49,
+    50
+   ],
+   "id": 38,
+   "img": "p049.jpg",
+   "page_first": 49,
+   "page_last": 50,
+   "title": "Make output more realistic with adversarial loss",
+   "text": "Make output more realistic with adversarial loss Decoder Discriminator Real or fake?"
+  },
+  {
+   "pages": [
+    51
+   ],
+   "id": 39,
+   "img": "p051.jpg",
+   "page_first": 51,
+   "page_last": 51,
+   "title": "Make output more realistic with adversarial loss",
+   "text": "Make output more realistic with adversarial loss Idea. Prevent blurriness by being force to produce a realistic image Description. Incentivize discriminator (critic) to be fooled Weight. If too high, this may lead to \"mode collapse\" and ignore the latent"
+  },
+  {
+   "pages": [
+    52
+   ],
+   "id": 40,
+   "img": "p052.jpg",
+   "page_first": 52,
+   "page_last": 52,
+   "title": "Summary of re\ufb01ned VAE",
+   "text": "Summary of re\ufb01ned VAE Reconstruction Adversarial Perception Mitigate blurriness Latent space regularization"
+  },
+  {
+   "pages": [
+    53
+   ],
+   "id": 41,
+   "img": "p053.jpg",
+   "page_first": 53,
+   "page_last": 53,
+   "title": "From pixel to latent space",
+   "text": "From pixel to latent space Latent di\ufb00usion models Text representation Image representation Contrastive learning Guidance Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    54
+   ],
+   "id": 42,
+   "img": "p054.jpg",
+   "page_first": 54,
+   "page_last": 54,
+   "title": "Di\ufb00usion in latent space",
+   "text": "Di\ufb00usion in latent space Train VAE Train image generation model in VAE latent space using frozen VAE encoder 1 2 Training."
+  },
+  {
+   "pages": [
+    55,
+    56
+   ],
+   "id": 43,
+   "img": "p055.jpg",
+   "page_first": 55,
+   "page_last": 56,
+   "title": "Training leverages encoder",
+   "text": "Training leverages encoder Pixel space Encoder Latent space Latent space"
+  },
+  {
+   "pages": [
+    57
+   ],
+   "id": 44,
+   "img": "p057.jpg",
+   "page_first": 57,
+   "page_last": 57,
+   "title": "Di\ufb00usion in latent space",
+   "text": "Di\ufb00usion in latent space Train VAE Train image generation model in VAE latent space using frozen VAE encoder 1 2 Training. Start from a noisy latent and perform di\ufb00usion / score matching / \ufb02ow matching in latent space 1 Inference. Use VAE decoder to obtain \ufb01nal image in pixel space 2"
+  },
+  {
+   "pages": [
+    58
+   ],
+   "id": 45,
+   "img": "p058.jpg",
+   "page_first": 58,
+   "page_last": 58,
+   "title": "Inference leverages decoder",
+   "text": "Inference leverages decoder Latent space Decoder Pixel space"
+  },
+  {
+   "pages": [
+    59
+   ],
+   "id": 46,
+   "img": "p059.jpg",
+   "page_first": 59,
+   "page_last": 59,
+   "title": "VAE used for image generation models",
+   "text": "VAE used for image generation models High-Resolution Image Synthesis with Latent Di\ufb00usion Models, Rombach et al., 2021. \u25cf Encoder: acts as a \"low-pass \ufb01lter\" Interesting experiment results in FLUX.2: Analyzing and Enhancing the Latent Space of FLUX \u2013 Representation Comparison, 2025."
+  },
+  {
+   "pages": [
+    60
+   ],
+   "id": 47,
+   "img": "p060.jpg",
+   "page_first": 60,
+   "page_last": 60,
+   "title": "VAE used for image generation models",
+   "text": "VAE used for image generation models High-Resolution Image Synthesis with Latent Di\ufb00usion Models, Rombach et al., 2021. \u25cf Encoder: acts as a \"low-pass \ufb01lter\" \u25cf Decoder: \u25cb Responsible to convey low-level details via \"texture hallucination\" \u25cb Takes in a highly compressed low-dimensional vector and needs to convert it to a high-dimensional one Interesting experiment results in FLUX.2: Analyzing and Enhancing the Latent Space of FLUX \u2013 Representation Comparison, 2025."
+  },
+  {
+   "pages": [
+    61
+   ],
+   "id": 48,
+   "img": "p061.jpg",
+   "page_first": 61,
+   "page_last": 61,
+   "title": "VAE used for image generation models",
+   "text": "VAE used for image generation models \u25cf Decoder is 2x bigger than Encoder High-Resolution Image Synthesis with Latent Di\ufb00usion Models, Rombach et al., 2021. \u25cf Encoder: acts as a \"low-pass \ufb01lter\" \u25cf Decoder: \u25cb Responsible to convey low-level details via \"texture hallucination\" \u25cb Takes in a highly compressed low-dimensional vector and needs to convert it to a high-dimensional one Interesting experiment results in FLUX.2: Analyzing and Enhancing the Latent Space of FLUX \u2013 Representation Comparison, 2025."
+  },
+  {
+   "pages": [
+    62
+   ],
+   "id": 49,
+   "img": "p062.jpg",
+   "page_first": 62,
+   "page_last": 62,
+   "title": "From pixel to latent space",
+   "text": "From pixel to latent space Latent di\ufb00usion models Text representation Image representation Contrastive learning Guidance Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    63
+   ],
+   "id": 50,
+   "img": "p063.jpg",
+   "page_first": 63,
+   "page_last": 63,
+   "title": "Today's lecture: Part 2",
+   "text": "Today's lecture: Part 2 A teddy bear reading a book Condition Black box architecture Today's lecture: Multimodal guided generation Representation 1 2 Guided generation"
+  },
+  {
+   "pages": [
+    64
+   ],
+   "id": 51,
+   "img": "p064.jpg",
+   "page_first": 64,
+   "page_last": 64,
+   "title": "Class of models",
+   "text": "Class of models Recurrent neural networks (RNNs) Long short-term memory (LSTM) Word2vec Transformers Large Language Models 1980s 1997 2013 2017 2020s"
+  },
+  {
+   "pages": [
+    65
+   ],
+   "id": 52,
+   "img": "p065.jpg",
+   "page_first": 65,
+   "page_last": 65,
+   "title": "Tokenization",
+   "text": "Tokenization A cute teddy bear is reading. A cute teddy bear is reading . A cute teddy is reading . bear A c u t e t e d d y b e a r i s r e a d i n g . _ _ _ _ _ A cute ted is read . bear ##dy ##ing sub-word word arbitrary character"
+  },
+  {
+   "pages": [
+    66
+   ],
+   "id": 53,
+   "img": "p066.jpg",
+   "page_first": 66,
+   "page_last": 66,
+   "title": "Transformer architecture",
+   "text": "Transformer architecture Attention Is All You Need, Vaswani et al., 2017. \u25cf Introduced in 2017 for machine translation \u25cf Relies on the concept of attention \u25cf Concepts of query, key, value \u25cf Proxy task: next token prediction \u25cf Weaker inductive biases \u25cf More generalizability Context Bene\ufb01ts"
+  },
+  {
+   "pages": [
+    67
+   ],
+   "id": 54,
+   "img": "p067.jpg",
+   "page_first": 67,
+   "page_last": 67,
+   "title": "Attention mechanism",
+   "text": "Attention mechanism Concept of Query, Key, Value \"Super Study Guide: Transformers & Large Language Models\", by Amidi, 2024."
+  },
+  {
+   "pages": [
+    68
+   ],
+   "id": 55,
+   "img": "p068.jpg",
+   "page_first": 68,
+   "page_last": 68,
+   "title": "Attention mechanism",
+   "text": "Attention mechanism E\ufb03cient computations with matrices: Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    69
+   ],
+   "id": 56,
+   "img": "p069.jpg",
+   "page_first": 69,
+   "page_last": 69,
+   "title": "Attention locations",
+   "text": "Attention locations Self-attention \u25cf Encoder-Encoder \u25cf Decoder-Decoder Cross-attention \u25cf Encoder-Decoder Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    70
+   ],
+   "id": 57,
+   "img": "p070.jpg",
+   "page_first": 70,
+   "page_last": 70,
+   "title": "Input",
+   "text": "Input Overview \u25cf Text is \"tokenized\" \u25cf Learned embeddings for tokens Parameters \u25cf V: vocabulary size \u25cf d_model: embedding dimensions Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    71
+   ],
+   "id": 58,
+   "img": "p071.jpg",
+   "page_first": 71,
+   "page_last": 71,
+   "title": "... with a trick!",
+   "text": "... with a trick! Positional encoding Idea: \u25cf Add position information to inputs \u25cf Can be either learned or hardcoded Goal: let model understand relative input position Left \ufb01gure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017. Right \ufb01gures adapted from \u201cTransformer Architecture: The Positional Encoding\u201d, Kazemnejad, 2019. +1 -1 Dimension Position Position Position max dot product min"
+  },
+  {
+   "pages": [
+    72
+   ],
+   "id": 59,
+   "img": "p072.jpg",
+   "page_first": 72,
+   "page_last": 72,
+   "title": "Encoder",
+   "text": "Encoder Overview \u25cf Encoder-Encoder self-attention \u25cf Feed Forward Neural Network \u25cf Normalization layer Parameters \u25cf N: layers stacked \u25cf h: number of attention heads \u25cf d_FF, d_key, d_value: sub-layer dimension \u25cf d_model: embedding dimensions Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    73
+   ],
+   "id": 60,
+   "img": "p073.jpg",
+   "page_first": 73,
+   "page_last": 73,
+   "title": "Output \"shifted right\"",
+   "text": "Output \"shifted right\" Overview \u25cf Learned embeddings for output tokens \u25cf In practice, will start with [BOS] Parameters \u25cf V: vocabulary size \u25cf d_model: embedding dimensions Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    74
+   ],
+   "id": 61,
+   "img": "p074.jpg",
+   "page_first": 74,
+   "page_last": 74,
+   "title": "Decoder",
+   "text": "Decoder Overview \u25cf Decoder-Decoder self-attention \u25cf Encoder-Decoder cross-attention \u25cf Feed Forward Neural Network \u25cf Normalization layer Parameters \u25cf N: layers stacked \u25cf h: number of attention heads \u25cf d_FF, d_key, d_value: sub-layer dimension \u25cf d_model: embedding dimensions Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    75
+   ],
+   "id": 62,
+   "img": "p075.jpg",
+   "page_first": 75,
+   "page_last": 75,
+   "title": "Output",
+   "text": "Output Overview \u25cf Linear projection \u25cf Classi\ufb01cation problem that outputs probability of belonging to a class, where class = word Parameters \u25cf V: vocabulary size \u25cf d_model: embedding dimensions Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    76
+   ],
+   "id": 63,
+   "img": "p076.jpg",
+   "page_first": 76,
+   "page_last": 76,
+   "title": "Typical embeddings location",
+   "text": "Typical embeddings location Figure adapted from \u201cAttention Is All You Need\u201d, Vaswani et al., 2017. last hidden state of the encoder"
+  },
+  {
+   "pages": [
+    77
+   ],
+   "id": 64,
+   "img": "p077.jpg",
+   "page_first": 77,
+   "page_last": 77,
+   "title": "From pixel to latent space",
+   "text": "From pixel to latent space Latent di\ufb00usion models Text representation Image representation Contrastive learning Guidance Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    78
+   ],
+   "id": 65,
+   "img": "p078.jpg",
+   "page_first": 78,
+   "page_last": 78,
+   "title": "Today's lecture: Part 2",
+   "text": "Today's lecture: Part 2 Condition Black box architecture Today's lecture: Multimodal guided generation Representation 1 2 Guided generation"
+  },
+  {
+   "pages": [
+    79,
+    80
+   ],
+   "id": 66,
+   "img": "p079.jpg",
+   "page_first": 79,
+   "page_last": 80,
+   "title": "Adapting attention mechanism to images",
+   "text": "Adapting attention mechanism to images It's just numbers... Figure adapted from \"Super Study Guide: Transformers & Large Language Models\", by Amidi, 2024."
+  },
+  {
+   "pages": [
+    81
+   ],
+   "id": 67,
+   "img": "p081.jpg",
+   "page_first": 81,
+   "page_last": 81,
+   "title": "Adapting attention mechanism to images",
+   "text": "Adapting attention mechanism to images ...that could well represent images!"
+  },
+  {
+   "pages": [
+    82
+   ],
+   "id": 68,
+   "img": "p082.jpg",
+   "page_first": 82,
+   "page_last": 82,
+   "title": "Vision Transformer",
+   "text": "Vision Transformer An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale, Dosovitskiy et al., 2020. ViT = Vision Transformer"
+  },
+  {
+   "pages": [
+    83,
+    84,
+    85
+   ],
+   "id": 69,
+   "img": "p084.jpg",
+   "page_first": 83,
+   "page_last": 85,
+   "title": "ViT end-to-end example",
+   "text": "ViT end-to-end example P P C Linear D"
+  },
+  {
+   "pages": [
+    86
+   ],
+   "id": 70,
+   "img": "p086.jpg",
+   "page_first": 86,
+   "page_last": 86,
+   "title": "[CLS]",
+   "text": "[CLS] ViT end-to-end example"
+  },
+  {
+   "pages": [
+    87
+   ],
+   "id": 71,
+   "img": "p087.jpg",
+   "page_first": 87,
+   "page_last": 87,
+   "title": "[CLS]",
+   "text": "[CLS] embedding ViT end-to-end example"
+  },
+  {
+   "pages": [
+    88
+   ],
+   "id": 72,
+   "img": "p088.jpg",
+   "page_first": 88,
+   "page_last": 88,
+   "title": "[CLS]",
+   "text": "[CLS] embedding position embedding ViT end-to-end example"
+  },
+  {
+   "pages": [
+    89
+   ],
+   "id": 73,
+   "img": "p089.jpg",
+   "page_first": 89,
+   "page_last": 89,
+   "title": "[CLS]",
+   "text": "[CLS] position-aware embedding ViT end-to-end example"
+  },
+  {
+   "pages": [
+    90
+   ],
+   "id": 74,
+   "img": "p090.jpg",
+   "page_first": 90,
+   "page_last": 90,
+   "title": "[CLS]",
+   "text": "[CLS] ViT end-to-end example"
+  },
+  {
+   "pages": [
+    91
+   ],
+   "id": 75,
+   "img": "p091.jpg",
+   "page_first": 91,
+   "page_last": 91,
+   "title": "[CLS]",
+   "text": "[CLS] ENCODER ViT architecture ViT end-to-end example"
+  },
+  {
+   "pages": [
+    92
+   ],
+   "id": 76,
+   "img": "p092.jpg",
+   "page_first": 92,
+   "page_last": 92,
+   "title": "[CLS]",
+   "text": "[CLS] ENCODER ViT architecture encoded embeddings ViT end-to-end example"
+  },
+  {
+   "pages": [
+    93
+   ],
+   "id": 77,
+   "img": "p093.jpg",
+   "page_first": 93,
+   "page_last": 93,
+   "title": "[CLS]",
+   "text": "[CLS] ENCODER ViT architecture FFN Class teddy bear ViT end-to-end example"
+  },
+  {
+   "pages": [
+    94,
+    95
+   ],
+   "id": 78,
+   "img": "p095.jpg",
+   "page_first": 94,
+   "page_last": 95,
+   "title": "Discussion",
+   "text": "Discussion Limitations. \u25cf Supervised ViT good but needs labels \u25cf Fits to narrow category-level representation that has to be speci\ufb01ed in advance Other approaches. \u25cf We didn\u2019t have that problem for text because tasks that work are already self-supervised \u25cf Popular work: self-DIstillation with NO labels Emerging Properties in Self-Supervised Vision Transformers, Caron et al., 2021."
+  },
+  {
+   "pages": [
+    96
+   ],
+   "id": 79,
+   "img": "p096.jpg",
+   "page_first": 96,
+   "page_last": 96,
+   "title": "Discussion",
+   "text": "Discussion How to make image and text embeddings comparable?"
+  },
+  {
+   "pages": [
+    97
+   ],
+   "id": 80,
+   "img": "p097.jpg",
+   "page_first": 97,
+   "page_last": 97,
+   "title": "From pixel to latent space",
+   "text": "From pixel to latent space Latent di\ufb00usion models Text representation Image representation Contrastive learning Guidance Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    98,
+    99
+   ],
+   "id": 81,
+   "img": "p099.jpg",
+   "page_first": 98,
+   "page_last": 99,
+   "title": "Contrastive learning",
+   "text": "Contrastive learning Motivation. How to learn general image/text relationships? Idea. Contrastive learning: \u25cf Group similar items together \u25cf Push away dissimilar items"
+  },
+  {
+   "pages": [
+    100
+   ],
+   "id": 82,
+   "img": "p100.jpg",
+   "page_first": 100,
+   "page_last": 100,
+   "title": "Contrastive learning",
+   "text": "Contrastive learning teddy bear water polo ball close"
+  },
+  {
+   "pages": [
+    101,
+    102
+   ],
+   "id": 83,
+   "img": "p102.jpg",
+   "page_first": 101,
+   "page_last": 102,
+   "title": "Contrastive learning",
+   "text": "Contrastive learning teddy bear water polo ball far far close close"
+  },
+  {
+   "pages": [
+    103
+   ],
+   "id": 84,
+   "img": "p103.jpg",
+   "page_first": 103,
+   "page_last": 103,
+   "title": "Contrastive learning",
+   "text": "Contrastive learning low similarity high similarity high similarity low similarity teddy bear water polo ball"
+  },
+  {
+   "pages": [
+    104
+   ],
+   "id": 85,
+   "img": "p104.jpg",
+   "page_first": 104,
+   "page_last": 104,
+   "title": "How to \ufb01nd a same space?",
+   "text": "How to \ufb01nd a same space? ENCODER ViT architecture [CLS] Projection u"
+  },
+  {
+   "pages": [
+    105
+   ],
+   "id": 86,
+   "img": "p105.jpg",
+   "page_first": 105,
+   "page_last": 105,
+   "title": "How to \ufb01nd a same space?",
+   "text": "How to \ufb01nd a same space? DECODER \"Vanilla\" decoder-only architecture [SOS] [teddy] [bear] [EOS] Projection v teddy bear"
+  },
+  {
+   "pages": [
+    106
+   ],
+   "id": 87,
+   "img": "p106.jpg",
+   "page_first": 106,
+   "page_last": 106,
+   "title": "Notation.",
+   "text": "Notation. \u25cf Similarity: Loss formulation? s \ufffd\ufffd ,text uT \ufffd\ufffd text v u \ufffd\ufffd text v ="
+  },
+  {
+   "pages": [
+    107
+   ],
+   "id": 88,
+   "img": "p107.jpg",
+   "page_first": 107,
+   "page_last": 107,
+   "title": "Notation.",
+   "text": "Notation. \u25cf Similarity: \u25cf Probability that image \"       \" matches text \"teddy bear\": Loss formulation? s \ufffd\ufffd ,text uT \ufffd\ufffd text v u \ufffd\ufffd text v p teddy bear = = exp( s ,teddy bear ) + exp( s ,teddy bear ) exp( s ,water polo ball)"
+  },
+  {
+   "pages": [
+    108
+   ],
+   "id": 89,
+   "img": "p108.jpg",
+   "page_first": 108,
+   "page_last": 108,
+   "title": "Contrastive learning",
+   "text": "Contrastive learning teddy bear water polo ball"
+  },
+  {
+   "pages": [
+    109
+   ],
+   "id": 90,
+   "img": "p109.jpg",
+   "page_first": 109,
+   "page_last": 109,
+   "title": "Notation.",
+   "text": "Notation. \u25cf Similarity: \u25cf Probability that image \"       \" matches text \"teddy bear\": \u25cf Probability that text \"teddy bear\" matches image \"     \": Loss formulation? s \ufffd\ufffd ,text uT \ufffd\ufffd text v u \ufffd\ufffd text v p teddy bear = = exp( s ,teddy bear ) + exp( s ,teddy bear ) exp( s ,teddy bear )"
+  },
+  {
+   "pages": [
+    110
+   ],
+   "id": 91,
+   "img": "p110.jpg",
+   "page_first": 110,
+   "page_last": 110,
+   "title": "Contrastive learning",
+   "text": "Contrastive learning teddy bear water polo ball"
+  },
+  {
+   "pages": [
+    111
+   ],
+   "id": 92,
+   "img": "p111.jpg",
+   "page_first": 111,
+   "page_last": 111,
+   "title": "1",
+   "text": "1 2 water polo ball Each term. Loss formulation L\ufffd\ufffd   text= log 1 2 p teddy bear log p water polo ball ( ) + L \ufffd\ufffd text = log pteddy bear log p ( ) +"
+  },
+  {
+   "pages": [
+    112
+   ],
+   "id": 93,
+   "img": "p112.jpg",
+   "page_first": 112,
+   "page_last": 112,
+   "title": "1",
+   "text": "1 2 water polo ball Each term. Total loss. Loss formulation L\ufffd\ufffd   text= log 1 2 p teddy bear log p water polo ball ( ) + L \ufffd\ufffd text = log pteddy bear log p ( ) + L 1 2 = ( L\ufffd\ufffd   text + L \ufffd\ufffd text )"
+  },
+  {
+   "pages": [
+    113,
+    114,
+    115,
+    116
+   ],
+   "id": 94,
+   "img": "p116.jpg",
+   "page_first": 113,
+   "page_last": 116,
+   "title": "CLIP",
+   "text": "CLIP CLIP = Contrastive Language-Image Pretraining Learning Transferable Visual Models From Natural Language Supervision, Radford et al., 2021"
+  },
+  {
+   "pages": [
+    117
+   ],
+   "id": 95,
+   "img": "p117.jpg",
+   "page_first": 117,
+   "page_last": 117,
+   "title": "Each term.",
+   "text": "Each term. CLIP loss 1 N L\ufffd\ufffd   text= log 1 N p teddy bear ( ) + L \ufffd\ufffd text = log pteddy bear ... ( ) + ..."
+  },
+  {
+   "pages": [
+    118
+   ],
+   "id": 96,
+   "img": "p118.jpg",
+   "page_first": 118,
+   "page_last": 118,
+   "title": "Each term.",
+   "text": "Each term. Total loss. CLIP loss 1 N L\ufffd\ufffd   text= log 1 N p teddy bear ( ) + L \ufffd\ufffd text = log pteddy bear ... ( ) + L 1 2 = ( L\ufffd\ufffd   text + L \ufffd\ufffd text ) ..."
+  },
+  {
+   "pages": [
+    119
+   ],
+   "id": 97,
+   "img": "p119.jpg",
+   "page_first": 119,
+   "page_last": 119,
+   "title": "CLIP characteristics",
+   "text": "CLIP characteristics Training. \u25cf Dataset: 400M of (image, caption) pairs \u25cf Visual encoder: ViT or CNN \u25cf Text encoder: Transformer-based \u25cf Loss works because of the assumption of \"in-batch negatives\" Learning Transferable Visual Models From Natural Language Supervision, Radford et al., 2021"
+  },
+  {
+   "pages": [
+    120
+   ],
+   "id": 98,
+   "img": "p120.jpg",
+   "page_first": 120,
+   "page_last": 120,
+   "title": "Training.",
+   "text": "Training. \u25cf Dataset: 400M of (image, caption) pairs \u25cf Visual encoder: ViT or CNN \u25cf Text encoder: Transformer-based \u25cf Loss works because of the assumption of \"in-batch negatives\" Results. \u25cf Reaches ~76% on ImageNet with no supervised training \u25cf Arguable possible leak from supervised sets, but still remarkable Learning Transferable Visual Models From Natural Language Supervision, Radford et al., 2021 CLIP characteristics"
+  },
+  {
+   "pages": [
+    121,
+    122
+   ],
+   "id": 99,
+   "img": "p122.jpg",
+   "page_first": 121,
+   "page_last": 122,
+   "title": "Discussion of CLIP",
+   "text": "Discussion of CLIP Computational challenges. \u25cf Large similarity matrix required for a batch \u25cf Global normalization \u25cf Memory intensive Other approach. \u25cf Reframe 1 \u2194 N softmax problem into a 1 \u2194 1 sigmoid one \u25cf Popular work: Sigmoid Loiss for Language Image Pre-Training Sigmoid Loss for Language Image Pre-Training, Zhai et al., 2023."
+  },
+  {
+   "pages": [
+    123
+   ],
+   "id": 100,
+   "img": "p123.jpg",
+   "page_first": 123,
+   "page_last": 123,
+   "title": "From pixel to latent space",
+   "text": "From pixel to latent space Latent di\ufb00usion models Text representation Image representation Contrastive learning Guidance Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    124
+   ],
+   "id": 101,
+   "img": "p124.jpg",
+   "page_first": 124,
+   "page_last": 124,
+   "title": "Today's lecture: Part 3",
+   "text": "Today's lecture: Part 3 A teddy bear reading a book Condition Black box architecture Today's lecture: Multimodal guided generation Representation Guided generation 3 1 2"
+  },
+  {
+   "pages": [
+    125
+   ],
+   "id": 102,
+   "img": "p125.jpg",
+   "page_first": 125,
+   "page_last": 125,
+   "title": "Motivation",
+   "text": "Motivation condition"
+  },
+  {
+   "pages": [
+    126
+   ],
+   "id": 103,
+   "img": "p126.jpg",
+   "page_first": 126,
+   "page_last": 126,
+   "title": "First idea: guide the generation with a classi\ufb01er",
+   "text": "First idea: guide the generation with a classi\ufb01er Idea. Use a classi\ufb01er\u2019s knowledge to feed image generation with information on the target class. Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021. generation weights classi\ufb01er weights"
+  },
+  {
+   "pages": [
+    127,
+    128
+   ],
+   "id": 104,
+   "img": "p127.jpg",
+   "page_first": 127,
+   "page_last": 128,
+   "title": "Justi\ufb01cation: Apply conditional Bayes\u2019 rule on",
+   "text": "Justi\ufb01cation: Apply conditional Bayes\u2019 rule on We want to compute Main derivation Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021. Same distribution as with"
+  },
+  {
+   "pages": [
+    129
+   ],
+   "id": 105,
+   "img": "p129.jpg",
+   "page_first": 129,
+   "page_last": 129,
+   "title": "Justi\ufb01cation:",
+   "text": "Justi\ufb01cation: Justi\ufb01cation: Lecture 1\u2019s derivation of the DDPM generation process. Same distribution as Let\u2019s focus on Detour 1 Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021. + constant"
+  },
+  {
+   "pages": [
+    130
+   ],
+   "id": 106,
+   "img": "p130.jpg",
+   "page_first": 130,
+   "page_last": 130,
+   "title": "Justi\ufb01cation: Apply conditional Bayes\u2019 rule on",
+   "text": "Justi\ufb01cation: Apply conditional Bayes\u2019 rule on We want to compute Main derivation Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021. Same distribution as with"
+  },
+  {
+   "pages": [
+    131
+   ],
+   "id": 107,
+   "img": "p131.jpg",
+   "page_first": 131,
+   "page_last": 131,
+   "title": "Let\u2019s focus on",
+   "text": "Let\u2019s focus on Justi\ufb01cation: First-order Taylor approximation Detour 2 Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021. + constant"
+  },
+  {
+   "pages": [
+    132
+   ],
+   "id": 108,
+   "img": "p132.jpg",
+   "page_first": 132,
+   "page_last": 132,
+   "title": "Justi\ufb01cation: Plug in expressions into",
+   "text": "Justi\ufb01cation: Plug in expressions into and recognize probability density function of a normal distribution Justi\ufb01cation: Apply conditional Bayes\u2019 rule on We want to compute Main derivation Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021. Same distribution as with shifted mean"
+  },
+  {
+   "pages": [
+    133
+   ],
+   "id": 109,
+   "img": "p133.jpg",
+   "page_first": 133,
+   "page_last": 133,
+   "title": "And what about the training loss?",
+   "text": "And what about the training loss? Observe that the per-step generation rule only needs: \u25cf The unconditioned generation model\u2019s predictions and parameters Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021."
+  },
+  {
+   "pages": [
+    134
+   ],
+   "id": 110,
+   "img": "p134.jpg",
+   "page_first": 134,
+   "page_last": 134,
+   "title": "And what about the training loss?",
+   "text": "And what about the training loss? Observe that the per-step generation rule only needs: \u25cf The unconditioned generation model\u2019s predictions and parameters \u25cf The classi\ufb01er\u2019s score Di\ufb00usion Models Beat GANs on Image Synthesis, Dhariwal et al., 2021."
+  },
+  {
+   "pages": [
+    135
+   ],
+   "id": 111,
+   "img": "p135.jpg",
+   "page_first": 135,
+   "page_last": 135,
+   "title": "Training",
+   "text": "Training Generation model. \u25cf No retraining needed of an unconditioned generation model. \u25cf Purely a sampling technique. Classi\ufb01er. \u25cf Needs to be trained with cross-entropy loss on noisy images \u25cf Sample         and train                       to predict the correct label"
+  },
+  {
+   "pages": [
+    136
+   ],
+   "id": 112,
+   "img": "p136.jpg",
+   "page_first": 136,
+   "page_last": 136,
+   "title": "Giving more weight to the condition signal",
+   "text": "Giving more weight to the condition signal Empirically, we observe that we need                for good conditioned samples."
+  },
+  {
+   "pages": [
+    137,
+    138
+   ],
+   "id": 113,
+   "img": "p138.jpg",
+   "page_first": 137,
+   "page_last": 138,
+   "title": "Limitations",
+   "text": "Limitations New prerequisites. \u25cf Classi\ufb01er been trained on labeled data \u25cf Need to operate on noised input: cannot use out-of-the-box classi\ufb01er \u25cf Distribution of data between two models to be aligned Computational considerations. \u25cf Extra classi\ufb01er pass needed at each step \u25cf New gradient signal needs scaling tuning \u25cf Taylor expansion introduces approximations"
+  },
+  {
+   "pages": [
+    139
+   ],
+   "id": 114,
+   "img": "p139.jpg",
+   "page_first": 139,
+   "page_last": 139,
+   "title": "Re\ufb01ned goal",
+   "text": "Re\ufb01ned goal generation weights only"
+  },
+  {
+   "pages": [
+    140,
+    141
+   ],
+   "id": 115,
+   "img": "p141.jpg",
+   "page_first": 140,
+   "page_last": 141,
+   "title": "Any way to get rid of the classi\ufb01er part?",
+   "text": "Any way to get rid of the classi\ufb01er part? Motivation. \u25cf Classi\ufb01er on noisy data not found in the wild \u25cf We want to avoid extra model calls at inference time Classi\ufb01er-Free Di\ufb00usion Guidance, Ho et al., 2022. Observation. Conditional and unconditional signal de\ufb01nes an implicit classi\ufb01er! proportional to"
+  },
+  {
+   "pages": [
+    142
+   ],
+   "id": 116,
+   "img": "p142.jpg",
+   "page_first": 142,
+   "page_last": 142,
+   "title": "Change of mindset",
+   "text": "Change of mindset Idea. Compute both conditioned and unconditioned situations and infer classi\ufb01er signal. Classi\ufb01er-Free Di\ufb00usion Guidance, Ho et al., 2022. classi\ufb01er-based classi\ufb01er-free"
+  },
+  {
+   "pages": [
+    143,
+    144
+   ],
+   "id": 117,
+   "img": "p143.jpg",
+   "page_first": 143,
+   "page_last": 144,
+   "title": "Training for classi\ufb01er-free guidance",
+   "text": "Training for classi\ufb01er-free guidance Classi\ufb01er-Free Di\ufb00usion Guidance, Ho et al., 2022. 1. Sample: time step noise clean image noised image 2. Use via and to predict 3. Compute loss and backpropagate through"
+  },
+  {
+   "pages": [
+    145
+   ],
+   "id": 118,
+   "img": "p145.jpg",
+   "page_first": 145,
+   "page_last": 145,
+   "title": "Sampling for classi\ufb01er-free guidance",
+   "text": "Sampling for classi\ufb01er-free guidance Classi\ufb01er-Free Di\ufb00usion Guidance, Ho et al., 2022. unconditioned sample conditioned sample guided sample"
+  },
+  {
+   "pages": [
+    146
+   ],
+   "id": 119,
+   "img": "p146.jpg",
+   "page_first": 146,
+   "page_last": 146,
+   "title": "Practical considerations",
+   "text": "Practical considerations Modeling. \u25cf Flexibility of conditioning \u25cf CLIP embeddings handy to represent conditioning signal \u25cf Best results with                   and Classi\ufb01er-Free Di\ufb00usion Guidance, Ho et al., 2022."
+  },
+  {
+   "pages": [
+    147
+   ],
+   "id": 120,
+   "img": "p147.jpg",
+   "page_first": 147,
+   "page_last": 147,
+   "title": "Practical considerations",
+   "text": "Practical considerations Modeling. \u25cf Flexibility of conditioning \u25cf CLIP embeddings handy to represent conditioning signal \u25cf Best results with                   and Computational. \u25cf No more bespoke classi\ufb01er needed... \u25cf ...but still two calls per step! Classi\ufb01er-Free Di\ufb00usion Guidance, Ho et al., 2022."
+  },
+  {
+   "pages": [
+    148
+   ],
+   "id": 121,
+   "img": "p148.jpg",
+   "page_first": 148,
+   "page_last": 148,
+   "title": "Thank you for your attention!",
+   "text": "Thank you for your attention!"
+  }
+ ]
+}

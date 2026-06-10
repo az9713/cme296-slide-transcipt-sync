@@ -1,0 +1,2378 @@
+{
+ "lecture": 7,
+ "groups": [
+  {
+   "id": 0,
+   "img": "p001.jpg",
+   "pages": [
+    1,
+    1
+   ],
+   "title": "CME 296: Di\ufb00usion &",
+   "segments": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "t_start": 0,
+   "ts_start": "0:00",
+   "t_end": 28
+  },
+  {
+   "id": 1,
+   "img": "p003.jpg",
+   "pages": [
+    2,
+    4
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+   ],
+   "t_start": 35,
+   "ts_start": "0:35",
+   "t_end": 139
+  },
+  {
+   "id": 2,
+   "img": "p005.jpg",
+   "pages": [
+    5,
+    5
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    19
+   ],
+   "t_start": 145,
+   "ts_start": "2:25",
+   "t_end": 145
+  },
+  {
+   "id": 3,
+   "img": "p006.jpg",
+   "pages": [
+    6,
+    6
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+   ],
+   "t_start": 150,
+   "ts_start": "2:30",
+   "t_end": 212
+  },
+  {
+   "id": 4,
+   "img": "p007.jpg",
+   "pages": [
+    7,
+    7
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+   ],
+   "t_start": 221,
+   "ts_start": "3:41",
+   "t_end": 280
+  },
+  {
+   "id": 5,
+   "img": "p008.jpg",
+   "pages": [
+    8,
+    8
+   ],
+   "title": "Recap of last episode\u2026",
+   "segments": [
+    40,
+    41,
+    42,
+    43
+   ],
+   "t_start": 286,
+   "ts_start": "4:46",
+   "t_end": 309
+  },
+  {
+   "id": 6,
+   "img": "p009.jpg",
+   "pages": [
+    9,
+    9
+   ],
+   "title": "Today's lecture",
+   "segments": [
+    44
+   ],
+   "t_start": 322,
+   "ts_start": "5:22",
+   "t_end": 322
+  },
+  {
+   "id": 7,
+   "img": "p010.jpg",
+   "pages": [
+    10,
+    10
+   ],
+   "title": "Setup",
+   "segments": [
+    45
+   ],
+   "t_start": 327,
+   "ts_start": "5:27",
+   "t_end": 327
+  },
+  {
+   "id": 8,
+   "img": "p011.jpg",
+   "pages": [
+    11,
+    11
+   ],
+   "title": "Motivating example",
+   "segments": [
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52
+   ],
+   "t_start": 332,
+   "ts_start": "5:32",
+   "t_end": 385
+  },
+  {
+   "id": 9,
+   "img": "p012.jpg",
+   "pages": [
+    12,
+    12
+   ],
+   "title": "Motivating example: does not look real / high quality!",
+   "segments": [
+    53,
+    54,
+    55
+   ],
+   "t_start": 391,
+   "ts_start": "6:31",
+   "t_end": 406
+  },
+  {
+   "id": 10,
+   "img": "p013.jpg",
+   "pages": [
+    13,
+    13
+   ],
+   "title": "Motivating example",
+   "segments": [
+    56
+   ],
+   "t_start": 416,
+   "ts_start": "6:56",
+   "t_end": 416
+  },
+  {
+   "id": 11,
+   "img": "p014.jpg",
+   "pages": [
+    14,
+    14
+   ],
+   "title": "Motivating example: does not follow prompt!",
+   "segments": [
+    57,
+    58,
+    59
+   ],
+   "t_start": 425,
+   "ts_start": "7:05",
+   "t_end": 437
+  },
+  {
+   "id": 12,
+   "img": "p015.jpg",
+   "pages": [
+    15,
+    15
+   ],
+   "title": "Motivating example",
+   "segments": [
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68
+   ],
+   "t_start": 443,
+   "ts_start": "7:23",
+   "t_end": 496
+  },
+  {
+   "id": 13,
+   "img": "p016.jpg",
+   "pages": [
+    16,
+    16
+   ],
+   "title": "Motivating example: follows prompt and high quality!",
+   "segments": [
+    69
+   ],
+   "t_start": 505,
+   "ts_start": "8:25",
+   "t_end": 505
+  },
+  {
+   "id": 14,
+   "img": "p017.jpg",
+   "pages": [
+    17,
+    17
+   ],
+   "title": "Tractable scope",
+   "segments": [
+    70
+   ],
+   "t_start": 511,
+   "ts_start": "8:31",
+   "t_end": 511
+  },
+  {
+   "id": 15,
+   "img": "p018.jpg",
+   "pages": [
+    18,
+    18
+   ],
+   "title": "Tractable scope",
+   "segments": [
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77
+   ],
+   "t_start": 519,
+   "ts_start": "8:39",
+   "t_end": 566
+  },
+  {
+   "id": 16,
+   "img": "p019.jpg",
+   "pages": [
+    19,
+    19
+   ],
+   "title": "\u2026but not exhaustive!",
+   "segments": [
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89
+   ],
+   "t_start": 572,
+   "ts_start": "9:32",
+   "t_end": 647
+  },
+  {
+   "id": 17,
+   "img": "p020.jpg",
+   "pages": [
+    20,
+    20
+   ],
+   "title": "Human ratings",
+   "segments": [
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160
+   ],
+   "t_start": 657,
+   "ts_start": "10:57",
+   "t_end": 1178
+  },
+  {
+   "id": 18,
+   "img": "p021.jpg",
+   "pages": [
+    21,
+    21
+   ],
+   "title": "Attempt 1: rate images on a scale",
+   "segments": [
+    161
+   ],
+   "t_start": 1183,
+   "ts_start": "19:43",
+   "t_end": 1183
+  },
+  {
+   "id": 19,
+   "img": "p022.jpg",
+   "pages": [
+    22,
+    22
+   ],
+   "title": "Attempt 1: rate images on a scale",
+   "segments": [
+    162
+   ],
+   "t_start": 1193,
+   "ts_start": "19:53",
+   "t_end": 1193
+  },
+  {
+   "id": 20,
+   "img": "p023.jpg",
+   "pages": [
+    23,
+    23
+   ],
+   "title": "Attempt 1: rate images on a scale",
+   "segments": [
+    163
+   ],
+   "t_start": 1199,
+   "ts_start": "19:59",
+   "t_end": 1199
+  },
+  {
+   "id": 21,
+   "img": "p024.jpg",
+   "pages": [
+    24,
+    25
+   ],
+   "title": "Attempt 2: rate images on a binary scale",
+   "segments": [
+    164
+   ],
+   "t_start": 1204,
+   "ts_start": "20:04",
+   "t_end": 1204
+  },
+  {
+   "id": 22,
+   "img": "p026.jpg",
+   "pages": [
+    26,
+    26
+   ],
+   "title": "Attempt 2: rate images on a binary scale",
+   "segments": [
+    165
+   ],
+   "t_start": 1210,
+   "ts_start": "20:10",
+   "t_end": 1210
+  },
+  {
+   "id": 23,
+   "img": "p027.jpg",
+   "pages": [
+    27,
+    27
+   ],
+   "title": "Attempt 3: rate images via pairwise comparisons",
+   "segments": [
+    166
+   ],
+   "t_start": 1219,
+   "ts_start": "20:19",
+   "t_end": 1219
+  },
+  {
+   "id": 24,
+   "img": "p028.jpg",
+   "pages": [
+    28,
+    28
+   ],
+   "title": "Attempt 3: rate images via pairwise comparisons",
+   "segments": [
+    167
+   ],
+   "t_start": 1225,
+   "ts_start": "20:25",
+   "t_end": 1225
+  },
+  {
+   "id": 25,
+   "img": "p029.jpg",
+   "pages": [
+    29,
+    29
+   ],
+   "title": "Win rate",
+   "segments": [
+    168,
+    169,
+    170
+   ],
+   "t_start": 1232,
+   "ts_start": "20:32",
+   "t_end": 1245
+  },
+  {
+   "id": 26,
+   "img": "p030.jpg",
+   "pages": [
+    30,
+    30
+   ],
+   "title": "Cases where win rate is not great\u2026",
+   "segments": [
+    171
+   ],
+   "t_start": 1251,
+   "ts_start": "20:51",
+   "t_end": 1251
+  },
+  {
+   "id": 27,
+   "img": "p031.jpg",
+   "pages": [
+    31,
+    31
+   ],
+   "title": "\u2026and intuition behind how to \ufb01x this!",
+   "segments": [
+    172
+   ],
+   "t_start": 1261,
+   "ts_start": "21:01",
+   "t_end": 1261
+  },
+  {
+   "id": 28,
+   "img": "p032.jpg",
+   "pages": [
+    32,
+    32
+   ],
+   "title": "\u2026and intuition behind how to \ufb01x this!",
+   "segments": [
+    173
+   ],
+   "t_start": 1269,
+   "ts_start": "21:09",
+   "t_end": 1269
+  },
+  {
+   "id": 29,
+   "img": "p033.jpg",
+   "pages": [
+    33,
+    33
+   ],
+   "title": "Elo score",
+   "segments": [
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180
+   ],
+   "t_start": 1275,
+   "ts_start": "21:15",
+   "t_end": 1328
+  },
+  {
+   "id": 30,
+   "img": "p034.jpg",
+   "pages": [
+    34,
+    34
+   ],
+   "title": "Elo score",
+   "segments": [
+    181
+   ],
+   "t_start": 1333,
+   "ts_start": "22:13",
+   "t_end": 1333
+  },
+  {
+   "id": 31,
+   "img": "p035.jpg",
+   "pages": [
+    35,
+    35
+   ],
+   "title": "Elo score",
+   "segments": [
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198
+   ],
+   "t_start": 1340,
+   "ts_start": "22:20",
+   "t_end": 1456
+  },
+  {
+   "id": 32,
+   "img": "p036.jpg",
+   "pages": [
+    36,
+    36
+   ],
+   "title": "Elo score",
+   "segments": [
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208
+   ],
+   "t_start": 1466,
+   "ts_start": "24:26",
+   "t_end": 1531
+  },
+  {
+   "id": 33,
+   "img": "p037.jpg",
+   "pages": [
+    37,
+    37
+   ],
+   "title": "Leaderboard of text-to-image models",
+   "segments": [
+    209
+   ],
+   "t_start": 1539,
+   "ts_start": "25:39",
+   "t_end": 1539
+  },
+  {
+   "id": 34,
+   "img": "p038.jpg",
+   "pages": [
+    38,
+    38
+   ],
+   "title": "Limitations with human ratings",
+   "segments": [
+    210,
+    211,
+    212,
+    213,
+    214
+   ],
+   "t_start": 1547,
+   "ts_start": "25:47",
+   "t_end": 1576
+  },
+  {
+   "id": 35,
+   "img": "p039.jpg",
+   "pages": [
+    39,
+    39
+   ],
+   "title": "Human ratings",
+   "segments": [
+    215,
+    216,
+    217,
+    218,
+    219
+   ],
+   "t_start": 1585,
+   "ts_start": "26:25",
+   "t_end": 1617
+  },
+  {
+   "id": 36,
+   "img": "p040.jpg",
+   "pages": [
+    40,
+    40
+   ],
+   "title": "Motivation",
+   "segments": [
+    220
+   ],
+   "t_start": 1624,
+   "ts_start": "27:04",
+   "t_end": 1624
+  },
+  {
+   "id": 37,
+   "img": "p041.jpg",
+   "pages": [
+    41,
+    41
+   ],
+   "title": "Motivation",
+   "segments": [
+    221,
+    222,
+    223,
+    224,
+    225,
+    226
+   ],
+   "t_start": 1631,
+   "ts_start": "27:11",
+   "t_end": 1668
+  },
+  {
+   "id": 38,
+   "img": "p042.jpg",
+   "pages": [
+    42,
+    42
+   ],
+   "title": "Back to our problem",
+   "segments": [
+    227,
+    228
+   ],
+   "t_start": 1675,
+   "ts_start": "27:55",
+   "t_end": 1681
+  },
+  {
+   "id": 39,
+   "img": "p043.jpg",
+   "pages": [
+    43,
+    43
+   ],
+   "title": "Back to our problem",
+   "segments": [
+    229
+   ],
+   "t_start": 1689,
+   "ts_start": "28:09",
+   "t_end": 1689
+  },
+  {
+   "id": 40,
+   "img": "p044.jpg",
+   "pages": [
+    44,
+    44
+   ],
+   "title": "Aesthetics",
+   "segments": [
+    230,
+    231,
+    232,
+    233,
+    234
+   ],
+   "t_start": 1696,
+   "ts_start": "28:16",
+   "t_end": 1727
+  },
+  {
+   "id": 41,
+   "img": "p045.jpg",
+   "pages": [
+    45,
+    45
+   ],
+   "title": "Aesthetics",
+   "segments": [
+    235
+   ],
+   "t_start": 1733,
+   "ts_start": "28:53",
+   "t_end": 1733
+  },
+  {
+   "id": 42,
+   "img": "p046.jpg",
+   "pages": [
+    46,
+    46
+   ],
+   "title": "Aesthetics",
+   "segments": [
+    236
+   ],
+   "t_start": 1740,
+   "ts_start": "29:00",
+   "t_end": 1740
+  },
+  {
+   "id": 43,
+   "img": "p047.jpg",
+   "pages": [
+    47,
+    50
+   ],
+   "title": "Aesthetics",
+   "segments": [
+    237
+   ],
+   "t_start": 1751,
+   "ts_start": "29:11",
+   "t_end": 1751
+  },
+  {
+   "id": 44,
+   "img": "p051.jpg",
+   "pages": [
+    51,
+    51
+   ],
+   "title": "Distance between real and generated distributions",
+   "segments": []
+  },
+  {
+   "id": 45,
+   "img": "p052.jpg",
+   "pages": [
+    52,
+    52
+   ],
+   "title": "Fr\u00e9chet inception distance",
+   "segments": [
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255,
+    256,
+    257,
+    258,
+    259,
+    260,
+    261,
+    262,
+    263,
+    264,
+    265,
+    266,
+    267,
+    268,
+    269,
+    270,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    278,
+    279,
+    280,
+    281,
+    282,
+    283,
+    284,
+    285,
+    286,
+    287,
+    288,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    295,
+    296,
+    297,
+    298,
+    299,
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315,
+    316,
+    317,
+    318,
+    319,
+    320,
+    321,
+    322,
+    323,
+    324,
+    325,
+    326,
+    327,
+    328,
+    329,
+    330,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    344,
+    345,
+    346,
+    347,
+    348
+   ],
+   "t_start": 1756,
+   "ts_start": "29:16",
+   "t_end": 2541
+  },
+  {
+   "id": 46,
+   "img": "p053.jpg",
+   "pages": [
+    53,
+    53
+   ],
+   "title": "We already saw plots using FID in the class!",
+   "segments": []
+  },
+  {
+   "id": 47,
+   "img": "p055.jpg",
+   "pages": [
+    54,
+    55
+   ],
+   "title": "Discussion on the FID",
+   "segments": [
+    349
+   ],
+   "t_start": 2550,
+   "ts_start": "42:30",
+   "t_end": 2550
+  },
+  {
+   "id": 48,
+   "img": "p056.jpg",
+   "pages": [
+    56,
+    56
+   ],
+   "title": "Back to our problem",
+   "segments": [
+    350,
+    351,
+    352
+   ],
+   "t_start": 2558,
+   "ts_start": "42:38",
+   "t_end": 2568
+  },
+  {
+   "id": 49,
+   "img": "p057.jpg",
+   "pages": [
+    57,
+    57
+   ],
+   "title": "Reminder from Lecture 4: CLIP!",
+   "segments": [
+    353,
+    354,
+    355,
+    356,
+    357,
+    358,
+    359,
+    360,
+    361,
+    362,
+    363,
+    364,
+    365
+   ],
+   "t_start": 2575,
+   "ts_start": "42:55",
+   "t_end": 2659
+  },
+  {
+   "id": 50,
+   "img": "p058.jpg",
+   "pages": [
+    58,
+    58
+   ],
+   "title": "Image-text alignment via CLIPScore",
+   "segments": [
+    366
+   ],
+   "t_start": 2664,
+   "ts_start": "44:24",
+   "t_end": 2664
+  },
+  {
+   "id": 51,
+   "img": "p059.jpg",
+   "pages": [
+    59,
+    59
+   ],
+   "title": "Human preference with PickScore",
+   "segments": [
+    367,
+    368,
+    369,
+    370,
+    371,
+    372
+   ],
+   "t_start": 2673,
+   "ts_start": "44:33",
+   "t_end": 2714
+  },
+  {
+   "id": 52,
+   "img": "p060.jpg",
+   "pages": [
+    60,
+    60
+   ],
+   "title": "Human ratings",
+   "segments": [
+    373,
+    374
+   ],
+   "t_start": 2721,
+   "ts_start": "45:21",
+   "t_end": 2726
+  },
+  {
+   "id": 53,
+   "img": "p061.jpg",
+   "pages": [
+    61,
+    61
+   ],
+   "title": "Cases where reference image is available",
+   "segments": [
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    384,
+    385,
+    386,
+    387,
+    388,
+    389
+   ],
+   "t_start": 2735,
+   "ts_start": "45:35",
+   "t_end": 2842
+  },
+  {
+   "id": 54,
+   "img": "p062.jpg",
+   "pages": [
+    62,
+    62
+   ],
+   "title": "Notations",
+   "segments": [
+    390,
+    391,
+    392,
+    393
+   ],
+   "t_start": 2848,
+   "ts_start": "47:28",
+   "t_end": 2869
+  },
+  {
+   "id": 55,
+   "img": "p063.jpg",
+   "pages": [
+    63,
+    63
+   ],
+   "title": "Pixel-wise comparisons",
+   "segments": [
+    394,
+    395,
+    396,
+    397,
+    398,
+    399,
+    400,
+    401,
+    402
+   ],
+   "t_start": 2875,
+   "ts_start": "47:55",
+   "t_end": 2926
+  },
+  {
+   "id": 56,
+   "img": "p064.jpg",
+   "pages": [
+    64,
+    64
+   ],
+   "title": "PSNR = Peak Signal-to-Noise Ratio",
+   "segments": [
+    403,
+    404,
+    405,
+    406,
+    407,
+    408,
+    409,
+    410,
+    411,
+    412,
+    413,
+    414,
+    415,
+    416,
+    417,
+    418,
+    419,
+    420,
+    421,
+    422,
+    423,
+    424,
+    425,
+    426,
+    427
+   ],
+   "t_start": 2936,
+   "ts_start": "48:56",
+   "t_end": 3109
+  },
+  {
+   "id": 57,
+   "img": "p065.jpg",
+   "pages": [
+    65,
+    66
+   ],
+   "title": "Structure comparison",
+   "segments": []
+  },
+  {
+   "id": 58,
+   "img": "p067.jpg",
+   "pages": [
+    67,
+    67
+   ],
+   "title": "Structure comparison",
+   "segments": []
+  },
+  {
+   "id": 59,
+   "img": "p070.jpg",
+   "pages": [
+    68,
+    71
+   ],
+   "title": "Structure comparison",
+   "segments": []
+  },
+  {
+   "id": 60,
+   "img": "p072.jpg",
+   "pages": [
+    72,
+    74
+   ],
+   "title": "Structure comparison",
+   "segments": []
+  },
+  {
+   "id": 61,
+   "img": "p075.jpg",
+   "pages": [
+    75,
+    75
+   ],
+   "title": "SSIM = Structural SIMilarity",
+   "segments": [
+    428,
+    429,
+    430,
+    431,
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444,
+    445,
+    446,
+    447,
+    448,
+    449,
+    450,
+    451,
+    452,
+    453,
+    454,
+    455,
+    456,
+    457,
+    458,
+    459,
+    460,
+    461,
+    462,
+    463,
+    464,
+    465,
+    466,
+    467,
+    468,
+    469,
+    470,
+    471,
+    472,
+    473,
+    474,
+    475,
+    476,
+    477,
+    478,
+    479,
+    480,
+    481,
+    482,
+    483,
+    484,
+    485,
+    486,
+    487,
+    488,
+    489,
+    490,
+    491,
+    492,
+    493,
+    494,
+    495,
+    496,
+    497,
+    498,
+    499,
+    500
+   ],
+   "t_start": 3118,
+   "ts_start": "51:58",
+   "t_end": 3666
+  },
+  {
+   "id": 62,
+   "img": "p076.jpg",
+   "pages": [
+    76,
+    76
+   ],
+   "title": "LPIPS = Learned Perceptual Image Patch Similarity",
+   "segments": [
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    512,
+    513,
+    514,
+    515,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    523,
+    524,
+    525,
+    526,
+    527,
+    528,
+    529,
+    530,
+    531,
+    532,
+    533,
+    534
+   ],
+   "t_start": 3672,
+   "ts_start": "1:01:12",
+   "t_end": 3900
+  },
+  {
+   "id": 63,
+   "img": "p077.jpg",
+   "pages": [
+    77,
+    77
+   ],
+   "title": "Human ratings",
+   "segments": [
+    535
+   ],
+   "t_start": 3906,
+   "ts_start": "1:05:06",
+   "t_end": 3906
+  },
+  {
+   "id": 64,
+   "img": "p079.jpg",
+   "pages": [
+    78,
+    79
+   ],
+   "title": "Objective",
+   "segments": [
+    536,
+    537,
+    538,
+    539
+   ],
+   "t_start": 3913,
+   "ts_start": "1:05:13",
+   "t_end": 3932
+  },
+  {
+   "id": 65,
+   "img": "p081.jpg",
+   "pages": [
+    80,
+    81
+   ],
+   "title": "Objective",
+   "segments": [
+    540
+   ],
+   "t_start": 3939,
+   "ts_start": "1:05:39",
+   "t_end": 3939
+  },
+  {
+   "id": 66,
+   "img": "p082.jpg",
+   "pages": [
+    82,
+    82
+   ],
+   "title": "Objective",
+   "segments": [
+    541
+   ],
+   "t_start": 3945,
+   "ts_start": "1:05:45",
+   "t_end": 3945
+  },
+  {
+   "id": 67,
+   "img": "p083.jpg",
+   "pages": [
+    83,
+    83
+   ],
+   "title": "Objective",
+   "segments": [
+    542
+   ],
+   "t_start": 3952,
+   "ts_start": "1:05:52",
+   "t_end": 3952
+  },
+  {
+   "id": 68,
+   "img": "p084.jpg",
+   "pages": [
+    84,
+    84
+   ],
+   "title": "Objective",
+   "segments": [
+    543
+   ],
+   "t_start": 3958,
+   "ts_start": "1:05:58",
+   "t_end": 3958
+  },
+  {
+   "id": 69,
+   "img": "p085.jpg",
+   "pages": [
+    85,
+    85
+   ],
+   "title": "Image understanding based on text input",
+   "segments": [
+    544,
+    545,
+    546,
+    547,
+    548
+   ],
+   "t_start": 3968,
+   "ts_start": "1:06:08",
+   "t_end": 3996
+  },
+  {
+   "id": 70,
+   "img": "p086.jpg",
+   "pages": [
+    86,
+    86
+   ],
+   "title": "Tokenization",
+   "segments": [
+    549
+   ],
+   "t_start": 4003,
+   "ts_start": "1:06:43",
+   "t_end": 4003
+  },
+  {
+   "id": 71,
+   "img": "p087.jpg",
+   "pages": [
+    87,
+    87
+   ],
+   "title": "Idea 1: leverage the original Transformer!",
+   "segments": []
+  },
+  {
+   "id": 72,
+   "img": "p088.jpg",
+   "pages": [
+    88,
+    88
+   ],
+   "title": "How cute is this teddy bear?",
+   "segments": [
+    550,
+    551,
+    552,
+    553,
+    554,
+    555,
+    556,
+    557,
+    558
+   ],
+   "t_start": 4009,
+   "ts_start": "1:06:49",
+   "t_end": 4066
+  },
+  {
+   "id": 73,
+   "img": "p089.jpg",
+   "pages": [
+    89,
+    89
+   ],
+   "title": "Idea. Encode image modality as cross-attention keys/values.",
+   "segments": [
+    559,
+    560,
+    561,
+    562,
+    563,
+    564,
+    565,
+    566,
+    567,
+    568,
+    569,
+    570,
+    571,
+    572,
+    573,
+    574
+   ],
+   "t_start": 4074,
+   "ts_start": "1:07:54",
+   "t_end": 4180
+  },
+  {
+   "id": 74,
+   "img": "p090.jpg",
+   "pages": [
+    90,
+    90
+   ],
+   "title": "Idea 2: recycle decoder-only architecture",
+   "segments": [
+    575
+   ],
+   "t_start": 4188,
+   "ts_start": "1:09:48",
+   "t_end": 4188
+  },
+  {
+   "id": 75,
+   "img": "p091.jpg",
+   "pages": [
+    91,
+    91
+   ],
+   "title": "Idea 2: recycle decoder-only architecture",
+   "segments": [
+    576,
+    577,
+    578,
+    579
+   ],
+   "t_start": 4194,
+   "ts_start": "1:09:54",
+   "t_end": 4217
+  },
+  {
+   "id": 76,
+   "img": "p092.jpg",
+   "pages": [
+    92,
+    92
+   ],
+   "title": "Trends",
+   "segments": [
+    580,
+    581,
+    582
+   ],
+   "t_start": 4223,
+   "ts_start": "1:10:23",
+   "t_end": 4236
+  },
+  {
+   "id": 77,
+   "img": "p093.jpg",
+   "pages": [
+    93,
+    93
+   ],
+   "title": "Trends",
+   "segments": [
+    583,
+    584,
+    585,
+    586,
+    587,
+    588,
+    589,
+    590,
+    591,
+    592
+   ],
+   "t_start": 4241,
+   "ts_start": "1:10:41",
+   "t_end": 4303
+  },
+  {
+   "id": 78,
+   "img": "p094.jpg",
+   "pages": [
+    94,
+    94
+   ],
+   "title": "Human ratings",
+   "segments": [
+    593,
+    594,
+    595,
+    596,
+    597,
+    598,
+    599
+   ],
+   "t_start": 4311,
+   "ts_start": "1:11:51",
+   "t_end": 4350
+  },
+  {
+   "id": 79,
+   "img": "p095.jpg",
+   "pages": [
+    95,
+    95
+   ],
+   "title": "Motivation",
+   "segments": [
+    600,
+    601,
+    602,
+    603,
+    604,
+    605,
+    606,
+    607
+   ],
+   "t_start": 4355,
+   "ts_start": "1:12:35",
+   "t_end": 4409
+  },
+  {
+   "id": 80,
+   "img": "p096.jpg",
+   "pages": [
+    96,
+    96
+   ],
+   "title": "TIFA",
+   "segments": [
+    608,
+    609,
+    610,
+    611,
+    612,
+    613,
+    614,
+    615,
+    616,
+    617,
+    618,
+    619,
+    620,
+    621,
+    622
+   ],
+   "t_start": 4417,
+   "ts_start": "1:13:37",
+   "t_end": 4514
+  },
+  {
+   "id": 81,
+   "img": "p098.jpg",
+   "pages": [
+    97,
+    98
+   ],
+   "title": "TIFA",
+   "segments": [
+    623,
+    624,
+    625,
+    626,
+    627,
+    628,
+    629,
+    630,
+    631,
+    632,
+    633,
+    634,
+    635,
+    636,
+    637,
+    638,
+    639,
+    640,
+    641,
+    642,
+    643
+   ],
+   "t_start": 4523,
+   "ts_start": "1:15:23",
+   "t_end": 4668
+  },
+  {
+   "id": 82,
+   "img": "p099.jpg",
+   "pages": [
+    99,
+    99
+   ],
+   "title": "Motivation",
+   "segments": [
+    644,
+    645,
+    646,
+    647,
+    648,
+    649
+   ],
+   "t_start": 4673,
+   "ts_start": "1:17:53",
+   "t_end": 4702
+  },
+  {
+   "id": 83,
+   "img": "p100.jpg",
+   "pages": [
+    100,
+    100
+   ],
+   "title": "VQAScore",
+   "segments": [
+    650,
+    651,
+    652,
+    653,
+    654,
+    655,
+    656,
+    657,
+    658,
+    659,
+    660,
+    661,
+    662,
+    663,
+    664,
+    665,
+    666,
+    667
+   ],
+   "t_start": 4709,
+   "ts_start": "1:18:29",
+   "t_end": 4838
+  },
+  {
+   "id": 84,
+   "img": "p101.jpg",
+   "pages": [
+    101,
+    101
+   ],
+   "title": "Bene\ufb01t. Leverages LLM-style understanding capabilities.",
+   "segments": [
+    668
+   ],
+   "t_start": 4844,
+   "ts_start": "1:20:44",
+   "t_end": 4844
+  },
+  {
+   "id": 85,
+   "img": "p102.jpg",
+   "pages": [
+    102,
+    102
+   ],
+   "title": "VQAScore",
+   "segments": [
+    669,
+    670,
+    671,
+    672,
+    673,
+    674,
+    675,
+    676,
+    677
+   ],
+   "t_start": 4852,
+   "ts_start": "1:20:52",
+   "t_end": 4907
+  },
+  {
+   "id": 86,
+   "img": "p103.jpg",
+   "pages": [
+    103,
+    103
+   ],
+   "title": "VQAScore",
+   "segments": [
+    678,
+    679,
+    680,
+    681,
+    682,
+    683,
+    684,
+    685,
+    686,
+    687,
+    688,
+    689,
+    690,
+    691,
+    692,
+    693,
+    694,
+    695,
+    696,
+    697,
+    698,
+    699,
+    700
+   ],
+   "t_start": 4919,
+   "ts_start": "1:21:59",
+   "t_end": 5075
+  },
+  {
+   "id": 87,
+   "img": "p104.jpg",
+   "pages": [
+    104,
+    104
+   ],
+   "title": "VIEScore",
+   "segments": [
+    701,
+    702,
+    703
+   ],
+   "t_start": 5081,
+   "ts_start": "1:24:41",
+   "t_end": 5094
+  },
+  {
+   "id": 88,
+   "img": "p105.jpg",
+   "pages": [
+    105,
+    105
+   ],
+   "title": "Dimensions",
+   "segments": [
+    704,
+    705,
+    706,
+    707,
+    708,
+    709,
+    710,
+    711,
+    712,
+    713
+   ],
+   "t_start": 5102,
+   "ts_start": "1:25:02",
+   "t_end": 5172
+  },
+  {
+   "id": 89,
+   "img": "p106.jpg",
+   "pages": [
+    106,
+    106
+   ],
+   "title": "Structure",
+   "segments": [
+    714,
+    715,
+    716,
+    717,
+    718,
+    719,
+    720,
+    721,
+    722,
+    723
+   ],
+   "t_start": 5180,
+   "ts_start": "1:26:20",
+   "t_end": 5242
+  },
+  {
+   "id": 90,
+   "img": "p107.jpg",
+   "pages": [
+    107,
+    107
+   ],
+   "title": "Typical work\ufb02ow",
+   "segments": [
+    724
+   ],
+   "t_start": 5250,
+   "ts_start": "1:27:30",
+   "t_end": 5250
+  },
+  {
+   "id": 91,
+   "img": "p108.jpg",
+   "pages": [
+    108,
+    108
+   ],
+   "title": "Typical work\ufb02ow",
+   "segments": [
+    725,
+    726,
+    727,
+    728,
+    729,
+    730,
+    731,
+    732,
+    733
+   ],
+   "t_start": 5257,
+   "ts_start": "1:27:37",
+   "t_end": 5326
+  },
+  {
+   "id": 92,
+   "img": "p109.jpg",
+   "pages": [
+    109,
+    109
+   ],
+   "title": "Typical work\ufb02ow",
+   "segments": [
+    734
+   ],
+   "t_start": 5337,
+   "ts_start": "1:28:57",
+   "t_end": 5337
+  },
+  {
+   "id": 93,
+   "img": "p110.jpg",
+   "pages": [
+    110,
+    110
+   ],
+   "title": "Use cases",
+   "segments": [
+    735
+   ],
+   "t_start": 5345,
+   "ts_start": "1:29:05",
+   "t_end": 5345
+  },
+  {
+   "id": 94,
+   "img": "p111.jpg",
+   "pages": [
+    111,
+    111
+   ],
+   "title": "Use cases",
+   "segments": [
+    736
+   ],
+   "t_start": 5351,
+   "ts_start": "1:29:11",
+   "t_end": 5351
+  },
+  {
+   "id": 95,
+   "img": "p112.jpg",
+   "pages": [
+    112,
+    112
+   ],
+   "title": "B \u2192 A \u2192 C",
+   "segments": [
+    737,
+    738,
+    739,
+    740
+   ],
+   "t_start": 5357,
+   "ts_start": "1:29:17",
+   "t_end": 5377
+  },
+  {
+   "id": 96,
+   "img": "p113.jpg",
+   "pages": [
+    113,
+    113
+   ],
+   "title": "Use cases",
+   "segments": [
+    741,
+    742,
+    743,
+    744,
+    745,
+    746,
+    747,
+    748,
+    749,
+    750,
+    751,
+    752,
+    753
+   ],
+   "t_start": 5383,
+   "ts_start": "1:29:43",
+   "t_end": 5469
+  },
+  {
+   "id": 97,
+   "img": "p118.jpg",
+   "pages": [
+    114,
+    118
+   ],
+   "title": "Best practices",
+   "segments": [
+    754,
+    755,
+    756,
+    757,
+    758,
+    759,
+    760,
+    761,
+    762,
+    763
+   ],
+   "t_start": 5475,
+   "ts_start": "1:31:15",
+   "t_end": 5548
+  },
+  {
+   "id": 98,
+   "img": "p119.jpg",
+   "pages": [
+    119,
+    119
+   ],
+   "title": "Human ratings",
+   "segments": [
+    764,
+    765,
+    766,
+    767,
+    768
+   ],
+   "t_start": 5558,
+   "ts_start": "1:32:38",
+   "t_end": 5585
+  },
+  {
+   "id": 99,
+   "img": "p120.jpg",
+   "pages": [
+    120,
+    120
+   ],
+   "title": "Common benchmarks",
+   "segments": [
+    769
+   ],
+   "t_start": 5592,
+   "ts_start": "1:33:12",
+   "t_end": 5592
+  },
+  {
+   "id": 100,
+   "img": "p121.jpg",
+   "pages": [
+    121,
+    121
+   ],
+   "title": "Text-to-image alignment example: GenEval",
+   "segments": [
+    770,
+    771,
+    772
+   ],
+   "t_start": 5600,
+   "ts_start": "1:33:20",
+   "t_end": 5617
+  },
+  {
+   "id": 101,
+   "img": "p122.jpg",
+   "pages": [
+    122,
+    122
+   ],
+   "title": "Text-to-image alignment example: GenEval",
+   "segments": [
+    773
+   ],
+   "t_start": 5624,
+   "ts_start": "1:33:44",
+   "t_end": 5624
+  },
+  {
+   "id": 102,
+   "img": "p123.jpg",
+   "pages": [
+    123,
+    123
+   ],
+   "title": "Common benchmarks",
+   "segments": [
+    774
+   ],
+   "t_start": 5629,
+   "ts_start": "1:33:49",
+   "t_end": 5629
+  },
+  {
+   "id": 103,
+   "img": "p124.jpg",
+   "pages": [
+    124,
+    124
+   ],
+   "title": "Dense prompt following example: DPG-Bench",
+   "segments": [
+    775
+   ],
+   "t_start": 5636,
+   "ts_start": "1:33:56",
+   "t_end": 5636
+  },
+  {
+   "id": 104,
+   "img": "p126.jpg",
+   "pages": [
+    125,
+    129
+   ],
+   "title": "Example.",
+   "segments": [
+    776,
+    777
+   ],
+   "t_start": 5643,
+   "ts_start": "1:34:03",
+   "t_end": 5648
+  },
+  {
+   "id": 105,
+   "img": "p130.jpg",
+   "pages": [
+    130,
+    130
+   ],
+   "title": "Common benchmarks",
+   "segments": [
+    778,
+    779,
+    780,
+    781,
+    782,
+    783,
+    784,
+    785,
+    786,
+    787,
+    788,
+    789,
+    790,
+    791,
+    792,
+    793,
+    794,
+    795,
+    796,
+    797,
+    798,
+    799,
+    800,
+    801,
+    802,
+    803,
+    804,
+    805,
+    806,
+    807,
+    808,
+    809
+   ],
+   "t_start": 5655,
+   "ts_start": "1:34:15",
+   "t_end": 5879
+  },
+  {
+   "id": 106,
+   "img": "p131.jpg",
+   "pages": [
+    131,
+    131
+   ],
+   "title": "Text rendering example: LongText-Bench",
+   "segments": [
+    810
+   ],
+   "t_start": 5887,
+   "ts_start": "1:38:07",
+   "t_end": 5887
+  },
+  {
+   "id": 107,
+   "img": "p132.jpg",
+   "pages": [
+    132,
+    132
+   ],
+   "title": "Text rendering example: LongText-Bench",
+   "segments": []
+  },
+  {
+   "id": 108,
+   "img": "p133.jpg",
+   "pages": [
+    133,
+    133
+   ],
+   "title": "Common benchmarks",
+   "segments": [
+    811,
+    812,
+    813,
+    814,
+    815,
+    816,
+    817,
+    818,
+    819,
+    820,
+    821,
+    822,
+    823,
+    824,
+    825,
+    826,
+    827,
+    828,
+    829,
+    830,
+    831,
+    832,
+    833
+   ],
+   "t_start": 5898,
+   "ts_start": "1:38:18",
+   "t_end": 6058
+  },
+  {
+   "id": 109,
+   "img": "p134.jpg",
+   "pages": [
+    134,
+    134
+   ],
+   "title": "Image editing example: GEdit-Bench",
+   "segments": []
+  },
+  {
+   "id": 110,
+   "img": "p135.jpg",
+   "pages": [
+    135,
+    135
+   ],
+   "title": "Image editing example: GEdit-Bench",
+   "segments": []
+  },
+  {
+   "id": 111,
+   "img": "p136.jpg",
+   "pages": [
+    136,
+    136
+   ],
+   "title": "Last thoughts",
+   "segments": []
+  },
+  {
+   "id": 112,
+   "img": "p137.jpg",
+   "pages": [
+    137,
+    137
+   ],
+   "title": "Thank you for your attention!",
+   "segments": [
+    834
+   ],
+   "t_start": 6063,
+   "ts_start": "1:41:03",
+   "t_end": 6063
+  }
+ ]
+}

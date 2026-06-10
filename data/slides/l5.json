@@ -1,0 +1,1507 @@
+{
+ "lecture": 5,
+ "n_pages": 171,
+ "groups": [
+  {
+   "pages": [
+    1
+   ],
+   "id": 0,
+   "img": "p001.jpg",
+   "page_first": 1,
+   "page_last": 1,
+   "title": "CME 296: Di\ufb00usion &",
+   "text": "CME 296: Di\ufb00usion & Large Vision Models Afshine Amidi & Shervine Amidi Lecture 5"
+  },
+  {
+   "pages": [
+    2
+   ],
+   "id": 1,
+   "img": "p002.jpg",
+   "page_first": 2,
+   "page_last": 2,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lectures 1, 2, 3 Generation paradigms Di\ufb00usion Score matching Flow matching"
+  },
+  {
+   "pages": [
+    3
+   ],
+   "id": 2,
+   "img": "p003.jpg",
+   "page_first": 3,
+   "page_last": 3,
+   "title": "Recap of last episodes\u2026",
+   "text": "Recap of last episodes\u2026 Lectures 1, 2, 3 Generation paradigms Lecture 4 Latent space, guidance Di\ufb00usion Score matching Flow matching Encoder Decoder Latent space Variational AutoEncoder (VAE)"
+  },
+  {
+   "pages": [
+    4
+   ],
+   "id": 3,
+   "img": "p004.jpg",
+   "page_first": 4,
+   "page_last": 4,
+   "title": "Today's lecture",
+   "text": "Today's lecture A teddy bear reading a book Generation model Today's lecture: Image generation architectures Model architecture"
+  },
+  {
+   "pages": [
+    5
+   ],
+   "id": 4,
+   "img": "p005.jpg",
+   "page_first": 5,
+   "page_last": 5,
+   "title": "Motivation",
+   "text": "Motivation U-Net Di\ufb00usion Transformer End-to-end example Multimodal DiT Optimizations Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    6
+   ],
+   "id": 5,
+   "img": "p006.jpg",
+   "page_first": 6,
+   "page_last": 6,
+   "title": "Problem statement",
+   "text": "Problem statement Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity"
+  },
+  {
+   "pages": [
+    7
+   ],
+   "id": 6,
+   "img": "p007.jpg",
+   "page_first": 7,
+   "page_last": 7,
+   "title": "Objective of this lecture",
+   "text": "Objective of this lecture Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity"
+  },
+  {
+   "pages": [
+    8
+   ],
+   "id": 7,
+   "img": "p008.jpg",
+   "page_first": 8,
+   "page_last": 8,
+   "title": "Side notes",
+   "text": "Side notes Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity"
+  },
+  {
+   "pages": [
+    9
+   ],
+   "id": 8,
+   "img": "p009.jpg",
+   "page_first": 9,
+   "page_last": 9,
+   "title": "Side notes",
+   "text": "Side notes Generation model Noise level Condition Make this teddy bear dance Noisy latent Velocity Could also be:"
+  },
+  {
+   "pages": [
+    10
+   ],
+   "id": 9,
+   "img": "p010.jpg",
+   "page_first": 10,
+   "page_last": 10,
+   "title": "Side notes",
+   "text": "Side notes Generation model Noise level Condition A teddy bear reading a book Noisy latent Velocity"
+  },
+  {
+   "pages": [
+    11
+   ],
+   "id": 10,
+   "img": "p011.jpg",
+   "page_first": 11,
+   "page_last": 11,
+   "title": "Side notes",
+   "text": "Side notes Generation model Noise level Condition A teddy bear reading a book Noisy latent Noise Score Velocity Could also be:"
+  },
+  {
+   "pages": [
+    12
+   ],
+   "id": 11,
+   "img": "p012.jpg",
+   "page_first": 12,
+   "page_last": 12,
+   "title": "Goal",
+   "text": "Goal Objective. Choose architecture for image generation with criteria below: \u25cf Understand global structure \u25cf Preserve local details \u25cf Responsive to external signals (timestep, condition) \u25cf Scalable computationally"
+  },
+  {
+   "pages": [
+    13
+   ],
+   "id": 12,
+   "img": "p013.jpg",
+   "page_first": 13,
+   "page_last": 13,
+   "title": "Motivation",
+   "text": "Motivation U-Net Di\ufb00usion Transformer End-to-end example Multimodal DiT Optimizations Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    14,
+    15,
+    16,
+    17
+   ],
+   "id": 13,
+   "img": "p017.jpg",
+   "page_first": 14,
+   "page_last": 17,
+   "title": "Intuition behind convolution-based models",
+   "text": "Intuition behind convolution-based models Idea. Mimic human vision via \"inductive\" bias baked into the model"
+  },
+  {
+   "pages": [
+    18
+   ],
+   "id": 14,
+   "img": "p018.jpg",
+   "page_first": 18,
+   "page_last": 18,
+   "title": "Convolution operation with \ufb01lters",
+   "text": "Convolution operation with \ufb01lters VIP cheatsheets on Convolutional Neural Networks, Amidi, 2018. Convolution \ufb01lter. Feature detector Filter Feature map Activation map aka Input e.g. edges, corners, textures, patterns, shapes"
+  },
+  {
+   "pages": [
+    19,
+    20
+   ],
+   "id": 15,
+   "img": "p020.jpg",
+   "page_first": 19,
+   "page_last": 20,
+   "title": "Convolution operation with \ufb01lters",
+   "text": "Convolution operation with \ufb01lters VIP cheatsheets on Convolutional Neural Networks, Amidi, 2018. Filter. Performs convolution operations on the input. Stride. Amount by which the \ufb01lter moves."
+  },
+  {
+   "pages": [
+    21,
+    22
+   ],
+   "id": 16,
+   "img": "p022.jpg",
+   "page_first": 21,
+   "page_last": 22,
+   "title": "Receptive \ufb01eld",
+   "text": "Receptive \ufb01eld Receptive \ufb01eld. Area that the activation map can \"see\" VIP cheatsheets on Convolutional Neural Networks, Amidi, 2018. A pixel can see an area of where Filter size Stride"
+  },
+  {
+   "pages": [
+    23
+   ],
+   "id": 17,
+   "img": "p023.jpg",
+   "page_first": 23,
+   "page_last": 23,
+   "title": "Downsampling with pooling operation",
+   "text": "Downsampling with pooling operation Pooling. Downsampling operation, per channel. Typically after convolution. VIP cheatsheets on Convolutional Neural Networks, Amidi, 2018. Average pooling Max pooling"
+  },
+  {
+   "pages": [
+    24
+   ],
+   "id": 18,
+   "img": "p024.jpg",
+   "page_first": 24,
+   "page_last": 24,
+   "title": "Upsampling with transpose convolution",
+   "text": "Upsampling with transpose convolution Input feature map Upsampled feature map Transpose convolution. Upsampling operation, equivalent of \"broadcasting\""
+  },
+  {
+   "pages": [
+    25
+   ],
+   "id": 19,
+   "img": "p025.jpg",
+   "page_first": 25,
+   "page_last": 25,
+   "title": "Proposal of a convolution-based architecture",
+   "text": "Proposal of a convolution-based architecture U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015. \u25cf Captures both local and global features \u25cf Inductive bias that is relevant to reverse di\ufb00usion process \u25cf Same dimensions for input / output Overview"
+  },
+  {
+   "pages": [
+    26
+   ],
+   "id": 20,
+   "img": "p026.jpg",
+   "page_first": 26,
+   "page_last": 26,
+   "title": "U-Net: convolution-based architecture",
+   "text": "U-Net: convolution-based architecture -Net Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015."
+  },
+  {
+   "pages": [
+    27
+   ],
+   "id": 21,
+   "img": "p027.jpg",
+   "page_first": 27,
+   "page_last": 27,
+   "title": "U-Net: downsampling phase",
+   "text": "U-Net: downsampling phase Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015. Downsampling \u25cf Mix of convolution and max pooling \u25cf Number of features is halved at each step \u25cf Extraction of relevant features \u25cf Similar to an \"Encoder\""
+  },
+  {
+   "pages": [
+    28
+   ],
+   "id": 22,
+   "img": "p028.jpg",
+   "page_first": 28,
+   "page_last": 28,
+   "title": "U-Net: upsampling phase",
+   "text": "U-Net: upsampling phase Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015. \u25cf Mix of up-convolution and convolutions \u25cf Number of features is doubled at each step \u25cf 1x1 convolution at the last step before obtaining output \u25cf Similar to a \"Decoder\" Upsampling"
+  },
+  {
+   "pages": [
+    29
+   ],
+   "id": 23,
+   "img": "p029.jpg",
+   "page_first": 29,
+   "page_last": 29,
+   "title": "Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015.",
+   "text": "Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015. \u25cf Avoids losing local information \u25cf \"Highway\" of information U-Net: residual connections \"Copy and crop\" connections"
+  },
+  {
+   "pages": [
+    30
+   ],
+   "id": 24,
+   "img": "p030.jpg",
+   "page_first": 30,
+   "page_last": 30,
+   "title": "Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015.",
+   "text": "Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015. U-Net: adding condition information How can we add time and class label information?"
+  },
+  {
+   "pages": [
+    31
+   ],
+   "id": 25,
+   "img": "p031.jpg",
+   "page_first": 31,
+   "page_last": 31,
+   "title": "Representation of timestep",
+   "text": "Representation of timestep 12 3 6 9 10 11 1 2 8 7 4 5 Hour (slow) Minute (fast) Second (very fast)"
+  },
+  {
+   "pages": [
+    32
+   ],
+   "id": 26,
+   "img": "p032.jpg",
+   "page_first": 32,
+   "page_last": 32,
+   "title": "Representation of timestep",
+   "text": "Representation of timestep +1 -1 Dimension Timestep Figure adapted from Transformer Architecture: The Positional Encoding, Kazemnejad, 2019. 12 3 6 9 10 11 1 2 8 7 4 5 Hour (slow) Minute (fast) Second (very fast)"
+  },
+  {
+   "pages": [
+    33
+   ],
+   "id": 27,
+   "img": "p033.jpg",
+   "page_first": 33,
+   "page_last": 33,
+   "title": "Representation of class label",
+   "text": "Representation of class label teddy bear Vector \u25cf Embedding corresponding to prede\ufb01ned class Prede\ufb01ned class"
+  },
+  {
+   "pages": [
+    34
+   ],
+   "id": 28,
+   "img": "p034.jpg",
+   "page_first": 34,
+   "page_last": 34,
+   "title": "Representation of class label",
+   "text": "Representation of class label teddy bear Vector \u25cf Embedding corresponding to prede\ufb01ned class \u25cf Rich embeddings from a pretrained LLM a Vectors teddy bear is reading Prede\ufb01ned class Freeform text"
+  },
+  {
+   "pages": [
+    35,
+    36,
+    37
+   ],
+   "id": 29,
+   "img": "p037.jpg",
+   "page_first": 35,
+   "page_last": 37,
+   "title": "Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015.",
+   "text": "Figure adapted from U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al., 2015. Method 1 U-Net: adding condition information Added to the feature map Method 2 Modulate feature map via scaling / shifting Method 3 Cross-attention of condition with feature map"
+  },
+  {
+   "pages": [
+    38
+   ],
+   "id": 30,
+   "img": "p038.jpg",
+   "page_first": 38,
+   "page_last": 38,
+   "title": "Timeline of U-Net-based models",
+   "text": "Timeline of U-Net-based models Original U-Net 2015 2020 U-Net in pixel space with DDPM 2021 2022 U-Net in latent space with LDM 2023 Big U-Net with Stable Di\ufb00usion XL Note: This timeline is not meant to be exhaustive in any way."
+  },
+  {
+   "pages": [
+    39
+   ],
+   "id": 31,
+   "img": "p039.jpg",
+   "page_first": 39,
+   "page_last": 39,
+   "title": "Timeline of U-Net-based models",
+   "text": "Timeline of U-Net-based models Original U-Net 2015 2020 2021 2022 U-Net in latent space with LDM 2023 Transformer Vision Transformer Note: This timeline is not meant to be exhaustive in any way. Big U-Net with Stable Di\ufb00usion XL U-Net in pixel space with DDPM"
+  },
+  {
+   "pages": [
+    40
+   ],
+   "id": 32,
+   "img": "p040.jpg",
+   "page_first": 40,
+   "page_last": 40,
+   "title": "Motivation",
+   "text": "Motivation U-Net Di\ufb00usion Transformer End-to-end example Multimodal DiT Optimizations Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    41
+   ],
+   "id": 33,
+   "img": "p041.jpg",
+   "page_first": 41,
+   "page_last": 41,
+   "title": "Motivating example",
+   "text": "Motivating example Image generated with ChatGPT, May 5th, 2026. Need to preserve local details across long distances"
+  },
+  {
+   "pages": [
+    42,
+    43,
+    44
+   ],
+   "id": 34,
+   "img": "p042.jpg",
+   "page_first": 42,
+   "page_last": 44,
+   "title": "Attention mechanism",
+   "text": "Attention mechanism Attention Is All You Need, Vaswani et al., 2017. Figure from Super Study Guide: Transformers & LLMs, Amidi, 2024. Idea. Remove inductive bias"
+  },
+  {
+   "pages": [
+    45
+   ],
+   "id": 35,
+   "img": "p045.jpg",
+   "page_first": 45,
+   "page_last": 45,
+   "title": "Transformer",
+   "text": "Transformer Figures from Attention Is All You Need, Vaswani et al., 2017. Detailed explanations in Stanford's CME 295: Transformers and LLMs. Multi-head attention layer Transformer architecture"
+  },
+  {
+   "pages": [
+    46
+   ],
+   "id": 36,
+   "img": "p046.jpg",
+   "page_first": 46,
+   "page_last": 46,
+   "title": "Transformer for vision understanding\u2026",
+   "text": "Transformer for vision understanding\u2026 An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale, Dosovitskiy et al., 2020. ViT = Vision Transformer"
+  },
+  {
+   "pages": [
+    47
+   ],
+   "id": 37,
+   "img": "p047.jpg",
+   "page_first": 47,
+   "page_last": 47,
+   "title": "\u2026and Transformer for vision generation!",
+   "text": "\u2026and Transformer for vision generation! DiT = Di\ufb00usion Transformer Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    48
+   ],
+   "id": 38,
+   "img": "p048.jpg",
+   "page_first": 48,
+   "page_last": 48,
+   "title": "DiT: tokenization of the input via patches",
+   "text": "DiT: tokenization of the input via patches Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022. Noised latent Patchify Input tokens"
+  },
+  {
+   "pages": [
+    49
+   ],
+   "id": 39,
+   "img": "p049.jpg",
+   "page_first": 49,
+   "page_last": 49,
+   "title": "DiT: embedding of conditions",
+   "text": "DiT: embedding of conditions +1 -1 Dimension Position Timestep embedding Label embedding teddy bear Vector Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022 and Transformer Architecture: The Positional Encoding, Kazemnejad, 2019."
+  },
+  {
+   "pages": [
+    50
+   ],
+   "id": 40,
+   "img": "p050.jpg",
+   "page_first": 50,
+   "page_last": 50,
+   "title": "DiT: injecting conditions with adaptive layer norm",
+   "text": "DiT: injecting conditions with adaptive layer norm Adaptive Layer Norm Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    51
+   ],
+   "id": 41,
+   "img": "p051.jpg",
+   "page_first": 51,
+   "page_last": 51,
+   "title": "DiT: injecting conditions with cross-attention",
+   "text": "DiT: injecting conditions with cross-attention Adaptive Layer Norm Cross-attention Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    52
+   ],
+   "id": 42,
+   "img": "p052.jpg",
+   "page_first": 52,
+   "page_last": 52,
+   "title": "DiT: injecting conditions with in-context conditioning",
+   "text": "DiT: injecting conditions with in-context conditioning Adaptive Layer Norm Cross-attention In-context conditioning Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    53,
+    54
+   ],
+   "id": 43,
+   "img": "p053.jpg",
+   "page_first": 53,
+   "page_last": 54,
+   "title": "DiT: comparison of di\ufb00erent condition injections",
+   "text": "DiT: comparison of di\ufb00erent condition injections \ud83e\udd47 \ud83e\udd48 \ud83e\udd49 Adaptive Layer Norm Cross-attention In-context conditioning Figure from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    55
+   ],
+   "id": 44,
+   "img": "p055.jpg",
+   "page_first": 55,
+   "page_last": 55,
+   "title": "Intuition behind adaptive layer norm",
+   "text": "Intuition behind adaptive layer norm Representation of a patch embedding"
+  },
+  {
+   "pages": [
+    56
+   ],
+   "id": 45,
+   "img": "p056.jpg",
+   "page_first": 56,
+   "page_last": 56,
+   "title": "Intuition behind adaptive layer norm",
+   "text": "Intuition behind adaptive layer norm brown color round shape \ufb02u\ufb00 local details white color"
+  },
+  {
+   "pages": [
+    57
+   ],
+   "id": 46,
+   "img": "p057.jpg",
+   "page_first": 57,
+   "page_last": 57,
+   "title": "Intuition behind adaptive layer norm",
+   "text": "Intuition behind adaptive layer norm brown fluffy teddy bear a lot of noise brown color round shape \ufb02u\ufb00 local details white color Conditions Need to focus on global structure since at the early stage of generation."
+  },
+  {
+   "pages": [
+    58
+   ],
+   "id": 47,
+   "img": "p058.jpg",
+   "page_first": 58,
+   "page_last": 58,
+   "title": "Intuition behind adaptive layer norm",
+   "text": "Intuition behind adaptive layer norm brown fluffy teddy bear brown color round shape \ufb02u\ufb00 local details white color Conditions almost no noise Need to focus on local details since almost arriving at the \ufb01nal image."
+  },
+  {
+   "pages": [
+    59,
+    60
+   ],
+   "id": 48,
+   "img": "p060.jpg",
+   "page_first": 59,
+   "page_last": 60,
+   "title": "Adaptive layer normalization",
+   "text": "Adaptive layer normalization Idea. \"Modulate\" vector with respect to conditions (timestep and class label) 1. Determine intensity of modulation as a function of conditions Steps. Timestep Class label Projection Vectors"
+  },
+  {
+   "pages": [
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69
+   ],
+   "id": 49,
+   "img": "p069.jpg",
+   "page_first": 61,
+   "page_last": 69,
+   "title": "Adaptive layer normalization",
+   "text": "Adaptive layer normalization Idea. \"Modulate\" vector with respect to conditions (timestep and class label) 1. Determine intensity of modulation as a function of conditions 2. Modulate token with quantities Steps. element-wise multiplication"
+  },
+  {
+   "pages": [
+    70
+   ],
+   "id": 50,
+   "img": "p070.jpg",
+   "page_first": 70,
+   "page_last": 70,
+   "title": "Adaptive layer normalization",
+   "text": "Adaptive layer normalization Idea. \"Modulate\" vector with respect to conditions (timestep and class label) 1. Determine intensity of modulation as a function of conditions 2. Modulate token with quantities Steps. Gate Scale Shift"
+  },
+  {
+   "pages": [
+    71
+   ],
+   "id": 51,
+   "img": "p071.jpg",
+   "page_first": 71,
+   "page_last": 71,
+   "title": "Adaptive layer normalization",
+   "text": "Adaptive layer normalization Idea. \"Modulate\" vector with respect to conditions (timestep and class label) 1. Determine intensity of modulation as a function of conditions 2. Modulate token with quantities Steps. At the beginning: adaLN-Zero"
+  },
+  {
+   "pages": [
+    72
+   ],
+   "id": 52,
+   "img": "p072.jpg",
+   "page_first": 72,
+   "page_last": 72,
+   "title": "\u25cf",
+   "text": "\u25cf Gate DiT: injection of conditions with adaLN-Zero Modulation of representation with: Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022. \u25cf Scale \u25cf Shift as a function of"
+  },
+  {
+   "pages": [
+    73
+   ],
+   "id": 53,
+   "img": "p073.jpg",
+   "page_first": 73,
+   "page_last": 73,
+   "title": "DiT: reformatting the output",
+   "text": "DiT: reformatting the output Tokens Linear and Reshape Noise Diagonal covariance Layer Norm Figures adapted from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    74
+   ],
+   "id": 54,
+   "img": "p074.jpg",
+   "page_first": 74,
+   "page_last": 74,
+   "title": "Scaling up DiT\u2026",
+   "text": "Scaling up DiT\u2026 Figures from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022. \u25cf Number of parameters is not enough to quantify model complexity \u25cf FLoating-point OPerations (FLOPs) = # operations in forward pass \u25cf Smaller patch size corresponds to higher FLOPs"
+  },
+  {
+   "pages": [
+    75
+   ],
+   "id": 55,
+   "img": "p075.jpg",
+   "page_first": 75,
+   "page_last": 75,
+   "title": "Scaling up DiT\u2026 improves results!",
+   "text": "Scaling up DiT\u2026 improves results! Figures from Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022."
+  },
+  {
+   "pages": [
+    76
+   ],
+   "id": 56,
+   "img": "p076.jpg",
+   "page_first": 76,
+   "page_last": 76,
+   "title": "Motivation",
+   "text": "Motivation U-Net Di\ufb00usion Transformer End-to-end example Multimodal DiT Optimizations Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    77
+   ],
+   "id": 57,
+   "img": "p077.jpg",
+   "page_first": 77,
+   "page_last": 77,
+   "title": "Let's go through an end-to-end example together!",
+   "text": "Let's go through an end-to-end example together! Image generation model teddy bear"
+  },
+  {
+   "pages": [
+    78
+   ],
+   "id": 58,
+   "img": "p078.jpg",
+   "page_first": 78,
+   "page_last": 78,
+   "title": "Sample a noisy latent",
+   "text": "Sample a noisy latent Latent space learned by the VAE"
+  },
+  {
+   "pages": [
+    79
+   ],
+   "id": 59,
+   "img": "p079.jpg",
+   "page_first": 79,
+   "page_last": 79,
+   "title": "Patchify noisy latent",
+   "text": "Patchify noisy latent patches Divide"
+  },
+  {
+   "pages": [
+    80
+   ],
+   "id": 60,
+   "img": "p080.jpg",
+   "page_first": 80,
+   "page_last": 80,
+   "title": "Patchify noisy latent",
+   "text": "Patchify noisy latent Patch Patch embedding Perform projection"
+  },
+  {
+   "pages": [
+    81
+   ],
+   "id": 61,
+   "img": "p081.jpg",
+   "page_first": 81,
+   "page_last": 81,
+   "title": "Embed conditions",
+   "text": "Embed conditions Timestep embedding Label embedding Condition embedding"
+  },
+  {
+   "pages": [
+    82,
+    83,
+    84
+   ],
+   "id": 62,
+   "img": "p084.jpg",
+   "page_first": 82,
+   "page_last": 84,
+   "title": "Attention layers with noisy latent",
+   "text": "Attention layers with noisy latent Patch embedding"
+  },
+  {
+   "pages": [
+    85
+   ],
+   "id": 63,
+   "img": "p085.jpg",
+   "page_first": 85,
+   "page_last": 85,
+   "title": "Attention layers with noisy latent",
+   "text": "Attention layers with noisy latent Position embedding Patch embedding"
+  },
+  {
+   "pages": [
+    86,
+    87,
+    88,
+    89
+   ],
+   "id": 64,
+   "img": "p088.jpg",
+   "page_first": 86,
+   "page_last": 89,
+   "title": "Attention layers with noisy latent",
+   "text": "Attention layers with noisy latent Position-aware patch embeddings matrix"
+  },
+  {
+   "pages": [
+    90,
+    91
+   ],
+   "id": 65,
+   "img": "p091.jpg",
+   "page_first": 90,
+   "page_last": 91,
+   "title": "Attention layers with noisy latent",
+   "text": "Attention layers with noisy latent Condition embedding Position-aware patch embeddings matrix DIFFUSION TRANSFORMER BLOCK"
+  },
+  {
+   "pages": [
+    92,
+    93
+   ],
+   "id": 66,
+   "img": "p093.jpg",
+   "page_first": 92,
+   "page_last": 93,
+   "title": "Process condition embeddings",
+   "text": "Process condition embeddings Condition embedding Position-aware patch embeddings matrix MLP layer"
+  },
+  {
+   "pages": [
+    94
+   ],
+   "id": 67,
+   "img": "p094.jpg",
+   "page_first": 94,
+   "page_last": 94,
+   "title": "Obtain gate from conditions",
+   "text": "Obtain gate from conditions Condition embedding Position-aware patch embeddings matrix MLP layer Gate"
+  },
+  {
+   "pages": [
+    95
+   ],
+   "id": 68,
+   "img": "p095.jpg",
+   "page_first": 95,
+   "page_last": 95,
+   "title": "Obtain scale from conditions",
+   "text": "Obtain scale from conditions Condition embedding Position-aware patch embeddings matrix MLP layer Gate Scale"
+  },
+  {
+   "pages": [
+    96
+   ],
+   "id": 69,
+   "img": "p096.jpg",
+   "page_first": 96,
+   "page_last": 96,
+   "title": "Obtain shift from conditions",
+   "text": "Obtain shift from conditions Condition embedding Position-aware patch embeddings matrix MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    97
+   ],
+   "id": 70,
+   "img": "p097.jpg",
+   "page_first": 97,
+   "page_last": 97,
+   "title": "Obtain quantities from condition",
+   "text": "Obtain quantities from condition Condition embedding Position-aware patch embeddings matrix MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    98
+   ],
+   "id": 71,
+   "img": "p098.jpg",
+   "page_first": 98,
+   "page_last": 98,
+   "title": "Process patch embeddings",
+   "text": "Process patch embeddings Condition embedding Position-aware patch embeddings matrix MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    99
+   ],
+   "id": 72,
+   "img": "p099.jpg",
+   "page_first": 99,
+   "page_last": 99,
+   "title": "Process patch embeddings through attention",
+   "text": "Process patch embeddings through attention Condition embedding Position-aware patch embeddings matrix Normalize MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    100
+   ],
+   "id": 73,
+   "img": "p100.jpg",
+   "page_first": 100,
+   "page_last": 100,
+   "title": "Process patch embeddings through attention",
+   "text": "Process patch embeddings through attention Condition embedding Position-aware patch embeddings matrix Normalize Scale & shift with MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    101
+   ],
+   "id": 74,
+   "img": "p101.jpg",
+   "page_first": 101,
+   "page_last": 101,
+   "title": "Process patch embeddings through attention",
+   "text": "Process patch embeddings through attention Condition embedding Position-aware patch embeddings matrix Self-attention Normalize Scale & shift with MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    102
+   ],
+   "id": 75,
+   "img": "p102.jpg",
+   "page_first": 102,
+   "page_last": 102,
+   "title": "Process patch embeddings through attention",
+   "text": "Process patch embeddings through attention Condition embedding Position-aware patch embeddings matrix Self-attention Scale & shift with Gate with MLP layer Gate Shift Scale Normalize"
+  },
+  {
+   "pages": [
+    103
+   ],
+   "id": 76,
+   "img": "p103.jpg",
+   "page_first": 103,
+   "page_last": 103,
+   "title": "Process patch embeddings through attention",
+   "text": "Process patch embeddings through attention Condition embedding Position-aware patch embeddings matrix Self-attention Normalize Scale & shift with Gate with MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    104,
+    105
+   ],
+   "id": 77,
+   "img": "p104.jpg",
+   "page_first": 104,
+   "page_last": 105,
+   "title": "Process patch embeddings through attention",
+   "text": "Process patch embeddings through attention Condition embedding Position-aware patch embeddings matrix Self-attention MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    106,
+    107
+   ],
+   "id": 78,
+   "img": "p106.jpg",
+   "page_first": 106,
+   "page_last": 107,
+   "title": "Process patch embeddings through FFNN",
+   "text": "Process patch embeddings through FFNN Condition embedding Position-aware patch embeddings matrix Self-attention FFNN MLP layer Gate Shift Scale"
+  },
+  {
+   "pages": [
+    108
+   ],
+   "id": 79,
+   "img": "p108.jpg",
+   "page_first": 108,
+   "page_last": 108,
+   "title": "Obtain output from DiT block",
+   "text": "Obtain output from DiT block Condition embedding Position-aware patch embeddings matrix Self-attention FFNN MLP layer Gate Shift Scale Contextualized latent state matrix"
+  },
+  {
+   "pages": [
+    109,
+    110
+   ],
+   "id": 80,
+   "img": "p110.jpg",
+   "page_first": 109,
+   "page_last": 110,
+   "title": "Project and reshape to desired quantity",
+   "text": "Project and reshape to desired quantity Condition embedding Position-aware patch embeddings matrix Contextualized latent state matrix Self-attention FFNN MLP layer Gate Shift Scale Norm, linear, reshape Predicted velocity"
+  },
+  {
+   "pages": [
+    111
+   ],
+   "id": 81,
+   "img": "p111.jpg",
+   "page_first": 111,
+   "page_last": 111,
+   "title": "Recap of prediction",
+   "text": "Recap of prediction DIFFUSION TRANSFORMER teddy bear Class label Timestep Latent Predicted velocity"
+  },
+  {
+   "pages": [
+    112,
+    113,
+    114
+   ],
+   "id": 82,
+   "img": "p112.jpg",
+   "page_first": 112,
+   "page_last": 114,
+   "title": "Deduce resulting latent",
+   "text": "Deduce resulting latent Latent space learned by the VAE Prediction from the DiT"
+  },
+  {
+   "pages": [
+    115
+   ],
+   "id": 83,
+   "img": "p115.jpg",
+   "page_first": 115,
+   "page_last": 115,
+   "title": "Perform iteration over latents",
+   "text": "Perform iteration over latents DIFFUSION TRANSFORMER teddy bear Class label Timestep Latent Predicted velocity"
+  },
+  {
+   "pages": [
+    116,
+    117,
+    118
+   ],
+   "id": 84,
+   "img": "p116.jpg",
+   "page_first": 116,
+   "page_last": 118,
+   "title": "Perform iteration over latents",
+   "text": "Perform iteration over latents Latent space learned by the VAE Prediction from the DiT"
+  },
+  {
+   "pages": [
+    119
+   ],
+   "id": 85,
+   "img": "p119.jpg",
+   "page_first": 119,
+   "page_last": 119,
+   "title": "Obtain \ufb01nal latent",
+   "text": "Obtain \ufb01nal latent Latent space learned by the VAE"
+  },
+  {
+   "pages": [
+    120
+   ],
+   "id": 86,
+   "img": "p120.jpg",
+   "page_first": 120,
+   "page_last": 120,
+   "title": "Decode latent back into pixel space",
+   "text": "Decode latent back into pixel space Decoder Pixel space Latent space learned by the VAE"
+  },
+  {
+   "pages": [
+    121
+   ],
+   "id": 87,
+   "img": "p121.jpg",
+   "page_first": 121,
+   "page_last": 121,
+   "title": "Motivation",
+   "text": "Motivation U-Net Di\ufb00usion Transformer End-to-end example Multimodal DiT Optimizations Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    122,
+    123
+   ],
+   "id": 88,
+   "img": "p122.jpg",
+   "page_first": 122,
+   "page_last": 123,
+   "title": "Intuition: back to the example we had",
+   "text": "Intuition: back to the example we had brown fluffy teddy bear a lot of noise brown color round shape \ufb02u\ufb00 local details white color Conditions Need to focus on global structure since at the early stage of generation."
+  },
+  {
+   "pages": [
+    124
+   ],
+   "id": 89,
+   "img": "p124.jpg",
+   "page_first": 124,
+   "page_last": 124,
+   "title": "Intuition: more subtle text prompt",
+   "text": "Intuition: more subtle text prompt brown fluffy teddy bear surrounded by white walls a lot of noise brown color round shape \ufb02u\ufb00 local details white color Conditions Need to focus on global structure since at the early stage of generation."
+  },
+  {
+   "pages": [
+    125,
+    126
+   ],
+   "id": 90,
+   "img": "p125.jpg",
+   "page_first": 125,
+   "page_last": 126,
+   "title": "Intuition: more subtle text prompt",
+   "text": "Intuition: more subtle text prompt brown color round shape \ufb02u\ufb00 local details white color Limitation. All patch latents are subject to same \"modulation\""
+  },
+  {
+   "pages": [
+    127
+   ],
+   "id": 91,
+   "img": "p127.jpg",
+   "page_first": 127,
+   "page_last": 127,
+   "title": "Mitigate lack of nuance of previous approach",
+   "text": "Mitigate lack of nuance of previous approach Keep \"modulating\" using the timestep embedding 1 Strategy."
+  },
+  {
+   "pages": [
+    128,
+    129
+   ],
+   "id": 92,
+   "img": "p128.jpg",
+   "page_first": 128,
+   "page_last": 129,
+   "title": "Mitigate lack of nuance of previous approach",
+   "text": "Mitigate lack of nuance of previous approach Keep \"modulating\" using the timestep embedding Do something else to allow for more complex interaction for the condition 1 2 Strategy. Cross-attention Joint attention"
+  },
+  {
+   "pages": [
+    130
+   ],
+   "id": 93,
+   "img": "p130.jpg",
+   "page_first": 130,
+   "page_last": 130,
+   "title": "Intuition behind joint attention",
+   "text": "Intuition behind joint attention Patch embeddings Condition embedding Self-attention layer"
+  },
+  {
+   "pages": [
+    131
+   ],
+   "id": 94,
+   "img": "p131.jpg",
+   "page_first": 131,
+   "page_last": 131,
+   "title": "MultiModal-Di\ufb00usion Transformer",
+   "text": "MultiModal-Di\ufb00usion Transformer MM-DiT = MultiModal-Di\ufb00usion Transformer Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024. Single-stream Everyone treated equally \u25cf Term coined in the Stable Di\ufb00usion 3 paper published in 2024 \u25cf Relies on joint attention of di\ufb00erent modalities"
+  },
+  {
+   "pages": [
+    132
+   ],
+   "id": 95,
+   "img": "p132.jpg",
+   "page_first": 132,
+   "page_last": 132,
+   "title": "MultiModal-Di\ufb00usion Transformer",
+   "text": "MultiModal-Di\ufb00usion Transformer MM-DiT = MultiModal-Di\ufb00usion Transformer Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024. Single-stream Double-stream Each modality is in its own stream Everyone treated equally \u25cf Term coined in the Stable Di\ufb00usion 3 paper published in 2024 \u25cf Relies on joint attention of di\ufb00erent modalities"
+  },
+  {
+   "pages": [
+    133
+   ],
+   "id": 96,
+   "img": "p133.jpg",
+   "page_first": 133,
+   "page_last": 133,
+   "title": "MultiModal-Di\ufb00usion Transformer",
+   "text": "MultiModal-Di\ufb00usion Transformer MM-DiT = MultiModal-Di\ufb00usion Transformer Scaling Recti\ufb01ed Flow Transformers for High-Resolution Image Synthesis, Esser et al., 2024. Single-stream Double-stream Hybrid Each modality is in its own stream Everyone treated equally Contains both \"single-stream\" and \"double-stream\" layer \u25cf Term coined in the Stable Di\ufb00usion 3 paper published in 2024 \u25cf Relies on joint attention of di\ufb00erent modalities"
+  },
+  {
+   "pages": [
+    134
+   ],
+   "id": 97,
+   "img": "p134.jpg",
+   "page_first": 134,
+   "page_last": 134,
+   "title": "\"Double-stream\" DiT variant: SD3, Qwen-Image",
+   "text": "\"Double-stream\" DiT variant: SD3, Qwen-Image Figure from Qwen-Image Technical Report, Qwen Team, 2025."
+  },
+  {
+   "pages": [
+    135
+   ],
+   "id": 98,
+   "img": "p135.jpg",
+   "page_first": 135,
+   "page_last": 135,
+   "title": "\"Single-stream\" DiT variant: Z-Image",
+   "text": "\"Single-stream\" DiT variant: Z-Image Figure from Z-Image: An E\ufb03cient Image Generation Foundation Model with Single-Stream Di\ufb00usion Transformer, Z-Image Team, 2025."
+  },
+  {
+   "pages": [
+    136
+   ],
+   "id": 99,
+   "img": "p136.jpg",
+   "page_first": 136,
+   "page_last": 136,
+   "title": "Hybrid approach: FLUX.1 Kontext",
+   "text": "Hybrid approach: FLUX.1 Kontext Figure from FLUX.1 Kontext: Flow Matching for In-Context Image Generation and Editing in Latent Space, Black Forest Labs, 2025."
+  },
+  {
+   "pages": [
+    137
+   ],
+   "id": 100,
+   "img": "p137.jpg",
+   "page_first": 137,
+   "page_last": 137,
+   "title": "Timeline",
+   "text": "Timeline Di\ufb00usion Transformer 2022 2023 2025 2024 Stable Di\ufb00usion 3 Qwen-Image Single-stream Double-stream 2026 Hybrid FLUX.1 Z-Image Note: This timeline is not meant to be exhaustive in any way. \"MM-DiT\" coined"
+  },
+  {
+   "pages": [
+    138
+   ],
+   "id": 101,
+   "img": "p138.jpg",
+   "page_first": 138,
+   "page_last": 138,
+   "title": "Motivation",
+   "text": "Motivation U-Net Di\ufb00usion Transformer End-to-end example Multimodal DiT Optimizations Di\ufb00usion & Large Vision Models"
+  },
+  {
+   "pages": [
+    139
+   ],
+   "id": 102,
+   "img": "p139.jpg",
+   "page_first": 139,
+   "page_last": 139,
+   "title": "Need for position information",
+   "text": "Need for position information Motivation. Direct links \"lose\" position info close Figure from Super Study Guide: Transformers & Large Language Models, Amidi et al., 2024."
+  },
+  {
+   "pages": [
+    140
+   ],
+   "id": 103,
+   "img": "p140.jpg",
+   "page_first": 140,
+   "page_last": 140,
+   "title": "Need for position information",
+   "text": "Need for position information Motivation. Direct links \"lose\" position info far Figure from Super Study Guide: Transformers & Large Language Models, Amidi et al., 2024."
+  },
+  {
+   "pages": [
+    141
+   ],
+   "id": 104,
+   "img": "p141.jpg",
+   "page_first": 141,
+   "page_last": 141,
+   "title": "Need for position information",
+   "text": "Need for position information Hope. Dot products convey distance between token representations \" \""
+  },
+  {
+   "pages": [
+    142
+   ],
+   "id": 105,
+   "img": "p142.jpg",
+   "page_first": 142,
+   "page_last": 142,
+   "title": "Absolute positional embeddings",
+   "text": "Absolute positional embeddings Idea. Add position-speci\ufb01c embedding to token vector Figure adapted from Attention Is All You Need, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    143
+   ],
+   "id": 106,
+   "img": "p143.jpg",
+   "page_first": 143,
+   "page_last": 143,
+   "title": "Absolute positional embeddings",
+   "text": "Absolute positional embeddings Idea. Add position-speci\ufb01c embedding to token vector = some terms + What choice for position embeddings? Figure adapted from Attention Is All You Need, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    144
+   ],
+   "id": 107,
+   "img": "p144.jpg",
+   "page_first": 144,
+   "page_last": 144,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings 2i 2i+1 . . . . . . Position Proposal. A mix of sines and cosines. between 0 and 1"
+  },
+  {
+   "pages": [
+    145
+   ],
+   "id": 108,
+   "img": "p145.jpg",
+   "page_first": 145,
+   "page_last": 145,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings 2i 2i+1 . . . . . . Position Proposal. A mix of sines and cosines. greater than sequence lengths"
+  },
+  {
+   "pages": [
+    146
+   ],
+   "id": 109,
+   "img": "p146.jpg",
+   "page_first": 146,
+   "page_last": 146,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings Figure from Transformer Architecture: The Positional Encoding, Kazemnejad, 2019. Position embeddings values Dimension depth Sequence position high frequency low frequency"
+  },
+  {
+   "pages": [
+    147
+   ],
+   "id": 110,
+   "img": "p147.jpg",
+   "page_first": 147,
+   "page_last": 147,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings 2i 2i+1 . . . . . . Position with"
+  },
+  {
+   "pages": [
+    148
+   ],
+   "id": 111,
+   "img": "p148.jpg",
+   "page_first": 148,
+   "page_last": 148,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings 2i 2i+1 . . . . . . Position 2i 2i+1 . . . . . . Position"
+  },
+  {
+   "pages": [
+    149
+   ],
+   "id": 112,
+   "img": "p149.jpg",
+   "page_first": 149,
+   "page_last": 149,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings Property:"
+  },
+  {
+   "pages": [
+    150
+   ],
+   "id": 113,
+   "img": "p150.jpg",
+   "page_first": 150,
+   "page_last": 150,
+   "title": "Hardcoded position embeddings",
+   "text": "Hardcoded position embeddings ~all cosines drop high frequency terms cancel out residual low frequency terms"
+  },
+  {
+   "pages": [
+    151,
+    152
+   ],
+   "id": 114,
+   "img": "p152.jpg",
+   "page_first": 151,
+   "page_last": 152,
+   "title": "Discussion",
+   "text": "Discussion Bene\ufb01ts. \u25cf Simple to implement \u25cf Does the job well as a baseline \u25cf Gives every position a direct representational identity Limitations. \u25cf Doesn't seem to be injected at the appropriate place \u25cf Side e\ufb00ect: extra interaction terms \u25cf Position embedding also makes it to value embeddings"
+  },
+  {
+   "pages": [
+    153
+   ],
+   "id": 115,
+   "img": "p153.jpg",
+   "page_first": 153,
+   "page_last": 153,
+   "title": "Absolute position embeddings",
+   "text": "Absolute position embeddings Who used it? Figures adapted from Attention Is All You Need, Vaswani et al., 2017, An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale, Dosovitskiy et al., 2020, Scalable Di\ufb00usion Models with Transformers, Peebles et al., 2022. Original Transformer 2017 Original ViT 2020 Original DiT 2022"
+  },
+  {
+   "pages": [
+    154
+   ],
+   "id": 116,
+   "img": "p154.jpg",
+   "page_first": 154,
+   "page_last": 154,
+   "title": "From absolute to relative position info",
+   "text": "From absolute to relative position info Re\ufb01nement. Any way to move position information to where it's intuitively needed? Figure adapted from Attention Is All You Need, Vaswani et al., 2017."
+  },
+  {
+   "pages": [
+    155
+   ],
+   "id": 117,
+   "img": "p155.jpg",
+   "page_first": 155,
+   "page_last": 155,
+   "title": "Default choice nowadays: rotations in attention layer",
+   "text": "Default choice nowadays: rotations in attention layer Idea. Rotate query and key vectors with rotation matrix RoPE = Rotary Position Embeddings RoFormer: Enhanced Transformer with Rotary Position Embeddings, Su et al., 2021. Figure from Super Study Guide: Transformers & Large Language Models, Amidi et al., 2024. queries keys"
+  },
+  {
+   "pages": [
+    156
+   ],
+   "id": 118,
+   "img": "p156.jpg",
+   "page_first": 156,
+   "page_last": 156,
+   "title": "Default choice nowadays: rotations in attention layer",
+   "text": "Default choice nowadays: rotations in attention layer Bene\ufb01ts. Relative distance nicely captured: RoFormer: Enhanced Transformer with Rotary Position Embeddings, Su et al., 2021. e\ufb00ective rotation by angle"
+  },
+  {
+   "pages": [
+    157
+   ],
+   "id": 119,
+   "img": "p157.jpg",
+   "page_first": 157,
+   "page_last": 157,
+   "title": "Generalization to 2D?",
+   "text": "Generalization to 2D? Text. 1 2 3 4 5 6 ... \u2705"
+  },
+  {
+   "pages": [
+    158
+   ],
+   "id": 120,
+   "img": "p158.jpg",
+   "page_first": 158,
+   "page_last": 158,
+   "title": "1",
+   "text": "1 2 3 4 5 6 7 8 9 Generalization to 2D? Text. 1 Images. 2 3 4 5 6 ... \u2705 \u2753"
+  },
+  {
+   "pages": [
+    159
+   ],
+   "id": 121,
+   "img": "p159.jpg",
+   "page_first": 159,
+   "page_last": 159,
+   "title": "Generalization to 2D?",
+   "text": "Generalization to 2D? First idea. Axial RoPE 1D 2D even indices odd indices Rotary Position Embedding for Vision Transformer, Heo et al., 2024."
+  },
+  {
+   "pages": [
+    160
+   ],
+   "id": 122,
+   "img": "p160.jpg",
+   "page_first": 160,
+   "page_last": 160,
+   "title": "Generalization to 2D?",
+   "text": "Generalization to 2D? Problems. No cross axes interactions + segregated information is arbitrary no interaction! Rotary Position Embedding for Vision Transformer, Heo et al., 2024."
+  },
+  {
+   "pages": [
+    161
+   ],
+   "id": 123,
+   "img": "p161.jpg",
+   "page_first": 161,
+   "page_last": 161,
+   "title": "2D RoPE",
+   "text": "2D RoPE Proposal. Mix both axes as part of the same rotation matrix Rotary Position Embedding for Vision Transformer, Heo et al., 2024."
+  },
+  {
+   "pages": [
+    162
+   ],
+   "id": 124,
+   "img": "p162.jpg",
+   "page_first": 162,
+   "page_last": 162,
+   "title": "2D RoPE",
+   "text": "2D RoPE Consequence. Avoid axes artifacts. Figure from Rotary Position Embedding for Vision Transformer, Heo et al., 2024. 2D Axial RoPE 2D Mixed RoPE Patch position"
+  },
+  {
+   "pages": [
+    163
+   ],
+   "id": 125,
+   "img": "p163.jpg",
+   "page_first": 163,
+   "page_last": 163,
+   "title": "Scaling RoPE",
+   "text": "Scaling RoPE Common case. Resolution variations? vs 0,0 2,0 0,2 0,0 0,5 5,0"
+  },
+  {
+   "pages": [
+    164
+   ],
+   "id": 126,
+   "img": "p164.jpg",
+   "page_first": 164,
+   "page_last": 164,
+   "title": "0,0",
+   "text": "0,0 2,0 0,2 0,0 0,5 5,0 Scaling RoPE Problem. Spatial meaning also changes. vs \"center\" \"center\""
+  },
+  {
+   "pages": [
+    165
+   ],
+   "id": 127,
+   "img": "p165.jpg",
+   "page_first": 165,
+   "page_last": 165,
+   "title": "Scaling RoPE",
+   "text": "Scaling RoPE Remedy. Scale to canonical coordinates. vs -1,-1 1,-1 -1,1 -3,-3 -3,2 2,-3 0,0 \u2248 0,0 Seedream 2.0: A Native Chinese-English Bilingual Image Generation Foundation Model, Gong et al., 2025."
+  },
+  {
+   "pages": [
+    166
+   ],
+   "id": 128,
+   "img": "p166.jpg",
+   "page_first": 166,
+   "page_last": 166,
+   "title": "Multimodal RoPE",
+   "text": "Multimodal RoPE Qwen-Image Technical Report, Wu et al., 2025. Potential area of interest Common case. Multimodality?"
+  },
+  {
+   "pages": [
+    167
+   ],
+   "id": 129,
+   "img": "p167.jpg",
+   "page_first": 167,
+   "page_last": 167,
+   "title": "Multimodal RoPE",
+   "text": "Multimodal RoPE 2D 1D How to reconcile the two?"
+  },
+  {
+   "pages": [
+    168,
+    169
+   ],
+   "id": 130,
+   "img": "p169.jpg",
+   "page_first": 168,
+   "page_last": 169,
+   "title": "Multimodal RoPE",
+   "text": "Multimodal RoPE Qwen-Image Technical Report, Wu et al., 2025. ... MSRoPE = Multimodal Scalable RoPE Bene\ufb01ts. \u25cf Image and text can cohabit without interference \u25cf Text is functionally equivalent to 1D RoPE"
+  },
+  {
+   "pages": [
+    170
+   ],
+   "id": 131,
+   "img": "p170.jpg",
+   "page_first": 170,
+   "page_last": 170,
+   "title": "Conclusion",
+   "text": "Conclusion Embedding positions = open problem. \u25cf Many variations out there \u25cf Dust hasn't settled yet \u25cf Trade-o\ufb00s"
+  },
+  {
+   "pages": [
+    171
+   ],
+   "id": 132,
+   "img": "p171.jpg",
+   "page_first": 171,
+   "page_last": 171,
+   "title": "Thank you for your attention!",
+   "text": "Thank you for your attention!"
+  }
+ ]
+}
