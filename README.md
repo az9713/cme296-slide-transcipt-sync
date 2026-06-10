@@ -9,21 +9,32 @@ The slide decks carry the visuals, the transcripts carry the timing — the core
 of this project is automatically **aligning the two**, slide-by-slide, across all
 8 lectures (≈14 hours of video, 1,041 slides, ~6,900 transcript segments).
 
-> **Models used.** The website — the slide↔transcript lecture pages, the
-> alignment pipeline, the layout, and the styling — was generated with
-> Anthropic's **Fable 5**. The written reports ([`README.md`](README.md) and
-> [`REPORT.md`](REPORT.md)) were authored with **Claude Opus 4.8**.
+**🔗 Live site:** <https://az9713.github.io/cme296-slide-transcipt-sync/>
+
+> **Models used.**
+> - The **website** — the slide↔transcript lecture pages, the alignment
+>   pipeline, the layout, and the styling — was generated with Anthropic's
+>   **Fable 5**.
+> - The **reports and documentation** ([`README.md`](README.md) and
+>   [`REPORT.md`](REPORT.md)) were authored with **Claude Opus 4.8**.
+>
+> The lecture **transcripts were provided directly to Fable 5** as input
+> (`t1.txt … t8.txt`), so it did **not** need to scrape or fetch transcripts —
+> only the slide PDFs were downloaded. The transcript files themselves are not
+> committed to this repository.
 
 ---
 
 ## Quick start
 
-Open **`site/index.html`** in a browser.
+Browse the **[live site](https://az9713.github.io/cme296-slide-transcipt-sync/)**,
+or clone the repo and open **`site/index.html`** in a browser.
 
-> **Note:** the rendered slide images (`site/slides/`) and source PDFs
-> (`slides/*.pdf`) are **not committed** — they are Stanford course material and
-> are regenerable from the public slide URLs. Run the pipeline below to populate
-> them, then open the site.
+> **Note:** the rendered slide images are committed under `site/slides/` so the
+> site works out of the box. The source slide PDFs (`slides/*.pdf`) and the raw
+> transcripts (`t*.txt`) are **not** committed — they are regenerable inputs
+> (the PDFs from the public slide URLs). Run the pipeline below to rebuild
+> everything from scratch.
 
 ---
 
@@ -96,12 +107,15 @@ Alignment weights are tunable constants at the top of `tools/align.py`
 
 ```
 tools/        pipeline scripts (parse, extract, align, build) + meta.py
-t1.txt…t8.txt lecture transcripts (inputs)
 data/         intermediate JSON (transcripts, slides, alignment)
-site/         generated website (index + 8 lecture pages + CSS)
+site/         generated website (index + 8 lecture pages + CSS + slide images)
+.github/      GitHub Pages deployment workflow
 README.md     this file
 REPORT.md     full methodology report
 ```
+
+> `t1.txt … t8.txt` (the raw transcripts) are required inputs to rebuild the
+> site but are intentionally not tracked in this repository.
 
 ---
 

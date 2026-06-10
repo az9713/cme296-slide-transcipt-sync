@@ -1,8 +1,8 @@
 # Source slide decks — downloaded from cme296.stanford.edu, regenerable
 slides/*.pdf
 
-# Rendered slide images — regenerable via tools/extract_slides.py (~61 MB)
-site/slides/
+# Raw transcripts — inputs, not redistributed in this repo
+/t*.txt
 
 # Python
 __pycache__/
