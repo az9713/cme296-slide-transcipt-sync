@@ -9,9 +9,9 @@ The slide decks carry the visuals, the transcripts carry the timing — the core
 of this project is automatically **aligning the two**, slide-by-slide, across all
 8 lectures (≈14 hours of video, 1,041 slides, ~6,900 transcript segments).
 
-**🔗 Live site:** <https://az9713.github.io/cme296-slide-transcipt-sync/>
+**🔗 Live site:** <https://az9713.github.io/cme296-slide-transcript-sync/>
 
-[![Index of all 8 lectures](front.jpg)](https://az9713.github.io/cme296-slide-transcipt-sync/)
+[![Index of all 8 lectures](front.jpg)](https://az9713.github.io/cme296-slide-transcript-sync/)
 
 > **Models used.**
 > - The **website** — the slide↔transcript lecture pages, the alignment
@@ -29,7 +29,7 @@ of this project is automatically **aligning the two**, slide-by-slide, across al
 
 ## Quick start
 
-Browse the **[live site](https://az9713.github.io/cme296-slide-transcipt-sync/)**,
+Browse the **[live site](https://az9713.github.io/cme296-slide-transcript-sync/)**,
 or clone the repo and open **`site/index.html`** in a browser.
 
 > **Note:** the rendered slide images are committed under `site/slides/` so the
