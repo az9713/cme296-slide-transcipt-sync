@@ -9,9 +9,10 @@ The slide decks carry the visuals, the transcripts carry the timing — the core
 of this project is automatically **aligning the two**, slide-by-slide, across all
 8 lectures (≈14 hours of video, 1,041 slides, ~6,900 transcript segments).
 
-> **Built with Fable 5.** The content of this project — the alignment pipeline,
-> the page generation, the styling, and this documentation — was generated using
-> Anthropic's **Fable 5** model.
+> **Models used.** The website — the slide↔transcript lecture pages, the
+> alignment pipeline, the layout, and the styling — was generated with
+> Anthropic's **Fable 5**. The written reports ([`README.md`](README.md) and
+> [`REPORT.md`](REPORT.md)) were authored with **Claude Opus 4.8**.
 
 ---
 
